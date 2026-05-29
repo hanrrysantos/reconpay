@@ -15,7 +15,26 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - reconpay_data:/var/lib/postgresql/data
+
+  merchant-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: reconpay/merchant-service1.0
+    container_name: merchant-service
+    depends_on:
+      db-reconpay:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+        - SPRING_DATASOURCE_HOST=db-reconpay
+        - SPRING_DATASOURCE_URL=jdbc:postgresql://db-reconpay:5432/reconpay
+        - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:postgres}
+        - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:1234}
+
+
 
