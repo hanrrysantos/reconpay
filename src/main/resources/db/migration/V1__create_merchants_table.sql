@@ -1,0 +1,8 @@
+CREATE TABLE merchants (
+    id UUID PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    document VARCHAR(30) NOT NULL UNIQUE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
