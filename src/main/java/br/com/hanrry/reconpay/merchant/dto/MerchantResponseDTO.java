@@ -9,5 +9,6 @@ public record MerchantResponseDTO(
         String document,
         boolean active,
         LocalDateTime createdAt
+
 ){
 }
