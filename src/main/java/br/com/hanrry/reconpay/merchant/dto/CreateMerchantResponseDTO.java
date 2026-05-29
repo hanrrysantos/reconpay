@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.dto;
+package br.com.hanrry.reconpay.merchant.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
