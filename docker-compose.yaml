@@ -1,0 +1,21 @@
+services:
+
+  #BANCO DE DADOS
+
+  db-reconpay:
+    image: postgres:16
+    container_name: reconpay-postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:reconpay}
+      - POSTGRES_USER=${POSTGRES_USER:postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:1234}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:postgres} -d reconpay" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - reconpay_data:/var/lib/postgresql/data
+
