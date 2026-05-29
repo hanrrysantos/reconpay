@@ -12,5 +12,6 @@ public record MerchantRequestDTO(
         @NotBlank(message = "Document is required")
         @Size(max = 30, message = "Document must be at most 30 characters")
         String document
+
 ){
 }
