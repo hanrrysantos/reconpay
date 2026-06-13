@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @Entity
-@Table(name = "tb_merchants")
+@Table(name = "merchants")
 public class MerchantEntity {
 
     @Id
