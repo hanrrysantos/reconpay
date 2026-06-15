@@ -1,12 +1,12 @@
-spring:
-  application:
-    name: reconpay
+  spring:
+    application:
+      name: reconpay
 
-  datasource:
-    url: jdbc:postgresql://localhost:5432/reconpay
-    username: postgres
-    password: 1234
-    driver-class-name: org.postgresql.Driver
+    datasource:
+      url: ${DB_URL}
+      username: ${DB_USER}
+      password: ${DB_PASSWORD}
+      driver-class-name: org.postgresql.Driver
 
     jpa:
         hibernate:
@@ -19,5 +19,6 @@ spring:
     flyway:
       enabled: true
 
-server:
-    port: 8080
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION}
