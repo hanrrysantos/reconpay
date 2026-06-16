@@ -31,7 +31,7 @@ public class JwtService {
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(Date.from(issuedAt))
-                .expiration(Date.from(issuedAt.plusMillis(expiration)))
+                .expiration(Date.from(issuedAt.plusSeconds(expiration)))
                 .signWith(getSignKey())
                 .compact();
     }
