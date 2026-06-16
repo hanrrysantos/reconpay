@@ -1,13 +1,15 @@
 package br.com.hanrry.reconpay.auth.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record AuthRequestDTO(
 
-        @NotBlank
+        @NotBlank(message = "Email é obrigatório")
+        @Email(message = "Email inválido")
         String email,
 
-        @NotBlank
+        @NotBlank(message = "Senha é obrigatória")
         String password
 ) {
 }
