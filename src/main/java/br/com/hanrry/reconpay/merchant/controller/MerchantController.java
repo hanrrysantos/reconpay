@@ -33,16 +33,16 @@ public class MerchantController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<MerchantResponseDTO>> findAllMerchants() {
-        List<MerchantResponseDTO> merchant = merchantService.findAllMerchants();
+    public ResponseEntity<List<MerchantResponseDTO>> findAllMerchantsByActiveTrue() {
+        List<MerchantResponseDTO> merchant = merchantService.findAllMerchantsByActiveTrue();
 
         return ResponseEntity.ok().body(merchant);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<MerchantResponseDTO> findMerchantById(
+    public ResponseEntity<MerchantResponseDTO> findMerchantByIdAndActiveTrue(
             @PathVariable UUID id){
-        MerchantResponseDTO merchant = merchantService.findMerchantById(id);
+        MerchantResponseDTO merchant = merchantService.findMerchantByIdAndActiveTrue(id);
 
         return ResponseEntity.ok().body(merchant);
     }
