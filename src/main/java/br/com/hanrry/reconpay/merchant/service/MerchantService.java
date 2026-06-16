@@ -4,8 +4,8 @@ import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.dto.MerchantResponseDTO;
 import br.com.hanrry.reconpay.merchant.dto.UpdateMerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
-import br.com.hanrry.reconpay.merchant.exception.MerchantAlreadyExistsException;
-import br.com.hanrry.reconpay.merchant.exception.MerchantNotFoundException;
+import br.com.hanrry.reconpay.exception.MerchantAlreadyExistsException;
+import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.merchant.mapper.IMerchantMapper;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import jakarta.transaction.Transactional;
@@ -35,14 +35,14 @@ public class MerchantService {
         return merchantMapper.toDTO(savedMerchant);
     }
 
-    public List<MerchantResponseDTO> findAllMerchants() {
-        List<MerchantEntity> merchants = merchantRepository.findAll();
+    public List<MerchantResponseDTO> findAllMerchantsByActiveTrue() {
+        List<MerchantEntity> merchants = merchantRepository.findAllByActiveTrue();
 
         return merchantMapper.toDTOList(merchants);
     }
 
-    public MerchantResponseDTO findMerchantById(UUID id){
-        MerchantEntity entity = merchantRepository.findById(id).orElseThrow(
+    public MerchantResponseDTO findMerchantByIdAndActiveTrue(UUID id){
+        MerchantEntity entity = merchantRepository.findByIdAndActiveTrue(id).orElseThrow(
                 () -> new MerchantNotFoundException("Merchant not found with this id: " + id)
         );
 
@@ -50,7 +50,7 @@ public class MerchantService {
     }
 
     public MerchantResponseDTO updateMerchantById(UUID id, UpdateMerchantRequestDTO request) {
-        MerchantEntity merchant = merchantRepository.findById(id).orElseThrow(
+        MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(id).orElseThrow(
                 () -> new MerchantNotFoundException("Merchant not found with this id: " + id)
         );
 
@@ -60,13 +60,17 @@ public class MerchantService {
 
         MerchantEntity savedMerchant = merchantRepository.save(merchant);
 
-        return merchantMapper.toDTO(merchant);
+        return merchantMapper.toDTO(savedMerchant);
     }
 
-
+    @Transactional
     public void deleteMerchantById(UUID id){
-        findMerchantById(id);
-        merchantRepository.deleteById(id);
+        MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(id).orElseThrow(
+                () -> new MerchantNotFoundException("Merchant not found with this id: " + id)
+        );
+
+        merchant.setActive(false);
+        merchantRepository.save(merchant);
     }
 
 }
