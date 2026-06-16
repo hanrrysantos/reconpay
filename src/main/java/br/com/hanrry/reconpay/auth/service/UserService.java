@@ -1,5 +1,6 @@
 package br.com.hanrry.reconpay.auth.service;
 
+import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
@@ -38,14 +39,6 @@ public class UserService {
         return userMapper.toDTO(savedUser);
     }
 
-    public UserResponseDTO findUserById(UUID id){
-        UserEntity user = userRepository.findById(id).orElseThrow(
-                () -> new UserNotFoundException("User not found with id: " + id)
-        );
-
-        return userMapper.toDTO(user);
-    }
-
     public List<UserResponseDTO> findAllUsers() {
 
         List<UserEntity> users = userRepository.findAll();
@@ -53,6 +46,13 @@ public class UserService {
         return userMapper.toDTOList(users);
     }
 
+    public UserResponseDTO findUserById(UUID id){
+        UserEntity user = userRepository.findById(id).orElseThrow(
+                () -> new UserNotFoundException("User not found with id: " + id)
+        );
+
+        return userMapper.toDTO(user);
+    }
 
     public UserResponseDTO findUserByEmail(String email){
         UserEntity  user = userRepository.findByEmail(email).orElseThrow(
@@ -62,7 +62,20 @@ public class UserService {
         return userMapper.toDTO(user);
     }
 
-    public void deleteUser(UUID id) {
+    public UserResponseDTO updateUserNameById(UUID id,  UpdateUserRequestDTO request) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+
+        if(request.name() != null && !request.name().isBlank()) {
+            user.setName(request.name());
+        }
+
+        UserEntity savedUser = userRepository.save(user);
+
+        return userMapper.toDTO(savedUser);
+    }
+
+    public void deleteUserById(UUID id) {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
         user.setActive(false);
