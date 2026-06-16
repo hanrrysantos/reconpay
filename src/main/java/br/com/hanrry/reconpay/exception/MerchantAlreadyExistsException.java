@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.merchant.exception;
+package br.com.hanrry.reconpay.exception;
 
 public class MerchantAlreadyExistsException extends RuntimeException {
     public MerchantAlreadyExistsException(String message) {
