@@ -1,6 +1,6 @@
-package br.com.hanrry.reconpay.feeRules.entity;
+package br.com.hanrry.reconpay.feeRule.entity;
 
-import br.com.hanrry.reconpay.feeRules.enums.PaymentMethod;
+import br.com.hanrry.reconpay.feeRule.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FeeRulesEntity {
+public class FeeRuleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

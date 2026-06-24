@@ -1,5 +1,7 @@
-package br.com.hanrry.reconpay.exception;
+package br.com.hanrry.reconpay.exception.handler;
 
+import br.com.hanrry.reconpay.exception.*;
+import br.com.hanrry.reconpay.exception.standardError.StandardError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
