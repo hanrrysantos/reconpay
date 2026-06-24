@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.exception;
+package br.com.hanrry.reconpay.exception.standardError;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
