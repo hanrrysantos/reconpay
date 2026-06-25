@@ -1,9 +1,11 @@
 package br.com.hanrry.reconpay.merchant.entity;
 
+import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -33,6 +35,9 @@ public class MerchantEntity {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "merchant")
+    private List<FeeRuleEntity> feeRules;
 
     @PrePersist
     protected void onCreate(){
