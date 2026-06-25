@@ -34,7 +34,7 @@ public class UserController {
 
     @GetMapping(value = "/email")
     public ResponseEntity<UserResponseDTO> findUserByEmail(
-            @RequestBody String email) {
+            @RequestParam String email) {
         UserResponseDTO user = userService.findUserByEmail(email);
 
         return ResponseEntity.ok().body(user);
@@ -48,7 +48,7 @@ public class UserController {
         return ResponseEntity.ok().body(user);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserById(@PathVariable UUID id) {
         userService.deleteUserById(id);
 
