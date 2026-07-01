@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.feeRule.respository;
+package br.com.hanrry.reconpay.feeRule.repository;
 
 import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
 import br.com.hanrry.reconpay.feeRule.enums.PaymentMethod;
@@ -10,17 +10,13 @@ import java.util.UUID;
 
 public interface IFeeRuleRepository extends JpaRepository<FeeRuleEntity, UUID> {
 
-    List<FeeRuleEntity> findAllByMerchantIdAndActiveTrue(UUID id);
+    List<FeeRuleEntity> findAllByMerchant_IdAndActiveTrue(UUID id);
 
     Optional<FeeRuleEntity> findByIdAndActiveTrue(UUID id);
 
-    boolean existsByMerchantIdAndPaymentMethodAndInstallmentsAndActiveTrue(
+    boolean existsByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(
             UUID merchantId,
             PaymentMethod paymentMethod,
             Integer installments
     );
-
-
-
-
 }
