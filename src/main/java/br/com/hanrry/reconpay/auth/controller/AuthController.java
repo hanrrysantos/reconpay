@@ -29,7 +29,9 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping(value = "/login")
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO request) {
+    public ResponseEntity<AuthResponseDTO> login(
+            @Valid
+            @RequestBody AuthRequestDTO request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
