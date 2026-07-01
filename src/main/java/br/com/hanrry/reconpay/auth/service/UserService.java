@@ -41,13 +41,13 @@ public class UserService {
 
     public List<UserResponseDTO> findAllUsers() {
 
-        List<UserEntity> users = userRepository.findAll();
+        List<UserEntity> users = userRepository.findAllByActiveTrue();
 
         return userMapper.toDTOList(users);
     }
 
     public UserResponseDTO findUserById(UUID id){
-        UserEntity user = userRepository.findById(id).orElseThrow(
+        UserEntity user = userRepository.findByIdAndActiveTrue(id).orElseThrow(
                 () -> new UserNotFoundException("User not found with id: " + id)
         );
 
@@ -55,7 +55,7 @@ public class UserService {
     }
 
     public UserResponseDTO findUserByEmail(String email){
-        UserEntity  user = userRepository.findByEmail(email).orElseThrow(
+        UserEntity  user = userRepository.findByEmailAndActiveTrue(email).orElseThrow(
                 () -> new UserNotFoundException("User not found with email: " + email)
         );
 
@@ -63,7 +63,7 @@ public class UserService {
     }
 
     public UserResponseDTO updateUserNameById(UUID id,  UpdateUserRequestDTO request) {
-        UserEntity user = userRepository.findById(id)
+        UserEntity user = userRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
 
         if(request.name() != null && !request.name().isBlank()) {
@@ -76,7 +76,7 @@ public class UserService {
     }
 
     public void deleteUserById(UUID id) {
-        UserEntity user = userRepository.findById(id)
+        UserEntity user = userRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
         user.setActive(false);
         userRepository.save(user);
