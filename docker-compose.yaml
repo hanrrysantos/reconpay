@@ -1,7 +1,5 @@
 services:
 
-  #BANCO DE DADOS
-
   db-reconpay:
     image: postgres:16
     container_name: reconpay-postgres
