@@ -1,12 +1,12 @@
 services:
 
-  db-reconpay:
+  banco-reconpay:
     image: postgres:16
     container_name: reconpay-postgres
     environment:
-      - POSTGRES_DB=reconpay
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      POSTGRES_DB: reconpay
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d reconpay" ]
       interval: 5s
@@ -15,24 +15,25 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - reconpay_data:/var/lib/postgresql/data
+      - dados_reconpay:/var/lib/postgresql/data
 
-  merchant-service:
+  api-reconpay:
     build:
       context: .
       dockerfile: Dockerfile
-    image: reconpay/merchant-service:1.0
-    container_name: merchant-service
+    image: reconpay/api:1.0
+    container_name: reconpay-api
     depends_on:
-      db-reconpay:
+      banco-reconpay:
         condition: service_healthy
     ports:
       - "8080:8080"
     environment:
-        - SPRING_DATASOURCE_HOST=db-reconpay
-        - SPRING_DATASOURCE_URL=jdbc:postgresql://db-reconpay:5432/reconpay
-        - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
-        - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://banco-reconpay:5432/reconpay
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:-BK4DqZtSaFy7ywhqiEK3TGdEZFfnbd0dBkAS9wxyIzM}
 
 volumes:
-  reconpay_data:
+  dados_reconpay:

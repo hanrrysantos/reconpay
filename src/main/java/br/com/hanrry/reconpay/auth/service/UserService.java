@@ -1,19 +1,21 @@
 package br.com.hanrry.reconpay.auth.service;
 
+import br.com.hanrry.reconpay.auth.dto.CreateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
-import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
-import br.com.hanrry.reconpay.exception.UserNotFoundException;
 import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
+import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
+import br.com.hanrry.reconpay.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,59 +27,68 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponseDTO register(UserRequestDTO request){
-        if(userRepository.existsByEmail(request.email())) {
-            throw new EmailAlreadyExistsException("Email already exists");
+    public UserResponseDTO register(UserRequestDTO request) {
+        if (userRepository.existsByEmail(request.email())) {
+            throw new EmailAlreadyExistsException("Email já cadastrado: " + request.email());
         }
 
         UserEntity user = userMapper.toEntity(request);
-
         user.setPassword(passwordEncoder.encode(request.password()));
 
         UserEntity savedUser = userRepository.save(user);
-
         return userMapper.toDTO(savedUser);
     }
 
-    public List<UserResponseDTO> findAllUsers() {
+    @Transactional
+    public UserResponseDTO createUser(CreateUserRequestDTO request) {
+        if (userRepository.existsByEmail(request.email())) {
+            throw new EmailAlreadyExistsException("Email já cadastrado: " + request.email());
+        }
 
-        List<UserEntity> users = userRepository.findAllByActiveTrue();
+        UserEntity user = new UserEntity();
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(request.role());
 
-        return userMapper.toDTOList(users);
+        UserEntity savedUser = userRepository.save(user);
+        return userMapper.toDTO(savedUser);
     }
 
-    public UserResponseDTO findUserById(UUID id){
-        UserEntity user = userRepository.findByIdAndActiveTrue(id).orElseThrow(
-                () -> new UserNotFoundException("User not found with id: " + id)
-        );
-
-        return userMapper.toDTO(user);
+    public Page<UserResponseDTO> findAllUsers(Pageable pageable) {
+        return userRepository.findAllByActiveTrue(pageable)
+                .map(userMapper::toDTO);
     }
 
-    public UserResponseDTO findUserByEmail(String email){
-        UserEntity  user = userRepository.findByEmailAndActiveTrue(email).orElseThrow(
-                () -> new UserNotFoundException("User not found with email: " + email)
-        );
-
-        return userMapper.toDTO(user);
-    }
-
-    public UserResponseDTO updateUserNameById(UUID id,  UpdateUserRequestDTO request) {
+    public UserResponseDTO findById(UUID id) {
         UserEntity user = userRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
+        return userMapper.toDTO(user);
+    }
 
-        if(request.name() != null && !request.name().isBlank()) {
+    public UserResponseDTO findByEmail(String email) {
+        UserEntity user = userRepository.findByEmailAndActiveTrue(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com email: " + email));
+        return userMapper.toDTO(user);
+    }
+
+    @Transactional
+    public UserResponseDTO updateName(UUID id, UpdateUserRequestDTO request) {
+        UserEntity user = userRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
+
+        if (request.name() != null && !request.name().isBlank()) {
             user.setName(request.name());
         }
 
         UserEntity savedUser = userRepository.save(user);
-
         return userMapper.toDTO(savedUser);
     }
 
-    public void deleteUserById(UUID id) {
+    @Transactional
+    public void deleteById(UUID id) {
         UserEntity user = userRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
         user.setActive(false);
         userRepository.save(user);
     }

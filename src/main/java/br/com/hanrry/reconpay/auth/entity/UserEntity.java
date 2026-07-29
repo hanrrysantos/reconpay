@@ -47,7 +47,9 @@ public class UserEntity {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.active = true;
-        this.role = UserRole.USER;
+        if (this.role == null) {
+            this.role = UserRole.FINANCIAL_ANALYST;
+        }
     }
 
     @PreUpdate

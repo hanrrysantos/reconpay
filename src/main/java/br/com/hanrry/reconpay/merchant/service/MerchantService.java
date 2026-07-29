@@ -1,18 +1,19 @@
 package br.com.hanrry.reconpay.merchant.service;
 
+import br.com.hanrry.reconpay.exception.MerchantAlreadyExistsException;
+import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.dto.MerchantResponseDTO;
 import br.com.hanrry.reconpay.merchant.dto.UpdateMerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
-import br.com.hanrry.reconpay.exception.MerchantAlreadyExistsException;
-import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.merchant.mapper.IMerchantMapper;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,54 +24,46 @@ public class MerchantService {
     private final IMerchantRepository merchantRepository;
 
     @Transactional
-    public MerchantResponseDTO createMerchant(MerchantRequestDTO request){
-        if(merchantRepository.existsByDocument(request.document())){
-            throw new MerchantAlreadyExistsException("Merchant al ready exists with this document: " + request.document());
+    public MerchantResponseDTO create(MerchantRequestDTO request) {
+        if (merchantRepository.existsByDocument(request.document())) {
+            throw new MerchantAlreadyExistsException(
+                    "Comerciante já cadastrado com documento: " + request.document());
         }
 
         MerchantEntity entity = merchantMapper.toEntity(request);
-
         MerchantEntity savedMerchant = merchantRepository.save(entity);
-
         return merchantMapper.toDTO(savedMerchant);
     }
 
-    public List<MerchantResponseDTO> findAllMerchantsByActiveTrue() {
-        List<MerchantEntity> merchants = merchantRepository.findAllByActiveTrue();
-
-        return merchantMapper.toDTOList(merchants);
+    public Page<MerchantResponseDTO> findAllActive(Pageable pageable) {
+        return merchantRepository.findAllByActiveTrue(pageable)
+                .map(merchantMapper::toDTO);
     }
 
-    public MerchantResponseDTO findMerchantByIdAndActiveTrue(UUID id){
-        MerchantEntity entity = merchantRepository.findByIdAndActiveTrue(id).orElseThrow(
-                () -> new MerchantNotFoundException("Merchant not found with this id: " + id)
-        );
-
+    public MerchantResponseDTO findById(UUID id) {
+        MerchantEntity entity = merchantRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new MerchantNotFoundException("Comerciante não encontrado com id: " + id));
         return merchantMapper.toDTO(entity);
     }
 
-    public MerchantResponseDTO updateMerchantById(UUID id, UpdateMerchantRequestDTO request) {
-        MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(id).orElseThrow(
-                () -> new MerchantNotFoundException("Merchant not found with this id: " + id)
-        );
+    @Transactional
+    public MerchantResponseDTO update(UUID id, UpdateMerchantRequestDTO request) {
+        MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new MerchantNotFoundException("Comerciante não encontrado com id: " + id));
 
-        if(request.name() != null && !request.name().isBlank()) {
+        if (request.name() != null && !request.name().isBlank()) {
             merchant.setName(request.name());
         }
 
         MerchantEntity savedMerchant = merchantRepository.save(merchant);
-
         return merchantMapper.toDTO(savedMerchant);
     }
 
     @Transactional
-    public void deleteMerchantById(UUID id){
-        MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(id).orElseThrow(
-                () -> new MerchantNotFoundException("Merchant not found with this id: " + id)
-        );
-
+    public void deleteById(UUID id) {
+        MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new MerchantNotFoundException("Comerciante não encontrado com id: " + id));
         merchant.setActive(false);
         merchantRepository.save(merchant);
     }
-
 }

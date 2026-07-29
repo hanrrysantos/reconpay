@@ -40,7 +40,7 @@ public class MerchantEntity {
     private List<FeeRuleEntity> feeRules;
 
     @PrePersist
-    protected void onCreate(){
+    protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
 
         this.createdAt = now;

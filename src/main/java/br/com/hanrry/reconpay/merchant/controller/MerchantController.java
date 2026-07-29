@@ -4,64 +4,68 @@ import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.dto.MerchantResponseDTO;
 import br.com.hanrry.reconpay.merchant.dto.UpdateMerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.service.MerchantService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/api/merchants")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Merchants")
+@RequestMapping("/api/merchants")
 public class MerchantController {
 
     private final MerchantService merchantService;
 
-    @PostMapping()
-    public ResponseEntity<MerchantResponseDTO> createMerchant(
-            @Valid
-            @RequestBody MerchantRequestDTO request){
-        MerchantResponseDTO merchant = merchantService.createMerchant(request);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(merchant.id()).toUri();
-
+    @PostMapping
+    public ResponseEntity<MerchantResponseDTO> create(
+            @Valid @RequestBody MerchantRequestDTO request) {
+        MerchantResponseDTO merchant = merchantService.create(request);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(merchant.id())
+                .toUri();
         return ResponseEntity.created(uri).body(merchant);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<MerchantResponseDTO>> findAllMerchantsByActiveTrue() {
-        List<MerchantResponseDTO> merchant = merchantService.findAllMerchantsByActiveTrue();
-
-        return ResponseEntity.ok().body(merchant);
+    @GetMapping
+    public ResponseEntity<Page<MerchantResponseDTO>> findAll(
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(merchantService.findAllActive(pageable));
     }
 
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<MerchantResponseDTO> findMerchantByIdAndActiveTrue(
-            @PathVariable UUID id){
-        MerchantResponseDTO merchant = merchantService.findMerchantByIdAndActiveTrue(id);
-
-        return ResponseEntity.ok().body(merchant);
+    @GetMapping("/{id}")
+    public ResponseEntity<MerchantResponseDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(merchantService.findById(id));
     }
 
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<MerchantResponseDTO> updateMerchantById(
+    @PutMapping("/{id}")
+    public ResponseEntity<MerchantResponseDTO> update(
             @PathVariable UUID id,
-            @RequestBody UpdateMerchantRequestDTO request){
-        MerchantResponseDTO merchant = merchantService.updateMerchantById(id, request);
-
-        return ResponseEntity.ok().body(merchant);
+            @Valid @RequestBody UpdateMerchantRequestDTO request) {
+        return ResponseEntity.ok(merchantService.update(id, request));
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deleteMerchantById(@PathVariable UUID id){
-        merchantService.deleteMerchantById(id);
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        merchantService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-
-
 }
