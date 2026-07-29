@@ -1,57 +1,77 @@
 package br.com.hanrry.reconpay.auth.controller;
 
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
+import br.com.hanrry.reconpay.auth.dto.CreateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.List;
+import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/api/users")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Users")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
 
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> createUser(
+            @Valid @RequestBody CreateUserRequestDTO request) {
+        UserResponseDTO user = userService.createUser(request);
+        URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/users/{id}")
+                .buildAndExpand(user.id())
+                .toUri();
+        return ResponseEntity.created(uri).body(user);
+    }
+
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> findAllUsers() {
-        List<UserResponseDTO> users = userService.findAllUsers();
-
-        return ResponseEntity.ok().body(users);
+    public ResponseEntity<Page<UserResponseDTO>> findAllUsers(
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(userService.findAllUsers(pageable));
     }
 
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<UserResponseDTO> findUserById(
-            @PathVariable UUID id) {
-        UserResponseDTO user = userService.findUserById(id);
-
-        return ResponseEntity.ok().body(user);
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(userService.findById(id));
     }
 
-    @GetMapping(value = "/email")
-    public ResponseEntity<UserResponseDTO> findUserByEmail(
-            @RequestParam String email) {
-        UserResponseDTO user = userService.findUserByEmail(email);
-
-        return ResponseEntity.ok().body(user);
+    @GetMapping("/email")
+    public ResponseEntity<UserResponseDTO> findByEmail(@RequestParam String email) {
+        return ResponseEntity.ok(userService.findByEmail(email));
     }
 
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<UserResponseDTO> updateUserNameById(
-            @PathVariable UUID id, @RequestBody UpdateUserRequestDTO request) {
-        UserResponseDTO user = userService.updateUserNameById(id, request);
-
-        return ResponseEntity.ok().body(user);
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> updateName(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateUserRequestDTO request) {
+        return ResponseEntity.ok(userService.updateName(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable UUID id) {
-        userService.deleteUserById(id);
-
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        userService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

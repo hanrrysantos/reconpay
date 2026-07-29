@@ -41,27 +41,28 @@ A conciliação manual desses dados é lenta, suscetível a erros e difícil de 
 
 ## Status Atual
 
-O projeto está atualmente na fase de fundação do MVP.
+**Sprint 1 concluída** — fundação do MVP com autenticação, usuários, merchants e regras de taxa.
 
-Implementado até agora:
+Implementado:
 
-- Cadastro e autenticação de usuários
-- Segurança baseada em JWT
-- Autorização por roles
-- Gerenciamento de usuários ativos
-- Gerenciamento de merchants
-- Gerenciamento de regras de taxa por merchant
-- Relacionamento entre merchants e fee rules
+- Cadastro e autenticação de usuários com JWT
+- Roles `ADMIN` e `FINANCIAL_ANALYST` com autorização por endpoint
+- CRUD de usuários (admin), merchants e fee rules
+- Fee rules aninhadas em merchants (`/api/merchants/{merchantId}/fee-rules`)
+- Paginação em listagens (`Page`, padrão 20 itens)
 - Soft delete para preservação de histórico
-- Tratamento global de exceptions
-- Uso de DTOs para entrada e saída de dados
-- Uso de mappers para conversão entre entidades e DTOs
-- Validações com Bean Validation
-- Modelagem inicial com PostgreSQL
-- Migrations com Flyway
+- Validações com Bean Validation (`@Valid` nos controllers)
+- Tratamento global de erros com respostas padronizadas (`StandardError`)
+- Modelagem com PostgreSQL e migrations Flyway (V1–V5)
+- Seed de usuário admin em ambientes dev/test
+- Swagger/OpenAPI (`/swagger-ui.html`)
+- Health check (`/actuator/health`)
+- Profiles `dev`, `prod` e `test`
+- Testes de integração com Testcontainers
+- CI com GitHub Actions
 - Ambiente local com Docker Compose
 
-Próximo módulo planejado:
+Próximo módulo (Sprint 2):
 
 - Transações internas
 
@@ -143,7 +144,7 @@ Docker, Docker Compose
 
 **Testes**
 
-JUnit 5, Mockito, AssertJ, MockMvc e Testcontainers planejados para evolução do MVP
+JUnit 5, Spring Boot Test, MockMvc, AssertJ, Testcontainers (PostgreSQL)
 
 ---
 
@@ -185,6 +186,7 @@ A ideia é manter o projeto simples o suficiente para o MVP, mas organizado o ba
 
 ```text
 reconpay/
+|-- .github/workflows/
 |-- src/
 |   |-- main/
 |   |   |-- java/
@@ -194,12 +196,18 @@ reconpay/
 |   |   |       |-- exception/
 |   |   |       |-- feeRule/
 |   |   |       |-- merchant/
-|   |   |       `-- security/
+|   |   |       |-- security/
+|   |   |       |-- shared/
+|   |   |       `-- StarterApplication.java
 |   |   `-- resources/
 |   |       |-- db/migration/
-|   |       `-- application.yaml
+|   |       |-- application.yaml
+|   |       |-- application-dev.yaml
+|   |       |-- application-prod.yaml
+|   |       `-- application-test.yaml
 |   `-- test/
 |-- docker-compose.yaml
+|-- mvnw
 |-- pom.xml
 `-- README.md
 ```
@@ -217,6 +225,8 @@ Migrations atuais:
 | `V1__create_merchants_table.sql` | Criação da tabela de merchants |
 | `V2__create_users_table.sql` | Criação da tabela de usuários |
 | `V3__create_feerules_table.sql` | Criação da tabela de regras de taxa |
+| `V4__align_user_roles.sql` | Alinhamento de roles (`ADMIN`, `FINANCIAL_ANALYST`) |
+| `V5__seed_admin_user.sql` | Seed do usuário administrador (dev/test) |
 
 A tabela `fee_rules` utiliza um índice único parcial para impedir duplicidade entre regras ativas com a mesma combinação de:
 
@@ -237,10 +247,19 @@ Regras atuais de acesso:
 | Rota | Acesso |
 | :--- | :--- |
 | `/api/auth/**` | Público |
-| `/api/users/**` | ADMIN |
-| `/api/merchants/**` | ADMIN |
-| `/api/fee-rules/**` | ADMIN |
-| Demais rotas | Usuário autenticado |
+| `/swagger-ui/**`, `/v3/api-docs/**` | Público |
+| `/actuator/health` | Público |
+| `/api/users/**` | `ADMIN` |
+| `/api/merchants/**` | `ADMIN` |
+| Demais rotas autenticadas | `ADMIN` ou `FINANCIAL_ANALYST` |
+
+Usuário admin seed (dev/test):
+
+| Campo | Valor |
+| :--- | :--- |
+| E-mail | `admin@reconpay.local` |
+| Senha | `Admin@123` |
+| Role | `ADMIN` |
 
 ---
 
@@ -257,7 +276,8 @@ Regras atuais de acesso:
 
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
-| GET | `/api/users` | Lista usuários ativos |
+| POST | `/api/users` | Cria usuário com role (admin) |
+| GET | `/api/users` | Lista usuários ativos (paginado) |
 | GET | `/api/users/{id}` | Busca usuário ativo por id |
 | GET | `/api/users/email?email=example@email.com` | Busca usuário ativo por e-mail |
 | PUT | `/api/users/{id}` | Atualiza nome do usuário |
@@ -268,7 +288,7 @@ Regras atuais de acesso:
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
 | POST | `/api/merchants` | Cadastra um merchant |
-| GET | `/api/merchants` | Lista merchants ativos |
+| GET | `/api/merchants` | Lista merchants ativos (paginado) |
 | GET | `/api/merchants/{id}` | Busca merchant ativo por id |
 | PUT | `/api/merchants/{id}` | Atualiza merchant |
 | DELETE | `/api/merchants/{id}` | Desativa merchant |
@@ -277,11 +297,11 @@ Regras atuais de acesso:
 
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
-| POST | `/api/fee-rules` | Cria uma regra de taxa |
-| GET | `/api/fee-rules/{id}` | Busca regra de taxa ativa por id |
-| GET | `/api/fee-rules/by-merchant/{merchantId}` | Lista regras de taxa ativas por merchant |
-| PUT | `/api/fee-rules/{id}` | Atualiza uma regra de taxa |
-| DELETE | `/api/fee-rules/{id}` | Desativa uma regra de taxa |
+| POST | `/api/merchants/{merchantId}/fee-rules` | Cria uma regra de taxa |
+| GET | `/api/merchants/{merchantId}/fee-rules` | Lista regras ativas do merchant (paginado) |
+| GET | `/api/merchants/{merchantId}/fee-rules/{id}` | Busca regra de taxa ativa por id |
+| PUT | `/api/merchants/{merchantId}/fee-rules/{id}` | Atualiza uma regra de taxa |
+| DELETE | `/api/merchants/{merchantId}/fee-rules/{id}` | Desativa uma regra de taxa |
 
 ---
 
@@ -300,7 +320,6 @@ Regras atuais de acesso:
 
 ```json
 {
-  "merchantId": "uuid-do-merchant",
   "paymentMethod": "CREDIT_CARD",
   "installments": 1,
   "feePercentage": 3.00,
@@ -308,12 +327,14 @@ Regras atuais de acesso:
 }
 ```
 
+> O `merchantId` é informado na URL: `POST /api/merchants/{merchantId}/fee-rules`
+
 ### Login
 
 ```json
 {
-  "email": "admin@email.com",
-  "password": "123456"
+  "email": "admin@reconpay.local",
+  "password": "Admin@123"
 }
 ```
 
@@ -324,10 +345,8 @@ Regras atuais de acesso:
 ### Pré-requisitos
 
 - Java 21
-- Maven
-- Docker
-- Docker Compose
-- PostgreSQL, caso rode fora do Docker
+- Docker e Docker Compose (recomendado)
+- Maven não é obrigatório — o projeto inclui Maven Wrapper (`./mvnw`)
 
 ### 1. Clone o repositório
 
@@ -341,25 +360,51 @@ cd reconpay
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-DB_URL=jdbc:postgresql://localhost:5432/reconpay
-DB_USER=postgres
-DB_PASSWORD=1234
-JWT_SECRET=sua-chave-secreta
-JWT_EXPIRATION=86400000
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=1234
+JWT_SECRET=sua-chave-secreta-com-pelo-menos-32-caracteres
+JWT_EXPIRATION=604800
 ```
 
 ### 3. Suba o ambiente com Docker
 
 ```bash
-docker-compose up --build
+docker compose up -d banco-reconpay
 ```
 
-### 4. Acesse a aplicação
+Para subir API + banco:
 
-| Aplicação | URL |
+```bash
+docker compose up --build
+```
+
+### 4. Execute localmente (sem Docker na API)
+
+Com o PostgreSQL rodando (Docker na porta `5433` ou instância local na `5432`):
+
+```bash
+export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+./mvnw spring-boot:run
+```
+
+Profile padrão: `dev`. Para produção: `SPRING_PROFILES_ACTIVE=prod`.
+
+### 5. Testes
+
+```bash
+./mvnw verify
+```
+
+Os testes de integração sobem PostgreSQL via Testcontainers automaticamente.
+
+### 6. Acesse a aplicação
+
+| Recurso | URL |
 | :--- | :--- |
 | API | `http://localhost:8080` |
-| PostgreSQL | `localhost:5432` |
+| Swagger UI | `http://localhost:8080/swagger-ui.html` |
+| Health | `http://localhost:8080/actuator/health` |
+| PostgreSQL (Docker) | `localhost:5433` |
 
 ---
 
@@ -367,18 +412,20 @@ docker-compose up --build
 
 ### MVP
 
-- Auth com JWT
-- Users
-- Merchants
-- Fee Rules
-- Transações internas
-- Importação de liquidações externas via CSV
-- Criação de lotes de conciliação
-- Execução síncrona da conciliação
-- Identificação de divergências
-- Relatórios CSV
-- Testes unitários e de integração
-- Swagger/OpenAPI
+- [x] Auth com JWT
+- [x] Users
+- [x] Merchants
+- [x] Fee Rules
+- [x] Testes de integração
+- [x] Swagger/OpenAPI
+- [x] CI com GitHub Actions
+- [ ] Transações internas
+- [ ] Importação de liquidações externas via CSV
+- [ ] Criação de lotes de conciliação
+- [ ] Execução síncrona da conciliação
+- [ ] Identificação de divergências
+- [ ] Relatórios CSV
+- [ ] Testes unitários
 
 ### Evolução futura
 
@@ -386,9 +433,9 @@ docker-compose up --build
 - Spring Batch para importação de arquivos grandes
 - Retry com backoff
 - Dead Letter Queue
-- Observabilidade com Spring Actuator
+- Observabilidade com Spring Actuator (health)
 - Prometheus e Grafana
-- Pipeline CI/CD com GitHub Actions
+- Pipeline CI/CD com GitHub Actions (CI básico)
 - Deploy em ambiente cloud
 
 ---

@@ -9,13 +9,13 @@ import java.math.BigDecimal;
 public record UpdateFeeRuleRequestDTO(
         PaymentMethod paymentMethod,
 
-        @Min(1)
+        @Min(value = 1, message = "Número de parcelas deve ser no mínimo 1")
         Integer installments,
 
-        @DecimalMin("0.0000")
+        @DecimalMin(value = "0.0000", message = "Percentual de taxa deve ser maior ou igual a zero")
         BigDecimal feePercentage,
 
-        @DecimalMin("0.00")
+        @DecimalMin(value = "0.00", message = "Taxa fixa deve ser maior ou igual a zero")
         BigDecimal fixedFee
 ) {
 }

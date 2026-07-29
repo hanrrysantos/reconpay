@@ -7,15 +7,17 @@ import br.com.hanrry.reconpay.feeRule.dto.FeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feeRule.dto.FeeRuleResponseDTO;
 import br.com.hanrry.reconpay.feeRule.dto.UpdateFeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
+import br.com.hanrry.reconpay.feeRule.enums.PaymentMethod;
 import br.com.hanrry.reconpay.feeRule.mapper.IFeeRuleMapper;
 import br.com.hanrry.reconpay.feeRule.repository.IFeeRuleRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,36 +28,24 @@ public class FeeRuleService {
     private final IFeeRuleRepository feeRuleRepository;
     private final IMerchantRepository merchantRepository;
 
-    public FeeRuleResponseDTO findFeeRuleById(UUID id) {
-        FeeRuleEntity feeRule = feeRuleRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new FeeRuleNotFoundException("Fee rule not found with id: " + id));
-
+    public FeeRuleResponseDTO findById(UUID merchantId, UUID id) {
+        FeeRuleEntity feeRule = findActiveFeeRuleForMerchant(merchantId, id);
         return feeRuleMapper.toDTO(feeRule);
     }
 
-    public List<FeeRuleResponseDTO> findAllFeeRulesByMerchantId(UUID merchantId) {
-        merchantRepository.findByIdAndActiveTrue(merchantId)
-                .orElseThrow(() -> new MerchantNotFoundException("Merchant not found with id: " + merchantId));
-
-        List<FeeRuleEntity> feeRules = feeRuleRepository.findAllByMerchant_IdAndActiveTrue(merchantId);
-
-        return feeRuleMapper.toDTOList(feeRules);
+    public Page<FeeRuleResponseDTO> findAllByMerchantId(UUID merchantId, Pageable pageable) {
+        ensureMerchantExists(merchantId);
+        return feeRuleRepository.findAllByMerchant_IdAndActiveTrue(merchantId, pageable)
+                .map(feeRuleMapper::toDTO);
     }
 
     @Transactional
-    public FeeRuleResponseDTO createFeeRule(FeeRuleRequestDTO request) {
-        MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(request.merchantId())
-                .orElseThrow(() -> new MerchantNotFoundException("Merchant not found with id: " + request.merchantId()));
+    public FeeRuleResponseDTO create(UUID merchantId, FeeRuleRequestDTO request) {
+        MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(merchantId)
+                .orElseThrow(() -> new MerchantNotFoundException(
+                        "Comerciante não encontrado com id: " + merchantId));
 
-        boolean alreadyExists = feeRuleRepository.existsByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(
-                request.merchantId(),
-                request.paymentMethod(),
-                request.installments()
-        );
-
-        if (alreadyExists) {
-            throw new FeeRuleAlreadyExistsException("Fee rule already exists for this merchant, payment method and installments");
-        }
+        ensureUniqueFeeRule(merchantId, request.paymentMethod(), request.installments());
 
         FeeRuleEntity entity = new FeeRuleEntity();
         entity.setMerchant(merchant);
@@ -64,36 +54,28 @@ public class FeeRuleService {
         entity.setFeePercentage(request.feePercentage());
         entity.setFixedFee(request.fixedFee());
 
-        FeeRuleEntity saved = feeRuleRepository.save(entity);
-
-        return feeRuleMapper.toDTO(saved);
+        FeeRuleEntity savedFeeRule = feeRuleRepository.save(entity);
+        return feeRuleMapper.toDTO(savedFeeRule);
     }
 
     @Transactional
-    public FeeRuleResponseDTO updateFeeRuleById(UUID id, UpdateFeeRuleRequestDTO request) {
-        FeeRuleEntity feeRule = feeRuleRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new FeeRuleNotFoundException("Fee rule not found with id: " + id));
+    public FeeRuleResponseDTO update(UUID merchantId, UUID id, UpdateFeeRuleRequestDTO request) {
+        FeeRuleEntity feeRule = findActiveFeeRuleForMerchant(merchantId, id);
 
         if (request.paymentMethod() != null || request.installments() != null) {
-            var paymentMethod = request.paymentMethod() != null
+            PaymentMethod paymentMethod = request.paymentMethod() != null
                     ? request.paymentMethod()
                     : feeRule.getPaymentMethod();
 
-            var installments = request.installments() != null
+            Integer installments = request.installments() != null
                     ? request.installments()
                     : feeRule.getInstallments();
-
-            boolean alreadyExists = feeRuleRepository.existsByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(
-                    feeRule.getMerchant().getId(),
-                    paymentMethod,
-                    installments
-            );
 
             boolean sameRule = feeRule.getPaymentMethod().equals(paymentMethod)
                     && feeRule.getInstallments().equals(installments);
 
-            if (alreadyExists && !sameRule) {
-                throw new FeeRuleAlreadyExistsException("Fee rule already exists for this merchant, payment method and installments");
+            if (!sameRule) {
+                ensureUniqueFeeRule(merchantId, paymentMethod, installments);
             }
 
             feeRule.setPaymentMethod(paymentMethod);
@@ -109,17 +91,43 @@ public class FeeRuleService {
         }
 
         FeeRuleEntity savedFeeRule = feeRuleRepository.save(feeRule);
-
         return feeRuleMapper.toDTO(savedFeeRule);
     }
 
     @Transactional
-    public void deleteFeeRuleById(UUID id) {
-        FeeRuleEntity feeRule = feeRuleRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new FeeRuleNotFoundException("Fee rule not found with id: " + id));
-
+    public void deleteById(UUID merchantId, UUID id) {
+        FeeRuleEntity feeRule = findActiveFeeRuleForMerchant(merchantId, id);
         feeRule.setActive(false);
-
         feeRuleRepository.save(feeRule);
+    }
+
+    private FeeRuleEntity findActiveFeeRuleForMerchant(UUID merchantId, UUID id) {
+        ensureMerchantExists(merchantId);
+
+        FeeRuleEntity feeRule = feeRuleRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new FeeRuleNotFoundException("Regra de taxa não encontrada com id: " + id));
+
+        if (!feeRule.getMerchant().getId().equals(merchantId)) {
+            throw new FeeRuleNotFoundException("Regra de taxa não encontrada com id: " + id);
+        }
+
+        return feeRule;
+    }
+
+    private void ensureMerchantExists(UUID merchantId) {
+        merchantRepository.findByIdAndActiveTrue(merchantId)
+                .orElseThrow(() -> new MerchantNotFoundException(
+                        "Comerciante não encontrado com id: " + merchantId));
+    }
+
+    private void ensureUniqueFeeRule(UUID merchantId, PaymentMethod paymentMethod, Integer installments) {
+        boolean alreadyExists = feeRuleRepository
+                .existsByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(
+                        merchantId, paymentMethod, installments);
+
+        if (alreadyExists) {
+            throw new FeeRuleAlreadyExistsException(
+                    "Regra de taxa já existe para este comerciante, método de pagamento e parcelas");
+        }
     }
 }

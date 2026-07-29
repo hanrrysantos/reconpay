@@ -1,10 +1,13 @@
 package br.com.hanrry.reconpay.exception.handler;
 
 import br.com.hanrry.reconpay.exception.*;
+import br.com.hanrry.reconpay.exception.standardError.ApiErrorCode;
 import br.com.hanrry.reconpay.exception.standardError.StandardError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -23,7 +26,18 @@ public class GlobalExceptionHandler {
             RuntimeException ex,
             HttpServletRequest request
     ) {
-        return buildError(HttpStatus.NOT_FOUND, ex.getClass().getSimpleName(), ex.getMessage(), request);
+        return buildError(HttpStatus.NOT_FOUND, ApiErrorCode.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler({
+            BadCredentialsException.class,
+            UsernameNotFoundException.class
+    })
+    public ResponseEntity<StandardError> handleAuthenticationFailure(
+            RuntimeException ex,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.UNAUTHORIZED, ApiErrorCode.UNAUTHORIZED, "Credenciais inválidas", request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -33,7 +47,7 @@ public class GlobalExceptionHandler {
     ) {
         return buildError(
                 HttpStatus.BAD_REQUEST,
-                ex.getClass().getSimpleName(),
+                ApiErrorCode.VALIDATION_ERROR,
                 ex.getBindingResult().getFieldErrors().getFirst().getDefaultMessage(),
                 request
         );
@@ -48,7 +62,7 @@ public class GlobalExceptionHandler {
             RuntimeException ex,
             HttpServletRequest request
     ) {
-        return buildError(HttpStatus.CONFLICT, ex.getClass().getSimpleName(), ex.getMessage(), request);
+        return buildError(HttpStatus.CONFLICT, ApiErrorCode.CONFLICT, ex.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)
@@ -58,8 +72,8 @@ public class GlobalExceptionHandler {
     ) {
         return buildError(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                ex.getClass().getSimpleName(),
-                ex.getMessage(),
+                ApiErrorCode.INTERNAL_SERVER_ERROR,
+                "Erro interno do servidor",
                 request
         );
     }

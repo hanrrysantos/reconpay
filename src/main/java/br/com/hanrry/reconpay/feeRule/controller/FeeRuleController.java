@@ -4,57 +4,75 @@ import br.com.hanrry.reconpay.feeRule.dto.FeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feeRule.dto.FeeRuleResponseDTO;
 import br.com.hanrry.reconpay.feeRule.dto.UpdateFeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feeRule.service.FeeRuleService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.List;
+import java.net.URI;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/fee-rules")
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Fee Rules")
+@RequestMapping("/api/merchants/{merchantId}/fee-rules")
 public class FeeRuleController {
 
     private final FeeRuleService feeRuleService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FeeRuleResponseDTO> findFeeRuleById(
-            @PathVariable UUID id) {
-        FeeRuleResponseDTO feeRule = feeRuleService.findFeeRuleById(id);
-        return ResponseEntity.ok().body(feeRule);
+    @GetMapping
+    public ResponseEntity<Page<FeeRuleResponseDTO>> findAll(
+            @PathVariable UUID merchantId,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(feeRuleService.findAllByMerchantId(merchantId, pageable));
     }
 
-    @GetMapping("/by-merchant/{merchantId}")
-    public ResponseEntity<List<FeeRuleResponseDTO>> findAllFeeRulesByMerchantId(
-            @PathVariable UUID merchantId) {
-        List<FeeRuleResponseDTO> feeRules = feeRuleService.findAllFeeRulesByMerchantId(merchantId);
-        return ResponseEntity.ok().body(feeRules);
+    @GetMapping("/{id}")
+    public ResponseEntity<FeeRuleResponseDTO> findById(
+            @PathVariable UUID merchantId,
+            @PathVariable UUID id) {
+        return ResponseEntity.ok(feeRuleService.findById(merchantId, id));
     }
 
     @PostMapping
-    public ResponseEntity<FeeRuleResponseDTO> createFeeRule(
-            @Valid
-            @RequestBody FeeRuleRequestDTO request) {
-        FeeRuleResponseDTO feeRule = feeRuleService.createFeeRule(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(feeRule);
+    public ResponseEntity<FeeRuleResponseDTO> create(
+            @PathVariable UUID merchantId,
+            @Valid @RequestBody FeeRuleRequestDTO request) {
+        FeeRuleResponseDTO feeRule = feeRuleService.create(merchantId, request);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(feeRule.id())
+                .toUri();
+        return ResponseEntity.created(uri).body(feeRule);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FeeRuleResponseDTO> updateFeeRuleById(
-            @Valid
-            @RequestBody UpdateFeeRuleRequestDTO request,
-            @PathVariable UUID id) {
-        FeeRuleResponseDTO feeRule = feeRuleService.updateFeeRuleById(id, request);
-        return ResponseEntity.ok().body(feeRule);
+    public ResponseEntity<FeeRuleResponseDTO> update(
+            @PathVariable UUID merchantId,
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateFeeRuleRequestDTO request) {
+        return ResponseEntity.ok(feeRuleService.update(merchantId, id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFeeRuleById(@PathVariable UUID id){
-        feeRuleService.deleteFeeRuleById(id);
+    public ResponseEntity<Void> delete(
+            @PathVariable UUID merchantId,
+            @PathVariable UUID id) {
+        feeRuleService.deleteById(merchantId, id);
         return ResponseEntity.noContent().build();
     }
-
 }
