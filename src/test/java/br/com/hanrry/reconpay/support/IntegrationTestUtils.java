@@ -27,4 +27,21 @@ public final class IntegrationTestUtils {
 
         return com.jayway.jsonpath.JsonPath.read(response, "$.token");
     }
+
+    public static String obtainAnalystToken(MockMvc mockMvc) throws Exception {
+        String response = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "email": "analyst@reconpay.local",
+                                  "password": "Analyst@123"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        return com.jayway.jsonpath.JsonPath.read(response, "$.token");
+    }
 }

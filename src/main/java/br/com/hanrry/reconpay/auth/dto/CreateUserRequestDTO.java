@@ -1,10 +1,10 @@
 package br.com.hanrry.reconpay.auth.dto;
 
 import br.com.hanrry.reconpay.auth.enums.UserRole;
-import br.com.hanrry.reconpay.shared.validation.ValidPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 public record CreateUserRequestDTO(
 
@@ -16,7 +16,10 @@ public record CreateUserRequestDTO(
         String email,
 
         @NotBlank(message = "Senha é obrigatória")
-        @ValidPassword
+        @Pattern(
+                regexp = "^(?=.*[A-Z])(?=.*[0-9]).{8,}$",
+                message = "Senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um número"
+        )
         String password,
 
         @NotNull(message = "Papel é obrigatório")

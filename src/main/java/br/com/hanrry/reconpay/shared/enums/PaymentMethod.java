@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.feeRule.enums;
+package br.com.hanrry.reconpay.shared.enums;
 
 public enum PaymentMethod {
 
