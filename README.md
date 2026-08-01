@@ -41,20 +41,24 @@ A conciliação manual desses dados é lenta, suscetível a erros e difícil de 
 
 ## Status Atual
 
-**Sprint 1 concluída** — fundação do MVP com autenticação, usuários, merchants e regras de taxa.
+**Sprint 2 concluída** — transações internas por merchant, com cálculo de valor líquido esperado e controle de status.
 
 Implementado:
 
 - Cadastro e autenticação de usuários com JWT
 - Roles `ADMIN` e `FINANCIAL_ANALYST` com autorização por endpoint
 - CRUD de usuários (admin), merchants e fee rules
+- **Transações internas aninhadas em merchants** (`/api/merchants/{merchantId}/transactions`)
+- **Cálculo de `expectedNetAmount`** com base na fee rule ativa
+- **Atualização de status** (`APPROVED` → `CANCELLED` | `REFUNDED` | `CHARGEBACK`)
+- **Filtros opcionais** na listagem (status, paymentMethod, fromDate, toDate)
 - Fee rules aninhadas em merchants (`/api/merchants/{merchantId}/fee-rules`)
 - Paginação em listagens (`Page`, padrão 20 itens)
-- Soft delete para preservação de histórico
+- Soft delete para merchants, users e fee rules
 - Validações com Bean Validation (`@Valid` nos controllers)
 - Tratamento global de erros com respostas padronizadas (`StandardError`)
-- Modelagem com PostgreSQL e migrations Flyway (V1–V5)
-- Seed de usuário admin em ambientes dev/test
+- Modelagem com PostgreSQL e migrations Flyway (V1–V7)
+- Seed de usuários admin e analista em dev/test
 - Swagger/OpenAPI (`/swagger-ui.html`)
 - Health check (`/actuator/health`)
 - Profiles `dev`, `prod` e `test`
@@ -62,9 +66,9 @@ Implementado:
 - CI com GitHub Actions
 - Ambiente local com Docker Compose
 
-Próximo módulo (Sprint 2):
+Próximo módulo (Sprint 3):
 
-- Transações internas
+- Importação de liquidações externas via CSV
 
 ---
 
@@ -78,7 +82,9 @@ Próximo módulo (Sprint 2):
 
 **Regras de taxa:** configuração de taxas por merchant, método de pagamento e número de parcelas.
 
-**Soft delete:** exclusão lógica de registros importantes para preservar histórico e auditabilidade.
+**Transações internas:** registro de vendas/pagamentos por merchant, com valor líquido esperado calculado a partir das fee rules.
+
+**Soft delete:** exclusão lógica de merchants, users e fee rules para preservar histórico e auditabilidade.
 
 **Tratamento global de erros:** padronização das respostas de erro da API por meio de um handler global.
 
@@ -96,6 +102,7 @@ Próximo módulo (Sprint 2):
 | `security` | Filtros JWT, configuração de segurança e usuário autenticado |
 | `merchant` | Cadastro e gerenciamento de merchants |
 | `feeRule` | Configuração das regras de taxa por merchant |
+| `transaction` | Registro e consulta de transações internas por merchant |
 | `exception` | Tratamento global e padronização de erros |
 | `config` | Configurações gerais da aplicação |
 | `shared` | Estruturas comuns que podem ser reutilizadas futuramente |
@@ -125,6 +132,16 @@ Próximo módulo (Sprint 2):
 - Não deve existir mais de uma regra ativa para o mesmo merchant, método de pagamento e número de parcelas.
 - A exclusão de regras de taxa é feita por soft delete.
 - Regras inativas permanecem no banco para histórico.
+
+### Transações Internas
+
+- Uma transação pertence a um merchant ativo.
+- A referência externa (`externalReference`) deve ser única por merchant.
+- Fee rule ativa obrigatória para o par `(paymentMethod, installments)`.
+- O valor líquido esperado é calculado na criação: `amount - taxa percentual - taxa fixa`.
+- PIX, boleto e débito não permitem parcelamento (`installments > 1`).
+- Status inicial: `APPROVED`. Transições permitidas: `CANCELLED`, `REFUNDED`, `CHARGEBACK`.
+- Estados terminais não permitem reversão. Transações não possuem soft delete.
 
 ---
 
@@ -198,6 +215,7 @@ reconpay/
 |   |   |       |-- merchant/
 |   |   |       |-- security/
 |   |   |       |-- shared/
+|   |   |       |-- transaction/
 |   |   |       `-- StarterApplication.java
 |   |   `-- resources/
 |   |       |-- db/migration/
@@ -227,6 +245,8 @@ Migrations atuais:
 | `V3__create_feerules_table.sql` | Criação da tabela de regras de taxa |
 | `V4__align_user_roles.sql` | Alinhamento de roles (`ADMIN`, `FINANCIAL_ANALYST`) |
 | `V5__seed_admin_user.sql` | Seed do usuário administrador (dev/test) |
+| `V6__create_internal_transactions_table.sql` | Criação da tabela de transações internas |
+| `V7__seed_analyst_user.sql` | Seed do usuário analista financeiro (dev/test) |
 
 A tabela `fee_rules` utiliza um índice único parcial para impedir duplicidade entre regras ativas com a mesma combinação de:
 
@@ -250,7 +270,9 @@ Regras atuais de acesso:
 | `/swagger-ui/**`, `/v3/api-docs/**` | Público |
 | `/actuator/health` | Público |
 | `/api/users/**` | `ADMIN` |
-| `/api/merchants/**` | `ADMIN` |
+| `GET /api/merchants/*/transactions/**` | `ADMIN`, `FINANCIAL_ANALYST` |
+| `POST/PATCH /api/merchants/*/transactions/**` | `ADMIN` |
+| `/api/merchants/**` (demais rotas) | `ADMIN` |
 | Demais rotas autenticadas | `ADMIN` ou `FINANCIAL_ANALYST` |
 
 Usuário admin seed (dev/test):
@@ -260,6 +282,14 @@ Usuário admin seed (dev/test):
 | E-mail | `admin@reconpay.local` |
 | Senha | `Admin@123` |
 | Role | `ADMIN` |
+
+Usuário analista seed (dev/test):
+
+| Campo | Valor |
+| :--- | :--- |
+| E-mail | `analyst@reconpay.local` |
+| Senha | `Analyst@123` |
+| Role | `FINANCIAL_ANALYST` |
 
 ---
 
@@ -303,6 +333,17 @@ Usuário admin seed (dev/test):
 | PUT | `/api/merchants/{merchantId}/fee-rules/{id}` | Atualiza uma regra de taxa |
 | DELETE | `/api/merchants/{merchantId}/fee-rules/{id}` | Desativa uma regra de taxa |
 
+### Transactions
+
+| Método | Endpoint | Descrição |
+| :---: | :--- | :--- |
+| POST | `/api/merchants/{merchantId}/transactions` | Registra uma transação interna |
+| GET | `/api/merchants/{merchantId}/transactions` | Lista transações (paginado, filtros opcionais) |
+| GET | `/api/merchants/{merchantId}/transactions/{id}` | Busca transação por id |
+| PATCH | `/api/merchants/{merchantId}/transactions/{id}/status` | Atualiza status da transação |
+
+Filtros opcionais na listagem: `status`, `paymentMethod`, `fromDate`, `toDate`.
+
 ---
 
 ## Exemplos de Payload
@@ -328,6 +369,28 @@ Usuário admin seed (dev/test):
 ```
 
 > O `merchantId` é informado na URL: `POST /api/merchants/{merchantId}/fee-rules`
+
+### Cadastro de Transação Interna
+
+```json
+{
+  "externalReference": "TXN-12345",
+  "amount": 150.00,
+  "paymentMethod": "CREDIT_CARD",
+  "installments": 3,
+  "transactionDate": "2026-07-29"
+}
+```
+
+> Requer fee rule ativa para o merchant, método e parcelas. Retorna `expectedNetAmount` calculado.
+
+### Atualização de Status
+
+```json
+{
+  "status": "REFUNDED"
+}
+```
 
 ### Login
 
@@ -416,10 +479,10 @@ Os testes de integração sobem PostgreSQL via Testcontainers automaticamente.
 - [x] Users
 - [x] Merchants
 - [x] Fee Rules
+- [x] Transações internas
 - [x] Testes de integração
 - [x] Swagger/OpenAPI
 - [x] CI com GitHub Actions
-- [ ] Transações internas
 - [ ] Importação de liquidações externas via CSV
 - [ ] Criação de lotes de conciliação
 - [ ] Execução síncrona da conciliação
