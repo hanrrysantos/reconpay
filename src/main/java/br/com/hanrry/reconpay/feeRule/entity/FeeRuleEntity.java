@@ -1,7 +1,7 @@
 package br.com.hanrry.reconpay.feeRule.entity;
 
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
-import br.com.hanrry.reconpay.feeRule.enums.PaymentMethod;
+import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
