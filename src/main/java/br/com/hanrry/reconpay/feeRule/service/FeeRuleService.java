@@ -7,7 +7,7 @@ import br.com.hanrry.reconpay.feeRule.dto.FeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feeRule.dto.FeeRuleResponseDTO;
 import br.com.hanrry.reconpay.feeRule.dto.UpdateFeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
-import br.com.hanrry.reconpay.feeRule.enums.PaymentMethod;
+import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.feeRule.mapper.IFeeRuleMapper;
 import br.com.hanrry.reconpay.feeRule.repository.IFeeRuleRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;

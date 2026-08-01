@@ -1,7 +1,7 @@
 package br.com.hanrry.reconpay.feeRule.repository;
 
 import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
-import br.com.hanrry.reconpay.feeRule.enums.PaymentMethod;
+import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,6 +16,12 @@ public interface IFeeRuleRepository extends JpaRepository<FeeRuleEntity, UUID> {
     Optional<FeeRuleEntity> findByIdAndActiveTrue(UUID id);
 
     boolean existsByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(
+            UUID merchantId,
+            PaymentMethod paymentMethod,
+            Integer installments
+    );
+
+    Optional<FeeRuleEntity> findByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(
             UUID merchantId,
             PaymentMethod paymentMethod,
             Integer installments

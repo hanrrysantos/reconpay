@@ -1,7 +1,8 @@
-package br.com.hanrry.reconpay.feeRule.entity;
+package br.com.hanrry.reconpay.transaction.entity;
 
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
+import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -29,8 +31,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "fee_rules")
-public class FeeRuleEntity {
+@Table(name = "internal_transactions")
+public class InternalTransactionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -40,6 +42,15 @@ public class FeeRuleEntity {
     @JoinColumn(name = "merchant_id", nullable = false)
     private MerchantEntity merchant;
 
+    @Column(name = "external_reference", nullable = false, length = 100)
+    private String externalReference;
+
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal amount;
+
+    @Column(name = "expected_net_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal expectedNetAmount;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false, length = 30)
     private PaymentMethod paymentMethod;
@@ -47,14 +58,12 @@ public class FeeRuleEntity {
     @Column(nullable = false)
     private Integer installments;
 
-    @Column(name = "fee_percentage", nullable = false, precision = 10, scale = 4)
-    private BigDecimal feePercentage;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private TransactionStatus status;
 
-    @Column(name = "fixed_fee", nullable = false, precision = 19, scale = 2)
-    private BigDecimal fixedFee;
-
-    @Column(nullable = false)
-    private boolean active;
+    @Column(name = "transaction_date", nullable = false)
+    private LocalDate transactionDate;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -66,7 +75,6 @@ public class FeeRuleEntity {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.active = true;
     }
 
     @PreUpdate

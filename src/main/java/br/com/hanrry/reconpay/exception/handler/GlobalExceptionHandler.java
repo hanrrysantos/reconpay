@@ -20,7 +20,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             UserNotFoundException.class,
             MerchantNotFoundException.class,
-            FeeRuleNotFoundException.class
+            FeeRuleNotFoundException.class,
+            TransactionNotFoundException.class
     })
     public ResponseEntity<StandardError> handleNotFound(
             RuntimeException ex,
@@ -56,13 +57,26 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             EmailAlreadyExistsException.class,
             MerchantAlreadyExistsException.class,
-            FeeRuleAlreadyExistsException.class
+            FeeRuleAlreadyExistsException.class,
+            DuplicateExternalReferenceException.class,
+            MissingActiveFeeRuleException.class
     })
     public ResponseEntity<StandardError> handleConflict(
             RuntimeException ex,
             HttpServletRequest request
     ) {
         return buildError(HttpStatus.CONFLICT, ApiErrorCode.CONFLICT, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler({
+            InvalidTransactionStatusTransitionException.class,
+            InvalidInstallmentsForPaymentMethodException.class
+    })
+    public ResponseEntity<StandardError> handleBusinessValidation(
+            RuntimeException ex,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.BAD_REQUEST, ApiErrorCode.VALIDATION_ERROR, ex.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)

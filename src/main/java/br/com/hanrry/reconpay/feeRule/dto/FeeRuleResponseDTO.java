@@ -1,6 +1,6 @@
 package br.com.hanrry.reconpay.feeRule.dto;
 
-import br.com.hanrry.reconpay.feeRule.enums.PaymentMethod;
+import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
