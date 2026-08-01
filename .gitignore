@@ -30,6 +30,7 @@ build/
 !**/src/test/**/build/
 
 .env
+.cursor/
 
 ### VS Code ###
 .vscode/
