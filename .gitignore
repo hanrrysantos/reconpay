@@ -31,5 +31,8 @@ build/
 
 .env
 
+### Cursor ###
+.cursor/
+
 ### VS Code ###
 .vscode/
