@@ -136,6 +136,22 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldRejectNetAmountGreaterThanAmount() throws Exception {
+        MockMultipartFile csvFile = csvFile("""
+                externalReference,amount,netAmount,paymentMethod,installments,status,settlementDate
+                TXN-NET,100.00,150.00,PIX,1,APPROVED,2026-07-30
+                """);
+
+        mockMvc.perform(multipart("/api/merchants/{merchantId}/external-settlements/import", merchantId)
+                        .file(csvFile)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.rowErrors[0].message")
+                        .value("netAmount não pode ser maior que amount"));
+    }
+
+    @Test
     void shouldRejectInvalidCsvRows() throws Exception {
         MockMultipartFile csvFile = csvFile("""
                 externalReference,amount,netAmount,paymentMethod,installments,status,settlementDate
