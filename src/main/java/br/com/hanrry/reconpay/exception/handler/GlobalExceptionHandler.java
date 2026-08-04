@@ -4,6 +4,7 @@ import br.com.hanrry.reconpay.exception.*;
 import br.com.hanrry.reconpay.exception.standardError.ApiErrorCode;
 import br.com.hanrry.reconpay.exception.standardError.StandardError;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -38,7 +40,12 @@ public class GlobalExceptionHandler {
             RuntimeException ex,
             HttpServletRequest request
     ) {
-        return buildError(HttpStatus.UNAUTHORIZED, ApiErrorCode.UNAUTHORIZED, "Credenciais inválidas", request);
+        return buildError(
+                HttpStatus.UNAUTHORIZED,
+                ApiErrorCode.UNAUTHORIZED,
+                "Credenciais inválidas",
+                request
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -84,6 +91,14 @@ public class GlobalExceptionHandler {
             Exception ex,
             HttpServletRequest request
     ) {
+        log.error(
+                "Erro interno | code={} | path={} | message={}",
+                ApiErrorCode.INTERNAL_SERVER_ERROR,
+                request.getRequestURI(),
+                ex.getMessage(),
+                ex
+        );
+
         return buildError(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 ApiErrorCode.INTERNAL_SERVER_ERROR,
@@ -98,6 +113,8 @@ public class GlobalExceptionHandler {
             String message,
             HttpServletRequest request
     ) {
+        logHandledError(status, error, message, request.getRequestURI());
+
         StandardError standardError = new StandardError(
                 Instant.now(),
                 status.value(),
@@ -107,5 +124,21 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(status).body(standardError);
+    }
+
+    private void logHandledError(HttpStatus status, String errorCode, String message, String path) {
+        String logMessage = "Requisição rejeitada | code={} | status={} | path={} | message={}";
+
+        if (status.is5xxServerError()) {
+            log.error(logMessage, errorCode, status.value(), path, message);
+            return;
+        }
+
+        if (status == HttpStatus.UNAUTHORIZED || status == HttpStatus.CONFLICT) {
+            log.warn(logMessage, errorCode, status.value(), path, message);
+            return;
+        }
+
+        log.debug(logMessage, errorCode, status.value(), path, message);
     }
 }
