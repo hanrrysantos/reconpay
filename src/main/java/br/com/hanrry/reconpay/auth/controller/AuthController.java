@@ -45,8 +45,8 @@ public class AuthController {
     public ResponseEntity<UserResponseDTO> register(
             @Valid @RequestBody UserRequestDTO request) {
         UserResponseDTO user = userService.register(request);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
+        URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/users/{id}")
                 .buildAndExpand(user.id())
                 .toUri();
         return ResponseEntity.created(uri).body(user);
