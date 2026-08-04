@@ -10,6 +10,7 @@ import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
 import br.com.hanrry.reconpay.feeRule.repository.IFeeRuleRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
+import br.com.hanrry.reconpay.shared.PaymentMethodRules;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.dto.CreateTransactionRequestDTO;
 import br.com.hanrry.reconpay.transaction.dto.TransactionResponseDTO;
@@ -35,12 +36,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
-
-    private static final Set<PaymentMethod> SINGLE_INSTALLMENT_METHODS = EnumSet.of(
-            PaymentMethod.PIX,
-            PaymentMethod.BOLETO,
-            PaymentMethod.DEBIT_CARD
-    );
 
     private static final Set<TransactionStatus> TERMINAL_STATUSES = EnumSet.of(
             TransactionStatus.CANCELLED,
@@ -138,7 +133,7 @@ public class TransactionService {
     }
 
     private void validateInstallmentsForPaymentMethod(PaymentMethod paymentMethod, Integer installments) {
-        if (SINGLE_INSTALLMENT_METHODS.contains(paymentMethod) && installments > 1) {
+        if (!PaymentMethodRules.allowsInstallments(paymentMethod, installments)) {
             throw new InvalidInstallmentsForPaymentMethodException(
                     "Método de pagamento " + paymentMethod + " não permite parcelamento");
         }
