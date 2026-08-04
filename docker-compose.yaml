@@ -33,7 +33,7 @@ services:
       DB_URL: jdbc:postgresql://banco-reconpay:5432/reconpay
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET:-BK4DqZtSaFy7ywhqiEK3TGdEZFfnbd0dBkAS9wxyIzM}
+      JWT_SECRET: ${JWT_SECRET}
 
 volumes:
   dados_reconpay:
