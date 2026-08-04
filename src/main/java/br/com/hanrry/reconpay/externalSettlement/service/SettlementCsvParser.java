@@ -6,23 +6,34 @@ import br.com.hanrry.reconpay.externalSettlement.dto.ImportRowErrorDTO;
 import br.com.hanrry.reconpay.shared.PaymentMethodRules;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Component
+@RequiredArgsConstructor
 public class SettlementCsvParser {
+
+    private static final DateTimeFormatter SETTLEMENT_DATE_FORMAT = DateTimeFormatter
+            .ofPattern("uuuu-MM-dd")
+            .withResolverStyle(ResolverStyle.STRICT);
 
     private static final String[] EXPECTED_HEADER = {
             "externalReference",
@@ -34,31 +45,30 @@ public class SettlementCsvParser {
             "settlementDate"
     };
 
-    public List<ParsedSettlementRow> parse(InputStream inputStream) {
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+    private final Clock clock;
 
-            String headerLine = reader.readLine();
-            if (headerLine == null || headerLine.isBlank()) {
+    public List<ParsedSettlementRow> parse(InputStream inputStream) {
+        try (CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            String[] headerColumns = csvReader.readNext();
+            if (headerColumns == null || isBlankRow(headerColumns)) {
                 throw new InvalidSettlementImportException("Arquivo CSV vazio");
             }
 
-            validateHeader(headerLine.trim());
+            validateHeader(headerColumns);
 
             List<ParsedSettlementRow> rows = new ArrayList<>();
             List<ImportRowErrorDTO> errors = new ArrayList<>();
             Set<String> referencesInFile = new HashSet<>();
-            String line;
+            String[] columns;
             int rowNumber = 1;
 
-            while ((line = reader.readLine()) != null) {
+            while ((columns = csvReader.readNext()) != null) {
                 rowNumber++;
 
-                if (line.isBlank()) {
+                if (isBlankRow(columns)) {
                     continue;
                 }
 
-                String[] columns = line.split(",", -1);
                 if (columns.length != EXPECTED_HEADER.length) {
                     errors.add(new ImportRowErrorDTO(
                             rowNumber,
@@ -86,13 +96,12 @@ public class SettlementCsvParser {
             }
 
             return rows;
-        } catch (IOException ex) {
+        } catch (IOException | CsvValidationException ex) {
             throw new InvalidSettlementImportException("Erro ao ler arquivo CSV");
         }
     }
 
-    private void validateHeader(String headerLine) {
-        String[] headerColumns = headerLine.split(",", -1);
+    private void validateHeader(String[] headerColumns) {
         if (headerColumns.length != EXPECTED_HEADER.length) {
             throw new InvalidSettlementImportException(
                     "Cabeçalho CSV inválido. Esperado: " + String.join(",", EXPECTED_HEADER));
@@ -119,57 +128,74 @@ public class SettlementCsvParser {
         String statusRaw = columns[5].trim();
         String settlementDateRaw = columns[6].trim();
 
+        boolean hasError = false;
+
         if (externalReference.isBlank()) {
             errors.add(new ImportRowErrorDTO(rowNumber, "Referência externa é obrigatória"));
-            return null;
-        }
+            hasError = true;
+        } else {
+            if (externalReference.length() > 100) {
+                errors.add(new ImportRowErrorDTO(
+                        rowNumber,
+                        "Referência externa deve ter no máximo 100 caracteres"));
+                hasError = true;
+            }
 
-        if (externalReference.length() > 100) {
-            errors.add(new ImportRowErrorDTO(rowNumber, "Referência externa deve ter no máximo 100 caracteres"));
-            return null;
-        }
-
-        if (!referencesInFile.add(externalReference)) {
-            errors.add(new ImportRowErrorDTO(
-                    rowNumber,
-                    "Referência externa duplicada no arquivo: " + externalReference));
-            return null;
+            if (!referencesInFile.add(externalReference)) {
+                errors.add(new ImportRowErrorDTO(
+                        rowNumber,
+                        "Referência externa duplicada no arquivo: " + externalReference));
+                hasError = true;
+            }
         }
 
         BigDecimal amount = parsePositiveAmount(rowNumber, amountRaw, "amount", errors);
         if (amount == null) {
-            return null;
+            hasError = true;
         }
 
         BigDecimal netAmount = parsePositiveAmount(rowNumber, netAmountRaw, "netAmount", errors);
         if (netAmount == null) {
-            return null;
+            hasError = true;
+        }
+
+        if (amount != null && netAmount != null && netAmount.compareTo(amount) > 0) {
+            errors.add(new ImportRowErrorDTO(
+                    rowNumber,
+                    "netAmount não pode ser maior que amount"));
+            hasError = true;
         }
 
         PaymentMethod paymentMethod = parsePaymentMethod(rowNumber, paymentMethodRaw, errors);
         if (paymentMethod == null) {
-            return null;
+            hasError = true;
         }
 
         Integer installments = parseInstallments(rowNumber, installmentsRaw, errors);
         if (installments == null) {
-            return null;
+            hasError = true;
         }
 
-        if (!PaymentMethodRules.allowsInstallments(paymentMethod, installments)) {
+        if (paymentMethod != null
+                && installments != null
+                && !PaymentMethodRules.allowsInstallments(paymentMethod, installments)) {
             errors.add(new ImportRowErrorDTO(
                     rowNumber,
                     "Método de pagamento " + paymentMethod + " não permite parcelamento"));
-            return null;
+            hasError = true;
         }
 
         TransactionStatus status = parseStatus(rowNumber, statusRaw, errors);
         if (status == null) {
-            return null;
+            hasError = true;
         }
 
         LocalDate settlementDate = parseSettlementDate(rowNumber, settlementDateRaw, errors);
         if (settlementDate == null) {
+            hasError = true;
+        }
+
+        if (hasError) {
             return null;
         }
 
@@ -251,8 +277,8 @@ public class SettlementCsvParser {
             String rawValue,
             List<ImportRowErrorDTO> errors) {
         try {
-            LocalDate settlementDate = LocalDate.parse(rawValue);
-            if (settlementDate.isAfter(LocalDate.now())) {
+            LocalDate settlementDate = LocalDate.parse(rawValue, SETTLEMENT_DATE_FORMAT);
+            if (settlementDate.isAfter(LocalDate.now(clock))) {
                 errors.add(new ImportRowErrorDTO(
                         rowNumber,
                         "Data de liquidação não pode ser futura"));
@@ -260,9 +286,15 @@ public class SettlementCsvParser {
             }
             return settlementDate;
         } catch (DateTimeParseException ex) {
-            errors.add(new ImportRowErrorDTO(rowNumber, "Data de liquidação inválida"));
+            errors.add(new ImportRowErrorDTO(
+                    rowNumber,
+                    "Data de liquidação inválida. Formato esperado: yyyy-MM-dd"));
             return null;
         }
+    }
+
+    private boolean isBlankRow(String[] columns) {
+        return Arrays.stream(columns).allMatch(column -> column == null || column.isBlank());
     }
 
     public record ParsedSettlementRow(
