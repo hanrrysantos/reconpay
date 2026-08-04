@@ -28,11 +28,13 @@ public class FeeRuleService {
     private final IFeeRuleRepository feeRuleRepository;
     private final IMerchantRepository merchantRepository;
 
+    @Transactional(readOnly = true)
     public FeeRuleResponseDTO findById(UUID merchantId, UUID id) {
         FeeRuleEntity feeRule = findActiveFeeRuleForMerchant(merchantId, id);
         return feeRuleMapper.toDTO(feeRule);
     }
 
+    @Transactional(readOnly = true)
     public Page<FeeRuleResponseDTO> findAllByMerchantId(UUID merchantId, Pageable pageable) {
         ensureMerchantExists(merchantId);
         return feeRuleRepository.findAllByMerchant_IdAndActiveTrue(merchantId, pageable)

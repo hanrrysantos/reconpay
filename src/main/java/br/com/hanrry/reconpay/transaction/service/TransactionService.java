@@ -87,6 +87,7 @@ public class TransactionService {
         return transactionMapper.toDTO(savedTransaction);
     }
 
+    @Transactional(readOnly = true)
     public Page<TransactionResponseDTO> findAll(
             UUID merchantId,
             TransactionStatus status,
@@ -103,6 +104,7 @@ public class TransactionService {
                 .map(transactionMapper::toDTO);
     }
 
+    @Transactional(readOnly = true)
     public TransactionResponseDTO findById(UUID merchantId, UUID id) {
         InternalTransactionEntity transaction = findTransactionForMerchant(merchantId, id);
         return transactionMapper.toDTO(transaction);
