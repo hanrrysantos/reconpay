@@ -221,9 +221,11 @@ reconpay/
 |   |       |-- db/migration/
 |   |       |-- application.yaml
 |   |       |-- application-dev.yaml
-|   |       |-- application-prod.yaml
-|   |       `-- application-test.yaml
+|   |       `-- application-prod.yaml
 |   `-- test/
+|       |-- java/
+|       `-- resources/
+|           `-- application-test.yaml
 |-- docker-compose.yaml
 |-- mvnw
 |-- pom.xml
@@ -420,7 +422,7 @@ cd reconpay
 
 ### 2. Configure as variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto:
+Crie um arquivo `.env` na raiz do projeto (obrigatório para subir a API em dev ou via Docker Compose):
 
 ```env
 POSTGRES_USER=postgres
@@ -428,6 +430,8 @@ POSTGRES_PASSWORD=1234
 JWT_SECRET=sua-chave-secreta-com-pelo-menos-32-caracteres
 JWT_EXPIRATION=604800
 ```
+
+> `JWT_SECRET` é obrigatório — não há valor padrão em dev/prod. Os testes de integração usam profile `test` com configuração própria em `src/test/resources/application-test.yaml`.
 
 ### 3. Suba o ambiente com Docker
 
@@ -443,14 +447,14 @@ docker compose up --build
 
 ### 4. Execute localmente (sem Docker na API)
 
-Com o PostgreSQL rodando (Docker na porta `5433` ou instância local na `5432`):
+Com o PostgreSQL rodando via Docker Compose (porta `5433`, padrão do projeto):
 
 ```bash
-export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+export JWT_SECRET=sua-chave-secreta-com-pelo-menos-32-caracteres
 ./mvnw spring-boot:run
 ```
 
-Profile padrão: `dev`. Para produção: `SPRING_PROFILES_ACTIVE=prod`.
+O `application.yaml` já aponta para `localhost:5433`. Profile padrão: `dev`. Para produção: `SPRING_PROFILES_ACTIVE=prod`.
 
 ### 5. Testes
 
@@ -467,7 +471,23 @@ Os testes de integração sobem PostgreSQL via Testcontainers automaticamente.
 | API | `http://localhost:8080` |
 | Swagger UI | `http://localhost:8080/swagger-ui.html` |
 | Health | `http://localhost:8080/actuator/health` |
-| PostgreSQL (Docker) | `localhost:5433` |
+| PostgreSQL (Docker Compose) | `localhost:5433` |
+
+---
+
+## CI (GitHub Actions)
+
+Pipeline em `.github/workflows/ci.yml`, disparado em **push** e **pull request** para a branch `main`.
+
+| Etapa | O que faz |
+| :--- | :--- |
+| **Checkout** | Clona o repositório no runner Ubuntu |
+| **Set up JDK 21** | Instala Temurin 21 e cacheia dependências Maven |
+| **Build and run tests** | Executa `./mvnw -B verify` — compila, roda testes de integração (Testcontainers + PostgreSQL) e valida o build |
+
+**Concurrency:** execuções simultâneas na mesma branch cancelam a anterior para economizar minutos de CI.
+
+Os testes usam profile `test` e não dependem do `.env` local — o JWT de teste fica isolado em `application-test.yaml`.
 
 ---
 
