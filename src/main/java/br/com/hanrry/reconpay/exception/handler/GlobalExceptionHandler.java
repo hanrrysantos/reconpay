@@ -2,6 +2,8 @@ package br.com.hanrry.reconpay.exception.handler;
 
 import br.com.hanrry.reconpay.exception.*;
 import br.com.hanrry.reconpay.exception.standardError.ApiErrorCode;
+import br.com.hanrry.reconpay.exception.standardError.DuplicateExternalSettlementErrorResponse;
+import br.com.hanrry.reconpay.exception.standardError.SettlementImportErrorResponse;
 import br.com.hanrry.reconpay.exception.standardError.StandardError;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
 
@@ -23,7 +26,9 @@ public class GlobalExceptionHandler {
             UserNotFoundException.class,
             MerchantNotFoundException.class,
             FeeRuleNotFoundException.class,
-            TransactionNotFoundException.class
+            TransactionNotFoundException.class,
+            ExternalSettlementNotFoundException.class,
+            SettlementImportNotFoundException.class
     })
     public ResponseEntity<StandardError> handleNotFound(
             RuntimeException ex,
@@ -75,15 +80,79 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.CONFLICT, ApiErrorCode.CONFLICT, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(DuplicateExternalSettlementException.class)
+    public ResponseEntity<DuplicateExternalSettlementErrorResponse> handleDuplicateExternalSettlement(
+            DuplicateExternalSettlementException ex,
+            HttpServletRequest request
+    ) {
+        log.warn(
+                "Requisição rejeitada | code={} | status={} | path={} | message={}",
+                ApiErrorCode.CONFLICT,
+                HttpStatus.CONFLICT.value(),
+                request.getRequestURI(),
+                ex.getMessage()
+        );
+
+        DuplicateExternalSettlementErrorResponse errorResponse = new DuplicateExternalSettlementErrorResponse(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                ApiErrorCode.CONFLICT,
+                ex.getMessage(),
+                request.getRequestURI(),
+                ex.getConflictingReferences()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<StandardError> handleMaxUploadSizeExceeded(
+            MaxUploadSizeExceededException ex,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.PAYLOAD_TOO_LARGE,
+                ApiErrorCode.VALIDATION_ERROR,
+                "Arquivo CSV excede o tamanho máximo permitido de 5MB",
+                request
+        );
+    }
+
     @ExceptionHandler({
             InvalidTransactionStatusTransitionException.class,
-            InvalidInstallmentsForPaymentMethodException.class
+            InvalidInstallmentsForPaymentMethodException.class,
+            InvalidSettlementImportException.class
     })
     public ResponseEntity<StandardError> handleBusinessValidation(
             RuntimeException ex,
             HttpServletRequest request
     ) {
         return buildError(HttpStatus.BAD_REQUEST, ApiErrorCode.VALIDATION_ERROR, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(SettlementImportValidationException.class)
+    public ResponseEntity<SettlementImportErrorResponse> handleSettlementImportValidation(
+            SettlementImportValidationException ex,
+            HttpServletRequest request
+    ) {
+        log.debug(
+                "Requisição rejeitada | code={} | status={} | path={} | message={}",
+                ApiErrorCode.VALIDATION_ERROR,
+                HttpStatus.BAD_REQUEST.value(),
+                request.getRequestURI(),
+                ex.getMessage()
+        );
+
+        SettlementImportErrorResponse errorResponse = new SettlementImportErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                ApiErrorCode.VALIDATION_ERROR,
+                ex.getMessage(),
+                request.getRequestURI(),
+                ex.getRowErrors()
+        );
+
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)

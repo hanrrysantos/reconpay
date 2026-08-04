@@ -3,6 +3,10 @@ spring:
     name: reconpay
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5433/reconpay}
     username: ${DB_USER:postgres}
