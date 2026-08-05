@@ -1,11 +1,11 @@
-package br.com.hanrry.reconpay.externalSettlement.dto;
+package br.com.hanrry.reconpay.externalsettlement.dto;
 
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 public record ExternalSettlementResponseDTO(
@@ -19,7 +19,7 @@ public record ExternalSettlementResponseDTO(
         Integer installments,
         TransactionStatus status,
         LocalDate settlementDate,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        Instant createdAt,
+        Instant updatedAt
 ) {
 }
