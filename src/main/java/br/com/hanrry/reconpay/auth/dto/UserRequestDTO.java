@@ -15,7 +15,7 @@ public record UserRequestDTO(
 
         @NotBlank(message = "Senha é obrigatória")
         @Pattern(
-                regexp = "^(?=.*[A-Z])(?=.*[0-9]).{8,}$",
+                regexp = "^(?=.*[A-Z])(?=.*\\d).{8,}$",
                 message = "Senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um número"
         )
         String password
