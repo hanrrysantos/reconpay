@@ -2,7 +2,6 @@ package br.com.hanrry.reconpay.auth.service;
 
 import br.com.hanrry.reconpay.auth.dto.CreateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
-import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
 import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
@@ -27,19 +26,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponseDTO register(UserRequestDTO request) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw new EmailAlreadyExistsException("Email já cadastrado: " + request.email());
-        }
-
-        UserEntity user = userMapper.toEntity(request);
-        user.setPassword(passwordEncoder.encode(request.password()));
-
-        UserEntity savedUser = userRepository.save(user);
-        return userMapper.toDTO(savedUser);
-    }
-
-    @Transactional
     public UserResponseDTO createUser(CreateUserRequestDTO request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException("Email já cadastrado: " + request.email());
@@ -61,8 +47,7 @@ public class UserService {
     }
 
     public UserResponseDTO findById(UUID id) {
-        UserEntity user = userRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
+        UserEntity user = getActiveUserOrThrow(id);
         return userMapper.toDTO(user);
     }
 
@@ -74,8 +59,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO updateName(UUID id, UpdateUserRequestDTO request) {
-        UserEntity user = userRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
+        UserEntity user = getActiveUserOrThrow(id);
 
         if (request.name() != null && !request.name().isBlank()) {
             user.setName(request.name());
@@ -87,9 +71,13 @@ public class UserService {
 
     @Transactional
     public void deleteById(UUID id) {
-        UserEntity user = userRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
+        UserEntity user = getActiveUserOrThrow(id);
         user.setActive(false);
         userRepository.save(user);
+    }
+
+    private UserEntity getActiveUserOrThrow(UUID id) {
+        return userRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
     }
 }
