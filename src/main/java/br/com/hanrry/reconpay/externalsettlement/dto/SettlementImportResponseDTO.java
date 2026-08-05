@@ -1,6 +1,6 @@
-package br.com.hanrry.reconpay.externalSettlement.dto;
+package br.com.hanrry.reconpay.externalsettlement.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 public record SettlementImportResponseDTO(
@@ -8,6 +8,6 @@ public record SettlementImportResponseDTO(
         UUID merchantId,
         String fileName,
         Integer totalRows,
-        LocalDateTime createdAt
+        Instant createdAt
 ) {
 }
