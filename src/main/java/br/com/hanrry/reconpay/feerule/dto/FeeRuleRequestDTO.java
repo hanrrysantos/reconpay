@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.feeRule.dto;
+package br.com.hanrry.reconpay.feerule.dto;
 
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import jakarta.validation.constraints.DecimalMin;

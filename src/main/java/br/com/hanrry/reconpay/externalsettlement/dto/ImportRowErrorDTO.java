@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.externalSettlement.dto;
+package br.com.hanrry.reconpay.externalsettlement.dto;
 
 public record ImportRowErrorDTO(
         int row,

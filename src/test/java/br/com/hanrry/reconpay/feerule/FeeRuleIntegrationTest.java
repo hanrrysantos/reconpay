@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.feeRule;
+package br.com.hanrry.reconpay.feerule;
 
 import br.com.hanrry.reconpay.support.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.support.IntegrationTestUtils;

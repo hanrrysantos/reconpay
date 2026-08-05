@@ -1,15 +1,15 @@
-package br.com.hanrry.reconpay.feeRule.service;
+package br.com.hanrry.reconpay.feerule.service;
 
 import br.com.hanrry.reconpay.exception.FeeRuleAlreadyExistsException;
 import br.com.hanrry.reconpay.exception.FeeRuleNotFoundException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
-import br.com.hanrry.reconpay.feeRule.dto.FeeRuleRequestDTO;
-import br.com.hanrry.reconpay.feeRule.dto.FeeRuleResponseDTO;
-import br.com.hanrry.reconpay.feeRule.dto.UpdateFeeRuleRequestDTO;
-import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
+import br.com.hanrry.reconpay.feerule.dto.FeeRuleRequestDTO;
+import br.com.hanrry.reconpay.feerule.dto.FeeRuleResponseDTO;
+import br.com.hanrry.reconpay.feerule.dto.UpdateFeeRuleRequestDTO;
+import br.com.hanrry.reconpay.feerule.entity.FeeRuleEntity;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
-import br.com.hanrry.reconpay.feeRule.mapper.IFeeRuleMapper;
-import br.com.hanrry.reconpay.feeRule.repository.IFeeRuleRepository;
+import br.com.hanrry.reconpay.feerule.mapper.IFeeRuleMapper;
+import br.com.hanrry.reconpay.feerule.repository.IFeeRuleRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,9 @@
-package br.com.hanrry.reconpay.feeRule.controller;
+package br.com.hanrry.reconpay.feerule.controller;
 
-import br.com.hanrry.reconpay.feeRule.dto.FeeRuleRequestDTO;
-import br.com.hanrry.reconpay.feeRule.dto.FeeRuleResponseDTO;
-import br.com.hanrry.reconpay.feeRule.dto.UpdateFeeRuleRequestDTO;
-import br.com.hanrry.reconpay.feeRule.service.FeeRuleService;
+import br.com.hanrry.reconpay.feerule.dto.FeeRuleRequestDTO;
+import br.com.hanrry.reconpay.feerule.dto.FeeRuleResponseDTO;
+import br.com.hanrry.reconpay.feerule.dto.UpdateFeeRuleRequestDTO;
+import br.com.hanrry.reconpay.feerule.service.FeeRuleService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

@@ -6,8 +6,8 @@ import br.com.hanrry.reconpay.exception.InvalidTransactionStatusTransitionExcept
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.exception.MissingActiveFeeRuleException;
 import br.com.hanrry.reconpay.exception.TransactionNotFoundException;
-import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
-import br.com.hanrry.reconpay.feeRule.repository.IFeeRuleRepository;
+import br.com.hanrry.reconpay.feerule.entity.FeeRuleEntity;
+import br.com.hanrry.reconpay.feerule.repository.IFeeRuleRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.shared.PaymentMethodRules;

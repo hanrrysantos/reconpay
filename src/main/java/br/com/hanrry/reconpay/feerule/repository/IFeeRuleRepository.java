@@ -1,6 +1,6 @@
-package br.com.hanrry.reconpay.feeRule.repository;
+package br.com.hanrry.reconpay.feerule.repository;
 
-import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
+import br.com.hanrry.reconpay.feerule.entity.FeeRuleEntity;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

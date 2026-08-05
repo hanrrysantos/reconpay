@@ -1,6 +1,6 @@
-package br.com.hanrry.reconpay.externalSettlement.repository;
+package br.com.hanrry.reconpay.externalsettlement.repository;
 
-import br.com.hanrry.reconpay.externalSettlement.entity.SettlementImportEntity;
+import br.com.hanrry.reconpay.externalsettlement.entity.SettlementImportEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
