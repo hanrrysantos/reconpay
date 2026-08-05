@@ -1,7 +1,7 @@
-package br.com.hanrry.reconpay.feeRule.mapper;
+package br.com.hanrry.reconpay.feerule.mapper;
 
-import br.com.hanrry.reconpay.feeRule.dto.FeeRuleResponseDTO;
-import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
+import br.com.hanrry.reconpay.feerule.dto.FeeRuleResponseDTO;
+import br.com.hanrry.reconpay.feerule.entity.FeeRuleEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

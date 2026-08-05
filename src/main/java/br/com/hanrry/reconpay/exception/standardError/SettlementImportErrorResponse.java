@@ -1,6 +1,6 @@
 package br.com.hanrry.reconpay.exception.standardError;
 
-import br.com.hanrry.reconpay.externalSettlement.dto.ImportRowErrorDTO;
+import br.com.hanrry.reconpay.externalsettlement.dto.ImportRowErrorDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.Instant;

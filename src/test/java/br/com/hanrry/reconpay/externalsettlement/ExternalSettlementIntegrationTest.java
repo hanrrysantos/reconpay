@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.externalSettlement;
+package br.com.hanrry.reconpay.externalsettlement;
 
 import br.com.hanrry.reconpay.support.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.support.IntegrationTestUtils;

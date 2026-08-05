@@ -1,8 +1,8 @@
-package br.com.hanrry.reconpay.externalSettlement.service;
+package br.com.hanrry.reconpay.externalsettlement.service;
 
 import br.com.hanrry.reconpay.exception.InvalidSettlementImportException;
 import br.com.hanrry.reconpay.exception.SettlementImportValidationException;
-import br.com.hanrry.reconpay.externalSettlement.dto.ImportRowErrorDTO;
+import br.com.hanrry.reconpay.externalsettlement.dto.ImportRowErrorDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -1,7 +1,7 @@
-package br.com.hanrry.reconpay.externalSettlement.mapper;
+package br.com.hanrry.reconpay.externalsettlement.mapper;
 
-import br.com.hanrry.reconpay.externalSettlement.dto.SettlementImportResponseDTO;
-import br.com.hanrry.reconpay.externalSettlement.entity.SettlementImportEntity;
+import br.com.hanrry.reconpay.externalsettlement.dto.SettlementImportResponseDTO;
+import br.com.hanrry.reconpay.externalsettlement.entity.SettlementImportEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

@@ -1,6 +1,6 @@
-package br.com.hanrry.reconpay.externalSettlement.repository;
+package br.com.hanrry.reconpay.externalsettlement.repository;
 
-import br.com.hanrry.reconpay.externalSettlement.entity.ExternalSettlementEntity;
+import br.com.hanrry.reconpay.externalsettlement.entity.ExternalSettlementEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
