@@ -2,7 +2,7 @@ package br.com.hanrry.reconpay.auth.dto;
 
 import br.com.hanrry.reconpay.auth.enums.UserRole;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 public record UserResponseDTO (
@@ -11,6 +11,6 @@ public record UserResponseDTO (
         String email,
         UserRole role,
         boolean active,
-        LocalDateTime createdAt
+        Instant createdAt
 ){
 }
