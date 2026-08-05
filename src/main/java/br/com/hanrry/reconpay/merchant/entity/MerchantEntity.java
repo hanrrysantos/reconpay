@@ -1,10 +1,10 @@
 package br.com.hanrry.reconpay.merchant.entity;
 
-import br.com.hanrry.reconpay.feeRule.entity.FeeRuleEntity;
+import br.com.hanrry.reconpay.feerule.entity.FeeRuleEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,18 +31,17 @@ public class MerchantEntity {
     private boolean active;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @OneToMany(mappedBy = "merchant")
     private List<FeeRuleEntity> feeRules;
 
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-
+        Instant now = Instant.now();
         this.createdAt = now;
         this.updatedAt = now;
         this.active = true;
@@ -50,6 +49,6 @@ public class MerchantEntity {
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 }

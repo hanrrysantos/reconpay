@@ -1,6 +1,6 @@
 package br.com.hanrry.reconpay.exception;
 
-import br.com.hanrry.reconpay.externalSettlement.dto.ImportRowErrorDTO;
+import br.com.hanrry.reconpay.externalsettlement.dto.ImportRowErrorDTO;
 import lombok.Getter;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.transaction.entity;
+package br.com.hanrry.reconpay.externalsettlement.entity;
 
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
@@ -31,8 +31,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "internal_transactions")
-public class InternalTransactionEntity {
+@Table(name = "external_settlements")
+public class ExternalSettlementEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -42,14 +42,18 @@ public class InternalTransactionEntity {
     @JoinColumn(name = "merchant_id", nullable = false)
     private MerchantEntity merchant;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "import_id", nullable = false)
+    private SettlementImportEntity importBatch;
+
     @Column(name = "external_reference", nullable = false, length = 100)
     private String externalReference;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
-    @Column(name = "expected_net_amount", nullable = false, precision = 19, scale = 2)
-    private BigDecimal expectedNetAmount;
+    @Column(name = "net_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal netAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false, length = 30)
@@ -62,8 +66,8 @@ public class InternalTransactionEntity {
     @Column(nullable = false, length = 30)
     private TransactionStatus status;
 
-    @Column(name = "transaction_date", nullable = false)
-    private LocalDate transactionDate;
+    @Column(name = "settlement_date", nullable = false)
+    private LocalDate settlementDate;
 
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
