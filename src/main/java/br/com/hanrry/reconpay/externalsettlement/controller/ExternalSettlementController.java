@@ -1,8 +1,8 @@
-package br.com.hanrry.reconpay.externalSettlement.controller;
+package br.com.hanrry.reconpay.externalsettlement.controller;
 
-import br.com.hanrry.reconpay.externalSettlement.dto.ExternalSettlementResponseDTO;
-import br.com.hanrry.reconpay.externalSettlement.dto.SettlementImportResponseDTO;
-import br.com.hanrry.reconpay.externalSettlement.service.ExternalSettlementService;
+import br.com.hanrry.reconpay.externalsettlement.dto.ExternalSettlementResponseDTO;
+import br.com.hanrry.reconpay.externalsettlement.dto.SettlementImportResponseDTO;
+import br.com.hanrry.reconpay.externalsettlement.service.ExternalSettlementService;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
