@@ -22,6 +22,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final String PATH_MERCHANT_TRANSACTIONS = "/api/merchants/*/transactions/**";
+    private static final String PATH_EXTERNAL_SETTLEMENTS = "/api/merchants/*/external-settlements/**";
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_FINANCIAL_ANALYST = "FINANCIAL_ANALYST";
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RestAuthenticationEntryPoint authenticationEntryPoint;
     private final RestAccessDeniedHandler accessDeniedHandler;
@@ -37,6 +42,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @SuppressWarnings("java:S4502")
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
@@ -53,18 +59,18 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/merchants/*/transactions/**")
-                        .hasAnyRole("ADMIN", "FINANCIAL_ANALYST")
-                        .requestMatchers(HttpMethod.POST, "/api/merchants/*/transactions/**")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/merchants/*/transactions/**")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/merchants/*/external-settlements/**")
-                        .hasAnyRole("ADMIN", "FINANCIAL_ANALYST")
-                        .requestMatchers(HttpMethod.POST, "/api/merchants/*/external-settlements/**")
-                        .hasRole("ADMIN")
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/merchants/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, PATH_MERCHANT_TRANSACTIONS)
+                        .hasAnyRole(ROLE_ADMIN, ROLE_FINANCIAL_ANALYST)
+                        .requestMatchers(HttpMethod.POST, PATH_MERCHANT_TRANSACTIONS)
+                        .hasRole(ROLE_ADMIN)
+                        .requestMatchers(HttpMethod.PATCH, PATH_MERCHANT_TRANSACTIONS)
+                        .hasRole(ROLE_ADMIN)
+                        .requestMatchers(HttpMethod.GET, PATH_EXTERNAL_SETTLEMENTS)
+                        .hasAnyRole(ROLE_ADMIN, ROLE_FINANCIAL_ANALYST)
+                        .requestMatchers(HttpMethod.POST, PATH_EXTERNAL_SETTLEMENTS)
+                        .hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/users/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/merchants/**").hasRole(ROLE_ADMIN)
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
