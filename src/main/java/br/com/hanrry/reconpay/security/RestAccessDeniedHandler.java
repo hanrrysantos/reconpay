@@ -1,6 +1,6 @@
 package br.com.hanrry.reconpay.security;
 
-import br.com.hanrry.reconpay.exception.standardError.ApiErrorCode;
+import br.com.hanrry.reconpay.exception.standardexceptionerror.ApiErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
