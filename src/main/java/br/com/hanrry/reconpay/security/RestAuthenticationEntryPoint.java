@@ -1,7 +1,7 @@
 package br.com.hanrry.reconpay.security;
 
-import br.com.hanrry.reconpay.exception.standardError.ApiErrorCode;
-import br.com.hanrry.reconpay.exception.standardError.StandardError;
+import br.com.hanrry.reconpay.exception.standardexceptionerror.ApiErrorCode;
+import br.com.hanrry.reconpay.exception.standardexceptionerror.StandardError;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,8 +11,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
+import org.springframework.http.HttpStatus;
+
 import java.io.IOException;
-import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
@@ -38,12 +39,12 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
             String message,
             ObjectMapper objectMapper
     ) throws IOException {
-        StandardError body = new StandardError(
-                Instant.now(),
-                status,
+        StandardError body = StandardError.of(
+                HttpStatus.valueOf(status),
                 errorCode,
                 message,
-                request.getRequestURI()
+                request.getRequestURI(),
+                null
         );
 
         response.setStatus(status);

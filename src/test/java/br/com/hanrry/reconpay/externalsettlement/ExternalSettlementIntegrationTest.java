@@ -132,7 +132,7 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("CONFLICT"))
-                .andExpect(jsonPath("$.conflictingReferences[0]").value(externalReference));
+                .andExpect(jsonPath("$.details.conflictingReferences[0]").value(externalReference));
     }
 
     @Test
@@ -147,7 +147,7 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
-                .andExpect(jsonPath("$.rowErrors[0].message")
+                .andExpect(jsonPath("$.details.rowErrors[0].message")
                         .value("netAmount não pode ser maior que amount"));
     }
 
@@ -164,7 +164,7 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
-                .andExpect(jsonPath("$.rowErrors.length()").value(2));
+                .andExpect(jsonPath("$.details.rowErrors.length()").value(2));
     }
 
     @Test
