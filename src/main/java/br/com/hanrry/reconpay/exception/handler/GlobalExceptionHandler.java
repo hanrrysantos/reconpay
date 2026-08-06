@@ -1,10 +1,8 @@
 package br.com.hanrry.reconpay.exception.handler;
 
 import br.com.hanrry.reconpay.exception.*;
-import br.com.hanrry.reconpay.exception.standardError.ApiErrorCode;
-import br.com.hanrry.reconpay.exception.standardError.DuplicateExternalSettlementErrorResponse;
-import br.com.hanrry.reconpay.exception.standardError.SettlementImportErrorResponse;
-import br.com.hanrry.reconpay.exception.standardError.StandardError;
+import br.com.hanrry.reconpay.exception.standardexceptionerror.ApiErrorCode;
+import br.com.hanrry.reconpay.exception.standardexceptionerror.StandardError;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,7 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-import java.time.Instant;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
@@ -81,28 +79,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateExternalSettlementException.class)
-    public ResponseEntity<DuplicateExternalSettlementErrorResponse> handleDuplicateExternalSettlement(
+    public ResponseEntity<StandardError> handleDuplicateExternalSettlement(
             DuplicateExternalSettlementException ex,
             HttpServletRequest request
     ) {
-        log.warn(
-                "Requisição rejeitada | code={} | status={} | path={} | message={}",
-                ApiErrorCode.CONFLICT,
-                HttpStatus.CONFLICT.value(),
-                request.getRequestURI(),
-                ex.getMessage()
-        );
-
-        DuplicateExternalSettlementErrorResponse errorResponse = new DuplicateExternalSettlementErrorResponse(
-                Instant.now(),
-                HttpStatus.CONFLICT.value(),
+        return buildError(
+                HttpStatus.CONFLICT,
                 ApiErrorCode.CONFLICT,
                 ex.getMessage(),
-                request.getRequestURI(),
-                ex.getConflictingReferences()
+                request,
+                Map.of("conflictingReferences", ex.getConflictingReferences())
         );
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
@@ -131,28 +118,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(SettlementImportValidationException.class)
-    public ResponseEntity<SettlementImportErrorResponse> handleSettlementImportValidation(
+    public ResponseEntity<StandardError> handleSettlementImportValidation(
             SettlementImportValidationException ex,
             HttpServletRequest request
     ) {
-        log.debug(
-                "Requisição rejeitada | code={} | status={} | path={} | message={}",
-                ApiErrorCode.VALIDATION_ERROR,
-                HttpStatus.BAD_REQUEST.value(),
-                request.getRequestURI(),
-                ex.getMessage()
-        );
-
-        SettlementImportErrorResponse errorResponse = new SettlementImportErrorResponse(
-                Instant.now(),
-                HttpStatus.BAD_REQUEST.value(),
+        return buildError(
+                HttpStatus.BAD_REQUEST,
                 ApiErrorCode.VALIDATION_ERROR,
                 ex.getMessage(),
-                request.getRequestURI(),
-                ex.getRowErrors()
+                request,
+                Map.of("rowErrors", ex.getRowErrors())
         );
-
-        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)
@@ -182,15 +158,19 @@ public class GlobalExceptionHandler {
             String message,
             HttpServletRequest request
     ) {
+        return buildError(status, error, message, request, null);
+    }
+
+    private ResponseEntity<StandardError> buildError(
+            HttpStatus status,
+            String error,
+            String message,
+            HttpServletRequest request,
+            Object details
+    ) {
         logHandledError(status, error, message, request.getRequestURI());
 
-        StandardError standardError = new StandardError(
-                Instant.now(),
-                status.value(),
-                error,
-                message,
-                request.getRequestURI()
-        );
+        StandardError standardError = StandardError.of(status, error, message, request, details);
 
         return ResponseEntity.status(status).body(standardError);
     }
