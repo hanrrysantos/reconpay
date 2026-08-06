@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.exception.standardError;
+package br.com.hanrry.reconpay.exception.standardexceptionerror;
 
 public final class ApiErrorCode {
 
