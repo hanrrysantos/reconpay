@@ -8,373 +8,175 @@
 ![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
 
----
+Fintechs, gateways e marketplaces vendem todos os dias, mas nem sempre recebem exatamente o que deveriam. Liquidações atrasadas, taxas incorretas, valores líquidos divergentes e chargebacks passam batido quando a conciliação é manual, lenta e difícil de auditar.
 
-## Visão Geral
+O **ReconPay** ataca esse problema com uma API backend que centraliza o fluxo de conciliação financeira: registra transações internas, calcula o valor líquido esperado com base nas regras de taxa de cada merchant, importa liquidações externas via CSV e prepara o terreno para cruzar automaticamente os dois lados.
 
-O **ReconPay** é uma aplicação backend para **conciliação financeira**, criada para simular um problema real enfrentado por empresas de pagamento, fintechs, bancos e marketplaces: comparar transações internas com registros externos de liquidação para identificar divergências financeiras.
+**Como funciona hoje**
 
-A proposta do projeto é construir uma API robusta e evolutiva usando **Java, Spring Boot, PostgreSQL, Flyway, Docker e autenticação JWT**, aplicando boas práticas de arquitetura, separação de responsabilidades, validações, persistência relacional e regras de negócio reais.
+1. Configuração do merchant e suas fee rules por método de pagamento e parcelas
+2. Registro de transações internas com `expectedNetAmount` calculado
+3. Importação de liquidações externas com validação linha a linha e rastreio por lote
 
-O ReconPay está sendo desenvolvido inicialmente como um **monólito modular**, permitindo uma base mais simples de evoluir no MVP, mas com organização suficiente para crescer futuramente para processamento assíncrono, mensageria e arquitetura distribuída.
+**Próximos resultados**
 
----
+1. Motor de conciliação automática entre transações internas e liquidações externas
+2. Detecção de divergências: liquidação ausente, valor incorreto, taxa divergente, status inconsistente
+3. Relatórios exportáveis para análise financeira e auditoria
 
-## Contexto de Negócio
-
-Empresas que recebem pagamentos por cartão, PIX, boleto ou gateways precisam verificar se os valores vendidos foram realmente recebidos corretamente.
-
-Durante o processo de liquidação financeira, podem ocorrer divergências como:
-
-- Liquidação ausente
-- Valor líquido recebido incorreto
-- Taxa cobrada diferente da taxa configurada
-- Pagamento duplicado
-- Chargeback
-- Venda cancelada ou estornada
-- Data de liquidação divergente
-- Status externo diferente do status interno
-
-A conciliação manual desses dados é lenta, suscetível a erros e difícil de escalar. O ReconPay automatiza esse processo, permitindo identificar inconsistências de forma auditável.
+Construído como **monólito modular** em Java 21 + Spring Boot, com domínio financeiro real, regras de negócio na aplicação e base preparada para evoluir para processamento assíncrono.
 
 ---
 
-## Status Atual
+## Status do projeto
 
-**Sprint 2 concluída** — transações internas por merchant, com cálculo de valor líquido esperado e controle de status.
+**Sprint 3 concluída:** transações internas e importação de liquidações externas via CSV.
 
-Implementado:
+| Área | Entregue |
+| :--- | :--- |
+| **Auth & usuários** | JWT, roles (`ADMIN`, `FINANCIAL_ANALYST`), CRUD de usuários |
+| **Merchants & taxas** | CRUD com soft delete, fee rules por método de pagamento e parcelas |
+| **Transações internas** | Registro, cálculo de `expectedNetAmount`, controle de status, filtros |
+| **Liquidações externas** | Importação CSV (OpenCSV), lotes de importação, consulta com filtros |
+| **Infra & qualidade** | Flyway (V1–V8), Swagger, Testcontainers, CI no GitHub Actions |
 
-- Cadastro e autenticação de usuários com JWT
-- Roles `ADMIN` e `FINANCIAL_ANALYST` com autorização por endpoint
-- CRUD de usuários (admin), merchants e fee rules
-- **Transações internas aninhadas em merchants** (`/api/merchants/{merchantId}/transactions`)
-- **Cálculo de `expectedNetAmount`** com base na fee rule ativa
-- **Atualização de status** (`APPROVED` → `CANCELLED` | `REFUNDED` | `CHARGEBACK`)
-- **Filtros opcionais** na listagem (status, paymentMethod, fromDate, toDate)
-- Fee rules aninhadas em merchants (`/api/merchants/{merchantId}/fee-rules`)
-- Paginação em listagens (`Page`, padrão 20 itens)
-- Soft delete para merchants, users e fee rules
-- Validações com Bean Validation (`@Valid` nos controllers)
-- Tratamento global de erros com respostas padronizadas (`StandardError`)
-- Modelagem com PostgreSQL e migrations Flyway (V1–V7)
-- Seed de usuários admin e analista em dev/test
-- Swagger/OpenAPI (`/swagger-ui.html`)
-- Health check (`/actuator/health`)
-- Profiles `dev`, `prod` e `test`
-- Testes de integração com Testcontainers
-- CI com GitHub Actions
-- Ambiente local com Docker Compose
-
-Próximo módulo (Sprint 3):
-
-- Importação de liquidações externas via CSV
+**Próximo passo:** motor de conciliação, cruzar transações internas com liquidações externas e identificar divergências.
 
 ---
 
-## Funcionalidades Principais
+## Stack
 
-**Autenticação com JWT:** cadastro, login, geração de token e proteção dos endpoints da aplicação.
-
-**Gerenciamento de usuários:** listagem, busca, atualização e desativação lógica de usuários.
-
-**Gerenciamento de merchants:** cadastro e manutenção das empresas que terão suas transações conciliadas.
-
-**Regras de taxa:** configuração de taxas por merchant, método de pagamento e número de parcelas.
-
-**Transações internas:** registro de vendas/pagamentos por merchant, com valor líquido esperado calculado a partir das fee rules.
-
-**Soft delete:** exclusão lógica de merchants, users e fee rules para preservar histórico e auditabilidade.
-
-**Tratamento global de erros:** padronização das respostas de erro da API por meio de um handler global.
-
-**Migrations versionadas:** controle da evolução do banco de dados com Flyway.
-
-**Arquitetura modular:** organização por domínio para facilitar manutenção e evolução do projeto.
+| Camada | Tecnologias |
+| :--- | :--- |
+| Backend | Java 21, Spring Boot 3, Spring Web, Data JPA, Security, Bean Validation, MapStruct, Lombok |
+| Banco | PostgreSQL, Flyway, Hibernate |
+| Segurança | JWT (stateless) |
+| Testes | JUnit 5, Mockito, MockMvc, AssertJ, Testcontainers |
+| Infra | Docker, Docker Compose, GitHub Actions |
 
 ---
 
-## Módulos Principais
+## Módulos
 
 | Módulo | Responsabilidade |
 | :--- | :--- |
-| `auth` | Cadastro, login e autenticação de usuários |
-| `security` | Filtros JWT, configuração de segurança e usuário autenticado |
+| `auth` | Cadastro, login e gerenciamento de usuários |
+| `security` | JWT, filtros e configuração de segurança |
 | `merchant` | Cadastro e gerenciamento de merchants |
-| `feeRule` | Configuração das regras de taxa por merchant |
-| `transaction` | Registro e consulta de transações internas por merchant |
-| `exception` | Tratamento global e padronização de erros |
-| `config` | Configurações gerais da aplicação |
-| `shared` | Estruturas comuns que podem ser reutilizadas futuramente |
+| `feeRule` | Regras de taxa por merchant |
+| `transaction` | Transações internas por merchant |
+| `externalsettlement` | Importação e consulta de liquidações externas |
+| `exception` | Tratamento global e respostas padronizadas (`StandardError`) |
+| `config` / `shared` | Configurações e utilitários compartilhados |
 
----
-
-## Regras de Negócio Atuais
-
-### Usuários
-
-- Usuários possuem status ativo ou inativo.
-- Usuários inativos não devem autenticar na aplicação.
-- A exclusão de usuários é feita por soft delete.
-- O e-mail do usuário deve ser único.
-
-### Merchants
-
-- Merchants representam empresas que recebem pagamentos.
-- Apenas merchants ativos devem ser retornados nas consultas principais.
-- A exclusão de merchants é feita por soft delete.
-- O documento do merchant deve ser único.
-
-### Fee Rules
-
-- Uma regra de taxa pertence a um merchant.
-- Uma regra define taxa por método de pagamento e número de parcelas.
-- Não deve existir mais de uma regra ativa para o mesmo merchant, método de pagamento e número de parcelas.
-- A exclusão de regras de taxa é feita por soft delete.
-- Regras inativas permanecem no banco para histórico.
-
-### Transações Internas
-
-- Uma transação pertence a um merchant ativo.
-- A referência externa (`externalReference`) deve ser única por merchant.
-- Fee rule ativa obrigatória para o par `(paymentMethod, installments)`.
-- O valor líquido esperado é calculado na criação: `amount - taxa percentual - taxa fixa`.
-- PIX, boleto e débito não permitem parcelamento (`installments > 1`).
-- Status inicial: `APPROVED`. Transições permitidas: `CANCELLED`, `REFUNDED`, `CHARGEBACK`.
-- Estados terminais não permitem reversão. Transações não possuem soft delete.
-
----
-
-## Tecnologias Utilizadas
-
-**Backend**
-
-Java 21, Spring Boot 3, Spring Web, Spring Data JPA, Spring Security, JWT, Bean Validation, MapStruct, Lombok, Maven
-
-**Banco de Dados**
-
-PostgreSQL, Flyway, Hibernate
-
-**Infraestrutura**
-
-Docker, Docker Compose
-
-**Testes**
-
-JUnit 5, Spring Boot Test, MockMvc, AssertJ, Testcontainers (PostgreSQL)
-
----
-
-## Arquitetura
-
-O ReconPay utiliza uma arquitetura inicial baseada em **monólito modular**, separando o sistema por domínios de negócio.
-
-Cada módulo tende a seguir uma estrutura com responsabilidades bem definidas:
+Estrutura interna de cada módulo:
 
 ```text
 module/
-|-- api/
-|-- dto/
-|-- entity/
-|-- enums/
-|-- exception/
-|-- mapper/
-|-- repository/
-`-- service/
-```
-
-A ideia é manter o projeto simples o suficiente para o MVP, mas organizado o bastante para permitir evolução futura.
-
-### Camadas
-
-| Camada | Responsabilidade |
-| :--- | :--- |
-| `api` | Controllers e exposição dos endpoints REST |
-| `dto` | Objetos de entrada e saída da API |
-| `service` | Regras de aplicação e orquestração dos casos de uso |
-| `entity` | Mapeamento das entidades persistidas no banco |
-| `repository` | Acesso ao banco de dados via Spring Data JPA |
-| `mapper` | Conversão entre entidades e DTOs |
-| `exception` | Exceptions específicas do domínio |
-
----
-
-## Estrutura do Projeto
-
-```text
-reconpay/
-|-- .github/workflows/
-|-- src/
-|   |-- main/
-|   |   |-- java/
-|   |   |   `-- br/com/hanrry/reconpay/
-|   |   |       |-- auth/
-|   |   |       |-- config/
-|   |   |       |-- exception/
-|   |   |       |-- feeRule/
-|   |   |       |-- merchant/
-|   |   |       |-- security/
-|   |   |       |-- shared/
-|   |   |       |-- transaction/
-|   |   |       `-- StarterApplication.java
-|   |   `-- resources/
-|   |       |-- db/migration/
-|   |       |-- application.yaml
-|   |       |-- application-dev.yaml
-|   |       `-- application-prod.yaml
-|   `-- test/
-|       |-- java/
-|       `-- resources/
-|           `-- application-test.yaml
-|-- docker-compose.yaml
-|-- mvnw
-|-- pom.xml
-`-- README.md
+├── controller/
+├── dto/
+├── entity/
+├── mapper/
+├── repository/
+└── service/
 ```
 
 ---
 
-## Migrations de Banco de Dados
+## Regras de negócio
 
-O schema do banco é versionado com Flyway.
+### Usuários
+- E-mail único; soft delete; usuários inativos não autenticam.
 
-Migrations atuais:
+### Merchants
+- Documento único; soft delete; consultas retornam apenas merchants ativos.
 
-| Migration | Descrição |
-| :--- | :--- |
-| `V1__create_merchants_table.sql` | Criação da tabela de merchants |
-| `V2__create_users_table.sql` | Criação da tabela de usuários |
-| `V3__create_feerules_table.sql` | Criação da tabela de regras de taxa |
-| `V4__align_user_roles.sql` | Alinhamento de roles (`ADMIN`, `FINANCIAL_ANALYST`) |
-| `V5__seed_admin_user.sql` | Seed do usuário administrador (dev/test) |
-| `V6__create_internal_transactions_table.sql` | Criação da tabela de transações internas |
-| `V7__seed_analyst_user.sql` | Seed do usuário analista financeiro (dev/test) |
+### Fee rules
+- Uma regra ativa por combinação `(merchant, paymentMethod, installments)`.
+- Índice único parcial no banco permite histórico de regras inativas.
 
-A tabela `fee_rules` utiliza um índice único parcial para impedir duplicidade entre regras ativas com a mesma combinação de:
+### Transações internas
+- Referência externa única por merchant.
+- Fee rule ativa obrigatória; `expectedNetAmount = amount - taxa percentual - taxa fixa`.
+- PIX, boleto e débito não permitem parcelamento.
+- Status inicial `APPROVED`; transições para `CANCELLED`, `REFUNDED` ou `CHARGEBACK` (sem reversão).
 
-- Merchant
-- Método de pagamento
-- Número de parcelas
-
-Isso permite manter registros antigos inativos no banco sem bloquear a criação de uma nova regra ativa equivalente.
-
----
-
-## Segurança
-
-A aplicação utiliza autenticação baseada em JWT com sessão stateless.
-
-Regras atuais de acesso:
-
-| Rota | Acesso |
-| :--- | :--- |
-| `/api/auth/**` | Público |
-| `/swagger-ui/**`, `/v3/api-docs/**` | Público |
-| `/actuator/health` | Público |
-| `/api/users/**` | `ADMIN` |
-| `GET /api/merchants/*/transactions/**` | `ADMIN`, `FINANCIAL_ANALYST` |
-| `POST/PATCH /api/merchants/*/transactions/**` | `ADMIN` |
-| `/api/merchants/**` (demais rotas) | `ADMIN` |
-| Demais rotas autenticadas | `ADMIN` ou `FINANCIAL_ANALYST` |
-
-Usuário admin seed (dev/test):
-
-| Campo | Valor |
-| :--- | :--- |
-| E-mail | `admin@reconpay.local` |
-| Senha | `Admin@123` |
-| Role | `ADMIN` |
-
-Usuário analista seed (dev/test):
-
-| Campo | Valor |
-| :--- | :--- |
-| E-mail | `analyst@reconpay.local` |
-| Senha | `Analyst@123` |
-| Role | `FINANCIAL_ANALYST` |
+### Liquidações externas
+- Importação via CSV (máx. 5 MB) com validação linha a linha.
+- Colunas esperadas: `externalReference`, `amount`, `netAmount`, `paymentMethod`, `installments`, `status`, `settlementDate`.
+- Rejeita duplicidade no arquivo e no banco; `netAmount` não pode ser maior que `amount`.
+- Cada importação gera um lote rastreável (`settlement_imports`).
 
 ---
 
-## Principais Endpoints
+## API
 
 ### Auth
 
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
-| POST | `/api/auth/register` | Registra um novo usuário |
-| POST | `/api/auth/login` | Autentica usuário e retorna token JWT |
+| POST | `/api/auth/register` | Registra usuário |
+| POST | `/api/auth/login` | Autentica e retorna JWT |
 
-### Users
+### Users *(ADMIN)*
 
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
-| POST | `/api/users` | Cria usuário com role (admin) |
-| GET | `/api/users` | Lista usuários ativos (paginado) |
-| GET | `/api/users/{id}` | Busca usuário ativo por id |
-| GET | `/api/users/email?email=example@email.com` | Busca usuário ativo por e-mail |
-| PUT | `/api/users/{id}` | Atualiza nome do usuário |
+| POST | `/api/users` | Cria usuário com role |
+| GET | `/api/users` | Lista usuários ativos |
+| GET | `/api/users/{id}` | Busca por id |
+| GET | `/api/users/email?email=` | Busca por e-mail |
+| PUT | `/api/users/{id}` | Atualiza nome |
 | DELETE | `/api/users/{id}` | Desativa usuário |
 
-### Merchants
+### Merchants *(ADMIN)*
 
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
-| POST | `/api/merchants` | Cadastra um merchant |
-| GET | `/api/merchants` | Lista merchants ativos (paginado) |
-| GET | `/api/merchants/{id}` | Busca merchant ativo por id |
+| POST | `/api/merchants` | Cadastra merchant |
+| GET | `/api/merchants` | Lista merchants ativos |
+| GET | `/api/merchants/{id}` | Busca por id |
 | PUT | `/api/merchants/{id}` | Atualiza merchant |
 | DELETE | `/api/merchants/{id}` | Desativa merchant |
 
-### Fee Rules
+### Fee rules *(ADMIN)*
 
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
-| POST | `/api/merchants/{merchantId}/fee-rules` | Cria uma regra de taxa |
-| GET | `/api/merchants/{merchantId}/fee-rules` | Lista regras ativas do merchant (paginado) |
-| GET | `/api/merchants/{merchantId}/fee-rules/{id}` | Busca regra de taxa ativa por id |
-| PUT | `/api/merchants/{merchantId}/fee-rules/{id}` | Atualiza uma regra de taxa |
-| DELETE | `/api/merchants/{merchantId}/fee-rules/{id}` | Desativa uma regra de taxa |
+| POST | `/api/merchants/{merchantId}/fee-rules` | Cria regra de taxa |
+| GET | `/api/merchants/{merchantId}/fee-rules` | Lista regras ativas |
+| GET | `/api/merchants/{merchantId}/fee-rules/{id}` | Busca por id |
+| PUT | `/api/merchants/{merchantId}/fee-rules/{id}` | Atualiza regra |
+| DELETE | `/api/merchants/{merchantId}/fee-rules/{id}` | Desativa regra |
 
 ### Transactions
 
-| Método | Endpoint | Descrição |
-| :---: | :--- | :--- |
-| POST | `/api/merchants/{merchantId}/transactions` | Registra uma transação interna |
-| GET | `/api/merchants/{merchantId}/transactions` | Lista transações (paginado, filtros opcionais) |
-| GET | `/api/merchants/{merchantId}/transactions/{id}` | Busca transação por id |
-| PATCH | `/api/merchants/{merchantId}/transactions/{id}/status` | Atualiza status da transação |
+| Método | Endpoint | Acesso | Descrição |
+| :---: | :--- | :--- | :--- |
+| POST | `/api/merchants/{merchantId}/transactions` | ADMIN | Registra transação interna |
+| GET | `/api/merchants/{merchantId}/transactions` | ADMIN, ANALYST | Lista com filtros |
+| GET | `/api/merchants/{merchantId}/transactions/{id}` | ADMIN, ANALYST | Busca por id |
+| PATCH | `/api/merchants/{merchantId}/transactions/{id}/status` | ADMIN | Atualiza status |
 
-Filtros opcionais na listagem: `status`, `paymentMethod`, `fromDate`, `toDate`.
+Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`.
 
----
+### External settlements
 
-## Exemplos de Payload
+| Método | Endpoint | Acesso | Descrição |
+| :---: | :--- | :--- | :--- |
+| POST | `/api/merchants/{merchantId}/external-settlements/import` | ADMIN | Importa CSV |
+| GET | `/api/merchants/{merchantId}/external-settlements/imports` | ADMIN, ANALYST | Lista lotes de importação |
+| GET | `/api/merchants/{merchantId}/external-settlements/imports/{importId}` | ADMIN, ANALYST | Detalhe do lote |
+| GET | `/api/merchants/{merchantId}/external-settlements` | ADMIN, ANALYST | Lista liquidações |
+| GET | `/api/merchants/{merchantId}/external-settlements/{id}` | ADMIN, ANALYST | Busca por id |
 
-### Cadastro de Merchant
+Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`, `importId`.
 
-```json
-{
-  "name": "Empresa Exemplo LTDA",
-  "document": "12345678000199"
-}
-```
-
-### Cadastro de Regra de Taxa
-
-```json
-{
-  "paymentMethod": "CREDIT_CARD",
-  "installments": 1,
-  "feePercentage": 3.00,
-  "fixedFee": 0.50
-}
-```
-
-> O `merchantId` é informado na URL: `POST /api/merchants/{merchantId}/fee-rules`
-
-### Cadastro de Transação Interna
+### Exemplo - transação interna
 
 ```json
+POST /api/merchants/{merchantId}/transactions
+
 {
   "externalReference": "TXN-12345",
   "amount": 150.00,
@@ -384,45 +186,76 @@ Filtros opcionais na listagem: `status`, `paymentMethod`, `fromDate`, `toDate`.
 }
 ```
 
-> Requer fee rule ativa para o merchant, método e parcelas. Retorna `expectedNetAmount` calculado.
-
-### Atualização de Status
-
-```json
-{
-  "status": "REFUNDED"
-}
-```
-
-### Login
-
-```json
-{
-  "email": "admin@reconpay.local",
-  "password": "Admin@123"
-}
-```
+Retorna `expectedNetAmount` calculado com base na fee rule ativa.
 
 ---
 
-## Instalação e Execução Local
+## Segurança
 
-### Pré-requisitos
+Autenticação JWT stateless. Rotas públicas: `/api/auth/**`, Swagger, `/actuator/health`.
 
-- Java 21
-- Docker e Docker Compose (recomendado)
-- Maven não é obrigatório — o projeto inclui Maven Wrapper (`./mvnw`)
+| Recurso | Leitura | Escrita |
+| :--- | :--- | :--- |
+| `/api/users/**` | ADMIN | ADMIN |
+| `/api/merchants/**` | ADMIN | ADMIN |
+| `.../transactions/**` | ADMIN, ANALYST | ADMIN |
+| `.../external-settlements/**` | ADMIN, ANALYST | ADMIN (import) |
 
-### 1. Clone o repositório
+Usuários seed (dev/test):
+
+| Role | E-mail | Senha |
+| :--- | :--- | :--- |
+| ADMIN | `admin@reconpay.local` | `Admin@123` |
+| FINANCIAL_ANALYST | `analyst@reconpay.local` | `Analyst@123` |
+
+---
+
+## Testes
+
+Estratégia com JUnit 5:
+
+| Tipo | Ferramentas | Escopo |
+| :--- | :--- | :--- |
+| **Unitário** | JUnit 5, Mockito, MockMvc | Services, parsers, mappers e controllers (`@WebMvcTest` com dependências mockadas) |
+| **Integração** | Testcontainers (PostgreSQL), MockMvc | Fluxos completos de ponta a ponta com banco real |
+
+```bash
+./mvnw verify
+```
+
+A CI executa `./mvnw -B verify` em push e pull request para `main`.
+
+---
+
+## Banco de dados
+
+Migrations Flyway:
+
+| Migration | Descrição |
+| :--- | :--- |
+| V1 | Tabela `merchants` |
+| V2 | Tabela `users` |
+| V3 | Tabela `fee_rules` |
+| V4 | Alinhamento de roles |
+| V5 | Seed admin |
+| V6 | Tabela `internal_transactions` |
+| V7 | Seed analista |
+| V8 | Tabelas `settlement_imports` e `external_settlements` |
+
+---
+
+## Como executar
+
+**Pré-requisitos:** Java 21, Docker e Docker Compose. Maven via wrapper (`./mvnw`).
+
+### 1. Clone e configure o ambiente
 
 ```bash
 git clone https://github.com/hanrrysantos/reconpay.git
 cd reconpay
 ```
 
-### 2. Configure as variáveis de ambiente
-
-Crie um arquivo `.env` na raiz do projeto (obrigatório para subir a API em dev ou via Docker Compose):
+Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 POSTGRES_USER=postgres
@@ -431,63 +264,40 @@ JWT_SECRET=sua-chave-secreta-com-pelo-menos-32-caracteres
 JWT_EXPIRATION=604800
 ```
 
-> `JWT_SECRET` é obrigatório — não há valor padrão em dev/prod. Os testes de integração usam profile `test` com configuração própria em `src/test/resources/application-test.yaml`.
+> Na **Opção A**, o `.env` configura apenas o PostgreSQL no Docker. Na **Opção B**, também configura a API (incluindo `JWT_SECRET`).
 
-### 3. Suba o ambiente com Docker
+### 2. Escolha como subir a aplicação
+
+Há duas formas. Em ambas o PostgreSQL roda na porta **5433** e a API fica em **http://localhost:8080**.
+
+#### Opção A - Desenvolvimento local
+
+Docker apenas para o banco; a API roda na sua máquina com hot reload.
 
 ```bash
 docker compose up -d banco-reconpay
+./mvnw spring-boot:run
 ```
 
-Para subir API + banco:
+Ideal para desenvolvimento, debug e execução de testes.
+
+#### Opção B - Tudo via Docker
+
+Sobe banco e API em containers usando o `.env` automaticamente. Não precisa instalar Java localmente.
 
 ```bash
 docker compose up --build
 ```
 
-### 4. Execute localmente (sem Docker na API)
+Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo.
 
-Com o PostgreSQL rodando via Docker Compose (porta `5433`, padrão do projeto):
-
-```bash
-export JWT_SECRET=sua-chave-secreta-com-pelo-menos-32-caracteres
-./mvnw spring-boot:run
-```
-
-O `application.yaml` já aponta para `localhost:5433`. Profile padrão: `dev`. Para produção: `SPRING_PROFILES_ACTIVE=prod`.
-
-### 5. Testes
-
-```bash
-./mvnw verify
-```
-
-Os testes de integração sobem PostgreSQL via Testcontainers automaticamente.
-
-### 6. Acesse a aplicação
+### 3. Acesse
 
 | Recurso | URL |
 | :--- | :--- |
-| API | `http://localhost:8080` |
-| Swagger UI | `http://localhost:8080/swagger-ui.html` |
-| Health | `http://localhost:8080/actuator/health` |
-| PostgreSQL (Docker Compose) | `localhost:5433` |
-
----
-
-## CI (GitHub Actions)
-
-Pipeline em `.github/workflows/ci.yml`, disparado em **push** e **pull request** para a branch `main`.
-
-| Etapa | O que faz |
-| :--- | :--- |
-| **Checkout** | Clona o repositório no runner Ubuntu |
-| **Set up JDK 21** | Instala Temurin 21 e cacheia dependências Maven |
-| **Build and run tests** | Executa `./mvnw -B verify` — compila, roda testes de integração (Testcontainers + PostgreSQL) e valida o build |
-
-**Concurrency:** execuções simultâneas na mesma branch cancelam a anterior para economizar minutos de CI.
-
-Os testes usam profile `test` e não dependem do `.env` local — o JWT de teste fica isolado em `application-test.yaml`.
+| API | http://localhost:8080 |
+| Swagger | http://localhost:8080/swagger-ui.html |
+| Health | http://localhost:8080/actuator/health |
 
 ---
 
@@ -496,59 +306,32 @@ Os testes usam profile `test` e não dependem do `.env` local — o JWT de teste
 ### MVP
 
 - [x] Auth com JWT
-- [x] Users
-- [x] Merchants
-- [x] Fee Rules
+- [x] Users, Merchants, Fee Rules
 - [x] Transações internas
-- [x] Testes de integração
+- [x] Importação de liquidações externas via CSV
+- [x] Testes de integração (Testcontainers)
+- [x] Testes unitários (JUnit + Mockito)
 - [x] Swagger/OpenAPI
 - [x] CI com GitHub Actions
-- [ ] Importação de liquidações externas via CSV
-- [ ] Criação de lotes de conciliação
-- [ ] Execução síncrona da conciliação
+- [ ] Motor de conciliação
 - [ ] Identificação de divergências
 - [ ] Relatórios CSV
-- [ ] Testes unitários
 
 ### Evolução futura
 
-- RabbitMQ para processamento assíncrono
-- Spring Batch para importação de arquivos grandes
-- Retry com backoff
-- Dead Letter Queue
-- Observabilidade com Spring Actuator (health)
-- Prometheus e Grafana
-- Pipeline CI/CD com GitHub Actions (CI básico)
-- Deploy em ambiente cloud
-
----
-
-## Objetivo do Projeto
-
-O ReconPay não tem como objetivo ser apenas uma API CRUD.
-
-A proposta é desenvolver um projeto backend com:
-
-- Domínio financeiro real
-- Regras de negócio relevantes
-- Modelagem relacional consistente
-- Segurança com JWT
-- Boas práticas de arquitetura
-- Evolução técnica planejada
-- Código organizado para portfólio profissional
+- Processamento assíncrono (RabbitMQ)
+- Spring Batch para arquivos grandes
+- Observabilidade (Prometheus, Grafana)
+- Deploy em cloud
 
 ---
 
 ## Autor
 
-**Hanrry Santos**  
-Desenvolvedor Backend Java em formação, com foco em Spring Boot, APIs REST, microsserviços e arquitetura de software.
+**Hanrry Santos**
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/hanrrysantos)
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/hanrrysantos)
 
 ---
 
-## Licença
-
-Este projeto é de uso livre para fins de estudo e portfólio.
