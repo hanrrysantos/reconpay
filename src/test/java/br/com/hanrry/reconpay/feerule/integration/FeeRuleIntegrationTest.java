@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.feerule;
+package br.com.hanrry.reconpay.feerule.integration;
 
 import br.com.hanrry.reconpay.support.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.support.IntegrationTestUtils;
