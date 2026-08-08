@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.security;
+package br.com.hanrry.reconpay.security.integration;
 
 import br.com.hanrry.reconpay.support.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
