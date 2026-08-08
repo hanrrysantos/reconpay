@@ -1,4 +1,4 @@
-package br.com.hanrry.reconpay.support;
+package br.com.hanrry.reconpay.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
