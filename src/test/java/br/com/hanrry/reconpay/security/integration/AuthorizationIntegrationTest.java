@@ -1,6 +1,6 @@
-package br.com.hanrry.reconpay.security;
+package br.com.hanrry.reconpay.security.integration;
 
-import br.com.hanrry.reconpay.support.AbstractIntegrationTest;
+import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
