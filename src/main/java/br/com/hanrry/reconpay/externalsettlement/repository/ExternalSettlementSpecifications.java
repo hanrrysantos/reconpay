@@ -25,8 +25,26 @@ public final class ExternalSettlementSpecifications {
             LocalDate fromDate,
             LocalDate toDate,
             UUID importId) {
+        return withFilters(merchantId, status, paymentMethod, fromDate, toDate, importId, true);
+    }
+
+    public static Specification<ExternalSettlementEntity> withDateRange(
+            UUID merchantId,
+            LocalDate fromDate,
+            LocalDate toDate) {
+        return withFilters(merchantId, null, null, fromDate, toDate, null, false);
+    }
+
+    private static Specification<ExternalSettlementEntity> withFilters(
+            UUID merchantId,
+            TransactionStatus status,
+            PaymentMethod paymentMethod,
+            LocalDate fromDate,
+            LocalDate toDate,
+            UUID importId,
+            boolean fetchAssociations) {
         return (root, query, criteriaBuilder) -> {
-            if (!isCountQuery(query)) {
+            if (fetchAssociations && !isCountQuery(query)) {
                 root.fetch("merchant", JoinType.INNER);
                 root.fetch("importBatch", JoinType.INNER);
                 query.distinct(true);

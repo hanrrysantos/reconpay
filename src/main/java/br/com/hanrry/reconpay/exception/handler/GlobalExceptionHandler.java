@@ -26,7 +26,8 @@ public class GlobalExceptionHandler {
             FeeRuleNotFoundException.class,
             TransactionNotFoundException.class,
             ExternalSettlementNotFoundException.class,
-            SettlementImportNotFoundException.class
+            SettlementImportNotFoundException.class,
+            ReconciliationNotFoundException.class
     })
     public ResponseEntity<StandardError> handleNotFound(
             RuntimeException ex,
