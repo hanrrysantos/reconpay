@@ -25,6 +25,7 @@ public class SecurityConfig {
 
     private static final String PATH_MERCHANT_TRANSACTIONS = "/api/merchants/*/transactions/**";
     private static final String PATH_EXTERNAL_SETTLEMENTS = "/api/merchants/*/external-settlements/**";
+    private static final String PATH_RECONCILIATIONS = "/api/merchants/*/reconciliations/**";
     private static final String ROLE_ADMIN = "ADMIN";
     private static final String ROLE_FINANCIAL_ANALYST = "FINANCIAL_ANALYST";
 
@@ -69,6 +70,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, PATH_EXTERNAL_SETTLEMENTS)
                         .hasAnyRole(ROLE_ADMIN, ROLE_FINANCIAL_ANALYST)
                         .requestMatchers(HttpMethod.POST, PATH_EXTERNAL_SETTLEMENTS)
+                        .hasRole(ROLE_ADMIN)
+                        .requestMatchers(HttpMethod.GET, PATH_RECONCILIATIONS)
+                        .hasAnyRole(ROLE_ADMIN, ROLE_FINANCIAL_ANALYST)
+                        .requestMatchers(HttpMethod.POST, PATH_RECONCILIATIONS)
                         .hasRole(ROLE_ADMIN)
                         .requestMatchers("/api/users/**").hasRole(ROLE_ADMIN)
                         .requestMatchers("/api/merchants/**").hasRole(ROLE_ADMIN)
