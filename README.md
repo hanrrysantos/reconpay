@@ -17,12 +17,14 @@ O **ReconPay** ataca esse problema com uma API backend que centraliza o fluxo de
 1. Configuração do merchant e suas fee rules por método de pagamento e parcelas
 2. Registro de transações internas com `expectedNetAmount` calculado
 3. Importação de liquidações externas com validação linha a linha e rastreio por lote
+4. Conciliação automática entre transações internas e liquidações externas
+5. Detecção de divergências e exportação de relatórios CSV para auditoria
 
 **Próximos resultados**
 
-1. Motor de conciliação automática entre transações internas e liquidações externas
-2. Detecção de divergências: liquidação ausente, valor incorreto, taxa divergente, status inconsistente
-3. Relatórios exportáveis para análise financeira e auditoria
+1. Processamento assíncrono para conciliações em volume
+2. Observabilidade e monitoramento operacional
+3. Evolução para arquitetura distribuída
 
 Construído como **monólito modular** em Java 21 + Spring Boot, com domínio financeiro real, regras de negócio na aplicação e base preparada para evoluir para processamento assíncrono.
 
@@ -30,7 +32,7 @@ Construído como **monólito modular** em Java 21 + Spring Boot, com domínio fi
 
 ## Status do projeto
 
-**Sprint 3 concluída:** transações internas e importação de liquidações externas via CSV.
+**Sprint 4 concluída:** motor de conciliação, identificação de divergências e relatórios CSV.
 
 | Área | Entregue |
 | :--- | :--- |
@@ -38,9 +40,10 @@ Construído como **monólito modular** em Java 21 + Spring Boot, com domínio fi
 | **Merchants & taxas** | CRUD com soft delete, fee rules por método de pagamento e parcelas |
 | **Transações internas** | Registro, cálculo de `expectedNetAmount`, controle de status, filtros |
 | **Liquidações externas** | Importação CSV (OpenCSV), lotes de importação, consulta com filtros |
-| **Infra & qualidade** | Flyway (V1–V8), Swagger, Testcontainers, CI no GitHub Actions |
+| **Conciliação** | Motor automático, detecção de divergências, consulta de resultados, exportação CSV |
+| **Infra & qualidade** | Flyway (V1–V9), Swagger, Testcontainers, CI no GitHub Actions |
 
-**Próximo passo:** motor de conciliação, cruzar transações internas com liquidações externas e identificar divergências.
+**MVP concluído** — todas as funcionalidades planejadas para a primeira versão estão implementadas.
 
 ---
 
@@ -66,6 +69,7 @@ Construído como **monólito modular** em Java 21 + Spring Boot, com domínio fi
 | `feeRule` | Regras de taxa por merchant |
 | `transaction` | Transações internas por merchant |
 | `externalsettlement` | Importação e consulta de liquidações externas |
+| `reconciliation` | Motor de conciliação, divergências e relatórios CSV |
 | `exception` | Tratamento global e respostas padronizadas (`StandardError`) |
 | `config` / `shared` | Configurações e utilitários compartilhados |
 
@@ -106,6 +110,13 @@ module/
 - Colunas esperadas: `externalReference`, `amount`, `netAmount`, `paymentMethod`, `installments`, `status`, `settlementDate`.
 - Rejeita duplicidade no arquivo e no banco; `netAmount` não pode ser maior que `amount`.
 - Cada importação gera um lote rastreável (`settlement_imports`).
+
+### Conciliação
+- Cruzamento por `(merchant, externalReference)` entre transações internas e liquidações externas.
+- Filtro opcional por período (`fromDate`, `toDate`) na data da transação/liquidação.
+- Tipos de divergência: liquidação ausente, liquidação órfã, valor bruto incorreto, taxa divergente, status inconsistente, método de pagamento divergente, parcelas divergentes.
+- Cada execução gera um lote rastreável (`reconciliation_runs`) com itens e discrepâncias persistidos.
+- Exportação CSV dos resultados para auditoria.
 
 ---
 
@@ -172,6 +183,31 @@ Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`.
 
 Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`, `importId`.
 
+### Reconciliations
+
+| Método | Endpoint | Acesso | Descrição |
+| :---: | :--- | :--- | :--- |
+| POST | `/api/merchants/{merchantId}/reconciliations` | ADMIN | Executa conciliação |
+| GET | `/api/merchants/{merchantId}/reconciliations` | ADMIN, ANALYST | Lista execuções |
+| GET | `/api/merchants/{merchantId}/reconciliations/{runId}` | ADMIN, ANALYST | Detalhe da execução |
+| GET | `/api/merchants/{merchantId}/reconciliations/{runId}/items` | ADMIN, ANALYST | Itens com filtros |
+| GET | `/api/merchants/{merchantId}/reconciliations/{runId}/export` | ADMIN, ANALYST | Exporta relatório CSV |
+
+Filtros de itens: `result` (`MATCHED`, `DIVERGENT`), `discrepancyType`.
+
+Corpo opcional da execução:
+
+```json
+POST /api/merchants/{merchantId}/reconciliations
+
+{
+  "fromDate": "2026-07-01",
+  "toDate": "2026-07-31"
+}
+```
+
+---
+
 ### Exemplo - transação interna
 
 ```json
@@ -200,6 +236,7 @@ Autenticação JWT stateless. Rotas públicas: `/api/auth/**`, Swagger, `/actuat
 | `/api/merchants/**` | ADMIN | ADMIN |
 | `.../transactions/**` | ADMIN, ANALYST | ADMIN |
 | `.../external-settlements/**` | ADMIN, ANALYST | ADMIN (import) |
+| `.../reconciliations/**` | ADMIN, ANALYST | ADMIN (execução) |
 
 Usuários seed (dev/test):
 
@@ -241,6 +278,7 @@ Migrations Flyway:
 | V6 | Tabela `internal_transactions` |
 | V7 | Seed analista |
 | V8 | Tabelas `settlement_imports` e `external_settlements` |
+| V9 | Tabelas `reconciliation_runs`, `reconciliation_items` e `reconciliation_discrepancies` |
 
 ---
 
@@ -313,9 +351,9 @@ Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo.
 - [x] Testes unitários (JUnit + Mockito)
 - [x] Swagger/OpenAPI
 - [x] CI com GitHub Actions
-- [ ] Motor de conciliação
-- [ ] Identificação de divergências
-- [ ] Relatórios CSV
+- [x] Motor de conciliação
+- [x] Identificação de divergências
+- [x] Relatórios CSV
 
 ### Evolução futura
 
