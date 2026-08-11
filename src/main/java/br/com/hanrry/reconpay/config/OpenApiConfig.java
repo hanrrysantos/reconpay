@@ -1,6 +1,6 @@
 package br.com.hanrry.reconpay.config;
 
-import br.com.hanrry.reconpay.openapi.common.OpenApiSecuritySchemes;
+import br.com.hanrry.reconpay.openapi.OpenApiSecuritySchemes;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
