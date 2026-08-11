@@ -16,7 +16,7 @@ public final class IntegrationTestUtils {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "email": "admin@reconpay.local",
+                                  "email": "admin@gmail.com",
                                   "password": "Admin@123"
                                 }
                                 """))
@@ -33,8 +33,8 @@ public final class IntegrationTestUtils {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "email": "analyst@reconpay.local",
-                                  "password": "Analyst@123"
+                                  "email": "user@gmail.com",
+                                  "password": "User@123"
                                 }
                                 """))
                 .andExpect(status().isOk())
