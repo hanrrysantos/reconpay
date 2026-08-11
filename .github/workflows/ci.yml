@@ -27,4 +27,4 @@ jobs:
           cache: maven
 
       - name: Build and run tests
-        run: ./mvnw -B verify
+        run: ./mvnw -B generate-sources verify
