@@ -22,26 +22,26 @@ O **ReconPay** ataca esse problema com uma API backend que centraliza o fluxo de
 
 **Próximos resultados**
 
-1. Processamento assíncrono para conciliações em volume
-2. Observabilidade e monitoramento operacional
+1. Spring Batch para arquivos grandes
+2. Rotação e revogação de tokens JWT
 3. Evolução para arquitetura distribuída
 
-Construído como **monólito modular** em Java 21 + Spring Boot, com domínio financeiro real, regras de negócio na aplicação e base preparada para evoluir para processamento assíncrono.
+Construído como **monólito modular** em Java 21 + Spring Boot, com domínio financeiro real, regras de negócio na aplicação e conciliação executada em background.
 
 ---
 
 ## Status do projeto
 
-**Sprint 4 concluída:** motor de conciliação, identificação de divergências e relatórios CSV.
+**Sprint 5 concluída:** conciliação assíncrona com status e isolamento de dados por merchant.
 
 | Área | Entregue |
 | :--- | :--- |
-| **Auth & usuários** | JWT, roles (`ADMIN`, `FINANCIAL_ANALYST`), CRUD de usuários |
+| **Auth & usuários** | JWT, roles (`ADMIN`, `FINANCIAL_ANALYST`), CRUD de usuários, acesso por merchant |
 | **Merchants & taxas** | CRUD com soft delete, fee rules por método de pagamento e parcelas |
 | **Transações internas** | Registro, cálculo de `expectedNetAmount`, controle de status, filtros |
 | **Liquidações externas** | Importação CSV (OpenCSV), lotes de importação, consulta com filtros |
-| **Conciliação** | Motor automático, detecção de divergências, consulta de resultados, exportação CSV |
-| **Infra & qualidade** | Flyway (V1–V9), Swagger, Testcontainers, CI no GitHub Actions |
+| **Conciliação** | Execução assíncrona com status, detecção de divergências, consulta de resultados, exportação CSV |
+| **Infra & qualidade** | Flyway (V1–V15), Swagger, Testcontainers, CI no GitHub Actions |
 
 **MVP concluído** — todas as funcionalidades planejadas para a primeira versão estão implementadas.
 
@@ -63,8 +63,8 @@ Construído como **monólito modular** em Java 21 + Spring Boot, com domínio fi
 
 | Módulo | Responsabilidade |
 | :--- | :--- |
-| `auth` | Cadastro, login e gerenciamento de usuários |
-| `security` | JWT, filtros e configuração de segurança |
+| `auth` | Cadastro, login, gerenciamento de usuários e concessão de acesso a merchants |
+| `security` | JWT, filtros, configuração de segurança e guard de acesso por merchant |
 | `merchant` | Cadastro e gerenciamento de merchants |
 | `feeRule` | Regras de taxa por merchant |
 | `transaction` | Transações internas por merchant |
@@ -118,10 +118,12 @@ module/
 - Tipos de divergência: liquidação ausente, liquidação órfã, valor bruto incorreto, taxa divergente, status inconsistente, método de pagamento divergente, parcelas divergentes. Todos são avaliados de forma independente.
 - Comparação de valores aceita `amount-tolerance` (padrão `0.00`, ou seja, comparação exata).
 - Cada item guarda um **snapshot** dos dois lados no momento da execução, então alterar uma transação depois não reescreve o resultado de um run passado.
-- Uma janela tem no máximo um run vigente: reexecutar marca o anterior como `supersededAt`.
+- Uma janela tem no máximo um run vigente: ao concluir, o run marca o anterior como `supersededAt`.
+- A execução é assíncrona: o POST devolve `202 Accepted` com o run em `PENDING` e o `Location` para acompanhar. O run passa por `RUNNING` e termina em `COMPLETED` ou `FAILED` (com `errorMessage`).
+- Enquanto houver um run `PENDING` ou `RUNNING` para a mesma janela, uma nova execução é rejeitada com `409`.
 - Exportação CSV dos resultados para auditoria, escrita em streaming.
 
-Ajustáveis por `reconpay.reconciliation.*` ou pelas variáveis `RECONCILIATION_AMOUNT_TOLERANCE`, `RECONCILIATION_SETTLEMENT_LAG_DAYS` e `RECONCILIATION_MAX_WINDOW_DAYS`.
+Ajustáveis por `reconpay.reconciliation.*` ou pelas variáveis `RECONCILIATION_AMOUNT_TOLERANCE`, `RECONCILIATION_SETTLEMENT_LAG_DAYS`, `RECONCILIATION_MAX_WINDOW_DAYS`, `RECONCILIATION_ASYNC`, `RECONCILIATION_WORKERS` e `RECONCILIATION_QUEUE_CAPACITY`.
 
 ---
 
@@ -144,6 +146,8 @@ Ajustáveis por `reconpay.reconciliation.*` ou pelas variáveis `RECONCILIATION_
 | GET | `/api/users/email?email=` | Busca por e-mail |
 | PUT | `/api/users/{id}` | Atualiza nome |
 | PATCH | `/api/users/{id}/activation` | Ativa conta pendente |
+| GET | `/api/users/{id}/merchants` | Lista merchants que o usuário enxerga |
+| PUT | `/api/users/{id}/merchants` | Substitui a lista de merchants concedidos |
 | DELETE | `/api/users/{id}` | Desativa usuário |
 
 ### Merchants *(ADMIN)*
@@ -193,7 +197,7 @@ Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`, `importId`.
 
 | Método | Endpoint | Acesso | Descrição |
 | :---: | :--- | :--- | :--- |
-| POST | `/api/merchants/{merchantId}/reconciliations` | ADMIN | Executa conciliação |
+| POST | `/api/merchants/{merchantId}/reconciliations` | ADMIN | Agenda conciliação (`202 Accepted`) |
 | GET | `/api/merchants/{merchantId}/reconciliations` | ADMIN, ANALYST | Lista execuções |
 | GET | `/api/merchants/{merchantId}/reconciliations/{runId}` | ADMIN, ANALYST | Detalhe da execução |
 | GET | `/api/merchants/{merchantId}/reconciliations/{runId}/items` | ADMIN, ANALYST | Itens com filtros |
@@ -211,6 +215,8 @@ POST /api/merchants/{merchantId}/reconciliations
   "toDate": "2026-07-31"
 }
 ```
+
+A resposta é `202 Accepted` com o run em `PENDING` e o header `Location` apontando para `GET /api/merchants/{merchantId}/reconciliations/{runId}`, que é onde o resultado final aparece.
 
 ---
 
@@ -245,6 +251,8 @@ O auto-cadastro cria a conta com perfil `FINANCIAL_ANALYST` **inativa**. Ela nã
 | `.../transactions/**` | ADMIN, ANALYST | ADMIN |
 | `.../external-settlements/**` | ADMIN, ANALYST | ADMIN (import) |
 | `.../reconciliations/**` | ADMIN, ANALYST | ADMIN (execução) |
+
+O papel diz **o que** um usuário pode fazer; ele não diz **de quem**. Todo endpoint sob `/api/merchants/{merchantId}/**` passa por um guard que nega o acesso por padrão: um analista só enxerga os merchants que um ADMIN concedeu em `PUT /api/users/{id}/merchants`. Merchants criados depois ficam invisíveis até serem concedidos. O ADMIN alcança todos.
 
 Usuários seed. As migrations de seed vivem em `db/seed` e são carregadas apenas pelos profiles `dev` e `test` (via `spring.flyway.locations`), nunca em produção.
 
@@ -291,6 +299,8 @@ Migrations Flyway:
 | V11 | Colunas de snapshot em `reconciliation_items` |
 | V12 | Unicidade por `(run, externalReference)` e índices de FK |
 | V13 | `superseded_at` em `reconciliation_runs` com índice único parcial por janela |
+| V14 | Tabela `user_merchants` (acesso concedido de usuário a merchant) |
+| V15 | `status`, `started_at`, `finished_at` e `error_message` em `reconciliation_runs`, com índices de janela vigente e execução em andamento |
 
 Os seeds de desenvolvimento vivem em `db/seed` (`V900`) e só são carregados pelos profiles `dev` e `test`.
 
@@ -371,11 +381,13 @@ Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo.
 - [x] Relatórios CSV
 - [x] Runs imutáveis por snapshot e política de reexecução
 - [x] Observabilidade (log estruturado, auditoria, Prometheus, tracing)
+- [x] Isolamento por merchant com concessão explícita de acesso
+- [x] Execução assíncrona da conciliação com status no run
 
 ### Evolução futura
 
-- Isolamento multi-tenant: hoje qualquer analista autenticado lê os dados de qualquer merchant
-- Execução assíncrona da conciliação, devolvendo 202 com status no run
+- Retomada de runs interrompidos por reinício da aplicação
+- Fila externa no lugar do pool em memória, para distribuir a execução entre instâncias
 - Spring Batch para arquivos grandes
 - Rotação e revogação de tokens JWT (refresh token, denylist)
 - Rate limiting no login e no auto-cadastro
