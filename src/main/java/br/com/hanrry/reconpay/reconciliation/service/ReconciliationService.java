@@ -23,13 +23,21 @@ import br.com.hanrry.reconpay.reconciliation.repository.ReconciliationItemSpecif
 import br.com.hanrry.reconpay.transaction.entity.InternalTransactionEntity;
 import br.com.hanrry.reconpay.transaction.repository.IInternalTransactionRepository;
 import br.com.hanrry.reconpay.transaction.repository.TransactionSpecifications;
+import com.opencsv.CSVWriter;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -58,6 +66,7 @@ public class ReconciliationService {
     private final Clock clock;
 
     private static final int PERSIST_BATCH_SIZE = 500;
+    private static final int EXPORT_CHUNK_SIZE = 500;
 
     @Transactional
     public ReconciliationRunResponseDTO run(UUID merchantId, RunReconciliationRequestDTO request) {
@@ -194,14 +203,36 @@ public class ReconciliationService {
                 .map(reconciliationMapper::toItemDTO);
     }
 
+    /*
+     * Written straight to the response instead of buffering the whole report,
+     * reading items in chunks and clearing the persistence context between them
+     * so peak memory does not scale with the size of the run.
+     */
     @Transactional(readOnly = true)
-    public byte[] exportCsv(UUID merchantId, UUID runId) {
+    public void exportCsv(UUID merchantId, UUID runId, OutputStream outputStream) {
         findRunForMerchant(merchantId, runId);
 
-        List<ReconciliationItemEntity> items = reconciliationItemRepository
-                .findAllWithDetailsByRunId(runId);
+        try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+             CSVWriter csvWriter = reconciliationCsvExporter.open(writer)) {
 
-        return reconciliationCsvExporter.export(items);
+            Pageable chunk = PageRequest.of(0, EXPORT_CHUNK_SIZE);
+            Slice<UUID> ids;
+
+            do {
+                ids = reconciliationItemRepository.findIdsByRunId(runId, chunk);
+
+                if (!ids.isEmpty()) {
+                    reconciliationCsvExporter.write(
+                            csvWriter,
+                            reconciliationItemRepository.findAllWithDiscrepanciesByIdIn(ids.getContent()));
+                    entityManager.clear();
+                }
+
+                chunk = chunk.next();
+            } while (ids.hasNext());
+        } catch (IOException ex) {
+            throw new IllegalStateException("Erro ao gerar relatório CSV", ex);
+        }
     }
 
     private ReconciliationRunEntity findRunForMerchant(UUID merchantId, UUID runId) {

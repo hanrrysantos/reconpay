@@ -4,11 +4,8 @@ import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationItemEntity;
 import com.opencsv.CSVWriter;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,22 +30,14 @@ public class ReconciliationCsvExporter {
             "settlementDate"
     };
 
-    public byte[] export(List<ReconciliationItemEntity> items) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-             OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
-             CSVWriter csvWriter = new CSVWriter(writer)) {
+    public CSVWriter open(Writer writer) {
+        CSVWriter csvWriter = new CSVWriter(writer);
+        csvWriter.writeNext(HEADER);
+        return csvWriter;
+    }
 
-            csvWriter.writeNext(HEADER);
-
-            for (ReconciliationItemEntity item : items) {
-                csvWriter.writeNext(toRow(item));
-            }
-
-            csvWriter.flush();
-            return outputStream.toByteArray();
-        } catch (IOException ex) {
-            throw new IllegalStateException("Erro ao gerar relatório CSV", ex);
-        }
+    public void write(CSVWriter csvWriter, List<ReconciliationItemEntity> items) {
+        items.forEach(item -> csvWriter.writeNext(toRow(item)));
     }
 
     private String[] toRow(ReconciliationItemEntity item) {

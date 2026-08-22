@@ -8,6 +8,7 @@ import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
 import br.com.hanrry.reconpay.reconciliation.service.ReconciliationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -16,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @RestController
@@ -76,16 +78,20 @@ public class ReconciliationController {
                 merchantId, runId, result, discrepancyType, pageable));
     }
 
+    /*
+     * Written straight to the servlet output stream rather than returned as a
+     * body, so a large run never has to exist as a byte array in heap.
+     */
     @GetMapping("/{runId}/export")
-    public ResponseEntity<byte[]> exportCsv(
+    public void exportCsv(
             @PathVariable UUID merchantId,
-            @PathVariable UUID runId) {
-        byte[] csvContent = reconciliationService.exportCsv(merchantId, runId);
+            @PathVariable UUID runId,
+            HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"reconciliation-" + runId + ".csv\"");
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"reconciliation-" + runId + ".csv\"")
-                .contentType(MediaType.parseMediaType("text/csv"))
-                .body(csvContent);
+        reconciliationService.exportCsv(merchantId, runId, response.getOutputStream());
     }
 }
