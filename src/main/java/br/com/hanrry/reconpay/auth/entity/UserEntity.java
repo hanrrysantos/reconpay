@@ -48,7 +48,6 @@ public class UserEntity {
         Instant now = Instant.now();
         this.createdAt = now;
         this.updatedAt = now;
-        this.active = true;
         if (this.role == null) {
             this.role = UserRole.FINANCIAL_ANALYST;
         }

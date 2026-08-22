@@ -115,7 +115,7 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
-    void registerShouldReturnCreatedUserWithoutAuthentication() throws Exception {
+    void registerShouldReturnCreatedInactiveUserWithoutAuthentication() throws Exception {
         UUID userId = UUID.randomUUID();
         Instant createdAt = Instant.parse("2026-08-05T12:00:00Z");
         UserResponseDTO response = new UserResponseDTO(
@@ -123,7 +123,7 @@ class AuthControllerIntegrationTest {
                 "Analista Teste",
                 "analista@test.local",
                 UserRole.FINANCIAL_ANALYST,
-                true,
+                false,
                 createdAt
         );
 
@@ -141,7 +141,8 @@ class AuthControllerIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(userId.toString()))
                 .andExpect(jsonPath("$.email").value("analista@test.local"))
-                .andExpect(jsonPath("$.role").value("FINANCIAL_ANALYST"));
+                .andExpect(jsonPath("$.role").value("FINANCIAL_ANALYST"))
+                .andExpect(jsonPath("$.active").value(false));
     }
 
     @Test

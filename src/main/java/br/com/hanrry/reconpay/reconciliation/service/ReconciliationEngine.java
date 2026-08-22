@@ -9,6 +9,7 @@ import br.com.hanrry.reconpay.transaction.entity.InternalTransactionEntity;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -74,7 +75,9 @@ public class ReconciliationEngine {
                     DiscrepancyType.INCORRECT_AMOUNT,
                     formatAmount(transaction.getAmount()),
                     formatAmount(settlement.getAmount())));
-        } else if (transaction.getExpectedNetAmount().compareTo(settlement.getNetAmount()) != 0) {
+        }
+
+        if (transaction.getExpectedNetAmount().compareTo(settlement.getNetAmount()) != 0) {
             discrepancies.add(discrepancy(
                     DiscrepancyType.FEE_DIVERGENCE,
                     formatAmount(transaction.getExpectedNetAmount()),
@@ -117,6 +120,6 @@ public class ReconciliationEngine {
     }
 
     private String formatAmount(BigDecimal amount) {
-        return amount.setScale(2).toPlainString();
+        return amount.setScale(2, RoundingMode.HALF_UP).toPlainString();
     }
 }

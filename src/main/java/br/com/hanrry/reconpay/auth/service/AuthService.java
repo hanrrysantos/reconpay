@@ -5,6 +5,7 @@ import br.com.hanrry.reconpay.auth.dto.AuthResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
+import br.com.hanrry.reconpay.auth.enums.UserRole;
 import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
@@ -43,6 +44,8 @@ public class AuthService {
 
         UserEntity user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(UserRole.FINANCIAL_ANALYST);
+        user.setActive(false);
 
         UserEntity savedUser = userRepository.save(user);
         return userMapper.toDTO(savedUser);

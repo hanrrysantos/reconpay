@@ -7,12 +7,12 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "Credenciais para autenticação")
 public record AuthRequestDTO(
 
-        @Schema(description = "Email cadastrado no sistema", example = "admin@gmail.com")
+        @Schema(description = "Email cadastrado no sistema", example = "admin@reconpay.local")
         @NotBlank(message = "Email é obrigatório")
         @Email(message = "Email inválido")
         String email,
 
-        @Schema(description = "Senha do usuário", example = "Admin@123")
+        @Schema(description = "Senha do usuário", example = "DevAdmin@2026")
         @NotBlank(message = "Senha é obrigatória")
         String password
 ) {

@@ -36,9 +36,19 @@ public class UserService {
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(request.role());
+        user.setActive(true);
 
         UserEntity savedUser = userRepository.save(user);
         return userMapper.toDTO(savedUser);
+    }
+
+    @Transactional
+    public UserResponseDTO activate(UUID id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
+
+        user.setActive(true);
+        return userMapper.toDTO(userRepository.save(user));
     }
 
     public Page<UserResponseDTO> findAllUsers(Pageable pageable) {

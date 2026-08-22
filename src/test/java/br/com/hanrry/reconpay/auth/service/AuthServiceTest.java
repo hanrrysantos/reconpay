@@ -67,7 +67,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void registerShouldPersistUserWithEncodedPassword() {
+    void registerShouldPersistInactiveAnalystWithEncodedPassword() {
         UserRequestDTO request = new UserRequestDTO("Analista", "analista@gmail.com", "Analista@123");
         UserEntity mappedEntity = new UserEntity();
         mappedEntity.setName("Analista");
@@ -79,7 +79,7 @@ class AuthServiceTest {
         savedEntity.setEmail("analista@gmail.com");
         savedEntity.setPassword("encoded-password");
         savedEntity.setRole(UserRole.FINANCIAL_ANALYST);
-        savedEntity.setActive(true);
+        savedEntity.setActive(false);
         savedEntity.setCreatedAt(Instant.parse("2026-08-05T12:00:00Z"));
 
         UserResponseDTO expectedResponse = new UserResponseDTO(
@@ -87,7 +87,7 @@ class AuthServiceTest {
                 "Analista",
                 "analista@gmail.com",
                 UserRole.FINANCIAL_ANALYST,
-                true,
+                false,
                 savedEntity.getCreatedAt()
         );
 
@@ -104,6 +104,8 @@ class AuthServiceTest {
         verify(userRepository).save(entityCaptor.capture());
 
         assertThat(entityCaptor.getValue().getPassword()).isEqualTo("encoded-password");
+        assertThat(entityCaptor.getValue().getRole()).isEqualTo(UserRole.FINANCIAL_ANALYST);
+        assertThat(entityCaptor.getValue().isActive()).isFalse();
         assertThat(response).isEqualTo(expectedResponse);
     }
 

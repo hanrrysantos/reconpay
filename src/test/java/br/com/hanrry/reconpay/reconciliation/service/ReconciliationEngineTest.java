@@ -118,7 +118,7 @@ class ReconciliationEngineTest {
     }
 
     @Test
-    void shouldDetectIncorrectAmountAndStatusMismatch() {
+    void shouldDetectFeeDivergenceEvenWhenGrossAmountAlsoDiverges() {
         InternalTransactionEntity transaction = buildTransaction(
                 "TXN-004",
                 new BigDecimal("150.00"),
@@ -144,7 +144,127 @@ class ReconciliationEngineTest {
                 .extracting(discrepancy -> discrepancy.getType())
                 .containsExactlyInAnyOrder(
                         DiscrepancyType.INCORRECT_AMOUNT,
+                        DiscrepancyType.FEE_DIVERGENCE,
                         DiscrepancyType.STATUS_MISMATCH);
+    }
+
+    @Test
+    void shouldDetectPaymentMethodMismatch() {
+        InternalTransactionEntity transaction = buildTransaction(
+                "TXN-005",
+                new BigDecimal("200.00"),
+                new BigDecimal("194.00"),
+                PaymentMethod.CREDIT_CARD,
+                1,
+                TransactionStatus.APPROVED);
+
+        ExternalSettlementEntity settlement = buildSettlement(
+                "TXN-005",
+                new BigDecimal("200.00"),
+                new BigDecimal("194.00"),
+                PaymentMethod.DEBIT_CARD,
+                1,
+                TransactionStatus.APPROVED);
+
+        List<ReconciliationItemEntity> items = reconciliationEngine.reconcile(
+                Map.of("TXN-005", transaction),
+                Map.of("TXN-005", settlement));
+
+        assertThat(items.getFirst().getResult()).isEqualTo(ReconciliationResult.DIVERGENT);
+        assertThat(items.getFirst().getDiscrepancies())
+                .extracting(discrepancy -> discrepancy.getType())
+                .containsExactly(DiscrepancyType.PAYMENT_METHOD_MISMATCH);
+    }
+
+    @Test
+    void shouldDetectInstallmentsMismatch() {
+        InternalTransactionEntity transaction = buildTransaction(
+                "TXN-006",
+                new BigDecimal("300.00"),
+                new BigDecimal("291.00"),
+                PaymentMethod.CREDIT_CARD,
+                3,
+                TransactionStatus.APPROVED);
+
+        ExternalSettlementEntity settlement = buildSettlement(
+                "TXN-006",
+                new BigDecimal("300.00"),
+                new BigDecimal("291.00"),
+                PaymentMethod.CREDIT_CARD,
+                6,
+                TransactionStatus.APPROVED);
+
+        List<ReconciliationItemEntity> items = reconciliationEngine.reconcile(
+                Map.of("TXN-006", transaction),
+                Map.of("TXN-006", settlement));
+
+        assertThat(items.getFirst().getResult()).isEqualTo(ReconciliationResult.DIVERGENT);
+        assertThat(items.getFirst().getDiscrepancies())
+                .extracting(discrepancy -> discrepancy.getType())
+                .containsExactly(DiscrepancyType.INSTALLMENTS_MISMATCH);
+    }
+
+    @Test
+    void shouldMatchAmountsThatDifferOnlyInScale() {
+        InternalTransactionEntity transaction = buildTransaction(
+                "TXN-007",
+                new BigDecimal("150.0"),
+                new BigDecimal("145.000"),
+                PaymentMethod.CREDIT_CARD,
+                3,
+                TransactionStatus.APPROVED);
+
+        ExternalSettlementEntity settlement = buildSettlement(
+                "TXN-007",
+                new BigDecimal("150.00"),
+                new BigDecimal("145.00"),
+                PaymentMethod.CREDIT_CARD,
+                3,
+                TransactionStatus.APPROVED);
+
+        List<ReconciliationItemEntity> items = reconciliationEngine.reconcile(
+                Map.of("TXN-007", transaction),
+                Map.of("TXN-007", settlement));
+
+        assertThat(items.getFirst().getResult()).isEqualTo(ReconciliationResult.MATCHED);
+        assertThat(items.getFirst().getDiscrepancies()).isEmpty();
+    }
+
+    @Test
+    void shouldDetectEveryDiscrepancyTypeAtOnce() {
+        InternalTransactionEntity transaction = buildTransaction(
+                "TXN-008",
+                new BigDecimal("150.00"),
+                new BigDecimal("145.00"),
+                PaymentMethod.CREDIT_CARD,
+                3,
+                TransactionStatus.APPROVED);
+
+        ExternalSettlementEntity settlement = buildSettlement(
+                "TXN-008",
+                new BigDecimal("160.00"),
+                new BigDecimal("150.00"),
+                PaymentMethod.PIX,
+                1,
+                TransactionStatus.CHARGEBACK);
+
+        List<ReconciliationItemEntity> items = reconciliationEngine.reconcile(
+                Map.of("TXN-008", transaction),
+                Map.of("TXN-008", settlement));
+
+        assertThat(items.getFirst().getDiscrepancies())
+                .extracting(discrepancy -> discrepancy.getType())
+                .containsExactlyInAnyOrder(
+                        DiscrepancyType.INCORRECT_AMOUNT,
+                        DiscrepancyType.FEE_DIVERGENCE,
+                        DiscrepancyType.STATUS_MISMATCH,
+                        DiscrepancyType.PAYMENT_METHOD_MISMATCH,
+                        DiscrepancyType.INSTALLMENTS_MISMATCH);
+    }
+
+    @Test
+    void shouldReturnNoItemsWhenBothSidesAreEmpty() {
+        assertThat(reconciliationEngine.reconcile(Map.of(), Map.of())).isEmpty();
     }
 
     private InternalTransactionEntity buildTransaction(

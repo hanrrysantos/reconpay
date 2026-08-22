@@ -55,13 +55,14 @@ public interface AuthControllerApi {
     @Operation(
             summary = "Registrar novo usuário",
             description = """
-                    Cria uma conta com perfil FINANCIAL_ANALYST por padrão.
+                    Cria uma conta com perfil FINANCIAL_ANALYST em estado inativo.
                     A senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um número.
-                    Após o cadastro, use /login para obter o token JWT."""
+                    A conta não autentica até que um ADMIN a aprove em \
+                    PATCH /api/users/{id}/activation."""
     )
     @ApiResponse(
         responseCode = "201",
-        description = "Usuário criado com sucesso",
+        description = "Usuário criado com sucesso, pendente de ativação",
         content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = UserResponseDTO.class)

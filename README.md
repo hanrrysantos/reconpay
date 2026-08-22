@@ -138,6 +138,7 @@ module/
 | GET | `/api/users/{id}` | Busca por id |
 | GET | `/api/users/email?email=` | Busca por e-mail |
 | PUT | `/api/users/{id}` | Atualiza nome |
+| PATCH | `/api/users/{id}/activation` | Ativa conta pendente |
 | DELETE | `/api/users/{id}` | Desativa usuário |
 
 ### Merchants *(ADMIN)*
@@ -228,7 +229,9 @@ Retorna `expectedNetAmount` calculado com base na fee rule ativa.
 
 ## Segurança
 
-Autenticação JWT stateless. Rotas públicas: `/api/auth/**`, Swagger, `/actuator/health`.
+Autenticação JWT stateless. Rotas públicas: `POST /api/auth/login`, `POST /api/auth/register`, Swagger, `/actuator/health`.
+
+O auto-cadastro cria a conta com perfil `FINANCIAL_ANALYST` **inativa**. Ela não autentica até que um ADMIN aprove em `PATCH /api/users/{id}/activation`.
 
 | Recurso | Leitura | Escrita |
 | :--- | :--- | :--- |
@@ -238,12 +241,12 @@ Autenticação JWT stateless. Rotas públicas: `/api/auth/**`, Swagger, `/actuat
 | `.../external-settlements/**` | ADMIN, ANALYST | ADMIN (import) |
 | `.../reconciliations/**` | ADMIN, ANALYST | ADMIN (execução) |
 
-Usuários seed (dev/test):
+Usuários seed. As migrations de seed vivem em `db/seed` e são carregadas apenas pelos profiles `dev` e `test` (via `spring.flyway.locations`), nunca em produção.
 
 | Role | E-mail | Senha |
 | :--- | :--- | :--- |
-| ADMIN | `admin@reconpay.local` | `Admin@123` |
-| FINANCIAL_ANALYST | `analyst@reconpay.local` | `Analyst@123` |
+| ADMIN | `admin@reconpay.local` | `DevAdmin@2026` |
+| FINANCIAL_ANALYST | `analyst@reconpay.local` | `DevAnalyst@2026` |
 
 ---
 
