@@ -113,10 +113,15 @@ module/
 
 ### Conciliação
 - Cruzamento por `(merchant, externalReference)` entre transações internas e liquidações externas.
-- Filtro opcional por período (`fromDate`, `toDate`) na data da transação/liquidação.
-- Tipos de divergência: liquidação ausente, liquidação órfã, valor bruto incorreto, taxa divergente, status inconsistente, método de pagamento divergente, parcelas divergentes.
-- Cada execução gera um lote rastreável (`reconciliation_runs`) com itens e discrepâncias persistidos.
-- Exportação CSV dos resultados para auditoria.
+- Janela obrigatória (`fromDate`, `toDate`) aplicada sobre a data da transação, limitada a `max-window-days`.
+- O lado da liquidação lê a janela estendida por `settlement-lag-days`, porque uma venda no fim do período liquida no período seguinte. Liquidações cuja transação está fora da janela são ignoradas em vez de reportadas como órfãs.
+- Tipos de divergência: liquidação ausente, liquidação órfã, valor bruto incorreto, taxa divergente, status inconsistente, método de pagamento divergente, parcelas divergentes. Todos são avaliados de forma independente.
+- Comparação de valores aceita `amount-tolerance` (padrão `0.00`, ou seja, comparação exata).
+- Cada item guarda um **snapshot** dos dois lados no momento da execução, então alterar uma transação depois não reescreve o resultado de um run passado.
+- Uma janela tem no máximo um run vigente: reexecutar marca o anterior como `supersededAt`.
+- Exportação CSV dos resultados para auditoria, escrita em streaming.
+
+Ajustáveis por `reconpay.reconciliation.*` ou pelas variáveis `RECONCILIATION_AMOUNT_TOLERANCE`, `RECONCILIATION_SETTLEMENT_LAG_DAYS` e `RECONCILIATION_MAX_WINDOW_DAYS`.
 
 ---
 
@@ -126,7 +131,7 @@ module/
 
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
-| POST | `/api/auth/register` | Registra usuário |
+| POST | `/api/auth/register` | Registra usuário (inativo até aprovação de um ADMIN) |
 | POST | `/api/auth/login` | Autentica e retorna JWT |
 
 ### Users *(ADMIN)*
@@ -196,7 +201,7 @@ Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`, `importId`.
 
 Filtros de itens: `result` (`MATCHED`, `DIVERGENT`), `discrepancyType`.
 
-Corpo opcional da execução:
+Corpo obrigatório da execução:
 
 ```json
 POST /api/merchants/{merchantId}/reconciliations
@@ -263,7 +268,7 @@ Estratégia com JUnit 5:
 ./mvnw verify
 ```
 
-A CI executa `./mvnw -B verify` em push e pull request para `main`.
+A CI executa `./mvnw -B verify` em push e pull request para `main`, com gate de cobertura JaCoCo (85% de linhas, 75% de ramos) e um scan de vulnerabilidades em dependências.
 
 ---
 
@@ -277,11 +282,17 @@ Migrations Flyway:
 | V2 | Tabela `users` |
 | V3 | Tabela `fee_rules` |
 | V4 | Alinhamento de roles |
-| V5 | Seed admin |
+| V5 | Seed admin *(revogado pela V10)* |
 | V6 | Tabela `internal_transactions` |
-| V7 | Seed analista |
+| V7 | Seed analista *(revogado pela V10)* |
 | V8 | Tabelas `settlement_imports` e `external_settlements` |
 | V9 | Tabelas `reconciliation_runs`, `reconciliation_items` e `reconciliation_discrepancies` |
+| V10 | Remove os usuários semeados pelas V5/V7, que rodavam também em produção |
+| V11 | Colunas de snapshot em `reconciliation_items` |
+| V12 | Unicidade por `(run, externalReference)` e índices de FK |
+| V13 | `superseded_at` em `reconciliation_runs` com índice único parcial por janela |
+
+Os seeds de desenvolvimento vivem em `db/seed` (`V900`) e só são carregados pelos profiles `dev` e `test`.
 
 ---
 
@@ -305,7 +316,7 @@ JWT_SECRET=sua-chave-secreta-com-pelo-menos-32-caracteres
 JWT_EXPIRATION=604800
 ```
 
-> Na **Opção A**, o `.env` configura apenas o PostgreSQL no Docker. Na **Opção B**, também configura a API (incluindo `JWT_SECRET`).
+> `JWT_SECRET` é obrigatório e não tem valor padrão em nenhum profile. Na **Opção A** o profile `dev` importa o `.env` diretamente; na **Opção B** o Compose o injeta no container.
 
 ### 2. Escolha como subir a aplicação
 
@@ -313,7 +324,7 @@ Há duas formas. Em ambas o PostgreSQL roda na porta **5433** e a API fica em **
 
 #### Opção A - Desenvolvimento local
 
-Docker apenas para o banco; a API roda na sua máquina com hot reload.
+Docker apenas para o banco; a API roda na sua máquina no profile `dev`, com os usuários de seed carregados.
 
 ```bash
 docker compose up -d banco-reconpay
@@ -324,7 +335,7 @@ Ideal para desenvolvimento, debug e execução de testes.
 
 #### Opção B - Tudo via Docker
 
-Sobe banco e API em containers usando o `.env` automaticamente. Não precisa instalar Java localmente.
+Sobe banco e API em containers no profile `prod`, usando o `.env` automaticamente. Não precisa instalar Java localmente, e **não há usuários de seed** — crie o primeiro ADMIN diretamente no banco.
 
 ```bash
 docker compose up --build
@@ -339,6 +350,7 @@ Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo.
 | API | http://localhost:8080 |
 | Swagger | http://localhost:8080/swagger-ui.html |
 | Health | http://localhost:8080/actuator/health |
+| Métricas (autenticado) | http://localhost:8080/actuator/prometheus |
 
 ---
 
@@ -357,12 +369,16 @@ Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo.
 - [x] Motor de conciliação
 - [x] Identificação de divergências
 - [x] Relatórios CSV
+- [x] Runs imutáveis por snapshot e política de reexecução
+- [x] Observabilidade (log estruturado, auditoria, Prometheus, tracing)
 
 ### Evolução futura
 
-- Processamento assíncrono (RabbitMQ)
+- Isolamento multi-tenant: hoje qualquer analista autenticado lê os dados de qualquer merchant
+- Execução assíncrona da conciliação, devolvendo 202 com status no run
 - Spring Batch para arquivos grandes
-- Observabilidade (Prometheus, Grafana)
+- Rotação e revogação de tokens JWT (refresh token, denylist)
+- Rate limiting no login e no auto-cadastro
 - Deploy em cloud
 
 ---
