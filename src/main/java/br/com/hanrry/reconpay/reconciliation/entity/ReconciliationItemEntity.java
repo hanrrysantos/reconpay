@@ -2,7 +2,9 @@ package br.com.hanrry.reconpay.reconciliation.entity;
 
 import br.com.hanrry.reconpay.externalsettlement.entity.ExternalSettlementEntity;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
+import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.entity.InternalTransactionEntity;
+import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,8 +23,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -58,7 +63,48 @@ public class ReconciliationItemEntity {
     @Column(nullable = false, length = 30)
     private ReconciliationResult result;
 
+    @Column(name = "transaction_amount", precision = 19, scale = 2)
+    private BigDecimal transactionAmount;
+
+    @Column(name = "expected_net_amount", precision = 19, scale = 2)
+    private BigDecimal expectedNetAmount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_payment_method", length = 30)
+    private PaymentMethod transactionPaymentMethod;
+
+    @Column(name = "transaction_installments")
+    private Integer transactionInstallments;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_status", length = 30)
+    private TransactionStatus transactionStatus;
+
+    @Column(name = "transaction_date")
+    private LocalDate transactionDate;
+
+    @Column(name = "settlement_amount", precision = 19, scale = 2)
+    private BigDecimal settlementAmount;
+
+    @Column(name = "settlement_net_amount", precision = 19, scale = 2)
+    private BigDecimal settlementNetAmount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "settlement_payment_method", length = 30)
+    private PaymentMethod settlementPaymentMethod;
+
+    @Column(name = "settlement_installments")
+    private Integer settlementInstallments;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "settlement_status", length = 30)
+    private TransactionStatus settlementStatus;
+
+    @Column(name = "settlement_date")
+    private LocalDate settlementDate;
+
     @OneToMany(mappedBy = "reconciliationItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 100)
     private List<ReconciliationDiscrepancyEntity> discrepancies = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)

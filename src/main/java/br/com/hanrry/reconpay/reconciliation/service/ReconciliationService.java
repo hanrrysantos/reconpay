@@ -1,5 +1,6 @@
 package br.com.hanrry.reconpay.reconciliation.service;
 
+import br.com.hanrry.reconpay.exception.InvalidReconciliationWindowException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.exception.ReconciliationNotFoundException;
 import br.com.hanrry.reconpay.externalsettlement.entity.ExternalSettlementEntity;
@@ -7,6 +8,7 @@ import br.com.hanrry.reconpay.externalsettlement.repository.ExternalSettlementSp
 import br.com.hanrry.reconpay.externalsettlement.repository.IExternalSettlementRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
+import br.com.hanrry.reconpay.reconciliation.config.ReconciliationProperties;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationItemResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationRunResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.RunReconciliationRequestDTO;
@@ -21,15 +23,20 @@ import br.com.hanrry.reconpay.reconciliation.repository.ReconciliationItemSpecif
 import br.com.hanrry.reconpay.transaction.entity.InternalTransactionEntity;
 import br.com.hanrry.reconpay.transaction.repository.IInternalTransactionRepository;
 import br.com.hanrry.reconpay.transaction.repository.TransactionSpecifications;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -46,6 +53,11 @@ public class ReconciliationService {
     private final IInternalTransactionRepository transactionRepository;
     private final IExternalSettlementRepository externalSettlementRepository;
     private final IMerchantRepository merchantRepository;
+    private final ReconciliationProperties properties;
+    private final EntityManager entityManager;
+    private final Clock clock;
+
+    private static final int PERSIST_BATCH_SIZE = 500;
 
     @Transactional
     public ReconciliationRunResponseDTO run(UUID merchantId, RunReconciliationRequestDTO request) {
@@ -55,6 +67,7 @@ public class ReconciliationService {
 
         LocalDate fromDate = request.fromDate();
         LocalDate toDate = request.toDate();
+        ensureWindowIsWithinLimit(fromDate, toDate);
 
         Map<String, InternalTransactionEntity> transactionsByReference = transactionRepository.findAll(
                         TransactionSpecifications.withFilters(merchantId, null, null, fromDate, toDate))
@@ -63,16 +76,14 @@ public class ReconciliationService {
                         InternalTransactionEntity::getExternalReference,
                         Function.identity()));
 
-        Map<String, ExternalSettlementEntity> settlementsByReference = externalSettlementRepository.findAll(
-                        ExternalSettlementSpecifications.withDateRange(merchantId, fromDate, toDate))
-                .stream()
-                .collect(Collectors.toMap(
-                        ExternalSettlementEntity::getExternalReference,
-                        Function.identity()));
+        Map<String, ExternalSettlementEntity> settlementsByReference = loadSettlementsInScope(
+                merchantId, fromDate, toDate, transactionsByReference.keySet());
 
         List<ReconciliationItemEntity> items = reconciliationEngine.reconcile(
                 transactionsByReference,
                 settlementsByReference);
+
+        reconciliationRunRepository.supersedeWindow(merchantId, fromDate, toDate, Instant.now(clock));
 
         ReconciliationRunEntity run = new ReconciliationRunEntity();
         run.setMerchant(merchant);
@@ -87,11 +98,71 @@ public class ReconciliationService {
                 .count());
 
         ReconciliationRunEntity savedRun = reconciliationRunRepository.save(run);
+        ReconciliationRunResponseDTO response = reconciliationMapper.toRunDTO(savedRun);
 
-        items.forEach(item -> item.setReconciliationRun(savedRun));
-        reconciliationItemRepository.saveAll(items);
+        persistInBatches(items, savedRun.getId());
 
-        return reconciliationMapper.toRunDTO(savedRun);
+        return response;
+    }
+
+    /*
+     * Settlements lag their transaction, so the settlement side reads a window
+     * extended by settlementLagDays. That extension also pulls in payouts for
+     * transactions dated after toDate, which are out of scope rather than
+     * orphans, so anything whose reference exists elsewhere for the merchant is
+     * dropped instead of being reported twice across adjacent runs.
+     */
+    private Map<String, ExternalSettlementEntity> loadSettlementsInScope(
+            UUID merchantId,
+            LocalDate fromDate,
+            LocalDate toDate,
+            Set<String> referencesInWindow) {
+        List<ExternalSettlementEntity> settlements = externalSettlementRepository.findAll(
+                ExternalSettlementSpecifications.withDateRange(
+                        merchantId, fromDate, toDate.plusDays(properties.settlementLagDays())));
+
+        Set<String> unmatchedReferences = settlements.stream()
+                .map(ExternalSettlementEntity::getExternalReference)
+                .filter(reference -> !referencesInWindow.contains(reference))
+                .collect(Collectors.toSet());
+
+        Set<String> knownOutsideWindow = unmatchedReferences.isEmpty()
+                ? Set.of()
+                : transactionRepository.findExistingReferences(merchantId, unmatchedReferences);
+
+        return settlements.stream()
+                .filter(settlement -> !knownOutsideWindow.contains(settlement.getExternalReference()))
+                .collect(Collectors.toMap(
+                        ExternalSettlementEntity::getExternalReference,
+                        Function.identity()));
+    }
+
+    private void ensureWindowIsWithinLimit(LocalDate fromDate, LocalDate toDate) {
+        long days = ChronoUnit.DAYS.between(fromDate, toDate) + 1;
+        if (days > properties.maxWindowDays()) {
+            throw new InvalidReconciliationWindowException(
+                    "Janela de conciliação excede o máximo de " + properties.maxWindowDays() + " dias");
+        }
+    }
+
+    /*
+     * Clearing the persistence context between batches keeps Hibernate's dirty
+     * checking from degrading as the item count grows, at the cost of having to
+     * re-attach the run reference on every batch.
+     */
+    private void persistInBatches(List<ReconciliationItemEntity> items, UUID runId) {
+        for (int start = 0; start < items.size(); start += PERSIST_BATCH_SIZE) {
+            int end = Math.min(start + PERSIST_BATCH_SIZE, items.size());
+            List<ReconciliationItemEntity> batch = items.subList(start, end);
+
+            ReconciliationRunEntity runReference =
+                    entityManager.getReference(ReconciliationRunEntity.class, runId);
+            batch.forEach(item -> item.setReconciliationRun(runReference));
+
+            reconciliationItemRepository.saveAll(batch);
+            entityManager.flush();
+            entityManager.clear();
+        }
     }
 
     @Transactional(readOnly = true)

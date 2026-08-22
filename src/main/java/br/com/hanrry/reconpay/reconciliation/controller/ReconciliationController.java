@@ -42,12 +42,8 @@ public class ReconciliationController {
     @PostMapping
     public ResponseEntity<ReconciliationRunResponseDTO> run(
             @PathVariable UUID merchantId,
-            @Valid @RequestBody(required = false) RunReconciliationRequestDTO request) {
-        RunReconciliationRequestDTO effectiveRequest = request != null
-                ? request
-                : new RunReconciliationRequestDTO(null, null);
-
-        ReconciliationRunResponseDTO run = reconciliationService.run(merchantId, effectiveRequest);
+            @Valid @RequestBody RunReconciliationRequestDTO request) {
+        ReconciliationRunResponseDTO run = reconciliationService.run(merchantId, request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(run.id())

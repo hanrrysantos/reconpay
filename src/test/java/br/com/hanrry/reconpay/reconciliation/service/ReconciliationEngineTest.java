@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.reconciliation.service;
 
 import br.com.hanrry.reconpay.externalsettlement.entity.ExternalSettlementEntity;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
+import br.com.hanrry.reconpay.reconciliation.config.ReconciliationProperties;
 import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationItemEntity;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
@@ -19,7 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ReconciliationEngineTest {
 
-    private final ReconciliationEngine reconciliationEngine = new ReconciliationEngine();
+    private final ReconciliationEngine reconciliationEngine = engineWithTolerance("0.00");
+
+    private static ReconciliationEngine engineWithTolerance(String tolerance) {
+        return new ReconciliationEngine(
+                new ReconciliationProperties(new BigDecimal(tolerance), 5, 366));
+    }
 
     @Test
     void shouldMatchWhenAllFieldsAreEqual() {
@@ -265,6 +271,116 @@ class ReconciliationEngineTest {
     @Test
     void shouldReturnNoItemsWhenBothSidesAreEmpty() {
         assertThat(reconciliationEngine.reconcile(Map.of(), Map.of())).isEmpty();
+    }
+
+    @Test
+    void shouldSnapshotBothSidesOnTheItem() {
+        InternalTransactionEntity transaction = buildTransaction(
+                "TXN-009",
+                new BigDecimal("150.00"),
+                new BigDecimal("145.00"),
+                PaymentMethod.CREDIT_CARD,
+                3,
+                TransactionStatus.APPROVED);
+
+        ExternalSettlementEntity settlement = buildSettlement(
+                "TXN-009",
+                new BigDecimal("150.00"),
+                new BigDecimal("145.00"),
+                PaymentMethod.CREDIT_CARD,
+                3,
+                TransactionStatus.APPROVED);
+
+        ReconciliationItemEntity item = reconciliationEngine.reconcile(
+                Map.of("TXN-009", transaction),
+                Map.of("TXN-009", settlement)).getFirst();
+
+        assertThat(item.getTransactionAmount()).isEqualByComparingTo("150.00");
+        assertThat(item.getExpectedNetAmount()).isEqualByComparingTo("145.00");
+        assertThat(item.getTransactionPaymentMethod()).isEqualTo(PaymentMethod.CREDIT_CARD);
+        assertThat(item.getTransactionInstallments()).isEqualTo(3);
+        assertThat(item.getTransactionStatus()).isEqualTo(TransactionStatus.APPROVED);
+        assertThat(item.getTransactionDate()).isEqualTo(LocalDate.parse("2026-07-29"));
+        assertThat(item.getSettlementAmount()).isEqualByComparingTo("150.00");
+        assertThat(item.getSettlementNetAmount()).isEqualByComparingTo("145.00");
+        assertThat(item.getSettlementDate()).isEqualTo(LocalDate.parse("2026-07-30"));
+    }
+
+    @Test
+    void shouldLeaveSnapshotOfTheMissingSideNull() {
+        InternalTransactionEntity transaction = buildTransaction(
+                "TXN-010",
+                new BigDecimal("100.00"),
+                new BigDecimal("97.00"),
+                PaymentMethod.PIX,
+                1,
+                TransactionStatus.APPROVED);
+
+        ReconciliationItemEntity item = reconciliationEngine.reconcile(
+                Map.of("TXN-010", transaction),
+                Map.of()).getFirst();
+
+        assertThat(item.getTransactionAmount()).isEqualByComparingTo("100.00");
+        assertThat(item.getSettlementAmount()).isNull();
+        assertThat(item.getSettlementNetAmount()).isNull();
+        assertThat(item.getSettlementStatus()).isNull();
+        assertThat(item.getSettlementDate()).isNull();
+    }
+
+    @Test
+    void shouldNotFlagAmountDifferenceWithinConfiguredTolerance() {
+        ReconciliationEngine tolerantEngine = engineWithTolerance("0.05");
+
+        InternalTransactionEntity transaction = buildTransaction(
+                "TXN-011",
+                new BigDecimal("150.00"),
+                new BigDecimal("145.00"),
+                PaymentMethod.CREDIT_CARD,
+                3,
+                TransactionStatus.APPROVED);
+
+        ExternalSettlementEntity settlement = buildSettlement(
+                "TXN-011",
+                new BigDecimal("150.03"),
+                new BigDecimal("144.98"),
+                PaymentMethod.CREDIT_CARD,
+                3,
+                TransactionStatus.APPROVED);
+
+        ReconciliationItemEntity item = tolerantEngine.reconcile(
+                Map.of("TXN-011", transaction),
+                Map.of("TXN-011", settlement)).getFirst();
+
+        assertThat(item.getResult()).isEqualTo(ReconciliationResult.MATCHED);
+    }
+
+    @Test
+    void shouldFlagAmountDifferenceBeyondConfiguredTolerance() {
+        ReconciliationEngine tolerantEngine = engineWithTolerance("0.05");
+
+        InternalTransactionEntity transaction = buildTransaction(
+                "TXN-012",
+                new BigDecimal("150.00"),
+                new BigDecimal("145.00"),
+                PaymentMethod.CREDIT_CARD,
+                3,
+                TransactionStatus.APPROVED);
+
+        ExternalSettlementEntity settlement = buildSettlement(
+                "TXN-012",
+                new BigDecimal("150.06"),
+                new BigDecimal("145.00"),
+                PaymentMethod.CREDIT_CARD,
+                3,
+                TransactionStatus.APPROVED);
+
+        ReconciliationItemEntity item = tolerantEngine.reconcile(
+                Map.of("TXN-012", transaction),
+                Map.of("TXN-012", settlement)).getFirst();
+
+        assertThat(item.getDiscrepancies())
+                .extracting(discrepancy -> discrepancy.getType())
+                .containsExactly(DiscrepancyType.INCORRECT_AMOUNT);
     }
 
     private InternalTransactionEntity buildTransaction(

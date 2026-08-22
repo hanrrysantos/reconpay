@@ -19,6 +19,11 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 100
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
   flyway:
     enabled: true
 
@@ -30,6 +35,12 @@ management:
   endpoint:
     health:
       show-details: never
+
+reconpay:
+  reconciliation:
+    amount-tolerance: ${RECONCILIATION_AMOUNT_TOLERANCE:0.00}
+    settlement-lag-days: ${RECONCILIATION_SETTLEMENT_LAG_DAYS:5}
+    max-window-days: ${RECONCILIATION_MAX_WINDOW_DAYS:366}
 
 springdoc:
   api-docs:

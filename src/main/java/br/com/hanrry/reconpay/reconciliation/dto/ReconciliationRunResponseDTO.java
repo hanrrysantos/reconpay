@@ -12,6 +12,7 @@ public record ReconciliationRunResponseDTO(
         Integer totalItems,
         Integer matchedCount,
         Integer divergentCount,
-        Instant createdAt
+        Instant createdAt,
+        Instant supersededAt
 ) {
 }

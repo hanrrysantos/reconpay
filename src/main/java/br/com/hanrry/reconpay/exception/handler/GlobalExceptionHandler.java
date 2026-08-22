@@ -5,6 +5,7 @@ import br.com.hanrry.reconpay.exception.standardexceptionerror.ApiErrorCode;
 import br.com.hanrry.reconpay.exception.standardexceptionerror.StandardError;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -106,10 +107,31 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /*
+     * Duplicate checks in the services are check-then-act, so two concurrent
+     * requests both pass and one is rejected by a unique index at flush. Without
+     * this the caller would see a 500 on a path that returns 409 when serialized.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<StandardError> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("Violação de integridade | path={} | message={}", request.getRequestURI(), ex.getMessage());
+
+        return buildError(
+                HttpStatus.CONFLICT,
+                ApiErrorCode.CONFLICT,
+                "Conflito com um registro existente. Tente novamente.",
+                request
+        );
+    }
+
     @ExceptionHandler({
             InvalidTransactionStatusTransitionException.class,
             InvalidInstallmentsForPaymentMethodException.class,
-            InvalidSettlementImportException.class
+            InvalidSettlementImportException.class,
+            InvalidReconciliationWindowException.class
     })
     public ResponseEntity<StandardError> handleBusinessValidation(
             RuntimeException ex,

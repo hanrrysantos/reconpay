@@ -1,14 +1,13 @@
 package br.com.hanrry.reconpay.reconciliation.service;
 
-import br.com.hanrry.reconpay.externalsettlement.entity.ExternalSettlementEntity;
 import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationItemEntity;
-import br.com.hanrry.reconpay.transaction.entity.InternalTransactionEntity;
 import com.opencsv.CSVWriter;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,45 +56,34 @@ public class ReconciliationCsvExporter {
                 .map(discrepancy -> discrepancy.getType().name())
                 .collect(Collectors.joining(";"));
 
-        var transaction = item.getInternalTransaction();
-        var settlement = item.getExternalSettlement();
-
         return new String[] {
                 item.getExternalReference(),
                 item.getResult().name(),
                 discrepancyTypes,
-                transaction != null ? transaction.getId().toString() : "",
-                settlement != null ? settlement.getId().toString() : "",
-                transaction != null ? transaction.getAmount().toPlainString() : "",
-                transaction != null ? transaction.getExpectedNetAmount().toPlainString() : "",
-                settlement != null ? settlement.getAmount().toPlainString() : "",
-                settlement != null ? settlement.getNetAmount().toPlainString() : "",
-                resolvePaymentMethod(transaction, settlement),
-                resolveInstallments(transaction, settlement),
-                transaction != null ? transaction.getStatus().name() : "",
-                settlement != null ? settlement.getStatus().name() : "",
-                transaction != null ? transaction.getTransactionDate().toString() : "",
-                settlement != null ? settlement.getSettlementDate().toString() : ""
+                text(item.getInternalTransaction() != null ? item.getInternalTransaction().getId() : null),
+                text(item.getExternalSettlement() != null ? item.getExternalSettlement().getId() : null),
+                amount(item.getTransactionAmount()),
+                amount(item.getExpectedNetAmount()),
+                amount(item.getSettlementAmount()),
+                amount(item.getSettlementNetAmount()),
+                text(item.getTransactionPaymentMethod() != null
+                        ? item.getTransactionPaymentMethod()
+                        : item.getSettlementPaymentMethod()),
+                text(item.getTransactionInstallments() != null
+                        ? item.getTransactionInstallments()
+                        : item.getSettlementInstallments()),
+                text(item.getTransactionStatus()),
+                text(item.getSettlementStatus()),
+                text(item.getTransactionDate()),
+                text(item.getSettlementDate())
         };
     }
 
-    private String resolvePaymentMethod(InternalTransactionEntity transaction, ExternalSettlementEntity settlement) {
-        if (transaction != null) {
-            return transaction.getPaymentMethod().name();
-        }
-        if (settlement != null) {
-            return settlement.getPaymentMethod().name();
-        }
-        return "";
+    private String amount(BigDecimal value) {
+        return value == null ? "" : value.toPlainString();
     }
 
-    private String resolveInstallments(InternalTransactionEntity transaction, ExternalSettlementEntity settlement) {
-        if (transaction != null) {
-            return transaction.getInstallments().toString();
-        }
-        if (settlement != null) {
-            return settlement.getInstallments().toString();
-        }
-        return "";
+    private String text(Object value) {
+        return value == null ? "" : value.toString();
     }
 }

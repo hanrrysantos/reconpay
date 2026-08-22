@@ -1,11 +1,13 @@
 package br.com.hanrry.reconpay.reconciliation.service;
 
 import br.com.hanrry.reconpay.externalsettlement.entity.ExternalSettlementEntity;
+import br.com.hanrry.reconpay.reconciliation.config.ReconciliationProperties;
 import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationDiscrepancyEntity;
 import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationItemEntity;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
 import br.com.hanrry.reconpay.transaction.entity.InternalTransactionEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -14,10 +16,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Component
+@RequiredArgsConstructor
 public class ReconciliationEngine {
+
+    private final ReconciliationProperties properties;
 
     public List<ReconciliationItemEntity> reconcile(
             Map<String, InternalTransactionEntity> transactionsByReference,
@@ -43,69 +49,98 @@ public class ReconciliationEngine {
         item.setExternalReference(externalReference);
         item.setInternalTransaction(transaction);
         item.setExternalSettlement(settlement);
+        snapshot(item, transaction, settlement);
 
-        List<ReconciliationDiscrepancyEntity> discrepancies = detectDiscrepancies(transaction, settlement);
+        List<ReconciliationDiscrepancyEntity> discrepancies = detectDiscrepancies(item);
         discrepancies.forEach(item::addDiscrepancy);
 
         item.setResult(discrepancies.isEmpty() ? ReconciliationResult.MATCHED : ReconciliationResult.DIVERGENT);
         return item;
     }
 
-    private List<ReconciliationDiscrepancyEntity> detectDiscrepancies(
+    private void snapshot(
+            ReconciliationItemEntity item,
             InternalTransactionEntity transaction,
             ExternalSettlementEntity settlement) {
-        if (transaction == null) {
+        if (transaction != null) {
+            item.setTransactionAmount(transaction.getAmount());
+            item.setExpectedNetAmount(transaction.getExpectedNetAmount());
+            item.setTransactionPaymentMethod(transaction.getPaymentMethod());
+            item.setTransactionInstallments(transaction.getInstallments());
+            item.setTransactionStatus(transaction.getStatus());
+            item.setTransactionDate(transaction.getTransactionDate());
+        }
+
+        if (settlement != null) {
+            item.setSettlementAmount(settlement.getAmount());
+            item.setSettlementNetAmount(settlement.getNetAmount());
+            item.setSettlementPaymentMethod(settlement.getPaymentMethod());
+            item.setSettlementInstallments(settlement.getInstallments());
+            item.setSettlementStatus(settlement.getStatus());
+            item.setSettlementDate(settlement.getSettlementDate());
+        }
+    }
+
+    private List<ReconciliationDiscrepancyEntity> detectDiscrepancies(ReconciliationItemEntity item) {
+        if (item.getInternalTransaction() == null) {
             return List.of(discrepancy(
                     DiscrepancyType.ORPHAN_SETTLEMENT,
                     null,
-                    settlement.getExternalReference()));
+                    item.getExternalReference()));
         }
 
-        if (settlement == null) {
+        if (item.getExternalSettlement() == null) {
             return List.of(discrepancy(
                     DiscrepancyType.MISSING_SETTLEMENT,
-                    transaction.getExternalReference(),
+                    item.getExternalReference(),
                     null));
         }
 
         List<ReconciliationDiscrepancyEntity> discrepancies = new ArrayList<>();
 
-        if (transaction.getAmount().compareTo(settlement.getAmount()) != 0) {
+        if (exceedsTolerance(item.getTransactionAmount(), item.getSettlementAmount())) {
             discrepancies.add(discrepancy(
                     DiscrepancyType.INCORRECT_AMOUNT,
-                    formatAmount(transaction.getAmount()),
-                    formatAmount(settlement.getAmount())));
+                    formatAmount(item.getTransactionAmount()),
+                    formatAmount(item.getSettlementAmount())));
         }
 
-        if (transaction.getExpectedNetAmount().compareTo(settlement.getNetAmount()) != 0) {
+        if (exceedsTolerance(item.getExpectedNetAmount(), item.getSettlementNetAmount())) {
             discrepancies.add(discrepancy(
                     DiscrepancyType.FEE_DIVERGENCE,
-                    formatAmount(transaction.getExpectedNetAmount()),
-                    formatAmount(settlement.getNetAmount())));
+                    formatAmount(item.getExpectedNetAmount()),
+                    formatAmount(item.getSettlementNetAmount())));
         }
 
-        if (transaction.getStatus() != settlement.getStatus()) {
+        if (item.getTransactionStatus() != item.getSettlementStatus()) {
             discrepancies.add(discrepancy(
                     DiscrepancyType.STATUS_MISMATCH,
-                    transaction.getStatus().name(),
-                    settlement.getStatus().name()));
+                    name(item.getTransactionStatus()),
+                    name(item.getSettlementStatus())));
         }
 
-        if (transaction.getPaymentMethod() != settlement.getPaymentMethod()) {
+        if (item.getTransactionPaymentMethod() != item.getSettlementPaymentMethod()) {
             discrepancies.add(discrepancy(
                     DiscrepancyType.PAYMENT_METHOD_MISMATCH,
-                    transaction.getPaymentMethod().name(),
-                    settlement.getPaymentMethod().name()));
+                    name(item.getTransactionPaymentMethod()),
+                    name(item.getSettlementPaymentMethod())));
         }
 
-        if (!transaction.getInstallments().equals(settlement.getInstallments())) {
+        if (!Objects.equals(item.getTransactionInstallments(), item.getSettlementInstallments())) {
             discrepancies.add(discrepancy(
                     DiscrepancyType.INSTALLMENTS_MISMATCH,
-                    transaction.getInstallments().toString(),
-                    settlement.getInstallments().toString()));
+                    Objects.toString(item.getTransactionInstallments(), null),
+                    Objects.toString(item.getSettlementInstallments(), null)));
         }
 
         return discrepancies;
+    }
+
+    private boolean exceedsTolerance(BigDecimal expected, BigDecimal actual) {
+        if (expected == null || actual == null) {
+            return !(expected == null && actual == null);
+        }
+        return expected.subtract(actual).abs().compareTo(properties.amountTolerance()) > 0;
     }
 
     private ReconciliationDiscrepancyEntity discrepancy(
@@ -119,7 +154,11 @@ public class ReconciliationEngine {
         return entity;
     }
 
+    private String name(Enum<?> value) {
+        return value == null ? null : value.name();
+    }
+
     private String formatAmount(BigDecimal amount) {
-        return amount.setScale(2, RoundingMode.HALF_UP).toPlainString();
+        return amount == null ? null : amount.setScale(2, RoundingMode.HALF_UP).toPlainString();
     }
 }

@@ -48,10 +48,12 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
 
         String merchantId = com.jayway.jsonpath.JsonPath.read(createResponse, "$.id");
 
+        // The suite shares one database and never cleans up, so the page has to be
+        // wide enough to still contain this merchant after every other test ran.
         mockMvc.perform(get("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)
                         .param("page", "0")
-                        .param("size", "20"))
+                        .param("size", "500"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[?(@.document=='12345678000199')]").exists());
 
