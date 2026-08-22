@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -57,7 +58,7 @@ public class ReconciliationController {
     @GetMapping
     public ResponseEntity<Page<ReconciliationRunResponseDTO>> findAllRuns(
             @PathVariable UUID merchantId,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(reconciliationService.findAllRuns(merchantId, pageable));
     }
 
@@ -74,7 +75,7 @@ public class ReconciliationController {
             @PathVariable UUID runId,
             @RequestParam(required = false) ReconciliationResult result,
             @RequestParam(required = false) DiscrepancyType discrepancyType,
-            @PageableDefault(size = 20, sort = "externalReference", direction = Sort.Direction.ASC) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "externalReference", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(reconciliationService.findItems(
                 merchantId, runId, result, discrepancyType, pageable));
     }

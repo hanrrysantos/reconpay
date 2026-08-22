@@ -8,6 +8,7 @@ import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -45,7 +46,7 @@ public class ExternalSettlementController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
             @RequestParam(required = false) UUID importId,
-            @PageableDefault(size = 20, sort = "settlementDate", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "settlementDate", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(externalSettlementService.findAll(
                 merchantId, status, paymentMethod, fromDate, toDate, importId, pageable));
     }
@@ -72,7 +73,7 @@ public class ExternalSettlementController {
     @GetMapping("/imports")
     public ResponseEntity<Page<SettlementImportResponseDTO>> findAllImports(
             @PathVariable UUID merchantId,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(externalSettlementService.findAllImports(merchantId, pageable));
     }
 

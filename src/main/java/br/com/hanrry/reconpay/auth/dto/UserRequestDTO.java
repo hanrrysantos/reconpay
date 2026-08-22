@@ -8,18 +8,18 @@ import jakarta.validation.constraints.Pattern;
 @Schema(description = "Dados para auto-cadastro de usuário")
 public record UserRequestDTO(
 
-        @Schema(description = "Nome completo do usuário", example = "User 1")
+        @Schema(description = "Nome completo do usuário", example = "User 2")
         @NotBlank(message = "Nome é obrigatório")
         String name,
 
-        @Schema(description = "Email único no sistema", example = "user@gmail.com")
+        @Schema(description = "Email único no sistema", example = "user2@gmail.com")
         @NotBlank(message = "Email é obrigatório")
         @Email(message = "Email inválido")
         String email,
 
         @Schema(
                 description = "Senha com no mínimo 8 caracteres, uma letra maiúscula e um número",
-                example = "User@123"
+                example = "User2@123"
         )
         @NotBlank(message = "Senha é obrigatória")
         @Pattern(
