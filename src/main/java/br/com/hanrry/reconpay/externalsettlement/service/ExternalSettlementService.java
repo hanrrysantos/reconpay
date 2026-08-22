@@ -16,6 +16,7 @@ import br.com.hanrry.reconpay.externalsettlement.repository.IExternalSettlementR
 import br.com.hanrry.reconpay.externalsettlement.repository.ISettlementImportRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
+import br.com.hanrry.reconpay.observability.AuditLogger;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class ExternalSettlementService {
     private final IExternalSettlementRepository externalSettlementRepository;
     private final ISettlementImportRepository settlementImportRepository;
     private final IMerchantRepository merchantRepository;
+    private final AuditLogger auditLogger;
 
     @Transactional
     public SettlementImportResponseDTO importCsv(UUID merchantId, MultipartFile file) {
@@ -64,6 +66,8 @@ public class ExternalSettlementService {
                 .toList();
 
         externalSettlementRepository.saveAll(settlements);
+        auditLogger.record("SETTLEMENTS_IMPORTED", "settlementImport", savedImport.getId(),
+                "merchant=" + merchantId + " rows=" + rows.size());
 
         return settlementImportMapper.toDTO(savedImport);
     }

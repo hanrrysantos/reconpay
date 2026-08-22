@@ -18,6 +18,7 @@ import br.com.hanrry.reconpay.transaction.entity.InternalTransactionEntity;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import br.com.hanrry.reconpay.transaction.mapper.ITransactionMapper;
 import br.com.hanrry.reconpay.transaction.repository.IInternalTransactionRepository;
+import br.com.hanrry.reconpay.observability.AuditLogger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -52,6 +53,9 @@ class TransactionServiceTest {
 
     @Mock
     private IFeeRuleRepository feeRuleRepository;
+
+    @Mock
+    private AuditLogger auditLogger;
 
     @InjectMocks
     private TransactionService transactionService;

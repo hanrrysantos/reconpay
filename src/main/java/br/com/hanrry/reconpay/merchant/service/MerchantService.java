@@ -8,6 +8,7 @@ import br.com.hanrry.reconpay.merchant.dto.UpdateMerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.mapper.IMerchantMapper;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
+import br.com.hanrry.reconpay.observability.AuditLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ public class MerchantService {
 
     private final IMerchantMapper merchantMapper;
     private final IMerchantRepository merchantRepository;
+    private final AuditLogger auditLogger;
 
     @Transactional
     public MerchantResponseDTO create(MerchantRequestDTO request) {
@@ -32,6 +34,7 @@ public class MerchantService {
 
         MerchantEntity entity = merchantMapper.toEntity(request);
         MerchantEntity savedMerchant = merchantRepository.save(entity);
+        auditLogger.record("MERCHANT_CREATED", "merchant", savedMerchant.getId());
         return merchantMapper.toDTO(savedMerchant);
     }
 
@@ -56,6 +59,7 @@ public class MerchantService {
         }
 
         MerchantEntity savedMerchant = merchantRepository.save(merchant);
+        auditLogger.record("MERCHANT_UPDATED", "merchant", id);
         return merchantMapper.toDTO(savedMerchant);
     }
 
@@ -65,5 +69,6 @@ public class MerchantService {
                 .orElseThrow(() -> new MerchantNotFoundException("Comerciante não encontrado com id: " + id));
         merchant.setActive(false);
         merchantRepository.save(merchant);
+        auditLogger.record("MERCHANT_DEACTIVATED", "merchant", id);
     }
 }

@@ -10,6 +10,7 @@ import br.com.hanrry.reconpay.feerule.entity.FeeRuleEntity;
 import br.com.hanrry.reconpay.feerule.repository.IFeeRuleRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
+import br.com.hanrry.reconpay.observability.AuditLogger;
 import br.com.hanrry.reconpay.shared.PaymentMethodRules;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.dto.CreateTransactionRequestDTO;
@@ -47,6 +48,7 @@ public class TransactionService {
     private final IInternalTransactionRepository transactionRepository;
     private final IMerchantRepository merchantRepository;
     private final IFeeRuleRepository feeRuleRepository;
+    private final AuditLogger auditLogger;
 
     @Transactional
     public TransactionResponseDTO create(UUID merchantId, CreateTransactionRequestDTO request) {
@@ -79,6 +81,8 @@ public class TransactionService {
         entity.setTransactionDate(request.transactionDate());
 
         InternalTransactionEntity savedTransaction = transactionRepository.save(entity);
+        auditLogger.record("TRANSACTION_CREATED", "transaction", savedTransaction.getId(),
+                "merchant=" + merchantId);
         return transactionMapper.toDTO(savedTransaction);
     }
 
@@ -113,8 +117,11 @@ public class TransactionService {
         InternalTransactionEntity transaction = findTransactionForMerchant(merchantId, id);
         validateStatusTransition(transaction.getStatus(), request.status());
 
+        TransactionStatus previousStatus = transaction.getStatus();
         transaction.setStatus(request.status());
         InternalTransactionEntity savedTransaction = transactionRepository.save(transaction);
+        auditLogger.record("TRANSACTION_STATUS_CHANGED", "transaction", id,
+                previousStatus + " -> " + request.status());
         return transactionMapper.toDTO(savedTransaction);
     }
 

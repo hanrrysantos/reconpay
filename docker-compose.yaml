@@ -26,6 +26,7 @@ services:
     depends_on:
       banco-reconpay:
         condition: service_healthy
+    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
@@ -34,6 +35,10 @@ services:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+    deploy:
+      resources:
+        limits:
+          memory: 1g
 
 volumes:
   dados_reconpay:

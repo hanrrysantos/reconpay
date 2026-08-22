@@ -8,6 +8,7 @@ import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
 import br.com.hanrry.reconpay.exception.UserNotFoundException;
+import br.com.hanrry.reconpay.observability.AuditLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ public class UserService {
     private final IUserRepository userRepository;
     private final IUserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AuditLogger auditLogger;
 
     @Transactional
     public UserResponseDTO createUser(CreateUserRequestDTO request) {
@@ -39,6 +41,7 @@ public class UserService {
         user.setActive(true);
 
         UserEntity savedUser = userRepository.save(user);
+        auditLogger.record("USER_CREATED", "user", savedUser.getId(), "role=" + request.role());
         return userMapper.toDTO(savedUser);
     }
 
@@ -48,7 +51,9 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
 
         user.setActive(true);
-        return userMapper.toDTO(userRepository.save(user));
+        UserResponseDTO response = userMapper.toDTO(userRepository.save(user));
+        auditLogger.record("USER_ACTIVATED", "user", id);
+        return response;
     }
 
     public Page<UserResponseDTO> findAllUsers(Pageable pageable) {
@@ -84,6 +89,7 @@ public class UserService {
         UserEntity user = getActiveUserOrThrow(id);
         user.setActive(false);
         userRepository.save(user);
+        auditLogger.record("USER_DEACTIVATED", "user", id);
     }
 
     private UserEntity getActiveUserOrThrow(UUID id) {

@@ -8,6 +8,7 @@ import br.com.hanrry.reconpay.externalsettlement.repository.ExternalSettlementSp
 import br.com.hanrry.reconpay.externalsettlement.repository.IExternalSettlementRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
+import br.com.hanrry.reconpay.observability.AuditLogger;
 import br.com.hanrry.reconpay.reconciliation.config.ReconciliationProperties;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationItemResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationRunResponseDTO;
@@ -62,6 +63,7 @@ public class ReconciliationService {
     private final IExternalSettlementRepository externalSettlementRepository;
     private final IMerchantRepository merchantRepository;
     private final ReconciliationProperties properties;
+    private final AuditLogger auditLogger;
     private final EntityManager entityManager;
     private final Clock clock;
 
@@ -108,6 +110,9 @@ public class ReconciliationService {
 
         ReconciliationRunEntity savedRun = reconciliationRunRepository.save(run);
         ReconciliationRunResponseDTO response = reconciliationMapper.toRunDTO(savedRun);
+        auditLogger.record("RECONCILIATION_RUN", "reconciliationRun", savedRun.getId(),
+                "merchant=" + merchantId + " window=" + fromDate + ".." + toDate
+                        + " divergent=" + run.getDivergentCount());
 
         persistInBatches(items, savedRun.getId());
 

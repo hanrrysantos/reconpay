@@ -1,0 +1,12 @@
+.git
+.github
+.idea
+target
+*.iml
+
+# Secrets must never reach the build context.
+.env
+.env.*
+
+README.md
+*.md

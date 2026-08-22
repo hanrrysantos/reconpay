@@ -17,6 +17,7 @@ import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
+import br.com.hanrry.reconpay.observability.AuditLogger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -64,6 +65,9 @@ class ExternalSettlementServiceTest {
 
     @Mock
     private IMerchantRepository merchantRepository;
+
+    @Mock
+    private AuditLogger auditLogger;
 
     @InjectMocks
     private ExternalSettlementService externalSettlementService;

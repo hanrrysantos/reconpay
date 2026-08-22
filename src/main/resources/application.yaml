@@ -31,10 +31,18 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        # Only /actuator/health is public; everything else here still requires
+        # an authenticated request through the security filter chain.
+        include: health,info,prometheus,metrics
   endpoint:
     health:
       show-details: never
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLE_RATE:0.1}
 
 reconpay:
   reconciliation:

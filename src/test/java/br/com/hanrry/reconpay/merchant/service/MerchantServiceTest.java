@@ -8,6 +8,7 @@ import br.com.hanrry.reconpay.merchant.dto.UpdateMerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.mapper.IMerchantMapper;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
+import br.com.hanrry.reconpay.observability.AuditLogger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -38,6 +39,9 @@ class MerchantServiceTest {
 
     @Mock
     private IMerchantRepository merchantRepository;
+
+    @Mock
+    private AuditLogger auditLogger;
 
     @InjectMocks
     private MerchantService merchantService;

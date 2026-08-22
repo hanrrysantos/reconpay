@@ -9,6 +9,7 @@ import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
 import br.com.hanrry.reconpay.exception.UserNotFoundException;
+import br.com.hanrry.reconpay.observability.AuditLogger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -43,6 +44,9 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private AuditLogger auditLogger;
 
     @InjectMocks
     private UserService userService;
