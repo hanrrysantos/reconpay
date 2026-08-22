@@ -50,6 +50,8 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
                 .getContentAsString();
 
         merchantId = com.jayway.jsonpath.JsonPath.read(merchantResponse, "$.id");
+
+        IntegrationTestUtils.grantAnalystAccess(mockMvc, adminToken, UUID.fromString(merchantId));
     }
 
     @Test

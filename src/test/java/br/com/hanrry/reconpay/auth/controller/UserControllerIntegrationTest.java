@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.auth.controller;
 
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.enums.UserRole;
+import br.com.hanrry.reconpay.auth.service.UserMerchantAccessService;
 import br.com.hanrry.reconpay.auth.service.UserService;
 import br.com.hanrry.reconpay.config.SecurityConfig;
 import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
@@ -58,6 +59,9 @@ class UserControllerIntegrationTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private UserMerchantAccessService userMerchantAccessService;
 
     @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;

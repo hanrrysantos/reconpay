@@ -2,7 +2,10 @@ package br.com.hanrry.reconpay.auth.controller;
 
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.CreateUserRequestDTO;
+import br.com.hanrry.reconpay.auth.dto.MerchantAccessRequestDTO;
+import br.com.hanrry.reconpay.auth.dto.MerchantAccessResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
+import br.com.hanrry.reconpay.auth.service.UserMerchantAccessService;
 import br.com.hanrry.reconpay.auth.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +39,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final UserMerchantAccessService userMerchantAccessService;
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(
@@ -67,6 +71,18 @@ public class UserController {
     @PatchMapping("/{id}/activation")
     public ResponseEntity<UserResponseDTO> activate(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.activate(id));
+    }
+
+    @GetMapping("/{id}/merchants")
+    public ResponseEntity<MerchantAccessResponseDTO> findMerchantAccess(@PathVariable UUID id) {
+        return ResponseEntity.ok(userMerchantAccessService.findByUser(id));
+    }
+
+    @PutMapping("/{id}/merchants")
+    public ResponseEntity<MerchantAccessResponseDTO> replaceMerchantAccess(
+            @PathVariable UUID id,
+            @Valid @RequestBody MerchantAccessRequestDTO request) {
+        return ResponseEntity.ok(userMerchantAccessService.replace(id, request));
     }
 
     @PutMapping("/{id}")

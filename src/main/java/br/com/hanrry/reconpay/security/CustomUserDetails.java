@@ -1,6 +1,7 @@
 package br.com.hanrry.reconpay.security;
 
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
+import br.com.hanrry.reconpay.auth.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -8,11 +9,20 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
     private final UserEntity user;
+
+    public UUID getId() {
+        return user.getId();
+    }
+
+    public UserRole getRole() {
+        return user.getRole();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -51,6 +52,20 @@ public class GlobalExceptionHandler {
                 "Credenciais inválidas",
                 request
         );
+    }
+
+    /*
+     * Denials raised inside the handler invocation, such as the merchant access
+     * aspect, never reach Spring Security's ExceptionTranslationFilter because
+     * the catch-all below resolves them first. Without this they would surface
+     * as 500 instead of 403.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<StandardError> handleAccessDenied(
+            AccessDeniedException ex,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.FORBIDDEN, ApiErrorCode.FORBIDDEN, ex.getMessage(), request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -50,6 +50,8 @@ class TransactionIntegrationTest extends AbstractIntegrationTest {
 
         merchantId = com.jayway.jsonpath.JsonPath.read(merchantResponse, "$.id");
 
+        IntegrationTestUtils.grantAnalystAccess(mockMvc, adminToken, UUID.fromString(merchantId));
+
         mockMvc.perform(post("/api/merchants/{merchantId}/fee-rules", merchantId)
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
