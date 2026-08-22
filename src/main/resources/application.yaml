@@ -49,6 +49,9 @@ reconpay:
     amount-tolerance: ${RECONCILIATION_AMOUNT_TOLERANCE:0.00}
     settlement-lag-days: ${RECONCILIATION_SETTLEMENT_LAG_DAYS:5}
     max-window-days: ${RECONCILIATION_MAX_WINDOW_DAYS:366}
+    async: ${RECONCILIATION_ASYNC:true}
+    workers: ${RECONCILIATION_WORKERS:2}
+    queue-capacity: ${RECONCILIATION_QUEUE_CAPACITY:50}
 
 springdoc:
   api-docs:

@@ -24,6 +24,19 @@ public record ReconciliationProperties(
         @DefaultValue("5") int settlementLagDays,
 
         /* Widest window a single run may cover. */
-        @DefaultValue("366") int maxWindowDays
+        @DefaultValue("366") int maxWindowDays,
+
+        /*
+         * Whether runs execute on a background pool. Turning it off keeps the
+         * work on the caller's thread, which the tests rely on to observe a
+         * finished run without polling.
+         */
+        @DefaultValue("true") boolean async,
+
+        /* Concurrent runs allowed across all merchants. */
+        @DefaultValue("2") int workers,
+
+        /* Requests allowed to wait for a free worker before being rejected. */
+        @DefaultValue("50") int queueCapacity
 ) {
 }

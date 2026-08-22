@@ -56,6 +56,8 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
 
         merchantId = com.jayway.jsonpath.JsonPath.read(merchantResponse, "$.id");
 
+        IntegrationTestUtils.grantAnalystAccess(mockMvc, adminToken, UUID.fromString(merchantId));
+
         mockMvc.perform(post("/api/merchants/{merchantId}/fee-rules", merchantId)
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -97,11 +99,10 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                                   "toDate": "2026-07-31"
                                 }
                                 """))
-                .andExpect(status().isCreated())
+                .andExpect(status().isAccepted())
+                .andExpect(header().string("Location", containsString("/reconciliations/")))
                 .andExpect(jsonPath("$.merchantId").value(merchantId))
-                .andExpect(jsonPath("$.totalItems").value(4))
-                .andExpect(jsonPath("$.matchedCount").value(1))
-                .andExpect(jsonPath("$.divergentCount").value(3))
+                .andExpect(jsonPath("$.status").value("PENDING"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -111,7 +112,11 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}", merchantId, runId)
                         .header("Authorization", "Bearer " + analystToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalItems").value(4));
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.finishedAt").isNotEmpty())
+                .andExpect(jsonPath("$.totalItems").value(4))
+                .andExpect(jsonPath("$.matchedCount").value(1))
+                .andExpect(jsonPath("$.divergentCount").value(3));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/items", merchantId, runId)
                         .header("Authorization", "Bearer " + analystToken)
@@ -207,6 +212,19 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void acceptedRunShouldReachCompletedWithoutFurtherRequests() throws Exception {
+        String runId = runReconciliation("2026-06-01", "2026-06-30");
+
+        mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}", merchantId, runId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.startedAt").isNotEmpty())
+                .andExpect(jsonPath("$.finishedAt").isNotEmpty())
+                .andExpect(jsonPath("$.errorMessage").doesNotExist());
+    }
+
+    @Test
     void shouldRejectRunWithoutDateWindow() throws Exception {
         mockMvc.perform(post("/api/merchants/{merchantId}/reconciliations", merchantId)
                         .header("Authorization", "Bearer " + adminToken)
@@ -241,7 +259,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                                   "toDate": "%s"
                                 }
                                 """.formatted(fromDate, toDate)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isAccepted())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();

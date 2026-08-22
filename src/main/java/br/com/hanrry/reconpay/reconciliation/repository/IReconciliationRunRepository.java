@@ -19,6 +19,10 @@ public interface IReconciliationRunRepository extends JpaRepository<Reconciliati
 
     Optional<ReconciliationRunEntity> findByIdAndMerchant_Id(UUID id, UUID merchantId);
 
+    /*
+     * Only completed runs hold the current-result slot, and the run being
+     * finished must not supersede itself.
+     */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
             UPDATE ReconciliationRunEntity run
@@ -26,11 +30,14 @@ public interface IReconciliationRunRepository extends JpaRepository<Reconciliati
             WHERE run.merchant.id = :merchantId
               AND run.fromDate = :fromDate
               AND run.toDate = :toDate
+              AND run.id <> :currentRunId
+              AND run.status = br.com.hanrry.reconpay.reconciliation.enums.ReconciliationRunStatus.COMPLETED
               AND run.supersededAt IS NULL
             """)
     int supersedeWindow(
             @Param("merchantId") UUID merchantId,
             @Param("fromDate") LocalDate fromDate,
             @Param("toDate") LocalDate toDate,
+            @Param("currentRunId") UUID currentRunId,
             @Param("supersededAt") Instant supersededAt);
 }

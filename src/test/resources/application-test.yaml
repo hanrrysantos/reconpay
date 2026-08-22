@@ -4,6 +4,12 @@ spring:
   flyway:
     locations: classpath:db/migration,classpath:db/seed
 
+reconpay:
+  reconciliation:
+    # Runs inline so a test can assert on the finished run right after the POST
+    # instead of polling a background worker.
+    async: false
+
 jwt:
   secret: ${JWT_SECRET:chave-teste-apenas-para-testes-de-integracao-local}
   expiration: ${JWT_EXPIRATION:604800}

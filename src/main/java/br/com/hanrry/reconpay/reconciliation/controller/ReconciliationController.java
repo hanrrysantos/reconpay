@@ -50,7 +50,7 @@ public class ReconciliationController {
                 .path("/{id}")
                 .buildAndExpand(run.id())
                 .toUri();
-        return ResponseEntity.created(uri).body(run);
+        return ResponseEntity.accepted().location(uri).body(run);
     }
 
     @GetMapping
