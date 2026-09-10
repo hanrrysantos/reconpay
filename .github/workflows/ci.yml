@@ -53,11 +53,12 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: maven
 
       # Reports only. Turn this into a gate once the existing findings are triaged.
       - name: Run OWASP dependency check
         uses: dependency-check/Dependency-Check_Action@main
+        env:
+          JAVA_HOME: /opt/jdk
         with:
           project: reconpay
           path: '.'
