@@ -6,9 +6,9 @@ spring:
 
 reconpay:
   reconciliation:
-    # Runs inline so a test can assert on the finished run right after the POST
-    # instead of polling a background worker.
-    async: false
+    # Exercise the real worker pool; reconciliation tests poll persisted status.
+    async: true
+    dispatch-delay-ms: 100
 
 jwt:
   secret: ${JWT_SECRET:chave-teste-apenas-para-testes-de-integracao-local}

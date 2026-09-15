@@ -6,21 +6,44 @@ import br.com.hanrry.reconpay.exception.standardexceptionerror.StandardError;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler({
+            MethodArgumentTypeMismatchException.class,
+            HttpMessageNotReadableException.class,
+            MissingServletRequestPartException.class,
+            MissingServletRequestParameterException.class
+    })
+    public ResponseEntity<StandardError> handleMalformedInput(Exception ex, HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, ApiErrorCode.VALIDATION_ERROR,
+                "Requisição inválida. Verifique os campos e parâmetros enviados.", request);
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<StandardError> handleOptimisticLock(
+            OptimisticLockingFailureException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.CONFLICT, ApiErrorCode.CONFLICT,
+                "Registro alterado por outra operação. Consulte o estado atual e tente novamente.", request);
+    }
 
     @ExceptionHandler({
             UserNotFoundException.class,
@@ -144,6 +167,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             InvalidTransactionStatusTransitionException.class,
+            InvalidTransactionAmountException.class,
             InvalidInstallmentsForPaymentMethodException.class,
             InvalidSettlementImportException.class,
             InvalidReconciliationWindowException.class

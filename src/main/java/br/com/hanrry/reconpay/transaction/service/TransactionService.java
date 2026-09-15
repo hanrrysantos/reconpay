@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.transaction.service;
 
 import br.com.hanrry.reconpay.exception.DuplicateExternalReferenceException;
 import br.com.hanrry.reconpay.exception.InvalidInstallmentsForPaymentMethodException;
+import br.com.hanrry.reconpay.exception.InvalidTransactionAmountException;
 import br.com.hanrry.reconpay.exception.InvalidTransactionStatusTransitionException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.exception.MissingActiveFeeRuleException;
@@ -56,8 +57,9 @@ public class TransactionService {
                 .orElseThrow(() -> new MerchantNotFoundException(
                         "Comerciante não encontrado com id: " + merchantId));
 
+        String externalReference = request.externalReference().trim();
         if (transactionRepository.existsByMerchant_IdAndExternalReference(
-                merchantId, request.externalReference())) {
+                merchantId, externalReference)) {
             throw new DuplicateExternalReferenceException(
                     "Transação já cadastrada com referência externa: " + request.externalReference());
         }
@@ -72,7 +74,7 @@ public class TransactionService {
 
         InternalTransactionEntity entity = new InternalTransactionEntity();
         entity.setMerchant(merchant);
-        entity.setExternalReference(request.externalReference());
+        entity.setExternalReference(externalReference);
         entity.setAmount(request.amount());
         entity.setExpectedNetAmount(calculateExpectedNetAmount(request.amount(), feeRule));
         entity.setPaymentMethod(request.paymentMethod());
@@ -167,9 +169,14 @@ public class TransactionService {
                 .multiply(feeRule.getFeePercentage())
                 .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
 
-        return amount
+        BigDecimal net = amount
                 .subtract(percentageFee)
                 .subtract(feeRule.getFixedFee())
                 .setScale(2, RoundingMode.HALF_UP);
+        if (net.signum() <= 0) {
+            throw new InvalidTransactionAmountException(
+                    "Valor líquido esperado deve ser maior que zero");
+        }
+        return net;
     }
 }

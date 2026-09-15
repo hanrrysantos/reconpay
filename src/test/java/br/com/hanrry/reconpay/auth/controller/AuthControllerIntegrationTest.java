@@ -65,7 +65,7 @@ class AuthControllerIntegrationTest {
 
     @Test
     void loginShouldReturnTokenWithoutAuthentication() throws Exception {
-        when(authService.login(any())).thenReturn(new AuthResponseDTO("jwt-token"));
+        when(authService.login(any())).thenReturn(new AuthResponseDTO("jwt-token", "Bearer", 86400));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

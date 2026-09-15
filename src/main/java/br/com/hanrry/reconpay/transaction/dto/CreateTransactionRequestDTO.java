@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.transaction.dto;
 
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +19,7 @@ public record CreateTransactionRequestDTO(
 
         @NotNull
         @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
+        @Digits(integer = 17, fraction = 2)
         BigDecimal amount,
 
         @NotNull

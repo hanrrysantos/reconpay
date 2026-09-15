@@ -2,10 +2,6 @@ spring:
   jpa:
     show-sql: false
 
-jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION:86400}
-
 logging:
   level:
     org.hibernate.SQL: WARN

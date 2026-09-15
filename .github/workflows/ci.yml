@@ -54,9 +54,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      # Reports only. Turn this into a gate once the existing findings are triaged.
+      # Immutable action revision reviewed on 2026-09-14.
       - name: Run OWASP dependency check
-        uses: dependency-check/Dependency-Check_Action@main
+        uses: dependency-check/Dependency-Check_Action@1e54355a8b4c8abaa8cc7d0b70aa655a3bb15a6c
         env:
           JAVA_HOME: /opt/jdk
         with:
@@ -64,7 +64,7 @@ jobs:
           path: '.'
           format: 'HTML'
           args: >
-            --failOnCVSS 11
+            --failOnCVSS 7
             --enableRetired
 
       - name: Upload dependency check report

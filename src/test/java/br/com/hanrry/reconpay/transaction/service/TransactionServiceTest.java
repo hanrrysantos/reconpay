@@ -42,6 +42,43 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceTest {
 
+    @Test void canonicalReferenceIsUsedForDuplicateCheck() {
+        UUID merchantId = UUID.randomUUID();
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(buildMerchant(merchantId)));
+        when(transactionRepository.existsByMerchant_IdAndExternalReference(any(), any())).thenAnswer(invocation -> "TXN-DUP".equals(invocation.getArgument(1)));
+        org.mockito.Mockito.lenient().when(feeRuleRepository.findByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(any(), any(), any()))
+                .thenReturn(Optional.of(buildFeeRule(buildMerchant(merchantId), PaymentMethod.PIX, 1)));
+        org.mockito.Mockito.lenient().when(transactionRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        assertThatThrownBy(() -> transactionService.create(merchantId, buildCreateRequest("  TXN-DUP  ", PaymentMethod.PIX, 1)))
+                .isInstanceOf(DuplicateExternalReferenceException.class);
+    }
+
+    @Test void canonicalReferenceIsPersisted() {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(feeRuleRepository.findByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(merchantId, PaymentMethod.PIX, 1))
+                .thenReturn(Optional.of(buildFeeRule(merchant, PaymentMethod.PIX, 1)));
+        when(transactionRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        transactionService.create(merchantId, buildCreateRequest("  Ref-Case  ", PaymentMethod.PIX, 1));
+        var captor = ArgumentCaptor.forClass(InternalTransactionEntity.class);
+        verify(transactionRepository).save(captor.capture());
+        assertThat(captor.getValue().getExternalReference()).isEqualTo("Ref-Case");
+    }
+
+    @Test void rejectsNonPositiveExpectedNet() {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        FeeRuleEntity fee = buildFeeRule(merchant, PaymentMethod.PIX, 1);
+        fee.setFeePercentage(new BigDecimal("100"));
+        org.mockito.Mockito.lenient().when(transactionRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(feeRuleRepository.findByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(merchantId, PaymentMethod.PIX, 1)).thenReturn(Optional.of(fee));
+        assertThatThrownBy(() -> transactionService.create(merchantId, buildCreateRequest("ref", PaymentMethod.PIX, 1)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("líquido");
+        verify(transactionRepository, never()).save(any());
+    }
+
     @Mock
     private ITransactionMapper transactionMapper;
 

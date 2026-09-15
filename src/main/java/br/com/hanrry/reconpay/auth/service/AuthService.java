@@ -33,7 +33,7 @@ public class AuthService {
         );
 
         String token = jwtService.generateToken(request.email());
-        return new AuthResponseDTO(token);
+        return new AuthResponseDTO(token, "Bearer", jwtService.getExpirationSeconds());
     }
 
     @Transactional

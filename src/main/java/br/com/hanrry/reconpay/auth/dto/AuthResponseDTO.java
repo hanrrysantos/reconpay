@@ -14,7 +14,4 @@ public record AuthResponseDTO (
         @Schema(description = "Tempo de expiração em segundos", example = "86400")
         long expiresIn
 ){
-    public AuthResponseDTO(String token){
-        this(token, "Bearer", 86400);
-    }
 }

@@ -1,4 +1,5 @@
 -- Loaded only by the dev and test profiles via spring.flyway.locations.
+-- Repeatable and idempotent; schema migration numbering remains independent.
 -- Passwords: DevAdmin@2026 and DevAnalyst@2026. Local use only.
 INSERT INTO users (id, name, email, password, role, active, created_at, updated_at)
 VALUES (

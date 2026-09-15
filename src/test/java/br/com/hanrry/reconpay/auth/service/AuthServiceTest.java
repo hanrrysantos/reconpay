@@ -55,6 +55,7 @@ class AuthServiceTest {
     void loginShouldAuthenticateAndGenerateToken() {
         AuthRequestDTO request = new AuthRequestDTO("analista@gmail.com", "Analista@123");
         when(jwtService.generateToken("analista@gmail.com")).thenReturn("jwt-token");
+        when(jwtService.getExpirationSeconds()).thenReturn(86400L);
 
         AuthResponseDTO response = authService.login(request);
 

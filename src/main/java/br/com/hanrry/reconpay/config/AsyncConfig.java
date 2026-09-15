@@ -6,21 +6,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskDecorator;
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.Map;
 import java.util.concurrent.Executor;
 
 @Configuration
-@EnableAsync
+@EnableScheduling
 public class AsyncConfig {
 
     /**
      * A bounded pool with a bounded queue, so a burst of reconciliation requests
-     * is rejected at submission rather than accumulating until the heap gives
-     * out. Set {@code reconpay.reconciliation.async=false} to run the work
-     * inline, which is what the tests do to stay deterministic.
+     * is rejected at submission and returned to persisted PENDING state by the
+     * dispatcher. Set {@code reconpay.reconciliation.async=false} to run the
+     * work on the dispatcher's thread.
      */
     @Bean("reconciliationExecutor")
     public Executor reconciliationExecutor(ReconciliationProperties properties) {
@@ -39,8 +39,7 @@ public class AsyncConfig {
         return executor;
     }
 
-    /* Without this the worker's log lines carry no requestId and cannot be tied
-     * back to the request that triggered the run. */
+    /* Preserve any dispatch context; the worker also correlates logs by runId. */
     private TaskDecorator mdcPropagatingDecorator() {
         return runnable -> {
             Map<String, String> context = MDC.getCopyOfContextMap();

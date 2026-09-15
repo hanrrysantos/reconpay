@@ -14,7 +14,6 @@ import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationRunEntity;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationRunStatus;
-import br.com.hanrry.reconpay.reconciliation.event.ReconciliationRunRequestedEvent;
 import br.com.hanrry.reconpay.reconciliation.mapper.IReconciliationMapper;
 import br.com.hanrry.reconpay.reconciliation.repository.IReconciliationItemRepository;
 import br.com.hanrry.reconpay.reconciliation.repository.IReconciliationRunRepository;
@@ -22,7 +21,6 @@ import br.com.hanrry.reconpay.reconciliation.repository.ReconciliationItemSpecif
 import com.opencsv.CSVWriter;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +48,6 @@ public class ReconciliationService {
     private final IMerchantRepository merchantRepository;
     private final ReconciliationProperties properties;
     private final AuditLogger auditLogger;
-    private final ApplicationEventPublisher eventPublisher;
     private final EntityManager entityManager;
 
     private static final int EXPORT_CHUNK_SIZE = 500;
@@ -85,8 +82,6 @@ public class ReconciliationService {
 
         auditLogger.record("RECONCILIATION_REQUESTED", "reconciliationRun", savedRun.getId(),
                 "merchant=" + merchantId + " window=" + fromDate + ".." + toDate);
-
-        eventPublisher.publishEvent(new ReconciliationRunRequestedEvent(savedRun.getId()));
 
         return reconciliationMapper.toRunDTO(savedRun);
     }

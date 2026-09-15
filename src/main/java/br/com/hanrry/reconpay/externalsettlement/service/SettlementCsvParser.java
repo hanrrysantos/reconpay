@@ -216,6 +216,11 @@ public class SettlementCsvParser {
             List<ImportRowErrorDTO> errors) {
         try {
             BigDecimal value = new BigDecimal(rawValue);
+            if (value.scale() > 2 || (long) value.precision() - value.scale() > 17) {
+                errors.add(new ImportRowErrorDTO(rowNumber,
+                        fieldName + " deve ter no máximo 17 dígitos inteiros e 2 casas decimais"));
+                return null;
+            }
             if (value.compareTo(BigDecimal.ZERO) <= 0) {
                 errors.add(new ImportRowErrorDTO(
                         rowNumber,

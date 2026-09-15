@@ -41,7 +41,7 @@ Construído como **monólito modular** em Java 21 + Spring Boot, com domínio fi
 | **Transações internas** | Registro, cálculo de `expectedNetAmount`, controle de status, filtros |
 | **Liquidações externas** | Importação CSV (OpenCSV), lotes de importação, consulta com filtros |
 | **Conciliação** | Execução assíncrona com status, detecção de divergências, consulta de resultados, exportação CSV |
-| **Infra & qualidade** | Flyway (V1–V15), Swagger, Testcontainers, CI no GitHub Actions |
+| **Infra & qualidade** | Flyway (V1–V17), Swagger, Testcontainers, CI no GitHub Actions |
 
 **MVP concluído** — todas as funcionalidades planejadas para a primeira versão estão implementadas.
 
@@ -98,12 +98,15 @@ module/
 ### Fee rules
 - Uma regra ativa por combinação `(merchant, paymentMethod, installments)`.
 - Índice único parcial no banco permite histórico de regras inativas.
+- Taxa percentual entre 0 e 100, com até quatro casas decimais; taxa fixa não negativa.
 
 ### Transações internas
-- Referência externa única por merchant.
+- Referência externa única por merchant, com espaços nas extremidades removidos e maiúsculas/minúsculas preservadas.
 - Fee rule ativa obrigatória; `expectedNetAmount = amount - taxa percentual - taxa fixa`.
+- Valores monetários aceitam até 17 dígitos inteiros e 2 casas decimais, em JSON e CSV. O líquido esperado deve ser positivo.
 - PIX, boleto e débito não permitem parcelamento.
 - Status inicial `APPROVED`; transições para `CANCELLED`, `REFUNDED` ou `CHARGEBACK` (sem reversão).
+- Atualizações concorrentes usam versão otimista: uma alteração obsoleta recebe `409` e deve consultar o estado atual.
 
 ### Liquidações externas
 - Importação via CSV (máx. 5 MB) com validação linha a linha.
@@ -119,11 +122,14 @@ module/
 - Comparação de valores aceita `amount-tolerance` (padrão `0.00`, ou seja, comparação exata).
 - Cada item guarda um **snapshot** dos dois lados no momento da execução, então alterar uma transação depois não reescreve o resultado de um run passado.
 - Uma janela tem no máximo um run vigente: ao concluir, o run marca o anterior como `supersededAt`.
-- A execução é assíncrona: o POST devolve `202 Accepted` com o run em `PENDING` e o `Location` para acompanhar. O run passa por `RUNNING` e termina em `COMPLETED` ou `FAILED` (com `errorMessage`).
+- A execução é assíncrona: o POST devolve `202 Accepted` com o run em `PENDING` e o `Location` para acompanhar. O dispatcher consulta pendências persistidas, confirma `RUNNING` em uma transação própria antes de submeter o trabalho e devolve a `PENDING` se o executor estiver cheio. O run termina em `COMPLETED` ou `FAILED`, com mensagem pública genérica; detalhes técnicos ficam nos logs correlacionados por `runId`.
+- Ao iniciar, execuções interrompidas em `RUNNING` voltam a `PENDING`. Este mecanismo pressupõe **uma instância da aplicação**; múltiplas instâncias exigem leases ou infraestrutura de fila antes de escalar.
 - Enquanto houver um run `PENDING` ou `RUNNING` para a mesma janela, uma nova execução é rejeitada com `409`.
-- Exportação CSV dos resultados para auditoria, escrita em streaming.
+- Exportação CSV dos resultados para auditoria, escrita em streaming. Referências iniciadas por `=`, `+`, `-` ou `@` recebem prefixo `'` para impedir fórmulas em planilhas.
 
 Ajustáveis por `reconpay.reconciliation.*` ou pelas variáveis `RECONCILIATION_AMOUNT_TOLERANCE`, `RECONCILIATION_SETTLEMENT_LAG_DAYS`, `RECONCILIATION_MAX_WINDOW_DAYS`, `RECONCILIATION_ASYNC`, `RECONCILIATION_WORKERS` e `RECONCILIATION_QUEUE_CAPACITY`.
+
+Tolerância, atraso e capacidade da fila não podem ser negativos; janela máxima e workers devem ser positivos. Configurações inválidas impedem a inicialização. `RECONCILIATION_ASYNC=false` executa no thread do dispatcher e mantém o POST assíncrono. Logs de auditoria de sucesso são emitidos somente após commit. JSON malformado, enum/data/UUID inválidos e multipart sem `file` retornam `400` no formato `StandardError` (`VALIDATION_ERROR`).
 
 ---
 
@@ -276,7 +282,7 @@ Estratégia com JUnit 5:
 ./mvnw verify
 ```
 
-A CI executa `./mvnw -B verify` em push e pull request para `main`, com gate de cobertura JaCoCo (85% de linhas, 75% de ramos) e um scan de vulnerabilidades em dependências.
+A CI executa `./mvnw -B verify` em push e pull request para `main`, com gate de cobertura JaCoCo (85% de linhas, 75% de ramos) e scan de dependências que falha para CVSS >= 7, usando action fixada por SHA. Surefire inicia Mockito como Java agent explícito, preservando o agente JaCoCo; os testes não dependem de self-attach dinâmico. Os testes de integração precisam de Docker acessível e exercitam o pool real da conciliação com espera por condição.
 
 ---
 
@@ -301,8 +307,18 @@ Migrations Flyway:
 | V13 | `superseded_at` em `reconciliation_runs` com índice único parcial por janela |
 | V14 | Tabela `user_merchants` (acesso concedido de usuário a merchant) |
 | V15 | `status`, `started_at`, `finished_at` e `error_message` em `reconciliation_runs`, com índices de janela vigente e execução em andamento |
+| V16 | Restrições de percentual de taxa, taxa fixa e líquido esperado |
+| V17 | Versão otimista em `internal_transactions` |
 
-Os seeds de desenvolvimento vivem em `db/seed` (`V900`) e só são carregados pelos profiles `dev` e `test`.
+Os seeds de desenvolvimento vivem em `db/seed/R__seed_local_users.sql`, repeatable e idempotente, carregado somente pelos profiles `dev` e `test`. Nenhum perfil é ativado implicitamente. O perfil `dev` permite migrations fora de ordem para bancos locais que já registraram a antiga V900; alternativamente, recrie apenas o banco local. Não renumere migrations aplicadas nem leve os seeds para produção.
+
+V16 usa `NOT VALID`: novos inserts e updates são protegidos sem modificar valores históricos. Após revisar e corrigir eventuais registros legados inválidos, valide as restrições:
+
+```sql
+ALTER TABLE fee_rules VALIDATE CONSTRAINT ck_fee_rules_percentage_range;
+ALTER TABLE fee_rules VALIDATE CONSTRAINT ck_fee_rules_fixed_fee_nonnegative;
+ALTER TABLE internal_transactions VALIDATE CONSTRAINT ck_internal_transactions_expected_net_positive;
+```
 
 ---
 
@@ -323,10 +339,10 @@ Crie um arquivo `.env` na raiz do projeto:
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=1234
 JWT_SECRET=sua-chave-secreta-com-pelo-menos-32-caracteres
-JWT_EXPIRATION=604800
+JWT_EXPIRATION=86400
 ```
 
-> `JWT_SECRET` é obrigatório e não tem valor padrão em nenhum profile. Na **Opção A** o profile `dev` importa o `.env` diretamente; na **Opção B** o Compose o injeta no container.
+> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` diretamente; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece).
 
 ### 2. Escolha como subir a aplicação
 
@@ -338,7 +354,7 @@ Docker apenas para o banco; a API roda na sua máquina no profile `dev`, com os 
 
 ```bash
 docker compose up -d banco-reconpay
-./mvnw spring-boot:run
+SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 ```
 
 Ideal para desenvolvimento, debug e execução de testes.
@@ -383,10 +399,10 @@ Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo.
 - [x] Observabilidade (log estruturado, auditoria, Prometheus, tracing)
 - [x] Isolamento por merchant com concessão explícita de acesso
 - [x] Execução assíncrona da conciliação com status no run
+- [x] Retomada de runs interrompidos após reinício da aplicação
 
 ### Evolução futura
 
-- Retomada de runs interrompidos por reinício da aplicação
 - Fila externa no lugar do pool em memória, para distribuir a execução entre instâncias
 - Spring Batch para arquivos grandes
 - Rotação e revogação de tokens JWT (refresh token, denylist)
@@ -403,4 +419,3 @@ Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo.
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/hanrrysantos)
 
 ---
-

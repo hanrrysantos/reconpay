@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 public class ReconciliationRunProcessor {
 
     private static final int PERSIST_BATCH_SIZE = 500;
-    private static final int MAX_ERROR_MESSAGE_LENGTH = 1000;
 
     private final ReconciliationEngine reconciliationEngine;
     private final IReconciliationRunRepository reconciliationRunRepository;
@@ -56,10 +55,9 @@ public class ReconciliationRunProcessor {
     private final Clock clock;
 
     /*
-     * REQUIRES_NEW because the AFTER_COMMIT callback still runs inside the
-     * requesting transaction's synchronization scope. A plain REQUIRED would
-     * join that already committed transaction and every write would fail with
-     * "no transaction is in progress".
+     * The claim has already committed in the state service. Item creation and
+     * completion share this separate transaction, so a failed worker rolls
+     * back all items before the dispatcher records FAILED in a new transaction.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void process(UUID runId) {
@@ -71,9 +69,9 @@ public class ReconciliationRunProcessor {
         LocalDate fromDate = run.getFromDate();
         LocalDate toDate = run.getToDate();
 
-        run.setStatus(ReconciliationRunStatus.RUNNING);
-        run.setStartedAt(Instant.now(clock));
-        reconciliationRunRepository.saveAndFlush(run);
+        if (run.getStatus() != ReconciliationRunStatus.RUNNING) {
+            throw new IllegalStateException("Conciliação não foi reservada pelo dispatcher");
+        }
 
         Map<String, InternalTransactionEntity> transactionsByReference = transactionRepository.findAll(
                         TransactionSpecifications.withFilters(merchantId, null, null, fromDate, toDate))
@@ -108,21 +106,6 @@ public class ReconciliationRunProcessor {
                 "merchant=" + merchantId + " window=" + fromDate + ".." + toDate
                         + " total=" + items.size()
                         + " divergent=" + finished.getDivergentCount());
-    }
-
-    /*
-     * Runs in its own transaction because the one that failed is already marked
-     * rollback-only, and a run stuck at RUNNING would block the window forever.
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void markFailed(UUID runId, String reason) {
-        reconciliationRunRepository.findById(runId).ifPresent(run -> {
-            run.setStatus(ReconciliationRunStatus.FAILED);
-            run.setFinishedAt(Instant.now(clock));
-            run.setErrorMessage(truncate(reason));
-            reconciliationRunRepository.save(run);
-            auditLogger.record("RECONCILIATION_FAILED", "reconciliationRun", runId, "reason=" + reason);
-        });
     }
 
     /*
@@ -183,12 +166,4 @@ public class ReconciliationRunProcessor {
                 .count();
     }
 
-    private String truncate(String reason) {
-        if (reason == null) {
-            return "Erro desconhecido";
-        }
-        return reason.length() <= MAX_ERROR_MESSAGE_LENGTH
-                ? reason
-                : reason.substring(0, MAX_ERROR_MESSAGE_LENGTH);
-    }
 }

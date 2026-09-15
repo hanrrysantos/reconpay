@@ -79,7 +79,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
         String orphanReference = "EXT-ORPHAN-" + UUID.randomUUID();
         String feeDivergenceReference = "TXN-FEE-" + UUID.randomUUID();
 
-        createTransaction(matchedReference, "150.00", "CREDIT_CARD", 3);
+        createTransaction("  " + matchedReference + "  ", "150.00", "CREDIT_CARD", 3);
         createTransaction(missingReference, "100.00", "CREDIT_CARD", 3);
         createTransaction(feeDivergenceReference, "150.00", "CREDIT_CARD", 3);
 
@@ -108,6 +108,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .getContentAsString();
 
         String runId = com.jayway.jsonpath.JsonPath.read(runResponse, "$.id");
+        awaitCompleted(runId);
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}", merchantId, runId)
                         .header("Authorization", "Bearer " + analystToken))
@@ -264,7 +265,17 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .getResponse()
                 .getContentAsString();
 
-        return com.jayway.jsonpath.JsonPath.read(response, "$.id");
+        String id = com.jayway.jsonpath.JsonPath.read(response, "$.id");
+        awaitCompleted(id);
+        return id;
+    }
+
+    private void awaitCompleted(String id) {
+        org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(15)).untilAsserted(() ->
+                mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}", merchantId, id)
+                                .header("Authorization", "Bearer " + adminToken))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.status").value("COMPLETED")));
     }
 
     private String createTransaction(

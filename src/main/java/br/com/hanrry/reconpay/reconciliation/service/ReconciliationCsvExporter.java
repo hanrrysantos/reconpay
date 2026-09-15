@@ -46,7 +46,7 @@ public class ReconciliationCsvExporter {
                 .collect(Collectors.joining(";"));
 
         return new String[] {
-                item.getExternalReference(),
+                safeCell(item.getExternalReference()),
                 item.getResult().name(),
                 discrepancyTypes,
                 text(item.getInternalTransaction() != null ? item.getInternalTransaction().getId() : null),
@@ -70,6 +70,13 @@ public class ReconciliationCsvExporter {
 
     private String amount(BigDecimal value) {
         return value == null ? "" : value.toPlainString();
+    }
+
+    private String safeCell(String value) {
+        if (value != null && !value.isEmpty() && "=+-@".indexOf(value.charAt(0)) >= 0) {
+            return "'" + value;
+        }
+        return value;
     }
 
     private String text(Object value) {
