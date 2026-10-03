@@ -6,9 +6,9 @@ O ReconPay concluiu o MVP de API, mas o modelo de acesso não reflete o produto 
 
 ## Goals
 
-- [ ] OPERATOR executa o fluxo completo (merchant, taxas, transações, import, conciliação) nos merchants concedidos
-- [ ] ADMIN foca governança (usuários, grants); auto-registro ativa via e-mail sem PATCH de admin
-- [ ] APIs de contexto (`/api/me`, `/api/me/merchants`) e auto-grant na criação de merchant
+- [x] OPERATOR executa o fluxo completo (merchant, taxas, transações, import, conciliação) nos merchants concedidos
+- [x] ADMIN foca governança (usuários, grants); auto-registro ativa via e-mail sem PATCH de admin
+- [x] APIs de contexto (`/api/me`, `/api/me/merchants`) e auto-grant na criação de merchant
 
 ## Out of Scope
 
@@ -148,34 +148,34 @@ O ReconPay concluiu o MVP de API, mas o modelo de acesso não reflete o produto 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| RBAC-01 | P1 Papéis | Tasks | Pending |
-| RBAC-02 | P1 Papéis | Tasks | Pending |
-| RBAC-03 | P1 Papéis | Tasks | Pending |
-| RBAC-04 | P1 Papéis | Tasks | Pending |
-| RBAC-05 | P1 Papéis | Tasks | Pending |
-| RBAC-06 | P1 Papéis | Tasks | Pending |
-| RBAC-07 | P1 Papéis | Tasks | Pending |
-| GRANT-01 | P1 Auto-grant | Tasks | Pending |
-| GRANT-02 | P1 Auto-grant | Tasks | Pending |
-| GRANT-03 | P1 Auto-grant | Tasks | Pending |
-| AUTH-01 | P1 E-mail | Tasks | Pending |
-| AUTH-02 | P1 E-mail | Tasks | Pending |
-| AUTH-03 | P1 E-mail | Tasks | Pending |
-| AUTH-04 | P1 E-mail | Tasks | Pending |
-| AUTH-05 | P1 E-mail | Tasks | Pending |
-| CTX-01 | P1 Contexto | Tasks | Pending |
-| CTX-02 | P1 Contexto | Tasks | Pending |
-| CTX-03 | P1 Contexto | Tasks | Pending |
-| CTX-04 | P1 Contexto | Tasks | Pending |
-| CORS-01 | P2 CORS | Tasks | Pending |
-| CORS-02 | P2 CORS | Tasks | Pending |
+| RBAC-01 | P1 Papéis | Tasks | Done |
+| RBAC-02 | P1 Papéis | Tasks | Done |
+| RBAC-03 | P1 Papéis | Tasks | Done |
+| RBAC-04 | P1 Papéis | Tasks | Done |
+| RBAC-05 | P1 Papéis | Tasks | Done |
+| RBAC-06 | P1 Papéis | Tasks | Done |
+| RBAC-07 | P1 Papéis | Tasks | Done |
+| GRANT-01 | P1 Auto-grant | Tasks | Done |
+| GRANT-02 | P1 Auto-grant | Tasks | Done |
+| GRANT-03 | P1 Auto-grant | Tasks | Done |
+| AUTH-01 | P1 E-mail | Tasks | Done |
+| AUTH-02 | P1 E-mail | Tasks | Done |
+| AUTH-03 | P1 E-mail | Tasks | Done |
+| AUTH-04 | P1 E-mail | Tasks | Done |
+| AUTH-05 | P1 E-mail | Tasks | Done |
+| CTX-01 | P1 Contexto | Tasks | Done |
+| CTX-02 | P1 Contexto | Tasks | Done |
+| CTX-03 | P1 Contexto | Tasks | Done |
+| CTX-04 | P1 Contexto | Tasks | Done |
+| CORS-01 | P2 CORS | Tasks | Done |
+| CORS-02 | P2 CORS | Tasks | Done |
 
-**Coverage:** 21 total, 0 mapped to tasks commits, 21 pending
+**Coverage:** 21 total, 21 implemented, 0 pending
 
 ---
 
 ## Success Criteria
 
-- [ ] `./mvnw -B verify` green with new integration tests for RBAC, grant, auth verify, `/api/me`
-- [ ] README security section descreve ADMIN vs OPERATOR e fluxo de e-mail
-- [ ] Swagger documenta novos endpoints e remove/depreca activation patch para auto-registro
+- [x] `./mvnw -B verify` green with new integration tests for RBAC, grant, auth verify, `/api/me`
+- [x] README security section descreve ADMIN vs OPERATOR e fluxo de e-mail
+- [x] Swagger documenta novos endpoints e remove/depreca activation patch para auto-registro
