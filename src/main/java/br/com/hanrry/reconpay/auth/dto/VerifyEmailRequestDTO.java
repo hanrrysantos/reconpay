@@ -6,7 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "Token recebido por e-mail para ativação da conta")
 public record VerifyEmailRequestDTO(
         @NotBlank(message = "Token é obrigatório")
-        @Schema(description = "Token de verificação de e-mail")
+        @Schema(
+                description = "Token de verificação de e-mail",
+                example = "dGhpcy1pcy1hbi1leGFtcGxlLXRva2Vu")
         String token
 ) {
 }
