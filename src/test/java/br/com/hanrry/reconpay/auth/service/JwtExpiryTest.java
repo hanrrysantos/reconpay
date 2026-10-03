@@ -17,7 +17,7 @@ class JwtExpiryTest {
         var jwt = new JwtService();
         ReflectionTestUtils.setField(jwt, "secret", secret);
         ReflectionTestUtils.setField(jwt, "expiration", 123L);
-        var auth = new AuthService(null, null, null, mock(AuthenticationManager.class), jwt);
+        var auth = new AuthService(null, null, null, mock(AuthenticationManager.class), jwt, null);
         var response = auth.login(new AuthRequestDTO("analyst@example.com", "password"));
         var claims = Jwts.parser().verifyWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
                 .build().parseSignedClaims(response.token()).getPayload();
