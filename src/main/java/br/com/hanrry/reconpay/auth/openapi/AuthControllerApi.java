@@ -16,10 +16,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(
         name = OpenApiTags.AUTHENTICATION,
@@ -76,13 +79,24 @@ public interface AuthControllerApi {
     ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO request);
 
     @Operation(
-            summary = "Confirmar e-mail",
+            summary = "Confirmar e-mail (API)",
             description = """
-                    Ativa a conta criada via auto-registro usando o token recebido por e-mail.
-                    Após sucesso, o login passa a funcionar normalmente."""
+                    Ativa a conta com o token (JSON). Preferível para clientes programáticos;
+                    usuários finais usam o link/botão do e-mail (GET)."""
     )
     @ApiResponse(responseCode = "204", description = "E-mail confirmado; conta ativa")
     @ApiValidationErrorResponse
     @PostMapping("/verify-email")
     ResponseEntity<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequestDTO request);
+
+    @Operation(
+            summary = "Confirmar e-mail (link do e-mail)",
+            description = """
+                    Ativa a conta ao abrir o link do botão no e-mail de verificação.
+                    Retorna uma página HTML de sucesso ou erro."""
+    )
+    @ApiResponse(responseCode = "200", description = "HTML — conta ativada")
+    @ApiResponse(responseCode = "400", description = "HTML — link inválido ou expirado")
+    @GetMapping(value = "/verify-email", produces = MediaType.TEXT_HTML_VALUE)
+    ResponseEntity<String> verifyEmailFromLink(@RequestParam("token") String token);
 }
