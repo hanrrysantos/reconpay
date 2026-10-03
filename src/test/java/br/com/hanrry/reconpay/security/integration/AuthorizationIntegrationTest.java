@@ -1,5 +1,6 @@
 package br.com.hanrry.reconpay.security.integration;
 
+import br.com.hanrry.reconpay.auth.email.CapturingEmailSender;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,17 +22,28 @@ class AuthorizationIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private String analystToken;
+    @Autowired
+    private CapturingEmailSender capturingEmailSender;
+
+    private String operatorToken;
 
     @BeforeEach
     void setUp() throws Exception {
-        analystToken = IntegrationTestUtils.obtainAnalystToken(mockMvc);
+        operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
     }
 
     @Test
-    void financialAnalystShouldBeForbiddenOnMerchants() throws Exception {
+    void operatorShouldListMerchantsWithoutForbidden() throws Exception {
         mockMvc.perform(get("/api/merchants")
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void operatorShouldBeForbiddenOnUsers() throws Exception {
+        mockMvc.perform(get("/api/users")
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.error").value("FORBIDDEN"));
     }
@@ -44,25 +56,35 @@ class AuthorizationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void selfRegisteredUserShouldNotAuthenticateBeforeActivation() throws Exception {
+    void selfRegisteredUserShouldNotAuthenticateBeforeEmailVerification() throws Exception {
+        capturingEmailSender.clear();
         register("pendente@test.local");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loginPayload("pendente@test.local")))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.error").value("UNAUTHORIZED"));
+                .andExpect(jsonPath("$.error").value("UNAUTHORIZED"))
+                .andExpect(jsonPath("$.message").value("Confirme seu e-mail para ativar sua conta"));
     }
 
     @Test
-    void selfRegisteredUserShouldAuthenticateAfterAdminActivation() throws Exception {
-        String userId = register("aprovado@test.local");
-        String adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
+    void selfRegisteredUserShouldAuthenticateAfterEmailVerification() throws Exception {
+        capturingEmailSender.clear();
+        register("aprovado@test.local");
 
-        mockMvc.perform(patch("/api/users/{id}/activation", userId)
-                        .header("Authorization", "Bearer " + adminToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.active").value(true));
+        var captured = capturingEmailSender.lastEmail();
+        org.assertj.core.api.Assertions.assertThat(captured).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(captured.toEmail()).isEqualTo("aprovado@test.local");
+
+        mockMvc.perform(post("/api/auth/verify-email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "token": "%s"
+                                }
+                                """.formatted(captured.rawToken())))
+                .andExpect(status().isNoContent());
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -76,7 +98,7 @@ class AuthorizationIntegrationTest extends AbstractIntegrationTest {
         String userId = register("negado@test.local");
 
         mockMvc.perform(patch("/api/users/{id}/activation", userId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isForbidden());
     }
 
