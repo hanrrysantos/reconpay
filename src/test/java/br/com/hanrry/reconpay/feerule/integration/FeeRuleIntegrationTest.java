@@ -24,11 +24,13 @@ class FeeRuleIntegrationTest extends AbstractIntegrationTest {
     private MockMvc mockMvc;
 
     private String adminToken;
+    private String operatorToken;
     private String merchantId;
 
     @BeforeEach
     void setUp() throws Exception {
         adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
+        operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
 
         String uniqueDocument = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
 
@@ -85,6 +87,31 @@ class FeeRuleIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(delete("/api/merchants/{merchantId}/fee-rules/{id}", merchantId, feeRuleId)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void operatorWithGrantShouldCreateAndListFeeRule() throws Exception {
+        UUID merchantUuid = UUID.fromString(merchantId);
+        IntegrationTestUtils.grantOperatorAccess(mockMvc, adminToken, merchantUuid);
+
+        mockMvc.perform(post("/api/merchants/{merchantId}/fee-rules", merchantId)
+                        .header("Authorization", "Bearer " + operatorToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "paymentMethod": "DEBIT_CARD",
+                                  "installments": 1,
+                                  "feePercentage": 2.0000,
+                                  "fixedFee": 0.50
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.paymentMethod").value("DEBIT_CARD"));
+
+        mockMvc.perform(get("/api/merchants/{merchantId}/fee-rules", merchantId)
+                        .header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[?(@.paymentMethod=='DEBIT_CARD')]").exists());
     }
 
     @Test
