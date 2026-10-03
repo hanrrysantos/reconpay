@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.UUID;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,10 +25,12 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
     private MockMvc mockMvc;
 
     private String adminToken;
+    private String operatorToken;
 
     @BeforeEach
     void setUp() throws Exception {
         adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
+        operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
     }
 
     @Test
@@ -97,5 +101,43 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
                                 """))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("CONFLICT"));
+    }
+
+    @Test
+    void operatorShouldCreateMerchantAndSeeItInScopedList() throws Exception {
+        String document = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String createResponse = mockMvc.perform(post("/api/merchants")
+                        .header("Authorization", "Bearer " + operatorToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Loja Operator",
+                                  "document": "%s"
+                                }
+                                """.formatted(document)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.document").value(document))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String merchantId = com.jayway.jsonpath.JsonPath.read(createResponse, "$.id");
+
+        mockMvc.perform(get("/api/merchants")
+                        .header("Authorization", "Bearer " + operatorToken)
+                        .param("size", "500"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[?(@.id=='" + merchantId + "')]").exists());
+
+        mockMvc.perform(put("/api/merchants/{id}", merchantId)
+                        .header("Authorization", "Bearer " + operatorToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Loja Operator Atualizada"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Loja Operator Atualizada"));
     }
 }
