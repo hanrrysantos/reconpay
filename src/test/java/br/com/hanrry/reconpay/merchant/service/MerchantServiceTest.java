@@ -1,5 +1,8 @@
 package br.com.hanrry.reconpay.merchant.service;
 
+import br.com.hanrry.reconpay.auth.enums.UserRole;
+import br.com.hanrry.reconpay.auth.repository.IUserMerchantAccessRepository;
+import br.com.hanrry.reconpay.auth.service.UserMerchantAccessService;
 import br.com.hanrry.reconpay.exception.MerchantAlreadyExistsException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
@@ -9,12 +12,19 @@ import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.mapper.IMerchantMapper;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.observability.AuditLogger;
+import br.com.hanrry.reconpay.security.AuthenticatedUserAccessor;
+import br.com.hanrry.reconpay.security.CustomUserDetails;
+import br.com.hanrry.reconpay.security.MerchantAccessGuard;
+import br.com.hanrry.reconpay.auth.entity.UserEntity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -27,11 +37,14 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class MerchantServiceTest {
 
     @Mock
@@ -41,10 +54,35 @@ class MerchantServiceTest {
     private IMerchantRepository merchantRepository;
 
     @Mock
+    private IUserMerchantAccessRepository userMerchantAccessRepository;
+
+    @Mock
+    private UserMerchantAccessService userMerchantAccessService;
+
+    @Mock
+    private MerchantAccessGuard merchantAccessGuard;
+
+    @Mock
+    private AuthenticatedUserAccessor authenticatedUserAccessor;
+
+    @Mock
     private AuditLogger auditLogger;
 
     @InjectMocks
     private MerchantService merchantService;
+
+    private UUID adminUserId;
+
+    @BeforeEach
+    void setUpPrincipal() {
+        adminUserId = UUID.randomUUID();
+        UserEntity admin = new UserEntity();
+        admin.setId(adminUserId);
+        admin.setEmail("admin@test.local");
+        admin.setRole(UserRole.ADMIN);
+        admin.setActive(true);
+        when(authenticatedUserAccessor.requirePrincipal()).thenReturn(new CustomUserDetails(admin));
+    }
 
     @Test
     void createShouldPersistMerchantWhenDocumentIsUnique() {
@@ -61,6 +99,7 @@ class MerchantServiceTest {
         MerchantResponseDTO response = merchantService.create(request);
 
         verify(merchantRepository).save(mappedEntity);
+        verify(userMerchantAccessService).grantIfAbsent(eq(adminUserId), eq(savedEntity.getId()));
         assertThat(response).isEqualTo(expectedResponse);
     }
 
@@ -84,6 +123,7 @@ class MerchantServiceTest {
         MerchantEntity merchant = buildMerchant(merchantId, "Loja Exemplo", "12345678000199");
         MerchantResponseDTO expectedResponse = toResponseDTO(merchant);
 
+        doNothing().when(merchantAccessGuard).requireAccess(merchantId);
         when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
         when(merchantMapper.toDTO(merchant)).thenReturn(expectedResponse);
 
@@ -96,6 +136,7 @@ class MerchantServiceTest {
     void findByIdShouldThrowWhenMerchantNotFound() {
         UUID merchantId = UUID.randomUUID();
 
+        doNothing().when(merchantAccessGuard).requireAccess(merchantId);
         when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> merchantService.findById(merchantId))
@@ -124,6 +165,7 @@ class MerchantServiceTest {
         MerchantEntity savedMerchant = buildMerchant(merchantId, "Loja Atualizada", "12345678000199");
         MerchantResponseDTO expectedResponse = toResponseDTO(savedMerchant);
 
+        doNothing().when(merchantAccessGuard).requireAccess(merchantId);
         when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
         when(merchantRepository.save(merchant)).thenReturn(savedMerchant);
         when(merchantMapper.toDTO(savedMerchant)).thenReturn(expectedResponse);
@@ -140,6 +182,7 @@ class MerchantServiceTest {
     void updateShouldThrowWhenMerchantNotFound() {
         UUID merchantId = UUID.randomUUID();
 
+        doNothing().when(merchantAccessGuard).requireAccess(merchantId);
         when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> merchantService.update(
@@ -155,6 +198,7 @@ class MerchantServiceTest {
         UUID merchantId = UUID.randomUUID();
         MerchantEntity merchant = buildMerchant(merchantId, "Loja Exemplo", "12345678000199");
 
+        doNothing().when(merchantAccessGuard).requireAccess(merchantId);
         when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
 
         merchantService.deleteById(merchantId);
@@ -168,6 +212,7 @@ class MerchantServiceTest {
     void deleteByIdShouldThrowWhenMerchantNotFound() {
         UUID merchantId = UUID.randomUUID();
 
+        doNothing().when(merchantAccessGuard).requireAccess(merchantId);
         when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> merchantService.deleteById(merchantId))
