@@ -122,7 +122,7 @@ class AuthControllerIntegrationTest {
                 userId,
                 "Analista Teste",
                 "analista@test.local",
-                UserRole.FINANCIAL_ANALYST,
+                UserRole.OPERATOR,
                 false,
                 createdAt
         );
@@ -141,7 +141,7 @@ class AuthControllerIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(userId.toString()))
                 .andExpect(jsonPath("$.email").value("analista@test.local"))
-                .andExpect(jsonPath("$.role").value("FINANCIAL_ANALYST"))
+                .andExpect(jsonPath("$.role").value("OPERATOR"))
                 .andExpect(jsonPath("$.active").value(false));
     }
 
