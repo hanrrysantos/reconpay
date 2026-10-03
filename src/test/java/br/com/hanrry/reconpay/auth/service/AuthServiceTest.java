@@ -48,6 +48,9 @@ class AuthServiceTest {
     @Mock
     private JwtService jwtService;
 
+    @Mock
+    private EmailVerificationService emailVerificationService;
+
     @InjectMocks
     private AuthService authService;
 
@@ -79,7 +82,7 @@ class AuthServiceTest {
         savedEntity.setName("Analista");
         savedEntity.setEmail("analista@gmail.com");
         savedEntity.setPassword("encoded-password");
-        savedEntity.setRole(UserRole.FINANCIAL_ANALYST);
+        savedEntity.setRole(UserRole.OPERATOR);
         savedEntity.setActive(false);
         savedEntity.setCreatedAt(Instant.parse("2026-08-05T12:00:00Z"));
 
@@ -87,7 +90,7 @@ class AuthServiceTest {
                 savedEntity.getId(),
                 "Analista",
                 "analista@gmail.com",
-                UserRole.FINANCIAL_ANALYST,
+                UserRole.OPERATOR,
                 false,
                 savedEntity.getCreatedAt()
         );
@@ -105,9 +108,10 @@ class AuthServiceTest {
         verify(userRepository).save(entityCaptor.capture());
 
         assertThat(entityCaptor.getValue().getPassword()).isEqualTo("encoded-password");
-        assertThat(entityCaptor.getValue().getRole()).isEqualTo(UserRole.FINANCIAL_ANALYST);
+        assertThat(entityCaptor.getValue().getRole()).isEqualTo(UserRole.OPERATOR);
         assertThat(entityCaptor.getValue().isActive()).isFalse();
         assertThat(response).isEqualTo(expectedResponse);
+        verify(emailVerificationService).sendVerificationEmail(savedEntity);
     }
 
     @Test
