@@ -5,6 +5,7 @@ import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
 import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
+import br.com.hanrry.reconpay.auth.repository.IEmailVerificationTokenRepository;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
 import br.com.hanrry.reconpay.exception.UserNotFoundException;
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class UserService {
 
     private final IUserRepository userRepository;
+    private final IEmailVerificationTokenRepository emailVerificationTokenRepository;
     private final IUserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuditLogger auditLogger;
@@ -86,9 +88,11 @@ public class UserService {
 
     @Transactional
     public void deleteById(UUID id) {
-        UserEntity user = getActiveUserOrThrow(id);
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
         user.setActive(false);
         userRepository.save(user);
+        emailVerificationTokenRepository.deleteAllPendingByUserId(id);
         auditLogger.record("USER_DEACTIVATED", "user", id);
     }
 
