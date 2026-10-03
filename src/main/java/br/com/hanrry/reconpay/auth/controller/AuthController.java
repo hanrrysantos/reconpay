@@ -4,6 +4,7 @@ import br.com.hanrry.reconpay.auth.dto.AuthRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.AuthResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
+import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
 import br.com.hanrry.reconpay.auth.openapi.AuthControllerApi;
 import br.com.hanrry.reconpay.auth.service.AuthService;
 import jakarta.validation.Valid;
@@ -27,5 +28,11 @@ public class AuthController implements AuthControllerApi {
     public ResponseEntity<UserResponseDTO> register(@Valid UserRequestDTO request) {
         UserResponseDTO user = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    }
+
+    @Override
+    public ResponseEntity<Void> verifyEmail(@Valid VerifyEmailRequestDTO request) {
+        authService.verifyEmail(request.token());
+        return ResponseEntity.noContent().build();
     }
 }
