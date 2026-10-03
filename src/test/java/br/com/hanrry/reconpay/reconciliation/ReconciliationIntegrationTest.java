@@ -30,13 +30,13 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
     private MockMvc mockMvc;
 
     private String adminToken;
-    private String analystToken;
+    private String operatorToken;
     private String merchantId;
 
     @BeforeEach
     void setUp() throws Exception {
         adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
-        analystToken = IntegrationTestUtils.obtainAnalystToken(mockMvc);
+        operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
 
         String uniqueDocument = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
 
@@ -56,7 +56,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
 
         merchantId = com.jayway.jsonpath.JsonPath.read(merchantResponse, "$.id");
 
-        IntegrationTestUtils.grantAnalystAccess(mockMvc, adminToken, UUID.fromString(merchantId));
+        IntegrationTestUtils.grantOperatorAccess(mockMvc, adminToken, UUID.fromString(merchantId));
 
         mockMvc.perform(post("/api/merchants/{merchantId}/fee-rules", merchantId)
                         .header("Authorization", "Bearer " + adminToken)
@@ -111,7 +111,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
         awaitCompleted(runId);
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}", merchantId, runId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.finishedAt").isNotEmpty())
@@ -120,7 +120,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.divergentCount").value(3));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/items", merchantId, runId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .param("result", "DIVERGENT")
                         .param("discrepancyType", "MISSING_SETTLEMENT"))
                 .andExpect(status().isOk())
@@ -129,7 +129,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.content[0].discrepancies[0].type").value("MISSING_SETTLEMENT"));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/export", merchantId, runId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Disposition", containsString("reconciliation-" + runId + ".csv")))
                 .andExpect(content().string(containsString("externalReference")))
@@ -139,12 +139,17 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void analystShouldNotRunReconciliation() throws Exception {
+    void operatorShouldRunReconciliationForGrantedMerchant() throws Exception {
         mockMvc.perform(post("/api/merchants/{merchantId}/reconciliations", merchantId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isForbidden());
+                        .content("""
+                                {
+                                  "fromDate": "2026-07-01",
+                                  "toDate": "2026-07-31"
+                                }
+                                """))
+                .andExpect(status().isAccepted());
     }
 
     @Test
@@ -170,7 +175,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/items", merchantId, runId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].transactionStatus").value("APPROVED"))
                 .andExpect(jsonPath("$.content[0].result").value("MATCHED"));
@@ -182,12 +187,12 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
         String secondRunId = runReconciliation("2026-07-01", "2026-07-31");
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}", merchantId, firstRunId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.supersededAt").isNotEmpty());
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}", merchantId, secondRunId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.supersededAt").doesNotExist());
     }
@@ -205,7 +210,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
         String runId = runReconciliation("2026-07-01", "2026-07-31");
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/items", merchantId, runId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.content[0].externalReference").value(reference))
