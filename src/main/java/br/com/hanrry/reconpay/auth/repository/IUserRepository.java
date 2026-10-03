@@ -17,4 +17,6 @@ public interface IUserRepository extends JpaRepository<UserEntity, UUID> {
     Optional<UserEntity> findByIdAndActiveTrue(UUID id);
 
     Optional<UserEntity> findByEmailAndActiveTrue(String email);
+
+    Optional<UserEntity> findByEmail(String email);
 }
