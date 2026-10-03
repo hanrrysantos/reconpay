@@ -26,6 +26,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final EmailVerificationService emailVerificationService;
 
     public AuthResponseDTO login(AuthRequestDTO request) {
         authenticationManager.authenticate(
@@ -44,10 +45,15 @@ public class AuthService {
 
         UserEntity user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRole(UserRole.FINANCIAL_ANALYST);
+        user.setRole(UserRole.OPERATOR);
         user.setActive(false);
 
         UserEntity savedUser = userRepository.save(user);
+        emailVerificationService.sendVerificationEmail(savedUser);
         return userMapper.toDTO(savedUser);
+    }
+
+    public void verifyEmail(String rawToken) {
+        emailVerificationService.verify(rawToken);
     }
 }
