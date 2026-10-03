@@ -36,6 +36,8 @@ class MeControllerIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/me")
                         .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.name").isNotEmpty())
                 .andExpect(jsonPath("$.email").value("analyst@reconpay.local"))
                 .andExpect(jsonPath("$.role").value("OPERATOR"))
                 .andExpect(jsonPath("$.active").value(true));
@@ -69,8 +71,37 @@ class MeControllerIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void adminShouldSeeAtLeastAsManyMerchantsAsOperatorOnMeMerchants() throws Exception {
+        String adminBody = mockMvc.perform(get("/api/me/merchants")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .param("size", "500"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String operatorBody = mockMvc.perform(get("/api/me/merchants")
+                        .header("Authorization", "Bearer " + operatorToken)
+                        .param("size", "500"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        int adminTotal = com.jayway.jsonpath.JsonPath.read(adminBody, "$.totalElements");
+        int operatorTotal = com.jayway.jsonpath.JsonPath.read(operatorBody, "$.totalElements");
+        org.assertj.core.api.Assertions.assertThat(adminTotal).isGreaterThanOrEqualTo(operatorTotal);
+    }
+
+    @Test
     void unauthenticatedMeShouldReturnUnauthorized() throws Exception {
         mockMvc.perform(get("/api/me"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void unauthenticatedMeMerchantsShouldReturnUnauthorized() throws Exception {
+        mockMvc.perform(get("/api/me/merchants"))
                 .andExpect(status().isUnauthorized());
     }
 }
