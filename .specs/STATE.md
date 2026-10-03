@@ -44,10 +44,10 @@
 
 ## Handoff
 
-- **Feature**: `.specs/features/backend-access-alignment/` — Execute complete (T1–T15)
-- **Phase / Task**: Verifier / feature closure
-- **Completed**: T1–T15 (access alignment, email, CORS, docs)
+- **Feature**: `.specs/features/backend-access-alignment/` — **Complete** (validation PASS)
+- **Phase / Task**: none
+- **Completed**: T1–T15 + Verifier (`validation.md`)
 - **In-progress** (file:line): none
-- **Next step**: Run Verifier; optional push to origin
+- **Next step**: `git push origin main`
 - **Blockers**: none
 - **Branch**: main (local ahead of origin)
