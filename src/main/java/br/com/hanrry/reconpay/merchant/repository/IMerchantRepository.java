@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,6 +14,8 @@ public interface IMerchantRepository extends JpaRepository<MerchantEntity, UUID>
     boolean existsByDocument(String document);
 
     Page<MerchantEntity> findAllByActiveTrue(Pageable pageable);
+
+    Page<MerchantEntity> findAllByActiveTrueAndIdIn(Collection<UUID> ids, Pageable pageable);
 
     Optional<MerchantEntity> findByIdAndActiveTrue(UUID id);
 }
