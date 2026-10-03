@@ -99,7 +99,7 @@ class UserControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "FINANCIAL_ANALYST")
+    @WithMockUser(roles = "OPERATOR")
     void createUserShouldReturnForbiddenWhenAnalyst() throws Exception {
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
