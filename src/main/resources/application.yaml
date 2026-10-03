@@ -46,6 +46,11 @@ management:
       probability: ${TRACING_SAMPLE_RATE:0.1}
 
 reconpay:
+  email:
+    resend-api-key: ${RESEND_API_KEY:}
+    from: ${RECONPAY_EMAIL_FROM:ReconPay <noreply@reconpay.local>}
+    verification-base-url: ${RECONPAY_VERIFICATION_BASE_URL:http://localhost:8080}
+    verification-token-hours: ${RECONPAY_VERIFICATION_TOKEN_HOURS:24}
   reconciliation:
     amount-tolerance: ${RECONCILIATION_AMOUNT_TOLERANCE:0.00}
     settlement-lag-days: ${RECONCILIATION_SETTLEMENT_LAG_DAYS:5}
