@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,10 +27,12 @@ class AuthorizationIntegrationTest extends AbstractIntegrationTest {
     private CapturingEmailSender capturingEmailSender;
 
     private String operatorToken;
+    private String adminToken;
 
     @BeforeEach
     void setUp() throws Exception {
         operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
+        adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
     }
 
     @Test
@@ -91,6 +94,42 @@ class AuthorizationIntegrationTest extends AbstractIntegrationTest {
                         .content(loginPayload("aprovado@test.local")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").isNotEmpty());
+    }
+
+    @Test
+    void verifyEmailWithInvalidTokenShouldReturnValidationError() throws Exception {
+        mockMvc.perform(post("/api/auth/verify-email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "token": "totally-invalid-token"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void verifyShouldFailAfterAdminDeactivatesPendingUser() throws Exception {
+        capturingEmailSender.clear();
+        String email = "revogado@test.local";
+        String userId = register(email);
+        var captured = capturingEmailSender.lastEmail();
+        org.assertj.core.api.Assertions.assertThat(captured).isNotNull();
+
+        mockMvc.perform(delete("/api/users/{id}", userId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(post("/api/auth/verify-email")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "token": "%s"
+                                }
+                                """.formatted(captured.rawToken())))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
     }
 
     @Test
