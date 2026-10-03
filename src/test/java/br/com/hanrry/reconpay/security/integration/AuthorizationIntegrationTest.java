@@ -80,14 +80,11 @@ class AuthorizationIntegrationTest extends AbstractIntegrationTest {
         org.assertj.core.api.Assertions.assertThat(captured).isNotNull();
         org.assertj.core.api.Assertions.assertThat(captured.toEmail()).isEqualTo("aprovado@test.local");
 
-        mockMvc.perform(post("/api/auth/verify-email")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "token": "%s"
-                                }
-                                """.formatted(captured.rawToken())))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/auth/verify-email")
+                        .param("token", captured.rawToken()))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("E-mail confirmado")));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
