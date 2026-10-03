@@ -140,7 +140,7 @@ class UserServiceTest {
 
     @Test
     void findByEmailShouldReturnUserWhenActive() {
-        UserEntity user = buildUserEntity(UserRole.FINANCIAL_ANALYST);
+        UserEntity user = buildUserEntity(UserRole.OPERATOR);
         UserResponseDTO responseDTO = toResponseDTO(user);
 
         when(userRepository.findByEmailAndActiveTrue("analista@test.local")).thenReturn(Optional.of(user));
