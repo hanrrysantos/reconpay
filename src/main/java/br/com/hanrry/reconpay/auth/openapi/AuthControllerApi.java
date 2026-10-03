@@ -4,6 +4,7 @@ import br.com.hanrry.reconpay.auth.dto.AuthRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.AuthResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
+import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
 import br.com.hanrry.reconpay.openapi.ApiConflictResponse;
 import br.com.hanrry.reconpay.openapi.ApiUnauthorizedResponse;
 import br.com.hanrry.reconpay.openapi.ApiValidationErrorResponse;
@@ -55,10 +56,10 @@ public interface AuthControllerApi {
     @Operation(
             summary = "Registrar novo usuário",
             description = """
-                    Cria uma conta com perfil FINANCIAL_ANALYST em estado inativo.
+                    Cria uma conta com perfil OPERATOR em estado inativo.
                     A senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um número.
-                    A conta não autentica até que um ADMIN a aprove em \
-                    PATCH /api/users/{id}/activation."""
+                    Um e-mail de verificação é enviado via Resend; use \
+                    POST /api/auth/verify-email para ativar antes do login."""
     )
     @ApiResponse(
         responseCode = "201",
@@ -73,4 +74,15 @@ public interface AuthControllerApi {
     @ApiConflictResponse
     @PostMapping("/register")
     ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO request);
+
+    @Operation(
+            summary = "Confirmar e-mail",
+            description = """
+                    Ativa a conta criada via auto-registro usando o token recebido por e-mail.
+                    Após sucesso, o login passa a funcionar normalmente."""
+    )
+    @ApiResponse(responseCode = "204", description = "E-mail confirmado; conta ativa")
+    @ApiValidationErrorResponse
+    @PostMapping("/verify-email")
+    ResponseEntity<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequestDTO request);
 }
