@@ -31,7 +31,7 @@ class IUserMapperTest {
         entity.setName("Analista");
         entity.setEmail("analista@test.local");
         entity.setPassword("encoded-secret");
-        entity.setRole(UserRole.FINANCIAL_ANALYST);
+        entity.setRole(UserRole.OPERATOR);
         entity.setActive(true);
         entity.setCreatedAt(createdAt);
         entity.setUpdatedAt(createdAt);
@@ -41,7 +41,7 @@ class IUserMapperTest {
         assertThat(dto.id()).isEqualTo(id);
         assertThat(dto.name()).isEqualTo("Analista");
         assertThat(dto.email()).isEqualTo("analista@test.local");
-        assertThat(dto.role()).isEqualTo(UserRole.FINANCIAL_ANALYST);
+        assertThat(dto.role()).isEqualTo(UserRole.OPERATOR);
         assertThat(dto.active()).isTrue();
         assertThat(dto.createdAt()).isEqualTo(createdAt);
     }
