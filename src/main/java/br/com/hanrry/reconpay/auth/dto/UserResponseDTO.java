@@ -18,7 +18,7 @@ public record UserResponseDTO (
         @Schema(description = "Email do usuário", example = "hanrry@gmail.com")
         String email,
 
-        @Schema(description = "Perfil de acesso", example = "FINANCIAL_ANALYST")
+        @Schema(description = "Perfil de acesso", example = "OPERATOR")
         UserRole role,
 
         @Schema(description = "Indica se a conta está ativa", example = "true")
