@@ -6,6 +6,7 @@ import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
 import br.com.hanrry.reconpay.auth.enums.UserRole;
 import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
+import br.com.hanrry.reconpay.auth.repository.IEmailVerificationTokenRepository;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
 import br.com.hanrry.reconpay.exception.UserNotFoundException;
@@ -38,6 +39,9 @@ class UserServiceTest {
 
     @Mock
     private IUserRepository userRepository;
+
+    @Mock
+    private IEmailVerificationTokenRepository emailVerificationTokenRepository;
 
     @Mock
     private IUserMapper userMapper;
@@ -201,18 +205,19 @@ class UserServiceTest {
         user.setId(id);
         user.setActive(true);
 
-        when(userRepository.findByIdAndActiveTrue(id)).thenReturn(Optional.of(user));
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
 
         userService.deleteById(id);
 
         assertThat(user.isActive()).isFalse();
         verify(userRepository).save(user);
+        verify(emailVerificationTokenRepository).deleteAllPendingByUserId(id);
     }
 
     @Test
     void deleteByIdShouldThrowWhenUserNotFound() {
         UUID id = UUID.randomUUID();
-        when(userRepository.findByIdAndActiveTrue(id)).thenReturn(Optional.empty());
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.deleteById(id))
                 .isInstanceOf(UserNotFoundException.class)
