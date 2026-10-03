@@ -39,7 +39,7 @@ public final class IntegrationTestUtils {
         return com.jayway.jsonpath.JsonPath.read(response, "$.token");
     }
 
-    public static String obtainAnalystToken(MockMvc mockMvc) throws Exception {
+    public static String obtainOperatorToken(MockMvc mockMvc) throws Exception {
         String response = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -57,14 +57,14 @@ public final class IntegrationTestUtils {
     }
 
     /**
-     * Access is deny-by-default, so any analyst assertion against a merchant has
+     * Access is deny-by-default, so any operator assertion against a merchant has
      * to be preceded by a grant. The grant endpoint replaces the whole set, so
      * this reads the current one first and keeps earlier tests working.
      */
-    public static void grantAnalystAccess(MockMvc mockMvc, String adminToken, UUID merchantId) throws Exception {
-        UUID analystId = analystId(mockMvc, adminToken);
+    public static void grantOperatorAccess(MockMvc mockMvc, String adminToken, UUID merchantId) throws Exception {
+        UUID operatorId = operatorId(mockMvc, adminToken);
 
-        String current = mockMvc.perform(get("/api/users/{id}/merchants", analystId)
+        String current = mockMvc.perform(get("/api/users/{id}/merchants", operatorId)
                         .header(HttpHeaders.AUTHORIZATION, BEARER + adminToken))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -80,14 +80,14 @@ public final class IntegrationTestUtils {
                 .map("\"%s\""::formatted)
                 .collect(Collectors.joining(",", "{\"merchantIds\":[", "]}"));
 
-        mockMvc.perform(put("/api/users/{id}/merchants", analystId)
+        mockMvc.perform(put("/api/users/{id}/merchants", operatorId)
                         .header(HttpHeaders.AUTHORIZATION, BEARER + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isOk());
     }
 
-    public static UUID analystId(MockMvc mockMvc, String adminToken) throws Exception {
+    public static UUID operatorId(MockMvc mockMvc, String adminToken) throws Exception {
         String response = mockMvc.perform(get("/api/users/email")
                         .param("email", "analyst@reconpay.local")
                         .header(HttpHeaders.AUTHORIZATION, BEARER + adminToken))
