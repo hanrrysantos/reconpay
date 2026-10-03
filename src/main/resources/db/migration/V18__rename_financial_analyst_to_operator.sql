@@ -1,0 +1,7 @@
+ALTER TABLE users DROP CONSTRAINT users_role_check;
+
+UPDATE users SET role = 'OPERATOR' WHERE role = 'FINANCIAL_ANALYST';
+
+ALTER TABLE users ALTER COLUMN role SET DEFAULT 'OPERATOR';
+
+ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('ADMIN', 'OPERATOR'));
