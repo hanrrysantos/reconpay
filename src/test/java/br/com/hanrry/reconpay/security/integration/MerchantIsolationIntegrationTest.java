@@ -24,32 +24,32 @@ class MerchantIsolationIntegrationTest extends AbstractIntegrationTest {
     private MockMvc mockMvc;
 
     private String adminToken;
-    private String analystToken;
+    private String operatorToken;
     private UUID grantedMerchantId;
     private UUID otherMerchantId;
 
     @BeforeEach
     void setUp() throws Exception {
         adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
-        analystToken = IntegrationTestUtils.obtainAnalystToken(mockMvc);
+        operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
 
         grantedMerchantId = createMerchant("Merchant Concedido");
         otherMerchantId = createMerchant("Merchant Alheio");
 
-        IntegrationTestUtils.grantAnalystAccess(mockMvc, adminToken, grantedMerchantId);
+        IntegrationTestUtils.grantOperatorAccess(mockMvc, adminToken, grantedMerchantId);
     }
 
     @Test
     void analystShouldReadTransactionsOfGrantedMerchant() throws Exception {
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions", grantedMerchantId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk());
     }
 
     @Test
     void analystShouldNotReadTransactionsOfAnotherMerchant() throws Exception {
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions", otherMerchantId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.error").value("FORBIDDEN"));
     }
@@ -57,22 +57,22 @@ class MerchantIsolationIntegrationTest extends AbstractIntegrationTest {
     @Test
     void analystShouldNotReadReconciliationsOfAnotherMerchant() throws Exception {
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations", otherMerchantId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void analystShouldNotReadSettlementsOfAnotherMerchant() throws Exception {
         mockMvc.perform(get("/api/merchants/{merchantId}/external-settlements", otherMerchantId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void revokingAccessShouldRemoveVisibility() throws Exception {
-        UUID analystId = IntegrationTestUtils.analystId(mockMvc, adminToken);
+        UUID operatorId = IntegrationTestUtils.operatorId(mockMvc, adminToken);
 
-        mockMvc.perform(put("/api/users/{id}/merchants", analystId)
+        mockMvc.perform(put("/api/users/{id}/merchants", operatorId)
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"merchantIds\":[]}"))
@@ -80,7 +80,7 @@ class MerchantIsolationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.merchantIds").isEmpty());
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions", grantedMerchantId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isForbidden());
     }
 
@@ -93,10 +93,10 @@ class MerchantIsolationIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void analystShouldNotManageMerchantAccess() throws Exception {
-        UUID analystId = IntegrationTestUtils.analystId(mockMvc, adminToken);
+        UUID operatorId = IntegrationTestUtils.operatorId(mockMvc, adminToken);
 
-        mockMvc.perform(put("/api/users/{id}/merchants", analystId)
-                        .header("Authorization", "Bearer " + analystToken)
+        mockMvc.perform(put("/api/users/{id}/merchants", operatorId)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"merchantIds\":[]}"))
                 .andExpect(status().isForbidden());
@@ -104,9 +104,9 @@ class MerchantIsolationIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void grantingAccessToAnUnknownMerchantShouldFail() throws Exception {
-        UUID analystId = IntegrationTestUtils.analystId(mockMvc, adminToken);
+        UUID operatorId = IntegrationTestUtils.operatorId(mockMvc, adminToken);
 
-        mockMvc.perform(put("/api/users/{id}/merchants", analystId)
+        mockMvc.perform(put("/api/users/{id}/merchants", operatorId)
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"merchantIds\":[\"%s\"]}".formatted(UUID.randomUUID())))
