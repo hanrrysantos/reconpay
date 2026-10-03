@@ -44,11 +44,10 @@
 
 ## Handoff
 
-- **Feature**: `.specs/features/backend-access-alignment/` — Execute em andamento
-- **Phase / Task**: T13 — CORS (next)
-- **Completed**: T1–T12 (email verification + Resend)
+- **Feature**: `.specs/features/backend-access-alignment/` — Execute complete (T1–T15)
+- **Phase / Task**: Verifier / feature closure
+- **Completed**: T1–T15 (access alignment, email, CORS, docs)
 - **In-progress** (file:line): none
-- **Next step**: Usuário revisa `spec.md` + `tasks.md`; após OK, iniciar Execute pela Phase 1 (T1)
+- **Next step**: Run Verifier; optional push to origin
 - **Blockers**: none
-- **Uncommitted files**: `.specs/**` (novo)
-- **Branch**: main (local alinhada com origin/main)
+- **Branch**: main (local ahead of origin)
