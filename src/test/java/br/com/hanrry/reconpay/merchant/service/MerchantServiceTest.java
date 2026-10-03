@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -101,6 +102,23 @@ class MerchantServiceTest {
         verify(merchantRepository).save(mappedEntity);
         verify(userMerchantAccessService).grantIfAbsent(eq(adminUserId), eq(savedEntity.getId()));
         assertThat(response).isEqualTo(expectedResponse);
+    }
+
+    @Test
+    void createShouldPropagateWhenAutoGrantFails() {
+        MerchantRequestDTO request = new MerchantRequestDTO("Loja Exemplo", "99999999000199");
+        MerchantEntity mappedEntity = buildMerchant(null, "Loja Exemplo", "99999999000199");
+        MerchantEntity savedEntity = buildMerchant(UUID.randomUUID(), "Loja Exemplo", "99999999000199");
+
+        when(merchantRepository.existsByDocument("99999999000199")).thenReturn(false);
+        when(merchantMapper.toEntity(request)).thenReturn(mappedEntity);
+        when(merchantRepository.save(mappedEntity)).thenReturn(savedEntity);
+        doThrow(new IllegalStateException("grant failed"))
+                .when(userMerchantAccessService).grantIfAbsent(eq(adminUserId), eq(savedEntity.getId()));
+
+        assertThatThrownBy(() -> merchantService.create(request))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("grant failed");
     }
 
     @Test
