@@ -20,12 +20,12 @@ public class ResendEmailSender implements EmailSender {
     private static final String RESEND_URL = "https://api.resend.com/emails";
 
     private final EmailProperties emailProperties;
+    private final EmailVerificationLinkFactory verificationLinkFactory;
     private final RestClient restClient = RestClient.create();
 
     @Override
     public void sendEmailVerification(String toEmail, String recipientName, String rawToken) {
-        String verifyHint = emailProperties.verificationBaseUrl()
-                + " — use POST /api/auth/verify-email com o token abaixo.";
+        String confirmUrl = verificationLinkFactory.buildConfirmUrl(rawToken);
 
         Map<String, Object> body = Map.of(
                 "from", emailProperties.from(),
@@ -34,9 +34,21 @@ public class ResendEmailSender implements EmailSender {
                 "html", """
                         <p>Olá, %s!</p>
                         <p>Confirme seu e-mail para ativar sua conta no ReconPay.</p>
-                        <p><strong>Token:</strong> %s</p>
-                        <p>%s</p>
-                        """.formatted(escapeHtml(recipientName), rawToken, escapeHtml(verifyHint))
+                        <p style="margin: 24px 0;">
+                          <a href="%s" style="background:#111;color:#fff;padding:12px 20px;\
+                        text-decoration:none;border-radius:6px;display:inline-block;">
+                            Confirmar e-mail
+                          </a>
+                        </p>
+                        <p style="font-size:12px;color:#666;">
+                          Se o botão não funcionar, copie e cole este link no navegador:<br/>
+                          <a href="%s">%s</a>
+                        </p>
+                        """.formatted(
+                        escapeHtml(recipientName),
+                        confirmUrl,
+                        escapeHtml(confirmUrl),
+                        escapeHtml(confirmUrl))
         );
 
         restClient.post()
