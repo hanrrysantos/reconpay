@@ -26,31 +26,27 @@ public class OpenApiConfig {
                                 O objetivo é dar visibilidade e controle ao time financeiro sobre o que \
                                 foi vendido, o que foi liquidado e o que ainda precisa de tratativa.
 
-                                ## Fluxo de teste recomendado:
-                                - O ciclo completo exige um usuário com perfil ADMIN.
+                                ## Papéis
+                                - **ADMIN**: governança (`/api/users/**`) e bypass de escopo por merchant.
+                                - **OPERATOR**: fluxo operacional nos merchants concedidos (ou auto-grant ao criar).
 
-                                - Inicie autenticando em POST /api/auth/login, usando o payload de exemplo \
-                                já preenchido no endpoint Autenticar usuário (Authentication).
+                                ## Fluxo de teste recomendado (seed dev)
+                                1. POST /api/auth/login com usuário ADMIN ou OPERATOR do README.
+                                2. Authorization: Bearer {token} nas rotas protegidas.
+                                3. GET /api/me e GET /api/me/merchants para validar contexto.
 
-                                - Utilize o token retornado no header Authorization: Bearer {token} \
-                                em todas as etapas seguintes.
+                                ## Auto-cadastro
+                                1. POST /api/auth/register → conta OPERATOR inativa + e-mail de verificação.
+                                2. POST /api/auth/verify-email com o token recebido.
+                                3. POST /api/auth/login.
 
                                 **Configuração**
-                                1. Cadastrar estabelecimento: POST /api/merchants
-                                2. Definir regra de taxa: POST /api/merchants/{merchantId}/fee-rules
+                                1. POST /api/merchants (criador recebe grant)
+                                2. POST /api/merchants/{merchantId}/fee-rules
 
-                                **Dados**
-                                3. Registrar transações internas: \
-                                POST /api/merchants/{merchantId}/transactions
-                                4. Importar liquidação externa (CSV): \
-                                POST /api/merchants/{merchantId}/external-settlements/import
-
-                                **Conciliação**
-                                5. Executar conciliação: POST /api/merchants/{merchantId}/reconciliations
-                                6. Consultar divergências: \
-                                GET /api/merchants/{merchantId}/reconciliations/{runId}/items
-                                7. Exportar resultado (CSV): \
-                                GET /api/merchants/{merchantId}/reconciliations/{runId}/export
+                                **Dados e conciliação**
+                                3. POST .../transactions · 4. POST .../external-settlements/import
+                                5. POST .../reconciliations · 6. GET .../items · 7. GET .../export
                                 """)
                         .version("1.0.0")
                         .contact(new Contact()
