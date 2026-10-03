@@ -49,7 +49,7 @@ public class UserEntity {
         this.createdAt = now;
         this.updatedAt = now;
         if (this.role == null) {
-            this.role = UserRole.FINANCIAL_ANALYST;
+            this.role = UserRole.OPERATOR;
         }
     }
 
