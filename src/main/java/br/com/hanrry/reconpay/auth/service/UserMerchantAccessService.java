@@ -56,6 +56,19 @@ public class UserMerchantAccessService {
         return new MerchantAccessResponseDTO(userId, merchantIds);
     }
 
+    @Transactional
+    public void grantIfAbsent(UUID userId, UUID merchantId) {
+        requireUser(userId);
+        requireMerchant(merchantId);
+
+        if (accessRepository.existsByUserIdAndMerchantId(userId, merchantId)) {
+            return;
+        }
+
+        accessRepository.save(new UserMerchantAccessEntity(userId, merchantId));
+        auditLogger.record("USER_MERCHANT_ACCESS_GRANTED", "user", userId, "merchantId=" + merchantId);
+    }
+
     private List<UUID> merchantIdsOf(UUID userId) {
         return accessRepository.findAllByUserId(userId).stream()
                 .map(UserMerchantAccessEntity::getMerchantId)
