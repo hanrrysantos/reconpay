@@ -20,7 +20,7 @@ VALUES (
     'Financial Analyst',
     'analyst@reconpay.local',
     '$2y$10$1JGn6gyzzdMpjsu7kac/NusrGjnxI8PtbFZM3zEXwDFjtM55/Grou',
-    'FINANCIAL_ANALYST',
+    'OPERATOR',
     TRUE,
     NOW(),
     NOW()
