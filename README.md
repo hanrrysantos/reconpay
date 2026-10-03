@@ -36,12 +36,12 @@ Construído como **monólito modular** em Java 21 + Spring Boot, com domínio fi
 
 | Área | Entregue |
 | :--- | :--- |
-| **Auth & usuários** | JWT, roles (`ADMIN`, `FINANCIAL_ANALYST`), CRUD de usuários, acesso por merchant |
+| **Auth & usuários** | JWT, roles (`ADMIN`, `OPERATOR`), verificação de e-mail (Resend), `/api/me`, CRUD de usuários (ADMIN), grants por merchant |
 | **Merchants & taxas** | CRUD com soft delete, fee rules por método de pagamento e parcelas |
 | **Transações internas** | Registro, cálculo de `expectedNetAmount`, controle de status, filtros |
 | **Liquidações externas** | Importação CSV (OpenCSV), lotes de importação, consulta com filtros |
 | **Conciliação** | Execução assíncrona com status, detecção de divergências, consulta de resultados, exportação CSV |
-| **Infra & qualidade** | Flyway (V1–V17), Swagger, Testcontainers, CI no GitHub Actions |
+| **Infra & qualidade** | Flyway (V1–V19), CORS para dev (Vite), Swagger, Testcontainers, CI no GitHub Actions |
 
 **MVP concluído** — todas as funcionalidades planejadas para a primeira versão estão implementadas.
 
@@ -139,8 +139,16 @@ Tolerância, atraso e capacidade da fila não podem ser negativos; janela máxim
 
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
-| POST | `/api/auth/register` | Registra usuário (inativo até aprovação de um ADMIN) |
-| POST | `/api/auth/login` | Autentica e retorna JWT |
+| POST | `/api/auth/register` | Auto-cadastro como `OPERATOR` (inativo até confirmar e-mail) |
+| POST | `/api/auth/verify-email` | Ativa conta com token recebido por e-mail (`204`) |
+| POST | `/api/auth/login` | Autentica e retorna JWT (conta deve estar ativa) |
+
+### Session *(autenticado)*
+
+| Método | Endpoint | Descrição |
+| :---: | :--- | :--- |
+| GET | `/api/me` | Usuário logado (id, nome, e-mail, role, active) |
+| GET | `/api/me/merchants` | Merchants acessíveis ao usuário (paginado) |
 
 ### Users *(ADMIN)*
 
@@ -151,22 +159,22 @@ Tolerância, atraso e capacidade da fila não podem ser negativos; janela máxim
 | GET | `/api/users/{id}` | Busca por id |
 | GET | `/api/users/email?email=` | Busca por e-mail |
 | PUT | `/api/users/{id}` | Atualiza nome |
-| PATCH | `/api/users/{id}/activation` | Ativa conta pendente |
+| PATCH | `/api/users/{id}/activation` | Ativa conta criada pelo ADMIN (auto-registro usa verify-email) |
 | GET | `/api/users/{id}/merchants` | Lista merchants que o usuário enxerga |
 | PUT | `/api/users/{id}/merchants` | Substitui a lista de merchants concedidos |
 | DELETE | `/api/users/{id}` | Desativa usuário |
 
-### Merchants *(ADMIN)*
+### Merchants *(ADMIN, OPERATOR)*
 
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
-| POST | `/api/merchants` | Cadastra merchant |
-| GET | `/api/merchants` | Lista merchants ativos |
+| POST | `/api/merchants` | Cadastra merchant (criador recebe grant automático) |
+| GET | `/api/merchants` | Lista merchants (OPERATOR: só concedidos; ADMIN: todos) |
 | GET | `/api/merchants/{id}` | Busca por id |
 | PUT | `/api/merchants/{id}` | Atualiza merchant |
 | DELETE | `/api/merchants/{id}` | Desativa merchant |
 
-### Fee rules *(ADMIN)*
+### Fee rules *(ADMIN, OPERATOR)*
 
 | Método | Endpoint | Descrição |
 | :---: | :--- | :--- |
@@ -180,10 +188,10 @@ Tolerância, atraso e capacidade da fila não podem ser negativos; janela máxim
 
 | Método | Endpoint | Acesso | Descrição |
 | :---: | :--- | :--- | :--- |
-| POST | `/api/merchants/{merchantId}/transactions` | ADMIN | Registra transação interna |
-| GET | `/api/merchants/{merchantId}/transactions` | ADMIN, ANALYST | Lista com filtros |
-| GET | `/api/merchants/{merchantId}/transactions/{id}` | ADMIN, ANALYST | Busca por id |
-| PATCH | `/api/merchants/{merchantId}/transactions/{id}/status` | ADMIN | Atualiza status |
+| POST | `/api/merchants/{merchantId}/transactions` | ADMIN, OPERATOR | Registra transação interna |
+| GET | `/api/merchants/{merchantId}/transactions` | ADMIN, OPERATOR | Lista com filtros |
+| GET | `/api/merchants/{merchantId}/transactions/{id}` | ADMIN, OPERATOR | Busca por id |
+| PATCH | `/api/merchants/{merchantId}/transactions/{id}/status` | ADMIN, OPERATOR | Atualiza status |
 
 Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`.
 
@@ -191,11 +199,11 @@ Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`.
 
 | Método | Endpoint | Acesso | Descrição |
 | :---: | :--- | :--- | :--- |
-| POST | `/api/merchants/{merchantId}/external-settlements/import` | ADMIN | Importa CSV |
-| GET | `/api/merchants/{merchantId}/external-settlements/imports` | ADMIN, ANALYST | Lista lotes de importação |
-| GET | `/api/merchants/{merchantId}/external-settlements/imports/{importId}` | ADMIN, ANALYST | Detalhe do lote |
-| GET | `/api/merchants/{merchantId}/external-settlements` | ADMIN, ANALYST | Lista liquidações |
-| GET | `/api/merchants/{merchantId}/external-settlements/{id}` | ADMIN, ANALYST | Busca por id |
+| POST | `/api/merchants/{merchantId}/external-settlements/import` | ADMIN, OPERATOR | Importa CSV |
+| GET | `/api/merchants/{merchantId}/external-settlements/imports` | ADMIN, OPERATOR | Lista lotes de importação |
+| GET | `/api/merchants/{merchantId}/external-settlements/imports/{importId}` | ADMIN, OPERATOR | Detalhe do lote |
+| GET | `/api/merchants/{merchantId}/external-settlements` | ADMIN, OPERATOR | Lista liquidações |
+| GET | `/api/merchants/{merchantId}/external-settlements/{id}` | ADMIN, OPERATOR | Busca por id |
 
 Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`, `importId`.
 
@@ -203,11 +211,11 @@ Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`, `importId`.
 
 | Método | Endpoint | Acesso | Descrição |
 | :---: | :--- | :--- | :--- |
-| POST | `/api/merchants/{merchantId}/reconciliations` | ADMIN | Agenda conciliação (`202 Accepted`) |
-| GET | `/api/merchants/{merchantId}/reconciliations` | ADMIN, ANALYST | Lista execuções |
-| GET | `/api/merchants/{merchantId}/reconciliations/{runId}` | ADMIN, ANALYST | Detalhe da execução |
-| GET | `/api/merchants/{merchantId}/reconciliations/{runId}/items` | ADMIN, ANALYST | Itens com filtros |
-| GET | `/api/merchants/{merchantId}/reconciliations/{runId}/export` | ADMIN, ANALYST | Exporta relatório CSV |
+| POST | `/api/merchants/{merchantId}/reconciliations` | ADMIN, OPERATOR | Agenda conciliação (`202 Accepted`) |
+| GET | `/api/merchants/{merchantId}/reconciliations` | ADMIN, OPERATOR | Lista execuções |
+| GET | `/api/merchants/{merchantId}/reconciliations/{runId}` | ADMIN, OPERATOR | Detalhe da execução |
+| GET | `/api/merchants/{merchantId}/reconciliations/{runId}/items` | ADMIN, OPERATOR | Itens com filtros |
+| GET | `/api/merchants/{merchantId}/reconciliations/{runId}/export` | ADMIN, OPERATOR | Exporta relatório CSV |
 
 Filtros de itens: `result` (`MATCHED`, `DIVERGENT`), `discrepancyType`.
 
@@ -246,26 +254,37 @@ Retorna `expectedNetAmount` calculado com base na fee rule ativa.
 
 ## Segurança
 
-Autenticação JWT stateless. Rotas públicas: `POST /api/auth/login`, `POST /api/auth/register`, Swagger, `/actuator/health`.
+Autenticação JWT stateless. Rotas públicas: `POST /api/auth/login`, `POST /api/auth/register`, `POST /api/auth/verify-email`, Swagger, `/actuator/health`.
 
-O auto-cadastro cria a conta com perfil `FINANCIAL_ANALYST` **inativa**. Ela não autentica até que um ADMIN aprove em `PATCH /api/users/{id}/activation`.
+**Papéis**
+
+| Papel | Escopo |
+| :--- | :--- |
+| **ADMIN** | Governança: `/api/users/**` (CRUD, grants, ativação manual de contas criadas pelo admin). Opera merchants com bypass no guard. |
+| **OPERATOR** | Fluxo operacional completo (merchants, fee rules, transações, import, conciliação) **somente** nos merchants concedidos. |
+
+**Auto-cadastro (`POST /api/auth/register`)** cria `OPERATOR` **inativo** e envia e-mail de verificação (Resend). Ative com `POST /api/auth/verify-email` antes do login. Contas criadas pelo ADMIN continuam podendo ser ativadas com `PATCH /api/users/{id}/activation`.
 
 | Recurso | Leitura | Escrita |
 | :--- | :--- | :--- |
 | `/api/users/**` | ADMIN | ADMIN |
-| `/api/merchants/**` | ADMIN | ADMIN |
-| `.../transactions/**` | ADMIN, ANALYST | ADMIN |
-| `.../external-settlements/**` | ADMIN, ANALYST | ADMIN (import) |
-| `.../reconciliations/**` | ADMIN, ANALYST | ADMIN (execução) |
+| `/api/me/**` | autenticado | — |
+| `/api/merchants/**` | ADMIN, OPERATOR | ADMIN, OPERATOR |
+| `.../fee-rules/**` | ADMIN, OPERATOR | ADMIN, OPERATOR |
+| `.../transactions/**` | ADMIN, OPERATOR | ADMIN, OPERATOR |
+| `.../external-settlements/**` | ADMIN, OPERATOR | ADMIN, OPERATOR (import) |
+| `.../reconciliations/**` | ADMIN, OPERATOR | ADMIN, OPERATOR (execução) |
 
-O papel diz **o que** um usuário pode fazer; ele não diz **de quem**. Todo endpoint sob `/api/merchants/{merchantId}/**` passa por um guard que nega o acesso por padrão: um analista só enxerga os merchants que um ADMIN concedeu em `PUT /api/users/{id}/merchants`. Merchants criados depois ficam invisíveis até serem concedidos. O ADMIN alcança todos.
+O papel define **o que** fazer; o guard por merchant define **onde**. OPERATOR lista apenas merchants com grant em `user_merchants` (ou via `GET /api/me/merchants`). **Auto-grant:** quem cria um merchant recebe acesso a ele automaticamente. ADMIN enxerga todos os merchants ativos.
+
+**CORS (dev):** origens permitidas em `reconpay.cors.allowed-origins` (padrão inclui `http://localhost:5173` para Vite). Aplica-se a `/api/**`.
 
 Usuários seed. As migrations de seed vivem em `db/seed` e são carregadas apenas pelos profiles `dev` e `test` (via `spring.flyway.locations`), nunca em produção.
 
 | Role | E-mail | Senha |
 | :--- | :--- | :--- |
 | ADMIN | `admin@reconpay.local` | `DevAdmin@2026` |
-| FINANCIAL_ANALYST | `analyst@reconpay.local` | `DevAnalyst@2026` |
+| OPERATOR | `analyst@reconpay.local` | `DevAnalyst@2026` |
 
 ---
 
@@ -309,6 +328,8 @@ Migrations Flyway:
 | V15 | `status`, `started_at`, `finished_at` e `error_message` em `reconciliation_runs`, com índices de janela vigente e execução em andamento |
 | V16 | Restrições de percentual de taxa, taxa fixa e líquido esperado |
 | V17 | Versão otimista em `internal_transactions` |
+| V18 | Rename role `FINANCIAL_ANALYST` → `OPERATOR` |
+| V19 | Tokens de verificação de e-mail |
 
 Os seeds de desenvolvimento vivem em `db/seed/R__seed_local_users.sql`, repeatable e idempotente, carregado somente pelos profiles `dev` e `test`. Nenhum perfil é ativado implicitamente. O perfil `dev` permite migrations fora de ordem para bancos locais que já registraram a antiga V900; alternativamente, recrie apenas o banco local. Não renumere migrations aplicadas nem leve os seeds para produção.
 
@@ -340,9 +361,12 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=1234
 JWT_SECRET=sua-chave-secreta-com-pelo-menos-32-caracteres
 JWT_EXPIRATION=86400
+RESEND_API_KEY=
+RECONPAY_EMAIL_FROM=ReconPay <noreply@reconpay.local>
+RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080
 ```
 
-> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` diretamente; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece).
+> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` diretamente; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece). Sem `RESEND_API_KEY`, o envio de e-mail de verificação é apenas logado no console (útil em dev).
 
 ### 2. Escolha como subir a aplicação
 
