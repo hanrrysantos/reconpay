@@ -24,13 +24,13 @@ class TransactionIntegrationTest extends AbstractIntegrationTest {
     private MockMvc mockMvc;
 
     private String adminToken;
-    private String analystToken;
+    private String operatorToken;
     private String merchantId;
 
     @BeforeEach
     void setUp() throws Exception {
         adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
-        analystToken = IntegrationTestUtils.obtainAnalystToken(mockMvc);
+        operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
 
         String uniqueDocument = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
 
@@ -50,7 +50,7 @@ class TransactionIntegrationTest extends AbstractIntegrationTest {
 
         merchantId = com.jayway.jsonpath.JsonPath.read(merchantResponse, "$.id");
 
-        IntegrationTestUtils.grantAnalystAccess(mockMvc, adminToken, UUID.fromString(merchantId));
+        IntegrationTestUtils.grantOperatorAccess(mockMvc, adminToken, UUID.fromString(merchantId));
 
         mockMvc.perform(post("/api/merchants/{merchantId}/fee-rules", merchantId)
                         .header("Authorization", "Bearer " + adminToken)
@@ -106,7 +106,7 @@ class TransactionIntegrationTest extends AbstractIntegrationTest {
         String transactionId = com.jayway.jsonpath.JsonPath.read(createResponse, "$.id");
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions", merchantId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .param("page", "0")
                         .param("size", "10")
                         .param("status", "APPROVED")
@@ -117,7 +117,7 @@ class TransactionIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.content[0].externalReference").value(externalReference));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions/{id}", merchantId, transactionId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentMethod").value("CREDIT_CARD"));
 
@@ -276,28 +276,28 @@ class TransactionIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions", merchantId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .param("page", "0")
                         .param("size", "20"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(3));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions", merchantId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .param("status", "REFUNDED"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.content[0].externalReference").value("TXN-FILTER-PIX-30"));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions", merchantId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .param("paymentMethod", "CREDIT_CARD"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.content[0].externalReference").value("TXN-FILTER-CC"));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions", merchantId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .param("fromDate", "2026-07-29")
                         .param("toDate", "2026-07-29"))
                 .andExpect(status().isOk())
@@ -305,7 +305,7 @@ class TransactionIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.content[0].externalReference").value("TXN-FILTER-PIX-29"));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions", merchantId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .param("status", "APPROVED")
                         .param("paymentMethod", "PIX")
                         .param("fromDate", "2026-07-28")
@@ -315,7 +315,7 @@ class TransactionIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.content[0].externalReference").value("TXN-FILTER-PIX-29"));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions", merchantId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .param("status", "CANCELLED"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(0))
@@ -348,31 +348,29 @@ class TransactionIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void financialAnalystShouldBeForbiddenOnCreateAndPatch() throws Exception {
+    void operatorShouldCreateAndPatchForGrantedMerchant() throws Exception {
         mockMvc.perform(post("/api/merchants/{merchantId}/transactions", merchantId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "externalReference": "TXN-FORBIDDEN",
+                                  "externalReference": "TXN-OPERATOR-CREATE",
                                   "amount": 100.00,
                                   "paymentMethod": "PIX",
                                   "installments": 1,
                                   "transactionDate": "2026-07-29"
                                 }
                                 """))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error").value("FORBIDDEN"));
+                .andExpect(status().isCreated());
 
         mockMvc.perform(patch("/api/merchants/{merchantId}/transactions/{id}/status", merchantId, UUID.randomUUID())
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
                                   "status": "CANCELLED"
                                 }
                                 """))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error").value("FORBIDDEN"));
+                .andExpect(status().isNotFound());
     }
 }
