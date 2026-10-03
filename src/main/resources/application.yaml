@@ -46,6 +46,12 @@ management:
       probability: ${TRACING_SAMPLE_RATE:0.1}
 
 reconpay:
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+      - http://127.0.0.1:5173
+      - http://localhost:3000
+      - http://127.0.0.1:3000
   email:
     resend-api-key: ${RESEND_API_KEY:}
     from: ${RECONPAY_EMAIL_FROM:ReconPay <noreply@reconpay.local>}
