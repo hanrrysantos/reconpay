@@ -251,8 +251,8 @@ Implement with skill **tlc-spec-driven** Execute flow: one task → gate → ato
 
 **Done when**:
 
-- [ ] WebMvcTest or integration asserts allowed origin header
-- [ ] Gate: `./mvnw -B verify`
+- [x] WebMvcTest or integration asserts allowed origin header
+- [x] Gate: `./mvnw -B verify`
 
 **Tests**: unit/WebMvcTest
 **Gate**: full
@@ -268,8 +268,8 @@ Implement with skill **tlc-spec-driven** Execute flow: one task → gate → ato
 
 **Done when**:
 
-- [ ] Docs match implemented behavior
-- [ ] Gate: `./mvnw -B verify`
+- [x] Docs match implemented behavior
+- [x] Gate: `./mvnw -B verify`
 
 **Tests**: none
 **Gate**: build
@@ -285,8 +285,8 @@ Implement with skill **tlc-spec-driven** Execute flow: one task → gate → ato
 
 **Done when**:
 
-- [ ] Swagger shows verify + me endpoints
-- [ ] Gate: `./mvnw -B verify`
+- [x] Swagger shows verify + me endpoints
+- [x] Gate: `./mvnw -B verify`
 
 **Tests**: none
 **Gate**: build
