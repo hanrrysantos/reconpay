@@ -25,13 +25,13 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
     private MockMvc mockMvc;
 
     private String adminToken;
-    private String analystToken;
+    private String operatorToken;
     private String merchantId;
 
     @BeforeEach
     void setUp() throws Exception {
         adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
-        analystToken = IntegrationTestUtils.obtainAnalystToken(mockMvc);
+        operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
 
         String uniqueDocument = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
 
@@ -51,7 +51,7 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
 
         merchantId = com.jayway.jsonpath.JsonPath.read(merchantResponse, "$.id");
 
-        IntegrationTestUtils.grantAnalystAccess(mockMvc, adminToken, UUID.fromString(merchantId));
+        IntegrationTestUtils.grantOperatorAccess(mockMvc, adminToken, UUID.fromString(merchantId));
     }
 
     @Test
@@ -77,12 +77,12 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
         String importId = com.jayway.jsonpath.JsonPath.read(importResponse, "$.id");
 
         mockMvc.perform(get("/api/merchants/{merchantId}/external-settlements/imports/{importId}", merchantId, importId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalRows").value(1));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/external-settlements", merchantId)
-                        .header("Authorization", "Bearer " + analystToken)
+                        .header("Authorization", "Bearer " + operatorToken)
                         .param("page", "0")
                         .param("size", "10")
                         .param("status", "APPROVED")
@@ -97,7 +97,7 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
 
         String settlementId = com.jayway.jsonpath.JsonPath.read(
                 mockMvc.perform(get("/api/merchants/{merchantId}/external-settlements", merchantId)
-                                .header("Authorization", "Bearer " + analystToken))
+                                .header("Authorization", "Bearer " + operatorToken))
                         .andExpect(status().isOk())
                         .andReturn()
                         .getResponse()
@@ -105,7 +105,7 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
                 "$.content[0].id");
 
         mockMvc.perform(get("/api/merchants/{merchantId}/external-settlements/{id}", merchantId, settlementId)
-                        .header("Authorization", "Bearer " + analystToken))
+                        .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentMethod").value("CREDIT_CARD"));
     }
@@ -184,17 +184,16 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void analystShouldBeForbiddenOnImport() throws Exception {
+    void operatorShouldImportForGrantedMerchant() throws Exception {
         MockMultipartFile csvFile = csvFile("""
                 externalReference,amount,netAmount,paymentMethod,installments,status,settlementDate
-                TXN-FORBIDDEN,150.00,145.00,CREDIT_CARD,3,APPROVED,2026-07-30
+                TXN-OP-IMPORT,150.00,145.00,CREDIT_CARD,3,APPROVED,2026-07-30
                 """);
 
         mockMvc.perform(multipart("/api/merchants/{merchantId}/external-settlements/import", merchantId)
                         .file(csvFile)
-                        .header("Authorization", "Bearer " + analystToken))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error").value("FORBIDDEN"));
+                        .header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isCreated());
     }
 
     private MockMultipartFile csvFile(String content) {
