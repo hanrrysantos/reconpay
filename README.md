@@ -8,82 +8,34 @@
 ![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
 
-Fintechs, gateways e marketplaces vendem todos os dias, mas nem sempre recebem exatamente o que deveriam. Liquidações atrasadas, taxas incorretas, valores líquidos divergentes e chargebacks passam batido quando a conciliação é manual, lenta e difícil de auditar.
+Fintechs, gateways e marketplaces vendem todos os dias, mas o valor que cai na conta quase nunca é o bruto da venda. Taxa, parcela, atraso de liquidação e chargeback distorcem o líquido. Quando a conciliação vive em planilha, o erro aparece tarde, sem responsável e sem rastro para auditoria.
 
-O **ReconPay** ataca esse problema com uma API backend que centraliza o fluxo de conciliação financeira: registra transações internas, calcula o valor líquido esperado com base nas regras de taxa de cada merchant, importa liquidações externas via CSV e prepara o terreno para cruzar automaticamente os dois lados.
+O **ReconPay** fecha esse ciclo numa API: cadastra o merchant e as regras de taxa, registra a transação interna com o líquido esperado, importa a liquidação externa e cruza os dois lados automaticamente, com isolamento por merchant e relatório exportável.
 
-**Como funciona hoje**
+O ReconPay executa esse fluxo de ponta a ponta. Cada merchant é uma unidade isolada: o operador só enxerga aqueles a que recebeu acesso.
 
-1. Configuração do merchant e suas fee rules por método de pagamento e parcelas
-2. Registro de transações internas com `expectedNetAmount` calculado
-3. Importação de liquidações externas com validação linha a linha e rastreio por lote
-4. Conciliação automática entre transações internas e liquidações externas
-5. Detecção de divergências e exportação de relatórios CSV para auditoria
+**Fluxo**
 
-**Próximos resultados**
+- **Merchant e taxas:** cadastro do negócio e das regras de taxa por forma de pagamento e número de parcelas.
+- **Transação interna:** cada venda é registrada com o valor líquido que a empresa deveria receber, já descontando a taxa.
+- **Liquidação externa:** o arquivo do adquirente ou gateway entra via CSV, é validado linha a linha e fica ligado a um lote rastreável.
+- **Conciliação:** o sistema cruza os dois lados numa janela de datas, em segundo plano, e aponta o que não bate: valor, taxa, status, método, parcelas, venda sem liquidação ou liquidação sem venda.
+- **Relatório:** o resultado sai em CSV para auditoria, seguro para abrir em planilha.
 
-1. Spring Batch para arquivos grandes
-2. Rotação e revogação de tokens JWT
-3. Evolução para arquitetura distribuída
-
-Construído como **monólito modular** em Java 21 + Spring Boot, com domínio financeiro real, regras de negócio na aplicação e conciliação executada em background.
+O time deixa de caçar desvio na planilha e passa a fechar cada janela com três respostas: o que bateu, o que a empresa vendeu e ainda não recebeu, e o que o adquirente pagou diferente do combinado. Cada execução fica gravada e exportável. Rodar de novo o mesmo período guarda o resultado antigo. O novo não apaga o anterior. O MVP está pronto para uso e já produz os dados para medir taxa de match, valor em aberto e tempo até fechar o período.
 
 ---
 
-## Status do projeto
+## Sumário
 
-**Sprint 5 concluída:** conciliação assíncrona com status e isolamento de dados por merchant.
-
-| Área | Entregue |
-| :--- | :--- |
-| **Auth & usuários** | JWT, roles (`ADMIN`, `OPERATOR`), verificação de e-mail (Resend), `/api/me`, CRUD de usuários (ADMIN), grants por merchant |
-| **Merchants & taxas** | CRUD com soft delete, fee rules por método de pagamento e parcelas |
-| **Transações internas** | Registro, cálculo de `expectedNetAmount`, controle de status, filtros |
-| **Liquidações externas** | Importação CSV (OpenCSV), lotes de importação, consulta com filtros |
-| **Conciliação** | Execução assíncrona com status, detecção de divergências, consulta de resultados, exportação CSV |
-| **Infra & qualidade** | Flyway (V1–V19), CORS para dev (Vite), Swagger, Testcontainers, CI no GitHub Actions |
-
-**MVP concluído** — todas as funcionalidades planejadas para a primeira versão estão implementadas.
-
----
-
-## Stack
-
-| Camada | Tecnologias |
-| :--- | :--- |
-| Backend | Java 21, Spring Boot 3, Spring Web, Data JPA, Security, Bean Validation, MapStruct, Lombok |
-| Banco | PostgreSQL, Flyway, Hibernate |
-| Segurança | JWT (stateless) |
-| Testes | JUnit 5, Mockito, MockMvc, AssertJ, Testcontainers |
-| Infra | Docker, Docker Compose, GitHub Actions |
-
----
-
-## Módulos
-
-| Módulo | Responsabilidade |
-| :--- | :--- |
-| `auth` | Cadastro, login, gerenciamento de usuários e concessão de acesso a merchants |
-| `security` | JWT, filtros, configuração de segurança e guard de acesso por merchant |
-| `merchant` | Cadastro e gerenciamento de merchants |
-| `feeRule` | Regras de taxa por merchant |
-| `transaction` | Transações internas por merchant |
-| `externalsettlement` | Importação e consulta de liquidações externas |
-| `reconciliation` | Motor de conciliação, divergências e relatórios CSV |
-| `exception` | Tratamento global e respostas padronizadas (`StandardError`) |
-| `config` / `shared` | Configurações e utilitários compartilhados |
-
-Estrutura interna de cada módulo:
-
-```text
-module/
-├── controller/
-├── dto/
-├── entity/
-├── mapper/
-├── repository/
-└── service/
-```
+- [Regras de negócio](#regras-de-negócio)
+- [Como executar](#como-executar)
+- [Stack](#stack)
+- [Módulos](#módulos)
+- [API](#api)
+- [Segurança](#segurança)
+- [Testes](#testes)
+- [Autor](#autor)
 
 ---
 
@@ -91,6 +43,7 @@ module/
 
 ### Usuários
 - E-mail único; soft delete; usuários inativos não autenticam.
+- Auto-cadastro cria `OPERATOR` inativo até a verificação de e-mail (link GET no e-mail, ou `POST /api/auth/verify-email` para clientes programáticos).
 
 ### Merchants
 - Documento único; soft delete; consultas retornam apenas merchants ativos.
@@ -133,216 +86,6 @@ Tolerância, atraso e capacidade da fila não podem ser negativos; janela máxim
 
 ---
 
-## API
-
-### Auth
-
-| Método | Endpoint | Descrição |
-| :---: | :--- | :--- |
-| POST | `/api/auth/register` | Auto-cadastro como `OPERATOR` (inativo até confirmar e-mail) |
-| POST | `/api/auth/verify-email` | Ativa conta com token recebido por e-mail (`204`) |
-| POST | `/api/auth/login` | Autentica e retorna JWT (conta deve estar ativa) |
-
-### Session *(autenticado)*
-
-| Método | Endpoint | Descrição |
-| :---: | :--- | :--- |
-| GET | `/api/me` | Usuário logado (id, nome, e-mail, role, active) |
-| GET | `/api/me/merchants` | Merchants acessíveis ao usuário (paginado) |
-
-### Users *(ADMIN)*
-
-| Método | Endpoint | Descrição |
-| :---: | :--- | :--- |
-| POST | `/api/users` | Cria usuário com role |
-| GET | `/api/users` | Lista usuários ativos |
-| GET | `/api/users/{id}` | Busca por id |
-| GET | `/api/users/email?email=` | Busca por e-mail |
-| PUT | `/api/users/{id}` | Atualiza nome |
-| PATCH | `/api/users/{id}/activation` | Ativa conta criada pelo ADMIN (auto-registro usa verify-email) |
-| GET | `/api/users/{id}/merchants` | Lista merchants que o usuário enxerga |
-| PUT | `/api/users/{id}/merchants` | Substitui a lista de merchants concedidos |
-| DELETE | `/api/users/{id}` | Desativa usuário |
-
-### Merchants *(ADMIN, OPERATOR)*
-
-| Método | Endpoint | Descrição |
-| :---: | :--- | :--- |
-| POST | `/api/merchants` | Cadastra merchant (criador recebe grant automático) |
-| GET | `/api/merchants` | Lista merchants (OPERATOR: só concedidos; ADMIN: todos) |
-| GET | `/api/merchants/{id}` | Busca por id |
-| PUT | `/api/merchants/{id}` | Atualiza merchant |
-| DELETE | `/api/merchants/{id}` | Desativa merchant |
-
-### Fee rules *(ADMIN, OPERATOR)*
-
-| Método | Endpoint | Descrição |
-| :---: | :--- | :--- |
-| POST | `/api/merchants/{merchantId}/fee-rules` | Cria regra de taxa |
-| GET | `/api/merchants/{merchantId}/fee-rules` | Lista regras ativas |
-| GET | `/api/merchants/{merchantId}/fee-rules/{id}` | Busca por id |
-| PUT | `/api/merchants/{merchantId}/fee-rules/{id}` | Atualiza regra |
-| DELETE | `/api/merchants/{merchantId}/fee-rules/{id}` | Desativa regra |
-
-### Transactions
-
-| Método | Endpoint | Acesso | Descrição |
-| :---: | :--- | :--- | :--- |
-| POST | `/api/merchants/{merchantId}/transactions` | ADMIN, OPERATOR | Registra transação interna |
-| GET | `/api/merchants/{merchantId}/transactions` | ADMIN, OPERATOR | Lista com filtros |
-| GET | `/api/merchants/{merchantId}/transactions/{id}` | ADMIN, OPERATOR | Busca por id |
-| PATCH | `/api/merchants/{merchantId}/transactions/{id}/status` | ADMIN, OPERATOR | Atualiza status |
-
-Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`.
-
-### External settlements
-
-| Método | Endpoint | Acesso | Descrição |
-| :---: | :--- | :--- | :--- |
-| POST | `/api/merchants/{merchantId}/external-settlements/import` | ADMIN, OPERATOR | Importa CSV |
-| GET | `/api/merchants/{merchantId}/external-settlements/imports` | ADMIN, OPERATOR | Lista lotes de importação |
-| GET | `/api/merchants/{merchantId}/external-settlements/imports/{importId}` | ADMIN, OPERATOR | Detalhe do lote |
-| GET | `/api/merchants/{merchantId}/external-settlements` | ADMIN, OPERATOR | Lista liquidações |
-| GET | `/api/merchants/{merchantId}/external-settlements/{id}` | ADMIN, OPERATOR | Busca por id |
-
-Filtros: `status`, `paymentMethod`, `fromDate`, `toDate`, `importId`.
-
-### Reconciliations
-
-| Método | Endpoint | Acesso | Descrição |
-| :---: | :--- | :--- | :--- |
-| POST | `/api/merchants/{merchantId}/reconciliations` | ADMIN, OPERATOR | Agenda conciliação (`202 Accepted`) |
-| GET | `/api/merchants/{merchantId}/reconciliations` | ADMIN, OPERATOR | Lista execuções |
-| GET | `/api/merchants/{merchantId}/reconciliations/{runId}` | ADMIN, OPERATOR | Detalhe da execução |
-| GET | `/api/merchants/{merchantId}/reconciliations/{runId}/items` | ADMIN, OPERATOR | Itens com filtros |
-| GET | `/api/merchants/{merchantId}/reconciliations/{runId}/export` | ADMIN, OPERATOR | Exporta relatório CSV |
-
-Filtros de itens: `result` (`MATCHED`, `DIVERGENT`), `discrepancyType`.
-
-Corpo obrigatório da execução:
-
-```json
-POST /api/merchants/{merchantId}/reconciliations
-
-{
-  "fromDate": "2026-07-01",
-  "toDate": "2026-07-31"
-}
-```
-
-A resposta é `202 Accepted` com o run em `PENDING` e o header `Location` apontando para `GET /api/merchants/{merchantId}/reconciliations/{runId}`, que é onde o resultado final aparece.
-
----
-
-### Exemplo - transação interna
-
-```json
-POST /api/merchants/{merchantId}/transactions
-
-{
-  "externalReference": "TXN-12345",
-  "amount": 150.00,
-  "paymentMethod": "CREDIT_CARD",
-  "installments": 3,
-  "transactionDate": "2026-07-29"
-}
-```
-
-Retorna `expectedNetAmount` calculado com base na fee rule ativa.
-
----
-
-## Segurança
-
-Autenticação JWT stateless. Rotas públicas: `POST /api/auth/login`, `POST /api/auth/register`, `POST /api/auth/verify-email`, Swagger, `/actuator/health`.
-
-**Papéis**
-
-| Papel | Escopo |
-| :--- | :--- |
-| **ADMIN** | Governança: `/api/users/**` (CRUD, grants, ativação manual de contas criadas pelo admin). Opera merchants com bypass no guard. |
-| **OPERATOR** | Fluxo operacional completo (merchants, fee rules, transações, import, conciliação) **somente** nos merchants concedidos. |
-
-**Auto-cadastro (`POST /api/auth/register`)** cria `OPERATOR` **inativo** e envia e-mail de verificação (Resend). Ative com `POST /api/auth/verify-email` antes do login. Contas criadas pelo ADMIN continuam podendo ser ativadas com `PATCH /api/users/{id}/activation`.
-
-| Recurso | Leitura | Escrita |
-| :--- | :--- | :--- |
-| `/api/users/**` | ADMIN | ADMIN |
-| `/api/me/**` | autenticado | — |
-| `/api/merchants/**` | ADMIN, OPERATOR | ADMIN, OPERATOR |
-| `.../fee-rules/**` | ADMIN, OPERATOR | ADMIN, OPERATOR |
-| `.../transactions/**` | ADMIN, OPERATOR | ADMIN, OPERATOR |
-| `.../external-settlements/**` | ADMIN, OPERATOR | ADMIN, OPERATOR (import) |
-| `.../reconciliations/**` | ADMIN, OPERATOR | ADMIN, OPERATOR (execução) |
-
-O papel define **o que** fazer; o guard por merchant define **onde**. OPERATOR lista apenas merchants com grant em `user_merchants` (ou via `GET /api/me/merchants`). **Auto-grant:** quem cria um merchant recebe acesso a ele automaticamente. ADMIN enxerga todos os merchants ativos.
-
-**CORS (dev):** origens permitidas em `reconpay.cors.allowed-origins` (padrão inclui `http://localhost:5173` para Vite). Aplica-se a `/api/**`.
-
-Usuários seed. As migrations de seed vivem em `db/seed` e são carregadas apenas pelos profiles `dev` e `test` (via `spring.flyway.locations`), nunca em produção.
-
-| Role | E-mail | Senha |
-| :--- | :--- | :--- |
-| ADMIN | `admin@reconpay.local` | `DevAdmin@2026` |
-| OPERATOR | `analyst@reconpay.local` | `DevAnalyst@2026` |
-
----
-
-## Testes
-
-Estratégia com JUnit 5:
-
-| Tipo | Ferramentas | Escopo |
-| :--- | :--- | :--- |
-| **Unitário** | JUnit 5, Mockito, MockMvc | Services, parsers, mappers e controllers (`@WebMvcTest` com dependências mockadas) |
-| **Integração** | Testcontainers (PostgreSQL), MockMvc | Fluxos completos de ponta a ponta com banco real |
-
-```bash
-./mvnw verify
-```
-
-A CI executa `./mvnw -B verify` em push e pull request para `main`, com gate de cobertura JaCoCo (85% de linhas, 75% de ramos) e scan de dependências que falha para CVSS >= 7, usando action fixada por SHA. Surefire inicia Mockito como Java agent explícito, preservando o agente JaCoCo; os testes não dependem de self-attach dinâmico. Os testes de integração precisam de Docker acessível e exercitam o pool real da conciliação com espera por condição.
-
----
-
-## Banco de dados
-
-Migrations Flyway:
-
-| Migration | Descrição |
-| :--- | :--- |
-| V1 | Tabela `merchants` |
-| V2 | Tabela `users` |
-| V3 | Tabela `fee_rules` |
-| V4 | Alinhamento de roles |
-| V5 | Seed admin *(revogado pela V10)* |
-| V6 | Tabela `internal_transactions` |
-| V7 | Seed analista *(revogado pela V10)* |
-| V8 | Tabelas `settlement_imports` e `external_settlements` |
-| V9 | Tabelas `reconciliation_runs`, `reconciliation_items` e `reconciliation_discrepancies` |
-| V10 | Remove os usuários semeados pelas V5/V7, que rodavam também em produção |
-| V11 | Colunas de snapshot em `reconciliation_items` |
-| V12 | Unicidade por `(run, externalReference)` e índices de FK |
-| V13 | `superseded_at` em `reconciliation_runs` com índice único parcial por janela |
-| V14 | Tabela `user_merchants` (acesso concedido de usuário a merchant) |
-| V15 | `status`, `started_at`, `finished_at` e `error_message` em `reconciliation_runs`, com índices de janela vigente e execução em andamento |
-| V16 | Restrições de percentual de taxa, taxa fixa e líquido esperado |
-| V17 | Versão otimista em `internal_transactions` |
-| V18 | Rename role `FINANCIAL_ANALYST` → `OPERATOR` |
-| V19 | Tokens de verificação de e-mail |
-
-Os seeds de desenvolvimento vivem em `db/seed/R__seed_local_users.sql`, repeatable e idempotente, carregado somente pelos profiles `dev` e `test`. Nenhum perfil é ativado implicitamente. O perfil `dev` permite migrations fora de ordem para bancos locais que já registraram a antiga V900; alternativamente, recrie apenas o banco local. Não renumere migrations aplicadas nem leve os seeds para produção.
-
-V16 usa `NOT VALID`: novos inserts e updates são protegidos sem modificar valores históricos. Após revisar e corrigir eventuais registros legados inválidos, valide as restrições:
-
-```sql
-ALTER TABLE fee_rules VALIDATE CONSTRAINT ck_fee_rules_percentage_range;
-ALTER TABLE fee_rules VALIDATE CONSTRAINT ck_fee_rules_fixed_fee_nonnegative;
-ALTER TABLE internal_transactions VALIDATE CONSTRAINT ck_internal_transactions_expected_net_positive;
-```
-
----
-
 ## Como executar
 
 **Pré-requisitos:** Java 21, Docker e Docker Compose. Maven via wrapper (`./mvnw`).
@@ -364,6 +107,7 @@ JWT_EXPIRATION=86400
 RESEND_API_KEY=
 RECONPAY_EMAIL_FROM=ReconPay <noreply@reconpay.local>
 RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080
+RECONPAY_VERIFICATION_TOKEN_HOURS=24
 ```
 
 > `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` diretamente; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece). Sem `RESEND_API_KEY`, o envio de e-mail de verificação é apenas logado no console (útil em dev).
@@ -381,7 +125,7 @@ docker compose up -d banco-reconpay
 SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 ```
 
-Ideal para desenvolvimento, debug e execução de testes.
+Ideal para desenvolvimento, debug e execução de testes. E-mail e senha dos seeds estão em Segurança.
 
 #### Opção B - Tudo via Docker
 
@@ -404,34 +148,95 @@ Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo.
 
 ---
 
-## Roadmap
+## Stack
 
-### MVP
+| Camada | Tecnologias |
+| :--- | :--- |
+| Backend | Java 21, Spring Boot 3.5, Spring Web, Data JPA, Security, Bean Validation, MapStruct, Lombok |
+| Banco | PostgreSQL, Flyway, Hibernate |
+| Segurança | JWT (stateless) |
+| Observabilidade | Log estruturado (JSON Logstash em `prod`), auditoria, Prometheus, tracing |
+| Testes | JUnit 5, Mockito, MockMvc, AssertJ, Testcontainers |
+| Infra | Docker, Docker Compose, GitHub Actions |
 
-- [x] Auth com JWT
-- [x] Users, Merchants, Fee Rules
-- [x] Transações internas
-- [x] Importação de liquidações externas via CSV
-- [x] Testes de integração (Testcontainers)
-- [x] Testes unitários (JUnit + Mockito)
-- [x] Swagger/OpenAPI
-- [x] CI com GitHub Actions
-- [x] Motor de conciliação
-- [x] Identificação de divergências
-- [x] Relatórios CSV
-- [x] Runs imutáveis por snapshot e política de reexecução
-- [x] Observabilidade (log estruturado, auditoria, Prometheus, tracing)
-- [x] Isolamento por merchant com concessão explícita de acesso
-- [x] Execução assíncrona da conciliação com status no run
-- [x] Retomada de runs interrompidos após reinício da aplicação
+---
 
-### Evolução futura
+## Módulos
 
-- Fila externa no lugar do pool em memória, para distribuir a execução entre instâncias
-- Spring Batch para arquivos grandes
-- Rotação e revogação de tokens JWT (refresh token, denylist)
-- Rate limiting no login e no auto-cadastro
-- Deploy em cloud
+| Módulo | Responsabilidade |
+| :--- | :--- |
+| `auth` | Cadastro, login, verificação de e-mail, gerenciamento de usuários e grants |
+| `security` | JWT, filtros, configuração de segurança e guard de acesso por merchant |
+| `merchant` | Cadastro e gerenciamento de merchants |
+| `feerule` | Regras de taxa por merchant |
+| `transaction` | Transações internas por merchant |
+| `externalsettlement` | Importação e consulta de liquidações externas |
+| `reconciliation` | Motor de conciliação, divergências e relatórios CSV |
+| `exception` | Tratamento global e respostas padronizadas (`StandardError`) |
+| `observability` | Correlação de request, auditoria e contexto de log |
+| `config` / `shared` | Configurações e utilitários compartilhados |
+
+Estrutura interna de cada módulo:
+
+```text
+module/
+├── controller/
+├── dto/
+├── entity/
+├── mapper/
+├── repository/
+└── service/
+```
+
+---
+
+## API
+
+O contrato vivo está no Swagger, gerado a partir do código. Com a API no ar:
+
+- UI: http://localhost:8080/swagger-ui.html
+- OpenAPI: http://localhost:8080/v3/api-docs
+
+Faça login (`POST /api/auth/login`), copie o token e use **Authorize** no Swagger (`Bearer {token}`). Em `dev`, os usuários seed estão na seção Segurança. Rotas públicas: cadastro, login, verificação de e-mail, Swagger e `/actuator/health`.
+
+A conciliação é assíncrona: o POST devolve `202 Accepted` e o `Location` aponta para o GET da execução.
+
+---
+
+## Segurança
+
+Autenticação JWT, sem sessão no servidor.
+
+| Papel | O que faz |
+| :--- | :--- |
+| **ADMIN** | Usuários, grants e ativação de contas que ele criou. Enxerga todos os merchants. |
+| **OPERATOR** | Fluxo operacional (merchant, taxas, transações, import, conciliação) só nos merchants concedidos. |
+
+Quem cria um merchant recebe acesso a ele automaticamente. O auto-cadastro gera `OPERATOR` inativo até o link de e-mail. Contas criadas pelo ADMIN podem ser ativadas por ele.
+
+Em `dev` e `test` existem usuários seed (nunca em produção):
+
+| Role | E-mail | Senha |
+| :--- | :--- | :--- |
+| ADMIN | `admin@reconpay.local` | `DevAdmin@2026` |
+| OPERATOR | `analyst@reconpay.local` | `DevAnalyst@2026` |
+
+CORS em `dev` libera origens em `reconpay.cors.allowed-origins` (padrão `http://localhost:5173`, Vite) para `/api/**`.
+
+---
+
+## Testes
+
+| Tipo | Ferramentas | Escopo |
+| :--- | :--- | :--- |
+| **Unitário** | JUnit 5, Mockito, MockMvc | Services, parsers, mappers e controllers |
+| **Integração** | Testcontainers (PostgreSQL), MockMvc | Fluxos de ponta a ponta com banco real (precisa de Docker) |
+
+```bash
+./mvnw verify
+```
+
+Isso roda os testes e falha se a cobertura ficar abaixo de 85% das linhas ou 75% dos ramos. Na GitHub Actions o mesmo `verify` corre em todo push e PR para `main`, junto com scan OWASP (reprova CVSS ≥ 7) e `docker build` da imagem.
 
 ---
 
