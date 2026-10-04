@@ -3,5 +3,11 @@ spring:
     show-sql: false
 
 logging:
+  structured:
+    format:
+      console: logstash
+    json:
+      add:
+        application: reconpay
   level:
     org.hibernate.SQL: WARN

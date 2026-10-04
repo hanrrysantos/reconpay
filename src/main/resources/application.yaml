@@ -28,6 +28,10 @@ jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400}
 
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%X{requestId:-}] [%X{userEmail:-anonymous}] %logger{36} - %msg%n"
+
 management:
   endpoints:
     web:
