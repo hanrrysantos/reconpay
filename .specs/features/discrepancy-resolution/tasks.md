@@ -146,9 +146,9 @@ T14 → T15
 
 **Done when**:
 
-- [ ] Campos do design mapeados na tabela `discrepancy_adjustments`
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] Campos do design mapeados na tabela `discrepancy_adjustments`
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build

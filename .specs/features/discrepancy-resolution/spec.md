@@ -156,7 +156,7 @@ O run de conciliação aponta a divergência e para aí. O operador não tem com
 | -------------- | ----- | ----- | ------ |
 | RES-01 | P1: Fechar | Execute | Implementing |
 | RES-02 | P1: Fechar | Tasks | In Tasks |
-| RES-03 | P1: Fechar | Tasks | In Tasks |
+| RES-03 | P1: Fechar | Execute | Implementing |
 | RES-17 | P1: Fechar | Tasks | In Tasks |
 | RES-22 | P1: Fechar | Tasks | In Tasks |
 | RES-23 | P1: Fechar | Tasks | In Tasks |
