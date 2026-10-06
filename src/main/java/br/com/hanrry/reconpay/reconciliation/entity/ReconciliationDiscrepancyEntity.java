@@ -1,5 +1,6 @@
 package br.com.hanrry.reconpay.reconciliation.entity;
 
+import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,12 +12,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -44,4 +49,18 @@ public class ReconciliationDiscrepancyEntity {
 
     @Column(name = "actual_value", length = 255)
     private String actualValue;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private DiscrepancyStatus status = DiscrepancyStatus.OPEN;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
+    @OneToMany(mappedBy = "discrepancy", fetch = FetchType.LAZY)
+    private List<DiscrepancyAdjustmentEntity> adjustments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "discrepancy", fetch = FetchType.LAZY)
+    private List<DiscrepancyTransitionEntity> transitions = new ArrayList<>();
 }

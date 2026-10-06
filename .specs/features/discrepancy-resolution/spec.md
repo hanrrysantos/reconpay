@@ -171,7 +171,7 @@ O run de conciliação aponta a divergência e para aí. O operador não tem com
 | RES-12 | P1: Guardas | Tasks | In Tasks |
 | RES-13 | P1: Guardas | Tasks | In Tasks |
 | RES-14 | P1: Guardas | Execute | Implementing |
-| RES-15 | P1: Guardas | Tasks | In Tasks |
+| RES-15 | P1: Guardas | Execute | Implementing |
 | RES-16 | P1: Guardas | Tasks | In Tasks |
 | RES-18 | P1: Ler | Execute | Implementing |
 | RES-19 | P1: Ler | Tasks | In Tasks |

@@ -198,10 +198,10 @@ T14 → T15
 
 **Done when**:
 
-- [ ] `status` default `OPEN` e `version` presentes
-- [ ] Coleções de ajuste e histórico são lazy
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] `status` default `OPEN` e `version` presentes
+- [x] Coleções de ajuste e histórico são lazy
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build
