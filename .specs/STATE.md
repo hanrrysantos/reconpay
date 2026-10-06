@@ -44,10 +44,11 @@
 
 ## Handoff
 
-- **Feature**: `.specs/features/backend-access-alignment/` — **Complete** (validation PASS)
-- **Phase / Task**: none
-- **Completed**: T1–T15 + Verifier (`validation.md`)
-- **In-progress** (file:line): none
-- **Next step**: `git push origin main`
+- **Feature**: `.specs/features/discrepancy-resolution/`
+- **Phase / Task**: Execute — Phase 1–2, T1 T2 T6 written, committing
+- **Completed**: Specify, Design, Tasks approved
+- **In-progress** (file:line): `DiscrepancyStatus.java`, `V20__discrepancy_resolution.sql`, `GlobalExceptionHandler.java`
+- **Next step**: Commit T1, T2, and T6, then T3, T4, and T7 in parallel
 - **Blockers**: none
-- **Branch**: main (local ahead of origin)
+- **Uncommitted files**: feature specs, status enum, V20, resolution exceptions, handler, error test
+- **Branch**: main
