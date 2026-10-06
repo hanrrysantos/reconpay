@@ -94,9 +94,9 @@ T14 → T15
 
 **Done when**:
 
-- [ ] Os quatro valores existem
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] Os quatro valores existem
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build
