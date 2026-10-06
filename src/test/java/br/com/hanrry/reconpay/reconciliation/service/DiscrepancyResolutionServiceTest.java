@@ -27,6 +27,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -328,6 +330,94 @@ class DiscrepancyResolutionServiceTest {
         verify(adjustmentRepository, never()).save(any());
     }
 
+    @ParameterizedTest
+    @EnumSource(value = ReconciliationRunStatus.class, names = {"PENDING", "RUNNING", "FAILED"})
+    void unfinishedRunDoesNotChangeTheDiscrepancy(ReconciliationRunStatus status) {
+        OpenCase openCase = foundOnly(status, null);
+
+        assertThatThrownBy(() -> service.changeStatus(
+                openCase.merchantId(),
+                openCase.runId(),
+                openCase.discrepancyId(),
+                new UpdateDiscrepancyStatusRequestDTO(DiscrepancyStatus.ACCEPTED, null, null)))
+                .isInstanceOf(DiscrepancyResolutionConflictException.class);
+
+        assertThat(openCase.discrepancy().getStatus()).isEqualTo(DiscrepancyStatus.OPEN);
+        verify(discrepancyRepository, never()).save(any());
+        verify(transitionRepository, never()).save(any());
+        verify(adjustmentRepository, never()).save(any());
+    }
+
+    @Test
+    void supersededRunDoesNotChangeTheDiscrepancy() {
+        OpenCase openCase = foundOnly(ReconciliationRunStatus.COMPLETED, Instant.parse("2026-10-06T12:00:00Z"));
+
+        assertThatThrownBy(() -> service.changeStatus(
+                openCase.merchantId(),
+                openCase.runId(),
+                openCase.discrepancyId(),
+                new UpdateDiscrepancyStatusRequestDTO(DiscrepancyStatus.ACCEPTED, null, null)))
+                .isInstanceOf(DiscrepancyResolutionConflictException.class);
+
+        assertThat(openCase.discrepancy().getStatus()).isEqualTo(DiscrepancyStatus.OPEN);
+        verify(discrepancyRepository, never()).save(any());
+    }
+
+    @Test
+    void blankNoteIsStoredAsNull() {
+        OpenCase openCase = openDiscrepancy();
+
+        DiscrepancyDetailResponseDTO response = service.changeStatus(
+                openCase.merchantId(),
+                openCase.runId(),
+                openCase.discrepancyId(),
+                new UpdateDiscrepancyStatusRequestDTO(DiscrepancyStatus.ACCEPTED, "   ", null));
+
+        assertThat(response.transitions()).singleElement()
+                .extracting(DiscrepancyDetailResponseDTO.Transition::note)
+                .isNull();
+    }
+
+    @Test
+    void adjustmentSaveFailureLeavesThePreviousStatus() {
+        OpenCase openCase = loadedDiscrepancy();
+        when(transitionRepository.save(any(DiscrepancyTransitionEntity.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(adjustmentRepository.save(any(DiscrepancyAdjustmentEntity.class)))
+                .thenThrow(new RuntimeException("adjustment"));
+
+        assertThatThrownBy(() -> service.changeStatus(
+                openCase.merchantId(),
+                openCase.runId(),
+                openCase.discrepancyId(),
+                new UpdateDiscrepancyStatusRequestDTO(
+                        DiscrepancyStatus.ADJUSTED, null, new BigDecimal("-1.50"))))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("adjustment");
+
+        assertThat(openCase.discrepancy().getStatus()).isEqualTo(DiscrepancyStatus.OPEN);
+        verify(discrepancyRepository, never()).save(any());
+    }
+
+    @Test
+    void historySaveFailureLeavesThePreviousStatus() {
+        OpenCase openCase = loadedDiscrepancy();
+        when(transitionRepository.save(any(DiscrepancyTransitionEntity.class)))
+                .thenThrow(new RuntimeException("history"));
+
+        assertThatThrownBy(() -> service.changeStatus(
+                openCase.merchantId(),
+                openCase.runId(),
+                openCase.discrepancyId(),
+                new UpdateDiscrepancyStatusRequestDTO(DiscrepancyStatus.ACCEPTED, null, null)))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("history");
+
+        assertThat(openCase.discrepancy().getStatus()).isEqualTo(DiscrepancyStatus.OPEN);
+        verify(discrepancyRepository, never()).save(any());
+        verify(adjustmentRepository, never()).save(any());
+    }
+
     @Test
     void getReturnsAdjustmentsAndTransitionsInCreatedAtOrder() {
         UUID merchantId = UUID.randomUUID();
@@ -366,7 +456,25 @@ class DiscrepancyResolutionServiceTest {
                 .containsExactly(actorId, actorId);
     }
 
-    private OpenCase openDiscrepancy() {
+    private OpenCase foundOnly(ReconciliationRunStatus status, Instant supersededAt) {
+        UUID merchantId = UUID.randomUUID();
+        UUID runId = UUID.randomUUID();
+        UUID discrepancyId = UUID.randomUUID();
+        ReconciliationDiscrepancyEntity discrepancy = completedDiscrepancy(runId, discrepancyId);
+        discrepancy.getReconciliationItem().getReconciliationRun().setStatus(status);
+        discrepancy.getReconciliationItem().getReconciliationRun().setSupersededAt(supersededAt);
+        when(discrepancyRepository.findByIdAndRunAndMerchant(discrepancyId, runId, merchantId))
+                .thenReturn(Optional.of(discrepancy));
+        return new OpenCase(
+                merchantId,
+                runId,
+                discrepancyId,
+                discrepancy,
+                discrepancy.getReconciliationItem(),
+                discrepancy.getReconciliationItem().getInternalTransaction());
+    }
+
+    private OpenCase loadedDiscrepancy() {
         UUID merchantId = UUID.randomUUID();
         UUID runId = UUID.randomUUID();
         UUID discrepancyId = UUID.randomUUID();
@@ -374,10 +482,6 @@ class DiscrepancyResolutionServiceTest {
 
         when(discrepancyRepository.findByIdAndRunAndMerchant(discrepancyId, runId, merchantId))
                 .thenReturn(Optional.of(discrepancy));
-        when(discrepancyRepository.save(any(ReconciliationDiscrepancyEntity.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-        when(transitionRepository.save(any(DiscrepancyTransitionEntity.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
         when(userRepository.findById(actorId)).thenReturn(Optional.of(actor));
 
         return new OpenCase(
@@ -387,6 +491,15 @@ class DiscrepancyResolutionServiceTest {
                 discrepancy,
                 discrepancy.getReconciliationItem(),
                 discrepancy.getReconciliationItem().getInternalTransaction());
+    }
+
+    private OpenCase openDiscrepancy() {
+        OpenCase openCase = loadedDiscrepancy();
+        when(discrepancyRepository.save(any(ReconciliationDiscrepancyEntity.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(transitionRepository.save(any(DiscrepancyTransitionEntity.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        return openCase;
     }
 
     private ReconciliationDiscrepancyEntity completedDiscrepancy(UUID runId, UUID discrepancyId) {

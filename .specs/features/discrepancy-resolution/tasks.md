@@ -366,11 +366,11 @@ T14 → T15
 
 **Done when**:
 
-- [ ] Run pendente, em execução, falho ou substituído não altera a divergência
-- [ ] Nota vazia ou só espaços fica null no histórico
-- [ ] Exceção no save do lançamento ou do histórico mantém o status anterior
-- [ ] Gate: `./mvnw -B test -Dtest=DiscrepancyResolutionServiceTest`
-- [ ] Pelo menos 3 testes novos passam, e nenhum teste antigo é removido
+- [x] Run pendente, em execução, falho ou substituído não altera a divergência
+- [x] Nota vazia ou só espaços fica null no histórico
+- [x] Exceção no save do lançamento ou do histórico mantém o status anterior
+- [x] Gate: `./mvnw -B test -Dtest=DiscrepancyResolutionServiceTest`
+- [x] Pelo menos 3 testes novos passam, e nenhum teste antigo é removido
 
 **Tests**: unit
 **Gate**: quick
