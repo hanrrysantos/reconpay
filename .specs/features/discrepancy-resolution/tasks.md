@@ -120,9 +120,9 @@ T14 → T15
 
 **Done when**:
 
-- [ ] A migration sobe no Testcontainers no próximo `verify`
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] A migration sobe no Testcontainers no próximo `verify`
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build
