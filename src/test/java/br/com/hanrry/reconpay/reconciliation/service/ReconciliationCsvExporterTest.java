@@ -3,6 +3,7 @@ package br.com.hanrry.reconpay.reconciliation.service;
 import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationItemEntity;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
 import com.opencsv.CSVReader;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import java.io.StringReader;
@@ -11,6 +12,34 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ReconciliationCsvExporterTest {
+
+    @Test
+    void header_doesNotIncludeResolutionStatusOrCorrectionAmount() throws Exception {
+        var exporter = new ReconciliationCsvExporter();
+        var output = new StringWriter();
+        try (var writer = exporter.open(output)) {
+            // open() writes the header only
+        }
+        try (var reader = new CSVReader(new StringReader(output.toString()))) {
+            assertThat(reader.readNext()).containsExactly(
+                    "externalReference",
+                    "result",
+                    "discrepancyTypes",
+                    "internalTransactionId",
+                    "externalSettlementId",
+                    "transactionAmount",
+                    "expectedNetAmount",
+                    "settlementAmount",
+                    "settlementNetAmount",
+                    "paymentMethod",
+                    "installments",
+                    "transactionStatus",
+                    "settlementStatus",
+                    "transactionDate",
+                    "settlementDate");
+        }
+    }
+
     @ParameterizedTest
     @CsvSource(delimiter = '|', value = {"=SUM(A1:A2)|'=SUM(A1:A2)", "+cmd|'+cmd", "-cmd|'-cmd", "@SUM(A1)|'@SUM(A1)", "TXN-123|TXN-123"}, quoteCharacter = '"')
     void neutralizesSpreadsheetFormulasAndPreservesOrdinaryReferences(String reference, String expected) throws Exception {

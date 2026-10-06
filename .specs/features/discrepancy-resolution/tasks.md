@@ -450,10 +450,10 @@ T14 → T15
 
 **Done when**:
 
-- [ ] O cabeçalho permanece o atual
-- [ ] O teste afirma que o cabeçalho não contém status de desfecho nem valor de correção
-- [ ] Gate: `./mvnw -B test -Dtest=ReconciliationCsvExporterTest`
-- [ ] Nenhum teste antigo é removido
+- [x] O cabeçalho permanece o atual
+- [x] O teste afirma que o cabeçalho não contém status de desfecho nem valor de correção
+- [x] Gate: `./mvnw -B test -Dtest=ReconciliationCsvExporterTest`
+- [x] Nenhum teste antigo é removido
 
 **Tests**: unit
 **Gate**: quick
