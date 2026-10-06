@@ -477,12 +477,12 @@ T14 → T15
 
 **Done when**:
 
-- [ ] PATCH Aceita e GET devolvem o mesmo status e uma linha de histórico
-- [ ] Sem token: 401. OPERATOR sem grant: 403. Id de outro run: 404
-- [ ] Run substituído: 409 sem mudar o status
-- [ ] Dois PATCH concorrentes: um persiste e o outro recebe 409
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Pelo menos 6 testes novos passam, e nenhum teste antigo é removido
+- [x] PATCH Aceita e GET devolvem o mesmo status e uma linha de histórico
+- [x] Sem token: 401. OPERATOR sem grant: 403. Id de outro run: 404
+- [x] Run substituído: 409 sem mudar o status
+- [x] Dois PATCH concorrentes: um persiste e o outro recebe 409
+- [x] Gate: `./mvnw -B verify`
+- [x] Pelo menos 6 testes novos passam, e nenhum teste antigo é removido
 
 **Tests**: integration
 **Gate**: full

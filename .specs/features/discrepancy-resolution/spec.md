@@ -168,14 +168,14 @@ O run de conciliação aponta a divergência e para aí. O operador não tem com
 | RES-06 | P1: Validar | Execute | Implementing |
 | RES-07 | P1: Validar | Execute | Implementing |
 | RES-11 | P1: Guardas | Execute | Implementing |
-| RES-12 | P1: Guardas | Tasks | In Tasks |
-| RES-13 | P1: Guardas | Tasks | In Tasks |
+| RES-12 | P1: Guardas | Execute | Implementing |
+| RES-13 | P1: Guardas | Execute | Implementing |
 | RES-14 | P1: Guardas | Execute | Implementing |
 | RES-15 | P1: Guardas | Execute | Implementing |
 | RES-16 | P1: Guardas | Execute | Implementing |
 | RES-18 | P1: Ler | Execute | Implementing |
 | RES-19 | P1: Ler | Execute | Implementing |
-| RES-20 | P1: Ler | Tasks | In Tasks |
+| RES-20 | P1: Ler | Execute | Implementing |
 | RES-21 | P1: Ler | Execute | Implementing |
 
 **Coverage:** 23 total, 23 mapped to tasks, 0 unmapped

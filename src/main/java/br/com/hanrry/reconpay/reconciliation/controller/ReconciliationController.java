@@ -1,10 +1,13 @@
 package br.com.hanrry.reconpay.reconciliation.controller;
 
+import br.com.hanrry.reconpay.reconciliation.dto.DiscrepancyDetailResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationItemResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationRunResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.RunReconciliationRequestDTO;
+import br.com.hanrry.reconpay.reconciliation.dto.UpdateDiscrepancyStatusRequestDTO;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
+import br.com.hanrry.reconpay.reconciliation.service.DiscrepancyResolutionService;
 import br.com.hanrry.reconpay.reconciliation.service.ReconciliationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +22,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,6 +44,7 @@ import java.util.UUID;
 public class ReconciliationController {
 
     private final ReconciliationService reconciliationService;
+    private final DiscrepancyResolutionService discrepancyResolutionService;
 
     @PostMapping
     public ResponseEntity<ReconciliationRunResponseDTO> run(
@@ -93,5 +98,23 @@ public class ReconciliationController {
                 "attachment; filename=\"reconciliation-" + runId + ".csv\"");
 
         reconciliationService.exportCsv(merchantId, runId, response.getOutputStream());
+    }
+
+    @GetMapping("/{runId}/discrepancies/{discrepancyId}")
+    public ResponseEntity<DiscrepancyDetailResponseDTO> findDiscrepancy(
+            @PathVariable UUID merchantId,
+            @PathVariable UUID runId,
+            @PathVariable UUID discrepancyId) {
+        return ResponseEntity.ok(discrepancyResolutionService.get(merchantId, runId, discrepancyId));
+    }
+
+    @PatchMapping("/{runId}/discrepancies/{discrepancyId}")
+    public ResponseEntity<DiscrepancyDetailResponseDTO> changeDiscrepancyStatus(
+            @PathVariable UUID merchantId,
+            @PathVariable UUID runId,
+            @PathVariable UUID discrepancyId,
+            @Valid @RequestBody UpdateDiscrepancyStatusRequestDTO request) {
+        return ResponseEntity.ok(discrepancyResolutionService.changeStatus(
+                merchantId, runId, discrepancyId, request));
     }
 }
