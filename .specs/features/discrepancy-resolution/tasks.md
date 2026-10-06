@@ -227,9 +227,9 @@ T14 → T15
 
 **Done when**:
 
-- [ ] Teste unitário vê HTTP 404 `NOT_FOUND` e HTTP 409 `CONFLICT` no `StandardError`
-- [ ] Gate: `./mvnw -B test -Dtest=DiscrepancyResolutionErrorTest`
-- [ ] Pelo menos 2 testes novos passam, e nenhum teste antigo é removido
+- [x] Teste unitário vê HTTP 404 `NOT_FOUND` e HTTP 409 `CONFLICT` no `StandardError`
+- [x] Gate: `./mvnw -B test -Dtest=DiscrepancyResolutionErrorTest`
+- [x] Pelo menos 2 testes novos passam, e nenhum teste antigo é removido
 
 **Tests**: unit
 **Gate**: quick

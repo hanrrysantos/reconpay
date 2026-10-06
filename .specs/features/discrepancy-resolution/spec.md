@@ -162,7 +162,7 @@ O run de conciliação aponta a divergência e para aí. O operador não tem com
 | RES-23 | P1: Fechar | Tasks | In Tasks |
 | RES-08 | P1: Reabrir | Tasks | In Tasks |
 | RES-09 | P1: Reabrir | Tasks | In Tasks |
-| RES-10 | P1: Reabrir | Tasks | In Tasks |
+| RES-10 | P1: Reabrir | Execute | Implementing |
 | RES-04 | P1: Validar | Tasks | In Tasks |
 | RES-05 | P1: Validar | Tasks | In Tasks |
 | RES-06 | P1: Validar | Tasks | In Tasks |
@@ -170,7 +170,7 @@ O run de conciliação aponta a divergência e para aí. O operador não tem com
 | RES-11 | P1: Guardas | Tasks | In Tasks |
 | RES-12 | P1: Guardas | Tasks | In Tasks |
 | RES-13 | P1: Guardas | Tasks | In Tasks |
-| RES-14 | P1: Guardas | Tasks | In Tasks |
+| RES-14 | P1: Guardas | Execute | Implementing |
 | RES-15 | P1: Guardas | Tasks | In Tasks |
 | RES-16 | P1: Guardas | Tasks | In Tasks |
 | RES-18 | P1: Ler | Tasks | In Tasks |
