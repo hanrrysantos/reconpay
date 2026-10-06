@@ -124,10 +124,17 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(error -> error.getDefaultMessage())
+                .orElseGet(() -> ex.getBindingResult().getGlobalErrors().stream()
+                        .findFirst()
+                        .map(error -> error.getDefaultMessage())
+                        .orElse("Requisição inválida"));
         return buildError(
                 HttpStatus.BAD_REQUEST,
                 ApiErrorCode.VALIDATION_ERROR,
-                ex.getBindingResult().getFieldErrors().getFirst().getDefaultMessage(),
+                message,
                 request
         );
     }

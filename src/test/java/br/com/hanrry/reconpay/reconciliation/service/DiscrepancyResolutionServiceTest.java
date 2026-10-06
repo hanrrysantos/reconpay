@@ -201,6 +201,7 @@ class DiscrepancyResolutionServiceTest {
         assertThat(adjustments.getValue().getAmount()).isEqualByComparingTo("-1.50");
         assertThat(adjustments.getValue().getVoidedAt()).isNull();
         assertThat(adjustments.getValue().getCreatedBy().getId()).isEqualTo(actorId);
+        assertThat(adjustments.getValue().getCreatedAt()).isNotNull();
         verify(transitionRepository).save(any(DiscrepancyTransitionEntity.class));
         verify(auditLogger).record(
                 "DISCREPANCY_STATUS_CHANGED",
@@ -280,6 +281,26 @@ class DiscrepancyResolutionServiceTest {
     }
 
     @Test
+    void reopenWrittenOffReturnsToOpenWithoutCreatingAnAdjustment() {
+        OpenCase openCase = openDiscrepancy();
+        openCase.discrepancy().setStatus(DiscrepancyStatus.WRITTEN_OFF);
+
+        DiscrepancyDetailResponseDTO response = service.changeStatus(
+                openCase.merchantId(),
+                openCase.runId(),
+                openCase.discrepancyId(),
+                new UpdateDiscrepancyStatusRequestDTO(DiscrepancyStatus.OPEN, null, null));
+
+        assertThat(response.status()).isEqualTo(DiscrepancyStatus.OPEN);
+        assertThat(response.adjustments()).isEmpty();
+        assertThat(response.transitions()).singleElement().satisfies(transition -> {
+            assertThat(transition.fromStatus()).isEqualTo(DiscrepancyStatus.WRITTEN_OFF);
+            assertThat(transition.toStatus()).isEqualTo(DiscrepancyStatus.OPEN);
+        });
+        verify(adjustmentRepository, never()).save(any());
+    }
+
+    @Test
     void reopenAdjustedVoidsTheOnlyActiveAdjustment() {
         OpenCase openCase = openDiscrepancy();
         openCase.discrepancy().setStatus(DiscrepancyStatus.ADJUSTED);
@@ -301,6 +322,10 @@ class DiscrepancyResolutionServiceTest {
             assertThat(adjustment.voided()).isTrue();
         });
         assertThat(openCase.discrepancy().getAdjustments()).hasSize(1);
+        assertThat(response.transitions()).singleElement().satisfies(transition -> {
+            assertThat(transition.fromStatus()).isEqualTo(DiscrepancyStatus.ADJUSTED);
+            assertThat(transition.toStatus()).isEqualTo(DiscrepancyStatus.OPEN);
+        });
         verify(adjustmentRepository).save(active);
     }
 
@@ -397,6 +422,7 @@ class DiscrepancyResolutionServiceTest {
 
         assertThat(openCase.discrepancy().getStatus()).isEqualTo(DiscrepancyStatus.OPEN);
         verify(discrepancyRepository, never()).save(any());
+        verify(auditLogger, never()).record(any(), any(), any(), any());
     }
 
     @Test
@@ -416,6 +442,7 @@ class DiscrepancyResolutionServiceTest {
         assertThat(openCase.discrepancy().getStatus()).isEqualTo(DiscrepancyStatus.OPEN);
         verify(discrepancyRepository, never()).save(any());
         verify(adjustmentRepository, never()).save(any());
+        verify(auditLogger, never()).record(any(), any(), any(), any());
     }
 
     @Test

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -66,7 +67,7 @@ public class DiscrepancyResolutionService {
         DiscrepancyAdjustmentEntity activeAdjustment = activeAdjustmentToVoid(discrepancy, current, target);
 
         UserEntity actor = requireActor();
-        Instant now = Instant.now();
+        Instant now = Instant.now().truncatedTo(ChronoUnit.MICROS);
         String note = blankToNull(request.note());
 
         if (activeAdjustment != null) {

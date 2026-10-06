@@ -79,6 +79,19 @@ class ReconciliationEngineTest {
             assertThat(discrepancy.getAdjustments()).isEmpty();
             assertThat(discrepancy.getTransitions()).isEmpty();
         });
+
+        items.getFirst().getDiscrepancies().getFirst().setStatus(DiscrepancyStatus.ADJUSTED);
+        List<ReconciliationItemEntity> again = reconciliationEngine.reconcile(
+                Map.of("TXN-002", transaction),
+                Map.of());
+        assertThat(again.getFirst().getResult()).isEqualTo(ReconciliationResult.DIVERGENT);
+        assertThat(again.getFirst().getDiscrepancies())
+                .extracting(discrepancy -> discrepancy.getType())
+                .containsExactly(DiscrepancyType.MISSING_SETTLEMENT);
+        assertThat(again.getFirst().getDiscrepancies()).allSatisfy(discrepancy -> {
+            assertThat(discrepancy.getStatus()).isEqualTo(DiscrepancyStatus.OPEN);
+            assertThat(discrepancy.getAdjustments()).isEmpty();
+        });
     }
 
     @Test
