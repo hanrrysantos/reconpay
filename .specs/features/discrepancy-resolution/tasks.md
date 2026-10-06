@@ -282,10 +282,10 @@ T14 → T15
 
 **Done when**:
 
-- [ ] Integração acha a divergência do run daquele merchant
-- [ ] A mesma divergência com outro merchant ou outro run vem vazia
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Pelo menos 2 testes novos passam, e nenhum teste antigo é removido
+- [x] Integração acha a divergência do run daquele merchant
+- [x] A mesma divergência com outro merchant ou outro run vem vazia
+- [x] Gate: `./mvnw -B verify`
+- [x] Pelo menos 2 testes novos passam, e nenhum teste antigo é removido
 
 **Tests**: integration
 **Gate**: full
