@@ -4,6 +4,7 @@ import br.com.hanrry.reconpay.externalsettlement.entity.ExternalSettlementEntity
 import br.com.hanrry.reconpay.reconciliation.config.ReconciliationProperties;
 import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationDiscrepancyEntity;
 import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationItemEntity;
+import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
 import br.com.hanrry.reconpay.transaction.entity.InternalTransactionEntity;
@@ -151,6 +152,7 @@ public class ReconciliationEngine {
         entity.setType(type);
         entity.setExpectedValue(expectedValue);
         entity.setActualValue(actualValue);
+        entity.setStatus(DiscrepancyStatus.OPEN);
         return entity;
     }
 

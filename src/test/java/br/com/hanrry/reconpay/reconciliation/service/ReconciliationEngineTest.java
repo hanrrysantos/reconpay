@@ -4,6 +4,7 @@ import br.com.hanrry.reconpay.externalsettlement.entity.ExternalSettlementEntity
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.reconciliation.config.ReconciliationProperties;
 import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationItemEntity;
+import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
@@ -73,6 +74,11 @@ class ReconciliationEngineTest {
         assertThat(items.getFirst().getDiscrepancies())
                 .extracting(discrepancy -> discrepancy.getType())
                 .containsExactly(DiscrepancyType.MISSING_SETTLEMENT);
+        assertThat(items.getFirst().getDiscrepancies()).allSatisfy(discrepancy -> {
+            assertThat(discrepancy.getStatus()).isEqualTo(DiscrepancyStatus.OPEN);
+            assertThat(discrepancy.getAdjustments()).isEmpty();
+            assertThat(discrepancy.getTransitions()).isEmpty();
+        });
     }
 
     @Test

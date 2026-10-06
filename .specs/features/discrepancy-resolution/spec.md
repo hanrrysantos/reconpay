@@ -159,7 +159,7 @@ O run de conciliação aponta a divergência e para aí. O operador não tem com
 | RES-03 | P1: Fechar | Execute | Implementing |
 | RES-17 | P1: Fechar | Tasks | In Tasks |
 | RES-22 | P1: Fechar | Tasks | In Tasks |
-| RES-23 | P1: Fechar | Tasks | In Tasks |
+| RES-23 | P1: Fechar | Execute | Implementing |
 | RES-08 | P1: Reabrir | Tasks | In Tasks |
 | RES-09 | P1: Reabrir | Tasks | In Tasks |
 | RES-10 | P1: Reabrir | Execute | Implementing |

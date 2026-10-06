@@ -396,10 +396,10 @@ T14 → T15
 
 **Done when**:
 
-- [ ] Toda divergência criada no teste nasce `OPEN`, sem histórico
-- [ ] Um caso já coberto de match e um de divergência continuam com o mesmo resultado
-- [ ] Gate: `./mvnw -B test -Dtest=ReconciliationEngineTest`
-- [ ] Nenhum teste antigo é removido
+- [x] Toda divergência criada no teste nasce `OPEN`, sem histórico
+- [x] Um caso já coberto de match e um de divergência continuam com o mesmo resultado
+- [x] Gate: `./mvnw -B test -Dtest=ReconciliationEngineTest`
+- [x] Nenhum teste antigo é removido
 
 **Tests**: unit
 **Gate**: quick
