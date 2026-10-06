@@ -44,11 +44,11 @@
 
 ## Handoff
 
-- **Feature**: `.specs/features/discrepancy-resolution/`
-- **Phase / Task**: Execute — T10 reopen next
-- **Completed**: T1–T9, T12, T13, T14
+- **Feature**: `.specs/features/discrepancy-resolution/` — **Complete** (validation PASS)
+- **Phase / Task**: none
+- **Completed**: T1–T15 + Verifier (`validation.md`)
 - **In-progress** (file:line): none
-- **Next step**: T10 reopen, then T11 guards, then T15 endpoints and the Verifier
+- **Next step**: layouts and bank statement, then period indicators, then the frontend
 - **Blockers**: none
 - **Uncommitted files**: none
 - **Branch**: main

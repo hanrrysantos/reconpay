@@ -154,29 +154,29 @@ O run de conciliação aponta a divergência e para aí. O operador não tem com
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| RES-01 | P1: Fechar | Execute | Implementing |
-| RES-02 | P1: Fechar | Execute | Implementing |
-| RES-03 | P1: Fechar | Execute | Implementing |
-| RES-17 | P1: Fechar | Execute | Implementing |
-| RES-22 | P1: Fechar | Execute | Implementing |
-| RES-23 | P1: Fechar | Execute | Implementing |
-| RES-08 | P1: Reabrir | Execute | Implementing |
-| RES-09 | P1: Reabrir | Execute | Implementing |
-| RES-10 | P1: Reabrir | Execute | Implementing |
-| RES-04 | P1: Validar | Execute | Implementing |
-| RES-05 | P1: Validar | Execute | Implementing |
-| RES-06 | P1: Validar | Execute | Implementing |
-| RES-07 | P1: Validar | Execute | Implementing |
-| RES-11 | P1: Guardas | Execute | Implementing |
-| RES-12 | P1: Guardas | Execute | Implementing |
-| RES-13 | P1: Guardas | Execute | Implementing |
-| RES-14 | P1: Guardas | Execute | Implementing |
-| RES-15 | P1: Guardas | Execute | Implementing |
-| RES-16 | P1: Guardas | Execute | Implementing |
-| RES-18 | P1: Ler | Execute | Implementing |
-| RES-19 | P1: Ler | Execute | Implementing |
-| RES-20 | P1: Ler | Execute | Implementing |
-| RES-21 | P1: Ler | Execute | Implementing |
+| RES-01 | P1: Fechar | Execute | Verified |
+| RES-02 | P1: Fechar | Execute | Verified |
+| RES-03 | P1: Fechar | Execute | Verified |
+| RES-17 | P1: Fechar | Execute | Verified |
+| RES-22 | P1: Fechar | Execute | Verified |
+| RES-23 | P1: Fechar | Execute | Verified |
+| RES-08 | P1: Reabrir | Execute | Verified |
+| RES-09 | P1: Reabrir | Execute | Verified |
+| RES-10 | P1: Reabrir | Execute | Verified |
+| RES-04 | P1: Validar | Execute | Verified |
+| RES-05 | P1: Validar | Execute | Verified |
+| RES-06 | P1: Validar | Execute | Verified |
+| RES-07 | P1: Validar | Execute | Verified |
+| RES-11 | P1: Guardas | Execute | Verified |
+| RES-12 | P1: Guardas | Execute | Verified |
+| RES-13 | P1: Guardas | Execute | Verified |
+| RES-14 | P1: Guardas | Execute | Verified |
+| RES-15 | P1: Guardas | Execute | Verified |
+| RES-16 | P1: Guardas | Execute | Verified |
+| RES-18 | P1: Ler | Execute | Verified |
+| RES-19 | P1: Ler | Execute | Verified |
+| RES-20 | P1: Ler | Execute | Verified |
+| RES-21 | P1: Ler | Execute | Verified |
 
 **Coverage:** 23 total, 23 mapped to tasks, 0 unmapped
 
