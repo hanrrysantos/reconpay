@@ -253,10 +253,10 @@ T14 → T15
 
 **Done when**:
 
-- [ ] Os três rejeites da spec falham a validação
-- [ ] Valor negativo diferente de zero em `ADJUSTED` passa
-- [ ] Gate: `./mvnw -B test -Dtest=DiscrepancyStatusRequestValidatorTest`
-- [ ] Pelo menos 4 testes novos passam, e nenhum teste antigo é removido
+- [x] Os três rejeites da spec falham a validação
+- [x] Valor negativo diferente de zero em `ADJUSTED` passa
+- [x] Gate: `./mvnw -B test -Dtest=DiscrepancyStatusRequestValidatorTest`
+- [x] Pelo menos 4 testes novos passam, e nenhum teste antigo é removido
 
 **Tests**: unit
 **Gate**: quick
