@@ -423,10 +423,10 @@ T14 → T15
 
 **Done when**:
 
-- [ ] `GET .../items` devolve `id` e `status` em cada divergência
-- [ ] O JSON do item não traz histórico nem lançamento
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Pelo menos 1 teste de integração novo passa, e nenhum teste antigo é removido
+- [x] `GET .../items` devolve `id` e `status` em cada divergência
+- [x] O JSON do item não traz histórico nem lançamento
+- [x] Gate: `./mvnw -B verify`
+- [x] Pelo menos 1 teste de integração novo passa, e nenhum teste antigo é removido
 
 **Tests**: integration
 **Gate**: full

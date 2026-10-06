@@ -126,7 +126,11 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.content[0].externalReference").value(missingReference))
-                .andExpect(jsonPath("$.content[0].discrepancies[0].type").value("MISSING_SETTLEMENT"));
+                .andExpect(jsonPath("$.content[0].discrepancies[0].type").value("MISSING_SETTLEMENT"))
+                .andExpect(jsonPath("$.content[0].discrepancies[0].id").isNotEmpty())
+                .andExpect(jsonPath("$.content[0].discrepancies[0].status").value("OPEN"))
+                .andExpect(jsonPath("$.content[0].discrepancies[0].adjustments").doesNotExist())
+                .andExpect(jsonPath("$.content[0].discrepancies[0].transitions").doesNotExist());
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/export", merchantId, runId)
                         .header("Authorization", "Bearer " + operatorToken))
