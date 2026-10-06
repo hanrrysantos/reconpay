@@ -338,11 +338,11 @@ T14 → T15
 
 **Done when**:
 
-- [ ] Reabrir Ajustada preenche `voidedAt` e não deixa outro lançamento ativo
-- [ ] Reabrir Aceita não cria lançamento
-- [ ] Salto entre terminais e status repetido lançam conflito sem save
-- [ ] Gate: `./mvnw -B test -Dtest=DiscrepancyResolutionServiceTest`
-- [ ] Pelo menos 3 testes novos passam, e nenhum teste antigo é removido
+- [x] Reabrir Ajustada preenche `voidedAt` e não deixa outro lançamento ativo
+- [x] Reabrir Aceita não cria lançamento
+- [x] Salto entre terminais e status repetido lançam conflito sem save
+- [x] Gate: `./mvnw -B test -Dtest=DiscrepancyResolutionServiceTest`
+- [x] Pelo menos 3 testes novos passam, e nenhum teste antigo é removido
 
 **Tests**: unit
 **Gate**: quick

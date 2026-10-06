@@ -62,11 +62,17 @@ public class DiscrepancyResolutionService {
 
         DiscrepancyStatus current = discrepancy.getStatus();
         DiscrepancyStatus target = request.status();
-        ensureCanClose(current, target);
+        ensureTransition(current, target);
+        DiscrepancyAdjustmentEntity activeAdjustment = activeAdjustmentToVoid(discrepancy, current, target);
 
         UserEntity actor = requireActor();
         Instant now = Instant.now();
         String note = blankToNull(request.note());
+
+        if (activeAdjustment != null) {
+            activeAdjustment.setVoidedAt(now);
+            adjustmentRepository.save(activeAdjustment);
+        }
 
         DiscrepancyTransitionEntity transition = new DiscrepancyTransitionEntity();
         transition.setDiscrepancy(discrepancy);
@@ -121,12 +127,30 @@ public class DiscrepancyResolutionService {
         }
     }
 
-    private void ensureCanClose(DiscrepancyStatus current, DiscrepancyStatus target) {
-        if (current == DiscrepancyStatus.OPEN && CLOSABLE_FROM_OPEN.contains(target)) {
+    private void ensureTransition(DiscrepancyStatus current, DiscrepancyStatus target) {
+        boolean close = current == DiscrepancyStatus.OPEN && CLOSABLE_FROM_OPEN.contains(target);
+        boolean reopen = target == DiscrepancyStatus.OPEN && current != DiscrepancyStatus.OPEN;
+        if (close || reopen) {
             return;
         }
         throw new DiscrepancyResolutionConflictException(
                 "Transição de status inválida: " + current + " -> " + target);
+    }
+
+    private DiscrepancyAdjustmentEntity activeAdjustmentToVoid(
+            ReconciliationDiscrepancyEntity discrepancy,
+            DiscrepancyStatus current,
+            DiscrepancyStatus target) {
+        if (current != DiscrepancyStatus.ADJUSTED || target != DiscrepancyStatus.OPEN) {
+            return null;
+        }
+        List<DiscrepancyAdjustmentEntity> active = adjustmentsOf(discrepancy).stream()
+                .filter(adjustment -> adjustment.getVoidedAt() == null)
+                .toList();
+        if (active.size() != 1) {
+            throw new IllegalStateException("Divergência ajustada sem um único lançamento ativo");
+        }
+        return active.getFirst();
     }
 
     private UserEntity requireActor() {
