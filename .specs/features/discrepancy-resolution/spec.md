@@ -155,10 +155,10 @@ O run de conciliação aponta a divergência e para aí. O operador não tem com
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
 | RES-01 | P1: Fechar | Execute | Implementing |
-| RES-02 | P1: Fechar | Tasks | In Tasks |
+| RES-02 | P1: Fechar | Execute | Implementing |
 | RES-03 | P1: Fechar | Execute | Implementing |
-| RES-17 | P1: Fechar | Tasks | In Tasks |
-| RES-22 | P1: Fechar | Tasks | In Tasks |
+| RES-17 | P1: Fechar | Execute | Implementing |
+| RES-22 | P1: Fechar | Execute | Implementing |
 | RES-23 | P1: Fechar | Execute | Implementing |
 | RES-08 | P1: Reabrir | Tasks | In Tasks |
 | RES-09 | P1: Reabrir | Tasks | In Tasks |

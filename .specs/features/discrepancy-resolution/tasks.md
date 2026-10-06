@@ -309,12 +309,12 @@ T14 → T15
 
 **Done when**:
 
-- [ ] Testes unitários cobrem Aceita, Baixada e Ajustada
-- [ ] Ajustada persiste um lançamento ativo com o valor informado
-- [ ] Auditoria é registrada dentro da transação, para sair só depois do commit
-- [ ] Nenhum save de transação interna é chamado
-- [ ] Gate: `./mvnw -B test -Dtest=DiscrepancyResolutionServiceTest`
-- [ ] Pelo menos 4 testes novos passam, e nenhum teste antigo é removido
+- [x] Testes unitários cobrem Aceita, Baixada e Ajustada
+- [x] Ajustada persiste um lançamento ativo com o valor informado
+- [x] Auditoria é registrada dentro da transação, para sair só depois do commit
+- [x] Nenhum save de transação interna é chamado
+- [x] Gate: `./mvnw -B test -Dtest=DiscrepancyResolutionServiceTest`
+- [x] Pelo menos 4 testes novos passam, e nenhum teste antigo é removido
 
 **Tests**: unit
 **Gate**: quick
