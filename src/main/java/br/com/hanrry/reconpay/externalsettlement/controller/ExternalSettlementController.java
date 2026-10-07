@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.externalsettlement.controller;
 
 import br.com.hanrry.reconpay.externalsettlement.dto.ExternalSettlementResponseDTO;
 import br.com.hanrry.reconpay.externalsettlement.dto.SettlementImportResponseDTO;
+import br.com.hanrry.reconpay.externalsettlement.enums.SettlementLayout;
 import br.com.hanrry.reconpay.externalsettlement.service.ExternalSettlementService;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
@@ -61,8 +62,9 @@ public class ExternalSettlementController {
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SettlementImportResponseDTO> importCsv(
             @PathVariable UUID merchantId,
-            @RequestParam("file") MultipartFile file) {
-        SettlementImportResponseDTO importResult = externalSettlementService.importCsv(merchantId, file);
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "layout", required = false) SettlementLayout layout) {
+        SettlementImportResponseDTO importResult = externalSettlementService.importCsv(merchantId, file, layout);
         URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/merchants/{merchantId}/external-settlements/imports/{id}")
                 .buildAndExpand(merchantId, importResult.id())

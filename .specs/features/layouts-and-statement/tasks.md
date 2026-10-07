@@ -170,14 +170,14 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Sem `layout`, o CSV atual responde HTTP 201
-- [ ] `layout=ACQUIRER` com o cabeçalho novo responde HTTP 201 e a liquidação lida tem os campos mapeados
-- [ ] `layout` desconhecido ou cabeçalho errado responde HTTP 400 e não grava linha
-- [ ] Linha inválida responde HTTP 400 com `rowErrors` e não grava linha
-- [ ] Referência já existente responde HTTP 409 e não grava o lote novo
-- [ ] OPERATOR sem grant recebe HTTP 403. ADMIN sem grant recebe HTTP 201
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido ou enfraquecido
+- [x] Sem `layout`, o CSV atual responde HTTP 201
+- [x] `layout=ACQUIRER` com o cabeçalho novo responde HTTP 201 e a liquidação lida tem os campos mapeados
+- [x] `layout` desconhecido ou cabeçalho errado responde HTTP 400 e não grava linha
+- [x] Linha inválida responde HTTP 400 com `rowErrors` e não grava linha
+- [x] Referência já existente responde HTTP 409 e não grava o lote novo
+- [x] OPERATOR sem grant recebe HTTP 403. ADMIN sem grant recebe HTTP 201
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido ou enfraquecido
 
 **Tests**: integration
 **Gate**: full
