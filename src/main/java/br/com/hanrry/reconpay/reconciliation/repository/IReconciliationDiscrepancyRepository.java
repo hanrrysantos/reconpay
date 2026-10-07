@@ -5,10 +5,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface IReconciliationDiscrepancyRepository extends JpaRepository<ReconciliationDiscrepancyEntity, UUID> {
+
+    @Query("""
+            SELECT discrepancy FROM ReconciliationDiscrepancyEntity discrepancy
+            JOIN FETCH discrepancy.reconciliationItem item
+            WHERE item.reconciliationRun.id = :runId
+            """)
+    List<ReconciliationDiscrepancyEntity> findByRunIdWithItem(@Param("runId") UUID runId);
 
     @Query("""
             SELECT discrepancy FROM ReconciliationDiscrepancyEntity discrepancy

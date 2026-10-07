@@ -351,17 +351,18 @@ T17
 
 **Done when**:
 
-- [ ] GET devolve a taxa congelada, o valor em aberto e a duração. Zero itens deixa a taxa nula. `FAILED` não esconde o `COMPLETED` vigente
-- [ ] Sem run vigente: `PeriodNotFoundException`. `PENDING` ou `RUNNING`: `PeriodConflictException`. `OPEN`: a trava não grava
-- [ ] Segunda trava conserva `lockedAt`. Reabrir limpa a duração. Travar de novo mede do mesmo `finishedAt`
-- [ ] Audit só é pedido depois do flush. Falha ao gravar não pede `PERIOD_LOCKED`
-- [ ] Gate: `./mvnw -B test -Dtest=PeriodServiceTest`
-- [ ] Test count: pelo menos 14 testes passam em `PeriodServiceTest`
+- [x] GET devolve a taxa congelada, o valor em aberto e a duração. Zero itens deixa a taxa nula. `FAILED` não esconde o `COMPLETED` vigente
+- [x] Sem run vigente: `PeriodNotFoundException`. `PENDING` ou `RUNNING`: `PeriodConflictException`. `OPEN`: a trava não grava
+- [x] Segunda trava conserva `lockedAt`. Reabrir limpa a duração. Travar de novo mede do mesmo `finishedAt`
+- [x] Audit só é pedido depois do flush. Falha ao gravar não pede `PERIOD_LOCKED`
+- [x] Gate: `./mvnw -B test -Dtest=PeriodServiceTest`
+- [x] Test count: pelo menos 14 testes passam em `PeriodServiceTest`
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(reconciliation): read and change the period lock`
+**Status**: Done
 
 ---
 

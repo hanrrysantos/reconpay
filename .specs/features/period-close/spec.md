@@ -186,27 +186,27 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| PER-01 | P1: Ler | - | Pending |
-| PER-02 | P1: Ler | - | Pending |
-| PER-03 | P1: Ler | - | Pending |
+| PER-01 | P1: Ler | Phase 3 | Verified |
+| PER-02 | P1: Ler | Phase 3 | Verified |
+| PER-03 | P1: Ler | Phase 3 | Verified |
 | PER-04 | P1: Ler | Phase 2 | Implementing |
-| PER-05 | P1: Ler | - | Pending |
-| PER-06 | P1: Ler | - | Pending |
-| PER-07 | P1: Ler | - | Pending |
-| PER-08 | P1: Ler | - | Pending |
+| PER-05 | P1: Ler | Phase 3 | Verified |
+| PER-06 | P1: Ler | Phase 3 | Verified |
+| PER-07 | P1: Ler | Phase 3 | Verified |
+| PER-08 | P1: Ler | Phase 3 | Verified |
 | PER-09 | P1: Ler | Phase 2 | Implementing |
-| PER-10 | P1: Ler | - | Pending |
-| PER-11 | P1: Travar | Phase 1 | Implementing |
-| PER-12 | P1: Travar | - | Pending |
+| PER-10 | P1: Ler | Phase 3 | Verified |
+| PER-11 | P1: Travar | Phase 3 | Verified |
+| PER-12 | P1: Travar | Phase 3 | Verified |
 | PER-13 | P1: Travar | Phase 2 | Implementing |
-| PER-14 | P1: Travar | - | Pending |
-| PER-15 | P1: Travar | - | Pending |
-| PER-16 | P1: Travar | Phase 1 | Implementing |
-| PER-17 | P1: Travar | - | Pending |
-| PER-18 | P1: Reabrir | - | Pending |
-| PER-19 | P1: Reabrir | - | Pending |
-| PER-20 | P1: Reabrir | - | Pending |
-| PER-21 | P1: Reabrir | - | Pending |
+| PER-14 | P1: Travar | Phase 3 | Verified |
+| PER-15 | P1: Travar | Phase 3 | Verified |
+| PER-16 | P1: Travar | Phase 3 | Verified |
+| PER-17 | P1: Travar | Phase 3 | Verified |
+| PER-18 | P1: Reabrir | Phase 3 | Verified |
+| PER-19 | P1: Reabrir | Phase 3 | Verified |
+| PER-20 | P1: Reabrir | Phase 3 | Verified |
+| PER-21 | P1: Reabrir | Phase 3 | Verified |
 | PER-22 | P1: Segurar | Phase 2 | Implementing |
 | PER-23 | P1: Segurar | - | Pending |
 | PER-24 | P1: Segurar | - | Pending |
@@ -229,7 +229,7 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-41 | P1: Acesso | Phase 1 | Implementing |
 | PER-42 | P1: Acesso | - | Pending |
 | PER-43 | P1: Acesso | - | Pending |
-| PER-44 | P1: Acesso | - | Pending |
+| PER-44 | P1: Acesso | Phase 3 | Verified |
 
 **Coverage:** 44 total, 8 mapped to tasks, 36 unmapped
 

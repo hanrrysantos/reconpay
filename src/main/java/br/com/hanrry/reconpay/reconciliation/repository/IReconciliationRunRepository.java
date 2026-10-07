@@ -1,6 +1,7 @@
 package br.com.hanrry.reconpay.reconciliation.repository;
 
 import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationRunEntity;
+import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationRunStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,6 +37,18 @@ public interface IReconciliationRunRepository extends JpaRepository<Reconciliati
     int failRunning(@Param("id") UUID id, @Param("now") Instant now, @Param("reason") String reason);
 
     Page<ReconciliationRunEntity> findAllByMerchant_Id(UUID merchantId, Pageable pageable);
+
+    Optional<ReconciliationRunEntity> findByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNull(
+            UUID merchantId,
+            LocalDate fromDate,
+            LocalDate toDate,
+            ReconciliationRunStatus status);
+
+    boolean existsByMerchant_IdAndFromDateAndToDateAndStatusIn(
+            UUID merchantId,
+            LocalDate fromDate,
+            LocalDate toDate,
+            Collection<ReconciliationRunStatus> statuses);
 
     Optional<ReconciliationRunEntity> findByIdAndMerchant_Id(UUID id, UUID merchantId);
 
