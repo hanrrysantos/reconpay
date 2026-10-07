@@ -207,8 +207,8 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-19 | P1: Reabrir | Phase 3 | Verified |
 | PER-20 | P1: Reabrir | Phase 3 | Verified |
 | PER-21 | P1: Reabrir | Phase 3 | Verified |
-| PER-22 | P1: Segurar | Phase 2 | Implementing |
-| PER-23 | P1: Segurar | - | Pending |
+| PER-22 | P1: Segurar | Phase 4 | Verified |
+| PER-23 | P1: Segurar | Phase 4 | Verified |
 | PER-24 | P1: Segurar | - | Pending |
 | PER-25 | P1: Segurar | - | Pending |
 | PER-26 | P1: Segurar | - | Pending |

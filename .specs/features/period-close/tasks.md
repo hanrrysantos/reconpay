@@ -441,16 +441,17 @@ T17
 
 **Done when**:
 
-- [ ] A janela travada lança `PeriodConflictException` e não grava run
-- [ ] Outro `fromDate` ou `toDate` ainda grava `PENDING`, mesmo com sobreposição de datas
-- [ ] A checagem de `maxWindowDays` continua antes do guard
-- [ ] Gate: `./mvnw -B test -Dtest=ReconciliationServiceTest`
-- [ ] Test count: pelo menos 3 testes passam em `ReconciliationServiceTest`
+- [x] A janela travada lança `PeriodConflictException` e não grava run
+- [x] Outro `fromDate` ou `toDate` ainda grava `PENDING`, mesmo com sobreposição de datas
+- [x] A checagem de `maxWindowDays` continua antes do guard
+- [x] Gate: `./mvnw -B test -Dtest=ReconciliationServiceTest`
+- [x] Test count: pelo menos 3 testes passam em `ReconciliationServiceTest`
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(reconciliation): reject a run on a locked window`
+**Status**: Done
 
 ---
 

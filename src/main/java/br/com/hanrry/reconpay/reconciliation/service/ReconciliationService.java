@@ -46,6 +46,7 @@ public class ReconciliationService {
     private final IReconciliationRunRepository reconciliationRunRepository;
     private final IReconciliationItemRepository reconciliationItemRepository;
     private final IMerchantRepository merchantRepository;
+    private final PeriodGuard periodGuard;
     private final ReconciliationProperties properties;
     private final AuditLogger auditLogger;
     private final EntityManager entityManager;
@@ -66,6 +67,7 @@ public class ReconciliationService {
         LocalDate fromDate = request.fromDate();
         LocalDate toDate = request.toDate();
         ensureWindowIsWithinLimit(fromDate, toDate);
+        periodGuard.assertWindowOpen(merchantId, fromDate, toDate);
 
         ReconciliationRunEntity run = new ReconciliationRunEntity();
         run.setMerchant(merchant);
