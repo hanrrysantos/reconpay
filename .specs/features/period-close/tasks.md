@@ -237,15 +237,16 @@ T17
 
 **Done when**:
 
-- [ ] `PeriodConflictException` responde HTTP 409 `CONFLICT`
-- [ ] `PeriodNotFoundException` responde HTTP 404 `NOT_FOUND`
-- [ ] Gate: `./mvnw -B test -Dtest=PeriodExceptionHandlerTest`
-- [ ] Test count: pelo menos 2 testes passam em `PeriodExceptionHandlerTest`
+- [x] `PeriodConflictException` responde HTTP 409 `CONFLICT`
+- [x] `PeriodNotFoundException` responde HTTP 404 `NOT_FOUND`
+- [x] Gate: `./mvnw -B test -Dtest=PeriodExceptionHandlerTest`
+- [x] Test count: pelo menos 2 testes passam em `PeriodExceptionHandlerTest`
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(exception): map period errors to http status`
+**Status**: Done
 
 ---
 

@@ -54,7 +54,8 @@ public class GlobalExceptionHandler {
             ExternalSettlementNotFoundException.class,
             SettlementImportNotFoundException.class,
             ReconciliationNotFoundException.class,
-            DiscrepancyNotFoundException.class
+            DiscrepancyNotFoundException.class,
+            PeriodNotFoundException.class
     })
     public ResponseEntity<StandardError> handleNotFound(
             RuntimeException ex,
@@ -145,7 +146,8 @@ public class GlobalExceptionHandler {
             FeeRuleAlreadyExistsException.class,
             DuplicateExternalReferenceException.class,
             MissingActiveFeeRuleException.class,
-            DiscrepancyResolutionConflictException.class
+            DiscrepancyResolutionConflictException.class,
+            PeriodConflictException.class
     })
     public ResponseEntity<StandardError> handleConflict(
             RuntimeException ex,
