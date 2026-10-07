@@ -112,12 +112,12 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Cabeçalho `RECONPAY` válido continua produzindo `ParsedSettlementRow`
-- [ ] Cabeçalho `ACQUIRER` válido mapeia `nsu` para `externalReference` e `valor_liquido` para `netAmount`, na ordem do design
-- [ ] Cabeçalho trocado responde erro de cabeçalho e não devolve linha
-- [ ] Linha inválida do `ACQUIRER` usa as mesmas regras de valor, enum, data e duplicidade no arquivo
-- [ ] Gate: `./mvnw -B test -Dtest=SettlementCsvParserTest`
-- [ ] Nenhum teste removido
+- [x] Cabeçalho `RECONPAY` válido continua produzindo `ParsedSettlementRow`
+- [x] Cabeçalho `ACQUIRER` válido mapeia `nsu` para `externalReference` e `valor_liquido` para `netAmount`, na ordem do design
+- [x] Cabeçalho trocado responde erro de cabeçalho e não devolve linha
+- [x] Linha inválida do `ACQUIRER` usa as mesmas regras de valor, enum, data e duplicidade no arquivo
+- [x] Gate: `./mvnw -B test -Dtest=SettlementCsvParserTest`
+- [x] Nenhum teste removido
 
 **Tests**: unit
 **Gate**: quick

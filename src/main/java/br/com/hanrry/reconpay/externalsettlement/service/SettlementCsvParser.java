@@ -3,6 +3,7 @@ package br.com.hanrry.reconpay.externalsettlement.service;
 import br.com.hanrry.reconpay.exception.InvalidSettlementImportException;
 import br.com.hanrry.reconpay.exception.SettlementImportValidationException;
 import br.com.hanrry.reconpay.externalsettlement.dto.ImportRowErrorDTO;
+import br.com.hanrry.reconpay.externalsettlement.enums.SettlementLayout;
 import br.com.hanrry.reconpay.shared.PaymentMethodRules;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
@@ -35,26 +36,21 @@ public class SettlementCsvParser {
             .ofPattern("uuuu-MM-dd")
             .withResolverStyle(ResolverStyle.STRICT);
 
-    private static final String[] EXPECTED_HEADER = {
-            "externalReference",
-            "amount",
-            "netAmount",
-            "paymentMethod",
-            "installments",
-            "status",
-            "settlementDate"
-    };
-
     private final Clock clock;
 
     public List<ParsedSettlementRow> parse(InputStream inputStream) {
+        return parse(inputStream, SettlementLayout.RECONPAY);
+    }
+
+    public List<ParsedSettlementRow> parse(InputStream inputStream, SettlementLayout layout) {
+        String[] expectedHeader = layout.header();
         try (CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             String[] headerColumns = csvReader.readNext();
             if (headerColumns == null || isBlankRow(headerColumns)) {
                 throw new InvalidSettlementImportException("Arquivo CSV vazio");
             }
 
-            validateHeader(headerColumns);
+            validateHeader(headerColumns, expectedHeader);
 
             List<ParsedSettlementRow> rows = new ArrayList<>();
             List<ImportRowErrorDTO> errors = new ArrayList<>();
@@ -69,10 +65,10 @@ public class SettlementCsvParser {
                     continue;
                 }
 
-                if (columns.length != EXPECTED_HEADER.length) {
+                if (columns.length != expectedHeader.length) {
                     errors.add(new ImportRowErrorDTO(
                             rowNumber,
-                            "Número de colunas inválido. Esperado: " + EXPECTED_HEADER.length));
+                            "Número de colunas inválido. Esperado: " + expectedHeader.length));
                     continue;
                 }
 
@@ -101,16 +97,16 @@ public class SettlementCsvParser {
         }
     }
 
-    private void validateHeader(String[] headerColumns) {
-        if (headerColumns.length != EXPECTED_HEADER.length) {
+    private void validateHeader(String[] headerColumns, String[] expectedHeader) {
+        if (headerColumns.length != expectedHeader.length) {
             throw new InvalidSettlementImportException(
-                    "Cabeçalho CSV inválido. Esperado: " + String.join(",", EXPECTED_HEADER));
+                    "Cabeçalho CSV inválido. Esperado: " + String.join(",", expectedHeader));
         }
 
-        for (int i = 0; i < EXPECTED_HEADER.length; i++) {
-            if (!EXPECTED_HEADER[i].equals(headerColumns[i].trim())) {
+        for (int i = 0; i < expectedHeader.length; i++) {
+            if (!expectedHeader[i].equals(headerColumns[i].trim())) {
                 throw new InvalidSettlementImportException(
-                        "Cabeçalho CSV inválido. Esperado: " + String.join(",", EXPECTED_HEADER));
+                        "Cabeçalho CSV inválido. Esperado: " + String.join(",", expectedHeader));
             }
         }
     }

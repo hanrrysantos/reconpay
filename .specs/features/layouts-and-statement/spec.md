@@ -138,8 +138,8 @@ A API só aceita um CSV de liquidação com sete colunas fixas. O operador não 
 | -------------- | ----- | ----- | ------ |
 | LAY-01 | P1: Importar a liquidação com a receita | Design | Pending |
 | LAY-02 | P1: Importar a liquidação com a receita | Execute | Implementing |
-| LAY-03 | P1: Importar a liquidação com a receita | Design | Pending |
-| LAY-04 | P1: Importar a liquidação com a receita | Design | Pending |
+| LAY-03 | P1: Importar a liquidação com a receita | Execute | Implementing |
+| LAY-04 | P1: Importar a liquidação com a receita | Execute | Implementing |
 | LAY-05 | P1: Importar a liquidação com a receita | Design | Pending |
 | LAY-06 | P1: Importar a liquidação com a receita | Design | Pending |
 | LAY-07 | P1: Importar a liquidação com a receita | Design | Pending |
