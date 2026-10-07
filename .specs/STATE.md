@@ -44,11 +44,11 @@
 
 ## Handoff
 
-- **Feature**: `.specs/features/discrepancy-resolution/` — **Complete** (validation PASS)
+- **Feature**: `.specs/features/layouts-and-statement/` — **Complete** (validation PASS)
 - **Phase / Task**: none
-- **Completed**: T1–T15 + Verifier (`validation.md`)
+- **Completed**: T1–T14 + Verifier (`validation.md`)
 - **In-progress** (file:line): none
-- **Next step**: layouts and bank statement, then period indicators, then the frontend
+- **Next step**: period indicators, then the frontend
 - **Blockers**: none
 - **Uncommitted files**: none
 - **Branch**: main

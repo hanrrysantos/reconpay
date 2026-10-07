@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 4,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "ac_gap::assert the spec http status and persist nothing for an over limit upload including 413 instead of assuming an existing handler",
+      "text": "Assert the spec HTTP status and persist-nothing for an over-limit upload, including 413, instead of assuming an existing handler.",
+      "signal": "ac_gap",
+      "scope": "imports",
+      "status": "candidate",
+      "features": [
+        "layouts-and-statement"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "LAY-06 (imports)",
+        "LAY-13 (imports)"
+      ],
+      "created": "2026-10-07T13:31:28Z",
+      "last_seen": "2026-10-07T13:31:28Z"
+    },
+    {
+      "id": "L-002",
+      "key": "ac_gap::assert two simultaneous imports of the same new reference persist one record and return 409 to the other",
+      "text": "Assert two simultaneous imports of the same new reference persist one record and return 409 to the other.",
+      "signal": "ac_gap",
+      "scope": "imports",
+      "status": "candidate",
+      "features": [
+        "layouts-and-statement"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "LAY-26 (imports)"
+      ],
+      "created": "2026-10-07T13:31:28Z",
+      "last_seen": "2026-10-07T13:31:28Z"
+    },
+    {
+      "id": "L-003",
+      "key": "spec_precision_gap::assert http 400 validation error and persist nothing for an empty settlement file not only the thrown exception type",
+      "text": "Assert HTTP 400 VALIDATION_ERROR and persist-nothing for an empty settlement file, not only the thrown exception type.",
+      "signal": "spec_precision_gap",
+      "scope": "imports",
+      "status": "candidate",
+      "features": [
+        "layouts-and-statement"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ExternalSettlementServiceTest.java:336 (imports)"
+      ],
+      "created": "2026-10-07T13:31:28Z",
+      "last_seen": "2026-10-07T13:31:28Z"
+    }
+  ]
+}

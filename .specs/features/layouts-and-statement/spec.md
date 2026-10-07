@@ -136,36 +136,36 @@ A API só aceita um CSV de liquidação com sete colunas fixas. O operador não 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| LAY-01 | P1: Importar a liquidação com a receita | Execute | Implementing |
-| LAY-02 | P1: Importar a liquidação com a receita | Execute | Implementing |
-| LAY-03 | P1: Importar a liquidação com a receita | Execute | Implementing |
-| LAY-04 | P1: Importar a liquidação com a receita | Execute | Implementing |
-| LAY-05 | P1: Importar a liquidação com a receita | Execute | Implementing |
-| LAY-06 | P1: Importar a liquidação com a receita | Execute | Implementing |
-| LAY-07 | P1: Importar a liquidação com a receita | Execute | Implementing |
-| LAY-08 | P1: Importar o extrato | Execute | Implementing |
-| LAY-09 | P1: Importar o extrato | Execute | Implementing |
-| LAY-10 | P1: Importar o extrato | Execute | Implementing |
-| LAY-11 | P1: Importar o extrato | Execute | Implementing |
-| LAY-12 | P1: Importar o extrato | Execute | Implementing |
-| LAY-13 | P1: Importar o extrato | Execute | Implementing |
-| LAY-14 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-15 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-16 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-17 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-18 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-19 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-20 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-21 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-22 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-23 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-24 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-25 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-26 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-27 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-28 | P1: Cruzar extrato e liquidação | Execute | Implementing |
+| LAY-01 | P1: Importar a liquidação com a receita | Execute | Verified |
+| LAY-02 | P1: Importar a liquidação com a receita | Execute | Verified |
+| LAY-03 | P1: Importar a liquidação com a receita | Execute | Verified |
+| LAY-04 | P1: Importar a liquidação com a receita | Execute | Verified |
+| LAY-05 | P1: Importar a liquidação com a receita | Execute | Verified |
+| LAY-06 | P1: Importar a liquidação com a receita | Execute | Verified |
+| LAY-07 | P1: Importar a liquidação com a receita | Execute | Verified |
+| LAY-08 | P1: Importar o extrato | Execute | Verified |
+| LAY-09 | P1: Importar o extrato | Execute | Verified |
+| LAY-10 | P1: Importar o extrato | Execute | Verified |
+| LAY-11 | P1: Importar o extrato | Execute | Verified |
+| LAY-12 | P1: Importar o extrato | Execute | Verified |
+| LAY-13 | P1: Importar o extrato | Execute | Verified |
+| LAY-14 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-15 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-16 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-17 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-18 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-19 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-20 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-21 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-22 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-23 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-24 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-25 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-26 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-27 | P1: Cruzar extrato e liquidação | Execute | Verified |
+| LAY-28 | P1: Cruzar extrato e liquidação | Execute | Verified |
 
-**Coverage:** 28 total, 0 mapped to tasks, 28 unmapped
+**Coverage:** 28 total, 28 mapped to tasks, 0 unmapped
 
 ---
 
