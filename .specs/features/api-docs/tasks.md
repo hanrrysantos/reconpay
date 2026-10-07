@@ -526,12 +526,12 @@ T17 → T18
 
 **Done when**:
 
-- [ ] GET documenta 200, 400, 401, 403 e 404, com example em `importId` quando o parâmetro aparece
-- [ ] POST import documenta 201, 400, 401, 403, 404, 409 e 413, parte `file`, CSV mínimo `lineReference,externalReference,amount,movementDate`, `rowErrors` no 400 e `conflictingReferences` no 409
-- [ ] A tag da operação é `Bank Statements`
-- [ ] `BankStatementController` implementa a interface e não declara `@Operation` nem mapping
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] GET documenta 200, 400, 401, 403 e 404, com example em `importId` quando o parâmetro aparece
+- [x] POST import documenta 201, 400, 401, 403, 404, 409 e 413, parte `file`, CSV mínimo `lineReference,externalReference,amount,movementDate`, `rowErrors` no 400 e `conflictingReferences` no 409
+- [x] A tag da operação é `Bank Statements`
+- [x] `BankStatementController` implementa a interface e não declara `@Operation` nem mapping
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full

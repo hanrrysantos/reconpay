@@ -9,6 +9,7 @@ import br.com.hanrry.reconpay.auth.dto.MerchantAccessRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
+import br.com.hanrry.reconpay.bankstatement.controller.BankStatementController;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.externalsettlement.controller.ExternalSettlementController;
 import br.com.hanrry.reconpay.feerule.controller.FeeRuleController;
@@ -542,6 +543,53 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         );
     }
 
+    @Test
+    void bankStatementEndpointsDocumentTheResponseTable() throws Exception {
+        JsonNode document = apiDocs();
+        List<String> lineFields = List.of(
+                "id", "lineReference", "externalReference", "amount", "movementDate", "importId");
+        List<String> importFields = List.of("id", "merchantId", "fileName", "totalRows", "createdAt");
+        List<String> idOrigin = List.of("criação", "listagem");
+        String list = "/api/merchants/{merchantId}/bank-statements";
+        String importCsv = "/api/merchants/{merchantId}/bank-statements/import";
+        String csvHeader = "lineReference,externalReference,amount,movementDate";
+
+        assertOperation(document, new Op(
+                "get", list,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", lineFields, true, Set.of(), Set.of(), idOrigin
+        ));
+        assertQueryExample(document, "get", list, "page", "0");
+        assertQueryExample(document, "get", list, "size", "20");
+        assertQueryExample(document, "get", list, "sort", "movementDate,desc");
+        assertQueryExample(document, "get", list, "importId", UUID_EXAMPLE);
+        assertOperationTag(document, "get", list, "Bank Statements");
+        assertOperation(document, new Op(
+                "post", importCsv,
+                Set.of("201", "400", "401", "403", "404", "409", "413"),
+                true, null, Map.of(),
+                "201", importFields, false, Set.of(), Set.of(),
+                List.of("criação", "listagem", "CSV mínimo", csvHeader),
+                true
+        ));
+        assertFilePart(document, "post", importCsv);
+        assertErrorDetails(document, "post", importCsv, "400", "rowErrors");
+        assertErrorDetails(document, "post", importCsv, "409", "conflictingReferences");
+        assertOperationTag(document, "post", importCsv, "Bank Statements");
+
+        assertNoMappingAnnotations(
+                BankStatementController.class,
+                Operation.class,
+                GetMapping.class,
+                PostMapping.class,
+                PutMapping.class,
+                PatchMapping.class,
+                DeleteMapping.class,
+                RequestMapping.class
+        );
+    }
+
     private JsonNode apiDocs() throws Exception {
         String body = mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
@@ -721,6 +769,12 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             return objectMapper.readTree(node.asText());
         }
         return node;
+    }
+
+    private void assertOperationTag(JsonNode document, String method, String path, String tag) {
+        List<String> tags = new ArrayList<>();
+        document.path("paths").path(path).path(method).path("tags").forEach(node -> tags.add(node.asText()));
+        assertThat(tags).contains(tag);
     }
 
     private void assertFilePart(JsonNode document, String method, String path) {
