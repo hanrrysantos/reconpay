@@ -201,10 +201,10 @@ T17 → T18
 
 **Done when**:
 
-- [ ] O exemplo JSON tem `"status": 403` e `"error": "FORBIDDEN"`
-- [ ] A description em português explica falta de papel ou de grant
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] O exemplo JSON tem `"status": 403` e `"error": "FORBIDDEN"`
+- [x] A description em português explica falta de papel ou de grant
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build
