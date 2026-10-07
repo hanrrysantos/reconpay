@@ -343,12 +343,12 @@ T17 → T18
 
 **Done when**:
 
-- [ ] GET `/api/me` documenta 200 e 401, com exemplo JSON de sucesso, e exige `Bearer Authentication`
-- [ ] GET `/api/me/merchants` documenta 200, 400 e 401, com example em `page`, `size` e `sort`
-- [ ] A description de merchants cita grant do OPERATOR e a visão total do ADMIN
-- [ ] `MeController` implementa a interface e não declara `@Operation` nem `@GetMapping`
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] GET `/api/me` documenta 200 e 401, com exemplo JSON de sucesso, e exige `Bearer Authentication`
+- [x] GET `/api/me/merchants` documenta 200, 400 e 401, com example em `page`, `size` e `sort`
+- [x] A description de merchants cita grant do OPERATOR e a visão total do ADMIN
+- [x] `MeController` implementa a interface e não declara `@Operation` nem `@GetMapping`
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full

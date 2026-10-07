@@ -1,6 +1,7 @@
 package br.com.hanrry.reconpay.openapi;
 
 import br.com.hanrry.reconpay.auth.controller.AuthController;
+import br.com.hanrry.reconpay.auth.controller.MeController;
 import br.com.hanrry.reconpay.auth.dto.AuthRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -165,6 +167,45 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         assertNoMappingAnnotations(AuthController.class, Operation.class, GetMapping.class, PostMapping.class);
     }
 
+    @Test
+    void sessionEndpointsDocumentCodesExamplesAndBearer() throws Exception {
+        JsonNode document = apiDocs();
+
+        assertOperation(document, new Op(
+                "get",
+                "/api/me",
+                Set.of("200", "401"),
+                true,
+                null,
+                Map.of(),
+                "200",
+                List.of("id", "name", "email", "role", "active"),
+                false,
+                Set.of(),
+                Set.of(),
+                List.of()
+        ));
+        assertOperation(document, new Op(
+                "get",
+                "/api/me/merchants",
+                Set.of("200", "400", "401"),
+                true,
+                null,
+                Map.of(),
+                "200",
+                List.of("id", "name", "document"),
+                true,
+                Set.of(),
+                Set.of(),
+                List.of("OPERATOR", "grants", "ADMIN", "ativos")
+        ));
+        assertQueryExample(document, "get", "/api/me/merchants", "page", "0");
+        assertQueryExample(document, "get", "/api/me/merchants", "size", "20");
+        assertQueryExample(document, "get", "/api/me/merchants", "sort", "name,asc");
+
+        assertNoMappingAnnotations(MeController.class, Operation.class, GetMapping.class, RequestMapping.class);
+    }
+
     private JsonNode apiDocs() throws Exception {
         String body = mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
@@ -237,7 +278,8 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
 
     private void assertHtml(JsonNode response) {
         JsonNode content = response.path("content");
-        assertThat(content.fieldNames()).toIterable().containsExactly("text/html");
+        assertThat(content.properties().stream().map(Map.Entry::getKey).toList())
+                .containsExactly("text/html");
         assertThat(content.path("text/html").toString()).doesNotContain("StandardError");
     }
 
@@ -246,7 +288,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         if (content == null || content.isNull() || content.isEmpty()) {
             return;
         }
-        content.fields().forEachRemaining(entry ->
+        content.properties().forEach(entry ->
                 assertThat(entry.getValue().has("schema"))
                         .as(entry.getKey())
                         .isFalse());
@@ -328,7 +370,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         }
         JsonNode examples = media.get("examples");
         if (examples != null && examples.isObject()) {
-            Iterator<JsonNode> iterator = examples.elements();
+            Iterator<JsonNode> iterator = examples.values();
             while (iterator.hasNext()) {
                 values.add(asTree(iterator.next().path("value")));
             }
@@ -341,6 +383,17 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             return objectMapper.readTree(node.asText());
         }
         return node;
+    }
+
+    private void assertQueryExample(JsonNode document, String method, String path, String name, String expected) {
+        JsonNode parameters = document.path("paths").path(path).path(method).path("parameters");
+        List<String> actual = new ArrayList<>();
+        for (JsonNode parameter : parameters) {
+            if (name.equals(parameter.path("name").asText()) && "query".equals(parameter.path("in").asText())) {
+                actual.add(parameterExample(parameter));
+            }
+        }
+        assertThat(actual).as("%s %s %s", method, path, name).containsExactly(expected);
     }
 
     private static String parameterExample(JsonNode parameter) {
@@ -356,7 +409,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
 
     private static List<String> fieldNames(JsonNode node) {
         List<String> names = new ArrayList<>();
-        node.fieldNames().forEachRemaining(names::add);
+        node.properties().forEach(entry -> names.add(entry.getKey()));
         return names;
     }
 
