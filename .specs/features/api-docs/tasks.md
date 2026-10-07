@@ -228,10 +228,10 @@ T17 → T18
 
 **Done when**:
 
-- [ ] O exemplo JSON tem `"status": 404` e `"error": "NOT_FOUND"`
-- [ ] A description em português explica recurso inexistente
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] O exemplo JSON tem `"status": 404` e `"error": "NOT_FOUND"`
+- [x] A description em português explica recurso inexistente
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build
