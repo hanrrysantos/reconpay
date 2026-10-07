@@ -311,11 +311,11 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Uma linha gravada é achada pelo merchant e pelo intervalo de `movementDate`
-- [ ] A linha de outro merchant não volta nessa busca
-- [ ] `lineReference` já gravada é achada entre as referências do merchant
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] Uma linha gravada é achada pelo merchant e pelo intervalo de `movementDate`
+- [x] A linha de outro merchant não volta nessa busca
+- [x] `lineReference` já gravada é achada entre as referências do merchant
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full
