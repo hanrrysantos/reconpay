@@ -174,10 +174,10 @@ T17 → T18
 
 **Done when**:
 
-- [ ] O exemplo JSON tem `"status": 401` e `"error": "UNAUTHORIZED"`
-- [ ] A description não diz "credenciais inválidas"
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] O exemplo JSON tem `"status": 401` e `"error": "UNAUTHORIZED"`
+- [x] A description não diz "credenciais inválidas"
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build
