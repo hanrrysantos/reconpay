@@ -146,11 +146,11 @@ T17 → T18
 
 **Done when**:
 
-- [ ] `page`, `size` e `sort` sem example recebem os valores acima
-- [ ] Path UUID sem example recebe `3fa85f64-5717-4562-b3fc-2c963f66afa6`
-- [ ] Example já presente não é substituído
-- [ ] Gate: `./mvnw -B test -Dtest=ApiDocsParameterCustomizerTest`
-- [ ] Nenhum teste removido
+- [x] `page`, `size` e `sort` sem example recebem os valores acima
+- [x] Path UUID sem example recebe `3fa85f64-5717-4562-b3fc-2c963f66afa6`
+- [x] Example já presente não é substituído
+- [x] Gate: `./mvnw -B test -Dtest=ApiDocsParameterCustomizerTest`
+- [x] Nenhum teste removido
 
 **Tests**: unit
 **Gate**: quick
