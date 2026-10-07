@@ -16,6 +16,9 @@ import br.com.hanrry.reconpay.feerule.controller.FeeRuleController;
 import br.com.hanrry.reconpay.feerule.dto.FeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feerule.dto.UpdateFeeRuleRequestDTO;
 import br.com.hanrry.reconpay.merchant.controller.MerchantController;
+import br.com.hanrry.reconpay.reconciliation.controller.ReconciliationController;
+import br.com.hanrry.reconpay.reconciliation.dto.RunReconciliationRequestDTO;
+import br.com.hanrry.reconpay.reconciliation.dto.UpdateDiscrepancyStatusRequestDTO;
 import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.dto.UpdateMerchantRequestDTO;
 import br.com.hanrry.reconpay.transaction.controller.TransactionController;
@@ -590,6 +593,91 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         );
     }
 
+    @Test
+    void reconciliationEndpointsDocumentTheResponseTable() throws Exception {
+        JsonNode document = apiDocs();
+        List<String> runFields = List.of(
+                "id", "merchantId", "fromDate", "toDate", "status",
+                "totalItems", "matchedCount", "divergentCount", "createdAt");
+        List<String> itemFields = List.of(
+                "id", "reconciliationRunId", "externalReference", "result",
+                "transactionAmount", "expectedNetAmount", "paymentMethod", "installments",
+                "transactionStatus", "transactionDate", "createdAt");
+        List<String> discrepancyFields = List.of("id", "type", "expectedValue", "actualValue", "status");
+        List<String> idOrigin = List.of("criação", "listagem");
+        String runs = "/api/merchants/{merchantId}/reconciliations";
+        String runById = "/api/merchants/{merchantId}/reconciliations/{runId}";
+        String items = "/api/merchants/{merchantId}/reconciliations/{runId}/items";
+        String export = "/api/merchants/{merchantId}/reconciliations/{runId}/export";
+        String discrepancy = "/api/merchants/{merchantId}/reconciliations/{runId}/discrepancies/{discrepancyId}";
+        String csvHeader = "externalReference,result,discrepancyTypes,internalTransactionId,externalSettlementId,transactionAmount,expectedNetAmount,settlementAmount,settlementNetAmount,paymentMethod,installments,transactionStatus,settlementStatus,transactionDate,settlementDate";
+
+        assertOperation(document, new Op(
+                "post", runs,
+                Set.of("202", "400", "401", "403", "404"),
+                true, RunReconciliationRequestDTO.class,
+                Map.of("fromDate", "2026-07-01", "toDate", "2026-07-31"),
+                "202", runFields, false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "get", runs,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", runFields, true, Set.of(), Set.of(), idOrigin
+        ));
+        assertQueryExample(document, "get", runs, "page", "0");
+        assertQueryExample(document, "get", runs, "size", "20");
+        assertQueryExample(document, "get", runs, "sort", "createdAt,desc");
+        assertOperation(document, new Op(
+                "get", runById,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", runFields, false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "get", items,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", itemFields, true, Set.of(), Set.of(), idOrigin
+        ));
+        assertQueryExample(document, "get", items, "page", "0");
+        assertQueryExample(document, "get", items, "size", "20");
+        assertQueryExample(document, "get", items, "sort", "externalReference,asc");
+        assertQueryExample(document, "get", items, "result", "MATCHED");
+        assertQueryExample(document, "get", items, "discrepancyType", "FEE_DIVERGENCE");
+        assertOperation(document, new Op(
+                "get", export,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", List.of(), false, Set.of(), Set.of(), idOrigin,
+                csvHeader
+        ));
+        assertOperation(document, new Op(
+                "get", discrepancy,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", discrepancyFields, false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "patch", discrepancy,
+                Set.of("200", "400", "401", "403", "404", "409"),
+                true, UpdateDiscrepancyStatusRequestDTO.class,
+                Map.of("status", "ACCEPTED"),
+                "200", discrepancyFields, false, Set.of(), Set.of(), idOrigin
+        ));
+
+        assertNoMappingAnnotations(
+                ReconciliationController.class,
+                Operation.class,
+                GetMapping.class,
+                PostMapping.class,
+                PutMapping.class,
+                PatchMapping.class,
+                DeleteMapping.class,
+                RequestMapping.class
+        );
+    }
+
     private JsonNode apiDocs() throws Exception {
         String body = mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
@@ -621,6 +709,8 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 assertHtml(response);
             } else if (op.noSchemaCodes.contains(code)) {
                 assertNoSchema(response);
+            } else if (op.csvExample != null && code.equals(op.successCode)) {
+                assertCsvExample(response, op.csvExample);
             } else if (ERROR_CODES.containsKey(code)) {
                 assertErrorExample(response, code);
             } else {
@@ -660,6 +750,20 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 }
             }
         }
+    }
+
+    private void assertCsvExample(JsonNode response, String header) {
+        JsonNode media = response.path("content").path("text/csv");
+        assertThat(media.isMissingNode()).isFalse();
+        String example = null;
+        if (media.has("example") && media.get("example").isTextual()) {
+            example = media.get("example").asText();
+        }
+        JsonNode named = media.get("examples");
+        if (example == null && named != null && named.isObject()) {
+            example = named.properties().iterator().next().getValue().path("value").asText();
+        }
+        assertThat(example).isEqualTo(header);
     }
 
     private void assertHtml(JsonNode response) {
@@ -869,7 +973,8 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             Set<String> noSchemaCodes,
             Set<String> htmlCodes,
             List<String> descriptionContains,
-            boolean multipart
+            boolean multipart,
+            String csvExample
     ) {
         private Op(
                 String method,
@@ -886,7 +991,45 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 List<String> descriptionContains
         ) {
             this(method, path, codes, bearer, requestType, requestFields, successCode, successFields,
-                    page, noSchemaCodes, htmlCodes, descriptionContains, false);
+                    page, noSchemaCodes, htmlCodes, descriptionContains, false, null);
+        }
+
+        private Op(
+                String method,
+                String path,
+                Set<String> codes,
+                boolean bearer,
+                Class<?> requestType,
+                Map<String, String> requestFields,
+                String successCode,
+                List<String> successFields,
+                boolean page,
+                Set<String> noSchemaCodes,
+                Set<String> htmlCodes,
+                List<String> descriptionContains,
+                boolean multipart
+        ) {
+            this(method, path, codes, bearer, requestType, requestFields, successCode, successFields,
+                    page, noSchemaCodes, htmlCodes, descriptionContains, multipart, null);
+        }
+
+        private Op(
+                String method,
+                String path,
+                Set<String> codes,
+                boolean bearer,
+                Class<?> requestType,
+                Map<String, String> requestFields,
+                String successCode,
+                List<String> successFields,
+                boolean page,
+                Set<String> noSchemaCodes,
+                Set<String> htmlCodes,
+                List<String> descriptionContains,
+                String csvExample
+        ) {
+            this(method, path, codes, bearer, requestType, requestFields, successCode, successFields,
+                    page, noSchemaCodes, htmlCodes, descriptionContains, false, csvExample);
         }
     }
 }

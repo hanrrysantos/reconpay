@@ -557,13 +557,13 @@ T17 → T18
 
 **Done when**:
 
-- [ ] POST do run documenta 202, 400, 401, 403 e 404, com exemplo de janela que passa na Bean Validation
-- [ ] GET export documenta 200 `text/csv` cujo exemplo é a linha de cabeçalho do exporter, mais 400, 401, 403 e 404
-- [ ] PATCH da divergência documenta 200, 400, 401, 403, 404 e 409
-- [ ] As outras rotas seguem a tabela da spec
-- [ ] `ReconciliationController` implementa a interface e não declara `@Operation` nem mapping
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] POST do run documenta 202, 400, 401, 403 e 404, com exemplo de janela que passa na Bean Validation
+- [x] GET export documenta 200 `text/csv` cujo exemplo é a linha de cabeçalho do exporter, mais 400, 401, 403 e 404
+- [x] PATCH da divergência documenta 200, 400, 401, 403, 404 e 409
+- [x] As outras rotas seguem a tabela da spec
+- [x] `ReconciliationController` implementa a interface e não declara `@Operation` nem mapping
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full
