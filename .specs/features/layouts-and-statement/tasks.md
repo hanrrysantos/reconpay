@@ -367,14 +367,14 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] POST válido responde HTTP 201 com id do lote, nome do arquivo e quantidade de linhas
-- [ ] GET do merchant não devolve linha de outro merchant
-- [ ] Linha inválida responde HTTP 400 com `rowErrors` e o GET não mostra essa linha
-- [ ] Segunda importação da mesma `lineReference` responde HTTP 409 e a primeira permanece
-- [ ] Sem token: HTTP 401. OPERATOR sem grant: HTTP 403. ADMIN sem grant: HTTP 201
-- [ ] `AGENTS.md` lista o módulo `bankstatement`
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido ou enfraquecido
+- [x] POST válido responde HTTP 201 com id do lote, nome do arquivo e quantidade de linhas
+- [x] GET do merchant não devolve linha de outro merchant
+- [x] Linha inválida responde HTTP 400 com `rowErrors` e o GET não mostra essa linha
+- [x] Segunda importação da mesma `lineReference` responde HTTP 409 e a primeira permanece
+- [x] Sem token: HTTP 401. OPERATOR sem grant: HTTP 403. ADMIN sem grant: HTTP 201
+- [x] `AGENTS.md` lista o módulo `bankstatement`
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido ou enfraquecido
 
 **Tests**: integration
 **Gate**: full

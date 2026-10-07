@@ -19,7 +19,7 @@ Nova feature ou implementação com spec: skill `tlc-spec-driven`. Resume: comec
 ## Stack e forma
 
 - Pacote raiz: `br.com.hanrry.reconpay`
-- Módulos: `auth`, `security`, `merchant`, `feerule`, `transaction`, `externalsettlement`, `reconciliation`, `exception`, `config`, `shared`, `observability`
+- Módulos: `auth`, `security`, `merchant`, `feerule`, `transaction`, `externalsettlement`, `bankstatement`, `reconciliation`, `exception`, `config`, `shared`, `observability`
 - Persistência: PostgreSQL + Flyway (não use `ddl-auto` para migrar)
 - Erros HTTP no formato `StandardError` (`ApiErrorCode`)
 - Logging: YAML (`application.yaml` / `application-prod.yaml`). `dev`/`test` em texto; `prod` em JSON Logstash. Sem `logback-spring.xml`
