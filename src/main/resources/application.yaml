@@ -1,3 +1,9 @@
+server:
+  tomcat:
+    # -1 lets Tomcat finish reading an upload over 5MB and return 413.
+    # The 2MB default closes the socket while the client is still sending.
+    max-swallow-size: -1
+
 spring:
   application:
     name: reconpay

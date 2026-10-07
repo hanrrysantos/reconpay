@@ -1,18 +1,35 @@
 package br.com.hanrry.reconpay.externalsettlement.integration;
 
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
+import br.com.hanrry.reconpay.externalsettlement.repository.IExternalSettlementRepository;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mockingDetails;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -24,6 +41,12 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoSpyBean
+    private IExternalSettlementRepository externalSettlementRepository;
+
+    @LocalServerPort
+    private int port;
 
     private String adminToken;
     private String operatorToken;
@@ -363,6 +386,110 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.message").value("Arquivo deve ser um CSV (.csv)"));
 
         assertNothingPersisted(merchantId);
+    }
+
+    @Test
+    void shouldRejectEmptyFileAndPersistNothing() throws Exception {
+        MockMultipartFile emptyFile = new MockMultipartFile(
+                "file",
+                "settlements.csv",
+                "text/csv",
+                new byte[0]);
+
+        mockMvc.perform(multipart("/api/merchants/{merchantId}/external-settlements/import", merchantId)
+                        .file(emptyFile)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Arquivo CSV é obrigatório"));
+
+        assertNothingPersisted(merchantId);
+    }
+
+    @Test
+    void shouldRejectOversizedCsvAndPersistNothing() throws Exception {
+        HttpResponse<String> response = IntegrationTestUtils.postMultipartFile(
+                port,
+                "/api/merchants/" + merchantId + "/external-settlements/import",
+                adminToken,
+                "settlements.csv",
+                IntegrationTestUtils.csvLargerThanFiveMegabytes());
+
+        assertThat(response.statusCode()).isEqualTo(413);
+        assertThat(com.jayway.jsonpath.JsonPath.read(response.body(), "$.error").toString())
+                .isEqualTo("VALIDATION_ERROR");
+        assertThat(com.jayway.jsonpath.JsonPath.read(response.body(), "$.message").toString())
+                .isEqualTo("Arquivo CSV excede o tamanho máximo permitido de 5MB");
+
+        assertNothingPersisted(merchantId);
+    }
+
+    @Test
+    void shouldPersistOneWhenTwoImportsOfTheSameNewReferenceRunTogether() throws Exception {
+        String externalReference = "EXT-RACE-" + UUID.randomUUID();
+        byte[] csv = """
+                externalReference,amount,netAmount,paymentMethod,installments,status,settlementDate
+                %s,100.00,98.00,PIX,1,APPROVED,2026-07-30
+                """.formatted(externalReference).getBytes(StandardCharsets.UTF_8);
+
+        CountDownLatch bothPassedCheck = new CountDownLatch(2);
+        Answer<?> delegate = mockingDetails(externalSettlementRepository)
+                .getMockCreationSettings()
+                .getDefaultAnswer();
+        doAnswer(invocation -> {
+            Object found = delegate.answer(invocation);
+            if (found instanceof List<?> rows && !rows.isEmpty()) {
+                throw new IllegalStateException(
+                        "duplicate check saw a committed row; the imports were not simultaneous");
+            }
+            bothPassedCheck.countDown();
+            if (!bothPassedCheck.await(15, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("the other import did not pass the duplicate check");
+            }
+            return found;
+        }).when(externalSettlementRepository).findByMerchant_IdAndExternalReferenceIn(any(), any());
+
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        CountDownLatch start = new CountDownLatch(1);
+        Callable<MvcResult> importCsv = () -> {
+            start.await(5, TimeUnit.SECONDS);
+            return mockMvc.perform(multipart("/api/merchants/{merchantId}/external-settlements/import", merchantId)
+                            .file(new MockMultipartFile("file", "settlements.csv", "text/csv", csv))
+                            .header("Authorization", "Bearer " + adminToken))
+                    .andReturn();
+        };
+        List<MvcResult> results;
+        try {
+            Future<MvcResult> first = pool.submit(importCsv);
+            Future<MvcResult> second = pool.submit(importCsv);
+            start.countDown();
+            results = List.of(first.get(20, TimeUnit.SECONDS), second.get(20, TimeUnit.SECONDS));
+        } finally {
+            pool.shutdownNow();
+        }
+
+        assertThat(results)
+                .extracting(result -> result.getResponse().getStatus())
+                .containsExactlyInAnyOrder(201, 409);
+        String conflict = results.stream()
+                .filter(result -> result.getResponse().getStatus() == 409)
+                .findFirst()
+                .orElseThrow()
+                .getResponse()
+                .getContentAsString();
+        assertThat(com.jayway.jsonpath.JsonPath.read(conflict, "$.error").toString()).isEqualTo("CONFLICT");
+        assertThat(com.jayway.jsonpath.JsonPath.read(conflict, "$.message").toString())
+                .isEqualTo("Conflito com um registro existente. Tente novamente.");
+
+        mockMvc.perform(get("/api/merchants/{merchantId}/external-settlements/imports", merchantId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1));
+        mockMvc.perform(get("/api/merchants/{merchantId}/external-settlements", merchantId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].externalReference").value(externalReference));
     }
 
     @Test

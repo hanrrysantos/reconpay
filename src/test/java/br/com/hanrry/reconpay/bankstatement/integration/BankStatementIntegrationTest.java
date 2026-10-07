@@ -1,21 +1,37 @@
 package br.com.hanrry.reconpay.bankstatement.integration;
 
+import br.com.hanrry.reconpay.bankstatement.repository.IBankStatementLineRepository;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mockingDetails;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -31,6 +47,12 @@ class BankStatementIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbc;
+
+    @MockitoSpyBean
+    private IBankStatementLineRepository bankStatementLineRepository;
+
+    @LocalServerPort
+    private int port;
 
     private String adminToken;
     private String operatorToken;
@@ -220,6 +242,90 @@ class BankStatementIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.message").value("Arquivo deve ser um CSV (.csv)"));
 
         assertNothingPersisted(merchantId);
+    }
+
+    @Test
+    void shouldRejectOversizedCsvAndPersistNothing() throws Exception {
+        HttpResponse<String> response = IntegrationTestUtils.postMultipartFile(
+                port,
+                "/api/merchants/" + merchantId + "/bank-statements/import",
+                operatorToken,
+                "statement.csv",
+                IntegrationTestUtils.csvLargerThanFiveMegabytes());
+
+        assertThat(response.statusCode()).isEqualTo(413);
+        assertThat(com.jayway.jsonpath.JsonPath.read(response.body(), "$.error").toString())
+                .isEqualTo("VALIDATION_ERROR");
+        assertThat(com.jayway.jsonpath.JsonPath.read(response.body(), "$.message").toString())
+                .isEqualTo("Arquivo CSV excede o tamanho máximo permitido de 5MB");
+
+        assertNothingPersisted(merchantId);
+    }
+
+    @Test
+    void shouldPersistOneWhenTwoImportsOfTheSameNewLineReferenceRunTogether() throws Exception {
+        String lineReference = "LN-RACE-" + UUID.randomUUID();
+        byte[] csv = """
+                lineReference,externalReference,amount,movementDate
+                %s,TXN-RACE,10.00,2026-07-30
+                """.formatted(lineReference).getBytes(StandardCharsets.UTF_8);
+
+        CountDownLatch bothPassedCheck = new CountDownLatch(2);
+        Answer<?> delegate = mockingDetails(bankStatementLineRepository)
+                .getMockCreationSettings()
+                .getDefaultAnswer();
+        doAnswer(invocation -> {
+            Object found = delegate.answer(invocation);
+            if (found instanceof List<?> rows && !rows.isEmpty()) {
+                throw new IllegalStateException(
+                        "duplicate check saw a committed row; the imports were not simultaneous");
+            }
+            bothPassedCheck.countDown();
+            if (!bothPassedCheck.await(15, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("the other import did not pass the duplicate check");
+            }
+            return found;
+        }).when(bankStatementLineRepository).findByMerchant_IdAndLineReferenceIn(any(), any());
+
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        CountDownLatch start = new CountDownLatch(1);
+        Callable<MvcResult> importCsv = () -> {
+            start.await(5, TimeUnit.SECONDS);
+            return mockMvc.perform(multipart("/api/merchants/{merchantId}/bank-statements/import", merchantId)
+                            .file(new MockMultipartFile("file", "statement.csv", "text/csv", csv))
+                            .header("Authorization", "Bearer " + operatorToken))
+                    .andReturn();
+        };
+        List<MvcResult> results;
+        try {
+            Future<MvcResult> first = pool.submit(importCsv);
+            Future<MvcResult> second = pool.submit(importCsv);
+            start.countDown();
+            results = List.of(first.get(20, TimeUnit.SECONDS), second.get(20, TimeUnit.SECONDS));
+        } finally {
+            pool.shutdownNow();
+        }
+
+        assertThat(results)
+                .extracting(result -> result.getResponse().getStatus())
+                .containsExactlyInAnyOrder(201, 409);
+        String conflict = results.stream()
+                .filter(result -> result.getResponse().getStatus() == 409)
+                .findFirst()
+                .orElseThrow()
+                .getResponse()
+                .getContentAsString();
+        assertThat(com.jayway.jsonpath.JsonPath.read(conflict, "$.error").toString()).isEqualTo("CONFLICT");
+        assertThat(com.jayway.jsonpath.JsonPath.read(conflict, "$.message").toString())
+                .isEqualTo("Conflito com um registro existente. Tente novamente.");
+
+        mockMvc.perform(get("/api/merchants/{merchantId}/bank-statements", merchantId)
+                        .header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].lineReference").value(lineReference));
+        assertThat(countImports(merchantId)).isEqualTo(1L);
+        assertThat(countLines(merchantId)).isEqualTo(1L);
     }
 
     @Test

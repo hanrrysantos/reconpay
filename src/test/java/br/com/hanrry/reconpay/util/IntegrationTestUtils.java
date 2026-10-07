@@ -3,7 +3,14 @@ package br.com.hanrry.reconpay.util;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.unit.DataSize;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -97,5 +104,40 @@ public final class IntegrationTestUtils {
                 .getContentAsString();
 
         return UUID.fromString(com.jayway.jsonpath.JsonPath.read(response, "$.id"));
+    }
+
+    public static byte[] csvLargerThanFiveMegabytes() {
+        return new byte[Math.toIntExact(DataSize.ofMegabytes(5).toBytes()) + 1];
+    }
+
+    public static HttpResponse<String> postMultipartFile(
+            int port,
+            String path,
+            String bearerToken,
+            String fileName,
+            byte[] content) throws Exception {
+        String boundary = "----ReconPayBoundary" + UUID.randomUUID().toString().replace("-", "");
+        byte[] prefix = ("--" + boundary + "\r\n"
+                + "Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\"\r\n"
+                + "Content-Type: text/csv\r\n"
+                + "\r\n").getBytes(StandardCharsets.US_ASCII);
+        byte[] suffix = ("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.US_ASCII);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://127.0.0.1:" + port + path))
+                .timeout(Duration.ofSeconds(30))
+                .header(HttpHeaders.AUTHORIZATION, BEARER + bearerToken)
+                .header(HttpHeaders.CONTENT_TYPE, "multipart/form-data; boundary=" + boundary)
+                .POST(HttpRequest.BodyPublishers.concat(
+                        HttpRequest.BodyPublishers.ofByteArray(prefix),
+                        HttpRequest.BodyPublishers.ofByteArray(content),
+                        HttpRequest.BodyPublishers.ofByteArray(suffix)))
+                .build();
+
+        return HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .connectTimeout(Duration.ofSeconds(10))
+                .build()
+                .send(request, HttpResponse.BodyHandlers.ofString());
     }
 }
