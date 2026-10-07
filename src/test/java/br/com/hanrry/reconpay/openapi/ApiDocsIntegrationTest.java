@@ -10,6 +10,9 @@ import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
+import br.com.hanrry.reconpay.feerule.controller.FeeRuleController;
+import br.com.hanrry.reconpay.feerule.dto.FeeRuleRequestDTO;
+import br.com.hanrry.reconpay.feerule.dto.UpdateFeeRuleRequestDTO;
 import br.com.hanrry.reconpay.merchant.controller.MerchantController;
 import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.dto.UpdateMerchantRequestDTO;
@@ -336,6 +339,63 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
 
         assertNoMappingAnnotations(
                 MerchantController.class,
+                Operation.class,
+                GetMapping.class,
+                PostMapping.class,
+                PutMapping.class,
+                DeleteMapping.class,
+                RequestMapping.class
+        );
+    }
+
+    @Test
+    void feeRuleEndpointsDocumentTheResponseTable() throws Exception {
+        JsonNode document = apiDocs();
+        List<String> feeRuleFields = List.of(
+                "id", "merchantId", "merchantName", "paymentMethod", "installments",
+                "feePercentage", "fixedFee", "active", "createdAt");
+        List<String> idOrigin = List.of("criação", "listagem");
+        String list = "/api/merchants/{merchantId}/fee-rules";
+        String byId = "/api/merchants/{merchantId}/fee-rules/{id}";
+
+        assertOperation(document, new Op(
+                "get", list,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", feeRuleFields, true, Set.of(), Set.of(), idOrigin
+        ));
+        assertQueryExample(document, "get", list, "page", "0");
+        assertQueryExample(document, "get", list, "size", "20");
+        assertQueryExample(document, "get", list, "sort", "createdAt,desc");
+        assertOperation(document, new Op(
+                "get", byId,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", feeRuleFields, false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "post", list,
+                Set.of("201", "400", "401", "403", "404", "409"),
+                true, FeeRuleRequestDTO.class, Map.of(),
+                "201", feeRuleFields, false, Set.of(), Set.of(),
+                List.of("criação", "listagem", "regra repetida")
+        ));
+        assertOperation(document, new Op(
+                "put", byId,
+                Set.of("200", "400", "401", "403", "404", "409"),
+                true, UpdateFeeRuleRequestDTO.class, Map.of(),
+                "200", feeRuleFields, false, Set.of(), Set.of(),
+                List.of("criação", "listagem", "regra repetida")
+        ));
+        assertOperation(document, new Op(
+                "delete", byId,
+                Set.of("204", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                null, List.of(), false, Set.of("204"), Set.of(), idOrigin
+        ));
+
+        assertNoMappingAnnotations(
+                FeeRuleController.class,
                 Operation.class,
                 GetMapping.class,
                 PostMapping.class,

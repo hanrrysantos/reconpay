@@ -437,11 +437,11 @@ T17 → T18
 
 **Done when**:
 
-- [ ] Os códigos batem com a tabela: listas e criação incluem 404; POST e PUT incluem 409; DELETE é 204 sem schema
-- [ ] Exemplos JSON de entrada passam na Bean Validation
-- [ ] `FeeRuleController` implementa a interface e não declara `@Operation` nem mapping
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] Os códigos batem com a tabela: listas e criação incluem 404; POST e PUT incluem 409; DELETE é 204 sem schema
+- [x] Exemplos JSON de entrada passam na Bean Validation
+- [x] `FeeRuleController` implementa a interface e não declara `@Operation` nem mapping
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full
