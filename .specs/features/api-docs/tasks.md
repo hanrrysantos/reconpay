@@ -495,14 +495,14 @@ T17 → T18
 
 **Done when**:
 
-- [ ] POST import documenta 201, 400, 401, 403, 404, 409 e 413
-- [ ] A description contém um CSV mínimo com o cabeçalho `externalReference,amount,netAmount,paymentMethod,installments,status,settlementDate` e o example de `layout` é `RECONPAY`
-- [ ] O 400 do import exemplifica `details.rowErrors`. O 409 exemplifica `details.conflictingReferences`
-- [ ] A parte multipart se chama `file`
-- [ ] As outras quatro rotas seguem a tabela da spec
-- [ ] `ExternalSettlementController` implementa a interface e não declara `@Operation` nem mapping
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] POST import documenta 201, 400, 401, 403, 404, 409 e 413
+- [x] A description contém um CSV mínimo com o cabeçalho `externalReference,amount,netAmount,paymentMethod,installments,status,settlementDate` e o example de `layout` é `RECONPAY`
+- [x] O 400 do import exemplifica `details.rowErrors`. O 409 exemplifica `details.conflictingReferences`
+- [x] A parte multipart se chama `file`
+- [x] As outras quatro rotas seguem a tabela da spec
+- [x] `ExternalSettlementController` implementa a interface e não declara `@Operation` nem mapping
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full

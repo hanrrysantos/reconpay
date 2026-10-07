@@ -10,6 +10,7 @@ import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
+import br.com.hanrry.reconpay.externalsettlement.controller.ExternalSettlementController;
 import br.com.hanrry.reconpay.feerule.controller.FeeRuleController;
 import br.com.hanrry.reconpay.feerule.dto.FeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feerule.dto.UpdateFeeRuleRequestDTO;
@@ -75,7 +76,8 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             "401", "UNAUTHORIZED",
             "403", "FORBIDDEN",
             "404", "NOT_FOUND",
-            "409", "CONFLICT"
+            "409", "CONFLICT",
+            "413", "VALIDATION_ERROR"
     );
 
     @Autowired
@@ -465,6 +467,81 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         );
     }
 
+    @Test
+    void externalSettlementEndpointsDocumentTheResponseTable() throws Exception {
+        JsonNode document = apiDocs();
+        List<String> settlementFields = List.of(
+                "id", "merchantId", "importId", "externalReference", "amount", "netAmount",
+                "paymentMethod", "installments", "status", "settlementDate", "createdAt", "updatedAt");
+        List<String> importFields = List.of("id", "merchantId", "fileName", "totalRows", "createdAt");
+        List<String> idOrigin = List.of("criação", "listagem");
+        String list = "/api/merchants/{merchantId}/external-settlements";
+        String byId = "/api/merchants/{merchantId}/external-settlements/{id}";
+        String importCsv = "/api/merchants/{merchantId}/external-settlements/import";
+        String imports = "/api/merchants/{merchantId}/external-settlements/imports";
+        String importById = "/api/merchants/{merchantId}/external-settlements/imports/{importId}";
+        String csvHeader = "externalReference,amount,netAmount,paymentMethod,installments,status,settlementDate";
+
+        assertOperation(document, new Op(
+                "get", list,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", settlementFields, true, Set.of(), Set.of(), idOrigin
+        ));
+        assertQueryExample(document, "get", list, "page", "0");
+        assertQueryExample(document, "get", list, "size", "20");
+        assertQueryExample(document, "get", list, "sort", "settlementDate,desc");
+        assertQueryExample(document, "get", list, "status", "APPROVED");
+        assertQueryExample(document, "get", list, "paymentMethod", "CREDIT_CARD");
+        assertQueryExample(document, "get", list, "fromDate", "2026-07-01");
+        assertQueryExample(document, "get", list, "toDate", "2026-07-31");
+        assertQueryExample(document, "get", list, "importId", UUID_EXAMPLE);
+        assertOperation(document, new Op(
+                "get", byId,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", settlementFields, false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "post", importCsv,
+                Set.of("201", "400", "401", "403", "404", "409", "413"),
+                true, null, Map.of(),
+                "201", importFields, false, Set.of(), Set.of(),
+                List.of("criação", "listagem", "CSV mínimo", csvHeader),
+                true
+        ));
+        assertQueryExample(document, "post", importCsv, "layout", "RECONPAY");
+        assertFilePart(document, "post", importCsv);
+        assertErrorDetails(document, "post", importCsv, "400", "rowErrors");
+        assertErrorDetails(document, "post", importCsv, "409", "conflictingReferences");
+        assertOperation(document, new Op(
+                "get", imports,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", importFields, true, Set.of(), Set.of(), idOrigin
+        ));
+        assertQueryExample(document, "get", imports, "page", "0");
+        assertQueryExample(document, "get", imports, "size", "20");
+        assertQueryExample(document, "get", imports, "sort", "createdAt,desc");
+        assertOperation(document, new Op(
+                "get", importById,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", importFields, false, Set.of(), Set.of(), idOrigin
+        ));
+
+        assertNoMappingAnnotations(
+                ExternalSettlementController.class,
+                Operation.class,
+                GetMapping.class,
+                PostMapping.class,
+                PutMapping.class,
+                PatchMapping.class,
+                DeleteMapping.class,
+                RequestMapping.class
+        );
+    }
+
     private JsonNode apiDocs() throws Exception {
         String body = mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
@@ -518,6 +595,8 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             assertValidRequest(example, op.requestType);
             op.requestFields.forEach((name, value) ->
                     assertThat(example.path(name).asText()).isEqualTo(value));
+        } else if (op.multipart) {
+            assertThat(operation.path("requestBody").path("content").has("multipart/form-data")).isTrue();
         } else {
             assertThat(operation.has("requestBody")).isFalse();
         }
@@ -644,6 +723,34 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         return node;
     }
 
+    private void assertFilePart(JsonNode document, String method, String path) {
+        JsonNode schema = document.path("paths").path(path).path(method)
+                .path("requestBody").path("content").path("multipart/form-data")
+                .path("schema");
+        String ref = schema.path("$ref").asText("");
+        if (ref.startsWith("#/components/schemas/")) {
+            String name = ref.substring("#/components/schemas/".length());
+            schema = document.path("components").path("schemas").path(name);
+        }
+        JsonNode file = schema.path("properties").path("file");
+        assertThat(file.isMissingNode()).as("multipart part file").isFalse();
+        assertThat(schema.path("required").toString()).contains("file");
+    }
+
+    private void assertErrorDetails(
+            JsonNode document, String method, String path, String code, String detailsField) throws Exception {
+        JsonNode media = document.path("paths").path(path).path(method)
+                .path("responses").path(code).path("content").path("application/json");
+        List<JsonNode> values = examples(media);
+        assertThat(values).isNotEmpty();
+        for (JsonNode example : values) {
+            JsonNode details = example.path("details").path(detailsField);
+            assertThat(details.isMissingNode() || details.isNull())
+                    .as("%s %s %s details.%s", method, path, code, detailsField)
+                    .isFalse();
+        }
+    }
+
     private void assertResponseDescriptionContains(
             JsonNode document, String method, String path, String code, String... parts) {
         String description = document.path("paths").path(path).path(method)
@@ -707,7 +814,25 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             boolean page,
             Set<String> noSchemaCodes,
             Set<String> htmlCodes,
-            List<String> descriptionContains
+            List<String> descriptionContains,
+            boolean multipart
     ) {
+        private Op(
+                String method,
+                String path,
+                Set<String> codes,
+                boolean bearer,
+                Class<?> requestType,
+                Map<String, String> requestFields,
+                String successCode,
+                List<String> successFields,
+                boolean page,
+                Set<String> noSchemaCodes,
+                Set<String> htmlCodes,
+                List<String> descriptionContains
+        ) {
+            this(method, path, codes, bearer, requestType, requestFields, successCode, successFields,
+                    page, noSchemaCodes, htmlCodes, descriptionContains, false);
+        }
     }
 }

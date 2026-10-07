@@ -3,11 +3,10 @@ package br.com.hanrry.reconpay.externalsettlement.controller;
 import br.com.hanrry.reconpay.externalsettlement.dto.ExternalSettlementResponseDTO;
 import br.com.hanrry.reconpay.externalsettlement.dto.SettlementImportResponseDTO;
 import br.com.hanrry.reconpay.externalsettlement.enums.SettlementLayout;
+import br.com.hanrry.reconpay.externalsettlement.openapi.ExternalSettlementControllerApi;
 import br.com.hanrry.reconpay.externalsettlement.service.ExternalSettlementService;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -15,12 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,14 +27,11 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@SecurityRequirement(name = "Bearer Authentication")
-@Tag(name = "External Settlements")
-@RequestMapping("/api/merchants/{merchantId}/external-settlements")
-public class ExternalSettlementController {
+public class ExternalSettlementController implements ExternalSettlementControllerApi {
 
     private final ExternalSettlementService externalSettlementService;
 
-    @GetMapping
+    @Override
     public ResponseEntity<Page<ExternalSettlementResponseDTO>> findAll(
             @PathVariable UUID merchantId,
             @RequestParam(required = false) TransactionStatus status,
@@ -52,14 +44,14 @@ public class ExternalSettlementController {
                 merchantId, status, paymentMethod, fromDate, toDate, importId, pageable));
     }
 
-    @GetMapping("/{id}")
+    @Override
     public ResponseEntity<ExternalSettlementResponseDTO> findById(
             @PathVariable UUID merchantId,
             @PathVariable UUID id) {
         return ResponseEntity.ok(externalSettlementService.findById(merchantId, id));
     }
 
-    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Override
     public ResponseEntity<SettlementImportResponseDTO> importCsv(
             @PathVariable UUID merchantId,
             @RequestParam("file") MultipartFile file,
@@ -72,14 +64,14 @@ public class ExternalSettlementController {
         return ResponseEntity.created(uri).body(importResult);
     }
 
-    @GetMapping("/imports")
+    @Override
     public ResponseEntity<Page<SettlementImportResponseDTO>> findAllImports(
             @PathVariable UUID merchantId,
             @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(externalSettlementService.findAllImports(merchantId, pageable));
     }
 
-    @GetMapping("/imports/{importId}")
+    @Override
     public ResponseEntity<SettlementImportResponseDTO> findImportById(
             @PathVariable UUID merchantId,
             @PathVariable UUID importId) {
