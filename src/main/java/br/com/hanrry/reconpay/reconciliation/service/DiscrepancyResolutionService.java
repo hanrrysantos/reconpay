@@ -45,6 +45,7 @@ public class DiscrepancyResolutionService {
     private final IDiscrepancyTransitionRepository transitionRepository;
     private final IDiscrepancyAdjustmentRepository adjustmentRepository;
     private final IUserRepository userRepository;
+    private final PeriodGuard periodGuard;
     private final AuditLogger auditLogger;
 
     @Transactional(readOnly = true)
@@ -64,6 +65,8 @@ public class DiscrepancyResolutionService {
         DiscrepancyStatus current = discrepancy.getStatus();
         DiscrepancyStatus target = request.status();
         ensureTransition(current, target);
+        ReconciliationRunEntity run = discrepancy.getReconciliationItem().getReconciliationRun();
+        periodGuard.assertWindowOpen(merchantId, run.getFromDate(), run.getToDate());
         DiscrepancyAdjustmentEntity activeAdjustment = activeAdjustmentToVoid(discrepancy, current, target);
 
         UserEntity actor = requireActor();

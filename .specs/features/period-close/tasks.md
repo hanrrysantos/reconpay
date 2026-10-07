@@ -470,16 +470,17 @@ T17
 
 **Done when**:
 
-- [ ] Transição válida na janela travada lança `PeriodConflictException` e o status permanece
-- [ ] Payload inválido continua 400, sem consultar a trava
-- [ ] Run de janela não travada segue as regras de resolução atuais
-- [ ] Gate: `./mvnw -B test -Dtest=DiscrepancyResolutionServiceTest`
-- [ ] Test count: a classe passa, com pelo menos 3 testes novos
+- [x] Transição válida na janela travada lança `PeriodConflictException` e o status permanece
+- [x] Payload inválido continua 400, sem consultar a trava
+- [x] Run de janela não travada segue as regras de resolução atuais
+- [x] Gate: `./mvnw -B test -Dtest=DiscrepancyResolutionServiceTest`
+- [x] Test count: a classe passa, com pelo menos 3 testes novos
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(reconciliation): reject discrepancy changes on a locked window`
+**Status**: Done
 
 ---
 

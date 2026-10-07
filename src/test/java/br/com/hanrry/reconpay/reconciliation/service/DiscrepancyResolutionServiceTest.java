@@ -6,6 +6,7 @@ import br.com.hanrry.reconpay.auth.repository.IUserMerchantAccessRepository;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.exception.DiscrepancyNotFoundException;
 import br.com.hanrry.reconpay.exception.DiscrepancyResolutionConflictException;
+import br.com.hanrry.reconpay.exception.PeriodConflictException;
 import br.com.hanrry.reconpay.observability.AuditLogger;
 import br.com.hanrry.reconpay.reconciliation.dto.DiscrepancyDetailResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.UpdateDiscrepancyStatusRequestDTO;
@@ -20,6 +21,7 @@ import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationRunStatus;
 import br.com.hanrry.reconpay.reconciliation.repository.IDiscrepancyAdjustmentRepository;
 import br.com.hanrry.reconpay.reconciliation.repository.IDiscrepancyTransitionRepository;
 import br.com.hanrry.reconpay.reconciliation.repository.IReconciliationDiscrepancyRepository;
+import jakarta.validation.Validation;
 import br.com.hanrry.reconpay.security.CustomUserDetails;
 import br.com.hanrry.reconpay.transaction.entity.InternalTransactionEntity;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
@@ -30,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,6 +41,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +50,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -65,6 +71,9 @@ class DiscrepancyResolutionServiceTest {
 
     @Mock
     private IUserRepository userRepository;
+
+    @Mock
+    private PeriodGuard periodGuard;
 
     @Mock
     private AuditLogger auditLogger;
@@ -481,6 +490,82 @@ class DiscrepancyResolutionServiceTest {
                 .containsExactly(Instant.parse("2026-10-01T00:00:00Z"), Instant.parse("2026-10-02T00:00:00Z"));
         assertThat(response.transitions()).extracting(DiscrepancyDetailResponseDTO.Transition::actorUserId)
                 .containsExactly(actorId, actorId);
+    }
+
+    @Test
+    void shouldRejectAValidTransitionWhenTheWindowIsLockedAndKeepTheStatus() {
+        OpenCase openCase = foundOnly(ReconciliationRunStatus.COMPLETED, null);
+        LocalDate fromDate = LocalDate.parse("2026-07-01");
+        LocalDate toDate = LocalDate.parse("2026-07-15");
+        ReconciliationRunEntity run = openCase.discrepancy().getReconciliationItem().getReconciliationRun();
+        run.setFromDate(fromDate);
+        run.setToDate(toDate);
+        doThrow(new PeriodConflictException("Janela travada de " + fromDate + " a " + toDate))
+                .when(periodGuard).assertWindowOpen(openCase.merchantId(), fromDate, toDate);
+
+        assertThatThrownBy(() -> service.changeStatus(
+                openCase.merchantId(),
+                openCase.runId(),
+                openCase.discrepancyId(),
+                new UpdateDiscrepancyStatusRequestDTO(DiscrepancyStatus.ACCEPTED, null, null)))
+                .isInstanceOf(PeriodConflictException.class);
+
+        assertThat(openCase.discrepancy().getStatus()).isEqualTo(DiscrepancyStatus.OPEN);
+        verify(discrepancyRepository, never()).save(any());
+        verify(transitionRepository, never()).save(any());
+        verify(adjustmentRepository, never()).save(any());
+        verify(auditLogger, never()).record(any(), any(), any(), any());
+    }
+
+    @Test
+    void shouldRejectAnInvalidPayloadBeforeConsultingTheLock() {
+        UpdateDiscrepancyStatusRequestDTO request = new UpdateDiscrepancyStatusRequestDTO(
+                DiscrepancyStatus.ACCEPTED, null, new BigDecimal("1.00"));
+
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            assertThat(factory.getValidator().validate(request)).isNotEmpty();
+        }
+
+        verifyNoInteractions(periodGuard, discrepancyRepository, transitionRepository, adjustmentRepository);
+    }
+
+    @Test
+    void shouldRejectAnInvalidTransitionBeforeConsultingTheLock() {
+        OpenCase openCase = foundOnly(ReconciliationRunStatus.COMPLETED, null);
+        openCase.discrepancy().setStatus(DiscrepancyStatus.ACCEPTED);
+
+        assertThatThrownBy(() -> service.changeStatus(
+                openCase.merchantId(),
+                openCase.runId(),
+                openCase.discrepancyId(),
+                new UpdateDiscrepancyStatusRequestDTO(DiscrepancyStatus.WRITTEN_OFF, null, null)))
+                .isInstanceOf(DiscrepancyResolutionConflictException.class);
+
+        assertThat(openCase.discrepancy().getStatus()).isEqualTo(DiscrepancyStatus.ACCEPTED);
+        verifyNoInteractions(periodGuard);
+        verify(discrepancyRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldApplyTheCurrentResolutionRulesWhenTheWindowIsNotLocked() {
+        OpenCase openCase = openDiscrepancy();
+        LocalDate fromDate = LocalDate.parse("2026-07-01");
+        LocalDate toDate = LocalDate.parse("2026-07-15");
+        openCase.discrepancy().getReconciliationItem().getReconciliationRun().setFromDate(fromDate);
+        openCase.discrepancy().getReconciliationItem().getReconciliationRun().setToDate(toDate);
+
+        DiscrepancyDetailResponseDTO response = service.changeStatus(
+                openCase.merchantId(),
+                openCase.runId(),
+                openCase.discrepancyId(),
+                new UpdateDiscrepancyStatusRequestDTO(DiscrepancyStatus.ACCEPTED, null, null));
+
+        assertThat(response.status()).isEqualTo(DiscrepancyStatus.ACCEPTED);
+        assertThat(openCase.discrepancy().getStatus()).isEqualTo(DiscrepancyStatus.ACCEPTED);
+        InOrder order = inOrder(periodGuard, transitionRepository, discrepancyRepository);
+        order.verify(periodGuard).assertWindowOpen(openCase.merchantId(), fromDate, toDate);
+        order.verify(transitionRepository).save(any());
+        order.verify(discrepancyRepository).save(any());
     }
 
     private OpenCase foundOnly(ReconciliationRunStatus status, Instant supersededAt) {
