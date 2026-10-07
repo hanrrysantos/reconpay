@@ -281,13 +281,13 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Código da venda em branco vira null
-- [ ] `lineReference` vazio, longo demais ou repetido no arquivo entra em `rowErrors`
-- [ ] Valor não positivo, com mais de 17 inteiros ou mais de 2 decimais, entra em `rowErrors`
-- [ ] Data inválida ou futura entra em `rowErrors`
-- [ ] Cabeçalho errado ou arquivo sem linha de dado falha sem devolver linha
-- [ ] Gate: `./mvnw -B test -Dtest=BankStatementCsvParserTest`
-- [ ] Nenhum teste removido
+- [x] Código da venda em branco vira null
+- [x] `lineReference` vazio, longo demais ou repetido no arquivo entra em `rowErrors`
+- [x] Valor não positivo, com mais de 17 inteiros ou mais de 2 decimais, entra em `rowErrors`
+- [x] Data inválida ou futura entra em `rowErrors`
+- [x] Cabeçalho errado ou arquivo sem linha de dado falha sem devolver linha
+- [x] Gate: `./mvnw -B test -Dtest=BankStatementCsvParserTest`
+- [x] Nenhum teste removido
 
 **Tests**: unit
 **Gate**: quick
