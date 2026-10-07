@@ -149,20 +149,20 @@ A API só aceita um CSV de liquidação com sete colunas fixas. O operador não 
 | LAY-11 | P1: Importar o extrato | Execute | Implementing |
 | LAY-12 | P1: Importar o extrato | Execute | Implementing |
 | LAY-13 | P1: Importar o extrato | Execute | Implementing |
-| LAY-14 | P1: Cruzar extrato e liquidação | Design | Pending |
+| LAY-14 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-15 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-16 | P1: Cruzar extrato e liquidação | Design | Pending |
+| LAY-16 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-17 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-18 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-19 | P1: Cruzar extrato e liquidação | Design | Pending |
-| LAY-20 | P1: Cruzar extrato e liquidação | Design | Pending |
-| LAY-21 | P1: Cruzar extrato e liquidação | Design | Pending |
-| LAY-22 | P1: Cruzar extrato e liquidação | Design | Pending |
-| LAY-23 | P1: Cruzar extrato e liquidação | Design | Pending |
+| LAY-19 | P1: Cruzar extrato e liquidação | Execute | Implementing |
+| LAY-20 | P1: Cruzar extrato e liquidação | Execute | Implementing |
+| LAY-21 | P1: Cruzar extrato e liquidação | Execute | Implementing |
+| LAY-22 | P1: Cruzar extrato e liquidação | Execute | Implementing |
+| LAY-23 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-24 | P1: Cruzar extrato e liquidação | Design | Pending |
-| LAY-25 | P1: Cruzar extrato e liquidação | - | Pending |
+| LAY-25 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-26 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-27 | P1: Cruzar extrato e liquidação | - | Pending |
+| LAY-27 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-28 | P1: Cruzar extrato e liquidação | - | Pending |
 
 **Coverage:** 28 total, 0 mapped to tasks, 28 unmapped

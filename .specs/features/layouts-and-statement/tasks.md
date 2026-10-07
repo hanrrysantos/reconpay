@@ -426,20 +426,20 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Código e valor dentro da tolerância formam par sem divergência de banco
-- [ ] Código com valor fora da tolerância grava `BANK_AMOUNT_MISMATCH` e não grava `MISSING_BANK_CREDIT`
-- [ ] Sem código, uma só liquidação com a mesma data e valor dentro da tolerância forma par
-- [ ] Zero linhas elegíveis grava `MISSING_BANK_CREDIT`. Mais de uma, ou linha compartilhada, grava `AMBIGUOUS_BANK_MATCH` e não forma par
-- [ ] Linha sem par grava `ORPHAN_BANK_CREDIT` ou `AMBIGUOUS_BANK_MATCH` num item cuja referência é `lineReference`
-- [ ] Linha cujo código só existe fora da janela não vira item
-- [ ] Item sem liquidação não recebe tipo de banco
-- [ ] Os tipos de venda contra liquidação permanecem os que o motor já colocou
-- [ ] Item sem divergência fica `MATCHED`. Com divergência de banco fica `DIVERGENT`. Status da divergência nova é `OPEN`
-- [ ] Sem nenhuma linha, toda liquidação fica `MISSING_BANK_CREDIT`
-- [ ] `lineReference` igual à referência de uma venda sem liquidação não cria outro item e não marca essa venda
-- [ ] Valores gravados com escala 2 e `toPlainString`
-- [ ] Gate: `./mvnw -B test -Dtest=BankStatementMatcherTest`
-- [ ] Nenhum teste removido
+- [x] Código e valor dentro da tolerância formam par sem divergência de banco
+- [x] Código com valor fora da tolerância grava `BANK_AMOUNT_MISMATCH` e não grava `MISSING_BANK_CREDIT`
+- [x] Sem código, uma só liquidação com a mesma data e valor dentro da tolerância forma par
+- [x] Zero linhas elegíveis grava `MISSING_BANK_CREDIT`. Mais de uma, ou linha compartilhada, grava `AMBIGUOUS_BANK_MATCH` e não forma par
+- [x] Linha sem par grava `ORPHAN_BANK_CREDIT` ou `AMBIGUOUS_BANK_MATCH` num item cuja referência é `lineReference`
+- [x] Linha cujo código só existe fora da janela não vira item
+- [x] Item sem liquidação não recebe tipo de banco
+- [x] Os tipos de venda contra liquidação permanecem os que o motor já colocou
+- [x] Item sem divergência fica `MATCHED`. Com divergência de banco fica `DIVERGENT`. Status da divergência nova é `OPEN`
+- [x] Sem nenhuma linha, toda liquidação fica `MISSING_BANK_CREDIT`
+- [x] `lineReference` igual à referência de uma venda sem liquidação não cria outro item e não marca essa venda
+- [x] Valores gravados com escala 2 e `toPlainString`
+- [x] Gate: `./mvnw -B test -Dtest=BankStatementMatcherTest`
+- [x] Nenhum teste removido
 
 **Tests**: unit
 **Gate**: quick
