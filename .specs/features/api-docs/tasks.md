@@ -374,14 +374,14 @@ T17 → T18
 
 **Done when**:
 
-- [ ] Cada rota de usuário documenta exatamente os códigos da tabela da spec, com description em português
-- [ ] Todo request JSON tem um exemplo que passa na Bean Validation
-- [ ] Todo response JSON tem exemplo; o de erro traz `status` e `error` iguais ao código
-- [ ] DELETE documenta 204 sem schema
-- [ ] As rotas exigem `Bearer Authentication`
-- [ ] `UserController` implementa a interface e não declara `@Operation` nem mapping
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] Cada rota de usuário documenta exatamente os códigos da tabela da spec, com description em português
+- [x] Todo request JSON tem um exemplo que passa na Bean Validation
+- [x] Todo response JSON tem exemplo; o de erro traz `status` e `error` iguais ao código
+- [x] DELETE documenta 204 sem schema
+- [x] As rotas exigem `Bearer Authentication`
+- [x] `UserController` implementa a interface e não declara `@Operation` nem mapping
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full

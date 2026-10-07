@@ -2,7 +2,11 @@ package br.com.hanrry.reconpay.openapi;
 
 import br.com.hanrry.reconpay.auth.controller.AuthController;
 import br.com.hanrry.reconpay.auth.controller.MeController;
+import br.com.hanrry.reconpay.auth.controller.UserController;
 import br.com.hanrry.reconpay.auth.dto.AuthRequestDTO;
+import br.com.hanrry.reconpay.auth.dto.CreateUserRequestDTO;
+import br.com.hanrry.reconpay.auth.dto.MerchantAccessRequestDTO;
+import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
@@ -15,8 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.InputStream;
@@ -204,6 +211,83 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         assertQueryExample(document, "get", "/api/me/merchants", "sort", "name,asc");
 
         assertNoMappingAnnotations(MeController.class, Operation.class, GetMapping.class, RequestMapping.class);
+    }
+
+    @Test
+    void userAdministrationDocumentsTheResponseTable() throws Exception {
+        JsonNode document = apiDocs();
+        List<String> userFields = List.of("id", "name", "email", "role", "active", "createdAt");
+        List<String> idOrigin = List.of("criação", "listagem");
+
+        assertOperation(document, new Op(
+                "post", "/api/users",
+                Set.of("201", "400", "401", "403", "409"),
+                true, CreateUserRequestDTO.class, Map.of(),
+                "201", userFields, false, Set.of(), Set.of(), List.of()
+        ));
+        assertOperation(document, new Op(
+                "get", "/api/users",
+                Set.of("200", "400", "401", "403"),
+                true, null, Map.of(),
+                "200", userFields, true, Set.of(), Set.of(), List.of()
+        ));
+        assertQueryExample(document, "get", "/api/users", "page", "0");
+        assertQueryExample(document, "get", "/api/users", "size", "20");
+        assertQueryExample(document, "get", "/api/users", "sort", "name,asc");
+        assertOperation(document, new Op(
+                "get", "/api/users/{id}",
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", userFields, false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "get", "/api/users/email",
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", userFields, false, Set.of(), Set.of(), List.of()
+        ));
+        assertQueryExample(document, "get", "/api/users/email", "email", "ana.operadora@reconpay.local");
+        assertOperation(document, new Op(
+                "patch", "/api/users/{id}/activation",
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", userFields, false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "get", "/api/users/{id}/merchants",
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", List.of("userId", "merchantIds"), false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "put", "/api/users/{id}/merchants",
+                Set.of("200", "400", "401", "403", "404"),
+                true, MerchantAccessRequestDTO.class, Map.of(),
+                "200", List.of("userId", "merchantIds"), false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "put", "/api/users/{id}",
+                Set.of("200", "400", "401", "403", "404"),
+                true, UpdateUserRequestDTO.class, Map.of(),
+                "200", userFields, false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "delete", "/api/users/{id}",
+                Set.of("204", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                null, List.of(), false, Set.of("204"), Set.of(), idOrigin
+        ));
+
+        assertNoMappingAnnotations(
+                UserController.class,
+                Operation.class,
+                GetMapping.class,
+                PostMapping.class,
+                PutMapping.class,
+                PatchMapping.class,
+                DeleteMapping.class,
+                RequestMapping.class
+        );
     }
 
     private JsonNode apiDocs() throws Exception {
