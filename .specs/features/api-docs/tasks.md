@@ -312,14 +312,14 @@ T17 → T18
 
 **Done when**:
 
-- [ ] POST `/api/auth/login` documenta 200, 400 e 401, com exemplo `admin@reconpay.local` / `DevAdmin@2026` que passa na Bean Validation
-- [ ] POST `/api/auth/register` documenta 201, 400 e 409, com exemplo JSON válido
-- [ ] POST `/api/auth/verify-email` documenta 204 sem schema e 400
-- [ ] GET `/api/auth/verify-email` documenta 200 e 400 como `text/html`, sem `StandardError`
-- [ ] As quatro operações saem com security vazio
-- [ ] `AuthController` segue sem `@Operation` nos métodos
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] POST `/api/auth/login` documenta 200, 400 e 401, com exemplo `admin@reconpay.local` / `DevAdmin@2026` que passa na Bean Validation
+- [x] POST `/api/auth/register` documenta 201, 400 e 409, com exemplo JSON válido
+- [x] POST `/api/auth/verify-email` documenta 204 sem schema e 400
+- [x] GET `/api/auth/verify-email` documenta 200 e 400 como `text/html`, sem `StandardError`
+- [x] As quatro operações saem com security vazio
+- [x] `AuthController` segue sem `@Operation` nos métodos
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full

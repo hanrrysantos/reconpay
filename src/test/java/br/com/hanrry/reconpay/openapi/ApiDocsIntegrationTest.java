@@ -1,16 +1,33 @@
 package br.com.hanrry.reconpay.openapi;
 
+import br.com.hanrry.reconpay.auth.controller.AuthController;
+import br.com.hanrry.reconpay.auth.dto.AuthRequestDTO;
+import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
+import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -31,8 +48,22 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             "Reconciliations"
     );
 
+    private static final Pattern PORTUGUESE = Pattern.compile("[áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ]");
+    private static final String UUID_EXAMPLE = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
+    private static final String BEARER = "Bearer Authentication";
+    private static final Map<String, String> ERROR_CODES = Map.of(
+            "400", "VALIDATION_ERROR",
+            "401", "UNAUTHORIZED",
+            "403", "FORBIDDEN",
+            "404", "NOT_FOUND",
+            "409", "CONFLICT"
+    );
+
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private Validator validator;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -68,5 +99,294 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             String yaml = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             assertThat(yaml).doesNotContain("tags-sorter");
         }
+    }
+
+    @Test
+    void publicAuthDocumentsCodesExamplesAndOpenSecurity() throws Exception {
+        JsonNode document = apiDocs();
+
+        assertOperation(document, new Op(
+                "post",
+                "/api/auth/login",
+                Set.of("200", "400", "401"),
+                false,
+                AuthRequestDTO.class,
+                Map.of("email", "admin@reconpay.local", "password", "DevAdmin@2026"),
+                "200",
+                List.of("token", "type", "expiresIn"),
+                false,
+                Set.of(),
+                Set.of(),
+                List.of()
+        ));
+        assertOperation(document, new Op(
+                "post",
+                "/api/auth/register",
+                Set.of("201", "400", "409"),
+                false,
+                UserRequestDTO.class,
+                Map.of(),
+                "201",
+                List.of("id", "name", "email", "role", "active", "createdAt"),
+                false,
+                Set.of(),
+                Set.of(),
+                List.of()
+        ));
+        assertOperation(document, new Op(
+                "post",
+                "/api/auth/verify-email",
+                Set.of("204", "400"),
+                false,
+                VerifyEmailRequestDTO.class,
+                Map.of(),
+                null,
+                List.of(),
+                false,
+                Set.of("204"),
+                Set.of(),
+                List.of()
+        ));
+        assertOperation(document, new Op(
+                "get",
+                "/api/auth/verify-email",
+                Set.of("200", "400"),
+                false,
+                null,
+                Map.of(),
+                null,
+                List.of(),
+                false,
+                Set.of(),
+                Set.of("200", "400"),
+                List.of()
+        ));
+
+        assertNoMappingAnnotations(AuthController.class, Operation.class, GetMapping.class, PostMapping.class);
+    }
+
+    private JsonNode apiDocs() throws Exception {
+        String body = mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        return objectMapper.readTree(body);
+    }
+
+    private void assertOperation(JsonNode document, Op op) throws Exception {
+        JsonNode operation = document.path("paths").path(op.path).path(op.method);
+        assertThat(operation.isMissingNode())
+                .as("%s %s", op.method, op.path)
+                .isFalse();
+        assertThat(operation.path("summary").asText()).containsPattern(PORTUGUESE);
+        assertThat(operation.path("description").asText()).containsPattern(PORTUGUESE);
+        for (String part : op.descriptionContains) {
+            assertThat(operation.path("description").asText()).contains(part);
+        }
+
+        JsonNode responses = operation.path("responses");
+        assertThat(fieldNames(responses)).containsExactlyInAnyOrderElementsOf(op.codes);
+        for (String code : op.codes) {
+            JsonNode response = responses.path(code);
+            String description = response.path("description").asText();
+            assertThat(description).as("%s %s %s", op.method, op.path, code).isNotBlank();
+            assertThat(description).isNotEqualTo(HttpStatus.valueOf(Integer.parseInt(code)).getReasonPhrase());
+            if (op.htmlCodes.contains(code)) {
+                assertHtml(response);
+            } else if (op.noSchemaCodes.contains(code)) {
+                assertNoSchema(response);
+            } else if (ERROR_CODES.containsKey(code)) {
+                assertErrorExample(response, code);
+            } else {
+                assertThat(code).isEqualTo(op.successCode);
+                assertSuccessExample(response, op);
+            }
+        }
+
+        if (op.bearer) {
+            assertBearer(operation);
+        } else {
+            JsonNode security = operation.get("security");
+            assertThat(security).isNotNull();
+            assertThat(security.isArray()).isTrue();
+            assertThat(security).isEmpty();
+        }
+
+        if (op.requestType != null) {
+            JsonNode example = requestExample(operation);
+            assertValidRequest(example, op.requestType);
+            op.requestFields.forEach((name, value) ->
+                    assertThat(example.path(name).asText()).isEqualTo(value));
+        } else {
+            assertThat(operation.has("requestBody")).isFalse();
+        }
+
+        JsonNode parameters = operation.get("parameters");
+        if (parameters != null) {
+            for (JsonNode parameter : parameters) {
+                String example = parameterExample(parameter);
+                if ("path".equals(parameter.path("in").asText())) {
+                    assertThat(example).isEqualTo(UUID_EXAMPLE);
+                } else if ("query".equals(parameter.path("in").asText())) {
+                    assertThat(example).as(parameter.path("name").asText()).isNotBlank();
+                }
+            }
+        }
+    }
+
+    private void assertHtml(JsonNode response) {
+        JsonNode content = response.path("content");
+        assertThat(content.fieldNames()).toIterable().containsExactly("text/html");
+        assertThat(content.path("text/html").toString()).doesNotContain("StandardError");
+    }
+
+    private void assertNoSchema(JsonNode response) {
+        JsonNode content = response.get("content");
+        if (content == null || content.isNull() || content.isEmpty()) {
+            return;
+        }
+        content.fields().forEachRemaining(entry ->
+                assertThat(entry.getValue().has("schema"))
+                        .as(entry.getKey())
+                        .isFalse());
+    }
+
+    private void assertErrorExample(JsonNode response, String code) throws Exception {
+        JsonNode media = response.path("content").path("application/json");
+        assertThat(media.isMissingNode()).isFalse();
+        List<JsonNode> examples = examples(media);
+        assertThat(examples).isNotEmpty();
+        for (JsonNode example : examples) {
+            assertThat(example.path("status").asInt()).isEqualTo(Integer.parseInt(code));
+            assertThat(example.path("error").asText()).isEqualTo(ERROR_CODES.get(code));
+        }
+    }
+
+    private void assertSuccessExample(JsonNode response, Op op) throws Exception {
+        JsonNode media = response.path("content").path("application/json");
+        List<JsonNode> examples = examples(media);
+        assertThat(examples).isNotEmpty();
+        JsonNode example = examples.getFirst();
+        JsonNode target = op.page ? example.path("content").path(0) : example;
+        for (String field : op.successFields) {
+            assertThat(target.has(field)).as(field).isTrue();
+            assertThat(target.get(field).isNull()).isFalse();
+        }
+    }
+
+    private void assertBearer(JsonNode operation) {
+        JsonNode security = operation.path("security");
+        assertThat(security.isArray()).isTrue();
+        assertThat(security).isNotEmpty();
+        boolean found = false;
+        for (JsonNode requirement : security) {
+            if (requirement.has(BEARER)) {
+                found = true;
+            }
+        }
+        assertThat(found).isTrue();
+    }
+
+    private JsonNode requestExample(JsonNode operation) throws Exception {
+        JsonNode media = operation.path("requestBody").path("content").path("application/json");
+        List<JsonNode> examples = examples(media);
+        assertThat(examples).hasSize(1);
+        return examples.getFirst();
+    }
+
+    private void assertValidRequest(JsonNode example, Class<?> type) {
+        for (var component : type.getRecordComponents()) {
+            if (isRequired(type, component.getName())) {
+                assertThat(example.has(component.getName())).as(component.getName()).isTrue();
+                assertThat(example.get(component.getName()).isNull()).isFalse();
+            }
+        }
+        Object dto = objectMapper.convertValue(example, type);
+        assertThat(validator.validate(dto)).isEmpty();
+    }
+
+    private static boolean isRequired(Class<?> type, String name) {
+        try {
+            Field field = type.getDeclaredField(name);
+            for (Annotation annotation : field.getAnnotations()) {
+                String simple = annotation.annotationType().getSimpleName();
+                if (simple.equals("NotNull") || simple.equals("NotBlank") || simple.equals("NotEmpty")) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (NoSuchFieldException exception) {
+            return false;
+        }
+    }
+
+    private List<JsonNode> examples(JsonNode media) throws Exception {
+        List<JsonNode> values = new ArrayList<>();
+        if (media.has("example")) {
+            values.add(asTree(media.get("example")));
+        }
+        JsonNode examples = media.get("examples");
+        if (examples != null && examples.isObject()) {
+            Iterator<JsonNode> iterator = examples.elements();
+            while (iterator.hasNext()) {
+                values.add(asTree(iterator.next().path("value")));
+            }
+        }
+        return values;
+    }
+
+    private JsonNode asTree(JsonNode node) throws Exception {
+        if (node != null && node.isTextual()) {
+            return objectMapper.readTree(node.asText());
+        }
+        return node;
+    }
+
+    private static String parameterExample(JsonNode parameter) {
+        if (parameter.hasNonNull("example")) {
+            return parameter.get("example").asText();
+        }
+        JsonNode schemaExample = parameter.path("schema").get("example");
+        if (schemaExample != null && !schemaExample.isNull()) {
+            return schemaExample.asText();
+        }
+        return null;
+    }
+
+    private static List<String> fieldNames(JsonNode node) {
+        List<String> names = new ArrayList<>();
+        node.fieldNames().forEachRemaining(names::add);
+        return names;
+    }
+
+    @SafeVarargs
+    private static void assertNoMappingAnnotations(Class<?> controller, Class<? extends Annotation>... forbidden) {
+        for (Method method : controller.getDeclaredMethods()) {
+            if (method.isSynthetic()) {
+                continue;
+            }
+            for (Class<? extends Annotation> annotation : forbidden) {
+                assertThat(method.isAnnotationPresent(annotation))
+                        .as("%s#%s @%s", controller.getSimpleName(), method.getName(), annotation.getSimpleName())
+                        .isFalse();
+            }
+        }
+    }
+
+    private record Op(
+            String method,
+            String path,
+            Set<String> codes,
+            boolean bearer,
+            Class<?> requestType,
+            Map<String, String> requestFields,
+            String successCode,
+            List<String> successFields,
+            boolean page,
+            Set<String> noSchemaCodes,
+            Set<String> htmlCodes,
+            List<String> descriptionContains
+    ) {
     }
 }

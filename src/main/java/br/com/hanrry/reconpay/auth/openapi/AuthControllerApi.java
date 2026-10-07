@@ -10,7 +10,9 @@ import br.com.hanrry.reconpay.openapi.ApiUnauthorizedResponse;
 import br.com.hanrry.reconpay.openapi.ApiValidationErrorResponse;
 import br.com.hanrry.reconpay.openapi.OpenApiTags;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
@@ -46,15 +48,41 @@ public interface AuthControllerApi {
             responseCode = "200",
             description = "Autenticação bem-sucedida",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = AuthResponseDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = AuthResponseDTO.class),
+                    examples = @ExampleObject(
+                            name = "token",
+                            value = """
+                                    {
+                                      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exemplo",
+                                      "type": "Bearer",
+                                      "expiresIn": 86400
+                                    }
+                                    """
+                    )
             )
     )
-
     @ApiValidationErrorResponse
     @ApiUnauthorizedResponse
     @PostMapping("/login")
-    ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody AuthRequestDTO request);
+    ResponseEntity<AuthResponseDTO> login(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = AuthRequestDTO.class),
+                            examples = @ExampleObject(
+                                    name = "credenciais",
+                                    value = """
+                                            {
+                                              "email": "admin@reconpay.local",
+                                              "password": "DevAdmin@2026"
+                                            }
+                                            """
+                            )
+                    )
+            )
+            @Valid @RequestBody AuthRequestDTO request);
 
     @Operation(
             summary = "Registrar novo usuário",
@@ -65,38 +93,99 @@ public interface AuthControllerApi {
                     POST /api/auth/verify-email para ativar antes do login."""
     )
     @ApiResponse(
-        responseCode = "201",
-        description = "Usuário criado com sucesso, pendente de ativação",
-        content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = UserResponseDTO.class)
-        )
+            responseCode = "201",
+            description = "Usuário criado com sucesso, pendente de ativação",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = UserResponseDTO.class),
+                    examples = @ExampleObject(
+                            name = "usuario-criado",
+                            value = """
+                                    {
+                                      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                      "name": "Usuário Novo",
+                                      "email": "usuario.novo@reconpay.local",
+                                      "role": "OPERATOR",
+                                      "active": false,
+                                      "createdAt": "2026-08-10T12:00:00Z"
+                                    }
+                                    """
+                    )
+            )
     )
-
     @ApiValidationErrorResponse
     @ApiConflictResponse
     @PostMapping("/register")
-    ResponseEntity<UserResponseDTO> register(@Valid @RequestBody UserRequestDTO request);
+    ResponseEntity<UserResponseDTO> register(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserRequestDTO.class),
+                            examples = @ExampleObject(
+                                    name = "cadastro",
+                                    value = """
+                                            {
+                                              "name": "Usuário Novo",
+                                              "email": "usuario.novo@reconpay.local",
+                                              "password": "Usuario1"
+                                            }
+                                            """
+                            )
+                    )
+            )
+            @Valid @RequestBody UserRequestDTO request);
 
     @Operation(
-            summary = "Confirmar e-mail (API)",
+            summary = "Confirmação de e-mail pela API",
             description = """
                     Ativa a conta com o token (JSON). Preferível para clientes programáticos;
                     usuários finais usam o link/botão do e-mail (GET)."""
     )
-    @ApiResponse(responseCode = "204", description = "E-mail confirmado; conta ativa")
+    @ApiResponse(responseCode = "204", description = "Confirmação concluída; a conta fica ativa")
     @ApiValidationErrorResponse
     @PostMapping("/verify-email")
-    ResponseEntity<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequestDTO request);
+    ResponseEntity<Void> verifyEmail(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = VerifyEmailRequestDTO.class),
+                            examples = @ExampleObject(
+                                    name = "token",
+                                    value = """
+                                            {
+                                              "token": "dGhpcy1pcy1hbi1leGFtcGxlLXRva2Vu"
+                                            }
+                                            """
+                            )
+                    )
+            )
+            @Valid @RequestBody VerifyEmailRequestDTO request);
 
     @Operation(
-            summary = "Confirmar e-mail (link do e-mail)",
+            summary = "Confirmação de e-mail pelo link",
             description = """
                     Ativa a conta ao abrir o link do botão no e-mail de verificação.
                     Retorna uma página HTML de sucesso ou erro."""
     )
-    @ApiResponse(responseCode = "200", description = "HTML — conta ativada")
-    @ApiResponse(responseCode = "400", description = "HTML — link inválido ou expirado")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Página HTML de conta ativada",
+            content = @Content(mediaType = MediaType.TEXT_HTML_VALUE)
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Página HTML de link inválido ou expirado",
+            content = @Content(mediaType = MediaType.TEXT_HTML_VALUE)
+    )
     @GetMapping(value = "/verify-email", produces = MediaType.TEXT_HTML_VALUE)
-    ResponseEntity<String> verifyEmailFromLink(@RequestParam("token") String token);
+    ResponseEntity<String> verifyEmailFromLink(
+            @Parameter(
+                    name = "token",
+                    description = "Token recebido no link do e-mail de verificação",
+                    example = "dGhpcy1pcy1hbi1leGFtcGxlLXRva2Vu",
+                    required = true
+            )
+            @RequestParam("token") String token);
 }
