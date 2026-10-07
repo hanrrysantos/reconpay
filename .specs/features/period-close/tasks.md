@@ -293,14 +293,15 @@ T17
 
 **Done when**:
 
-- [ ] Merchant ativo é retornado. Merchant inativo ou inexistente volta vazio
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Test count: pelo menos 2 testes passam em `MerchantLockRepositoryIntegrationTest`
+- [x] Merchant ativo é retornado. Merchant inativo ou inexistente volta vazio
+- [x] Gate: `./mvnw -B verify`
+- [x] Test count: pelo menos 2 testes passam em `MerchantLockRepositoryIntegrationTest`
 
 **Tests**: integration
 **Gate**: full
 
 **Commit**: `feat(merchant): lock the active merchant row for period writes`
+**Status**: Done
 
 ---
 
