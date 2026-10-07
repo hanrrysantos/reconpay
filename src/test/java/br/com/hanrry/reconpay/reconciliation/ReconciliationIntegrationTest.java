@@ -2,6 +2,8 @@ package br.com.hanrry.reconpay.reconciliation;
 
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import com.jayway.jsonpath.JsonPath;
+import com.opencsv.CSVReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,15 +12,19 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -116,8 +122,8 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.finishedAt").isNotEmpty())
                 .andExpect(jsonPath("$.totalItems").value(4))
-                .andExpect(jsonPath("$.matchedCount").value(1))
-                .andExpect(jsonPath("$.divergentCount").value(3));
+                .andExpect(jsonPath("$.matchedCount").value(0))
+                .andExpect(jsonPath("$.divergentCount").value(4));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/items", merchantId, runId)
                         .header("Authorization", "Bearer " + operatorToken)
@@ -130,16 +136,134 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.content[0].discrepancies[0].id").isNotEmpty())
                 .andExpect(jsonPath("$.content[0].discrepancies[0].status").value("OPEN"))
                 .andExpect(jsonPath("$.content[0].discrepancies[0].adjustments").doesNotExist())
-                .andExpect(jsonPath("$.content[0].discrepancies[0].transitions").doesNotExist());
+                .andExpect(jsonPath("$.content[0].discrepancies[0].transitions").doesNotExist())
+                .andExpect(jsonPath("$.content[0].discrepancies.length()").value(1));
 
-        mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/export", merchantId, runId)
+        String items = itemsJson(runId);
+        assertThat(types(items, matchedReference)).containsExactly("MISSING_BANK_CREDIT");
+        assertDiscrepancy(items, matchedReference, "MISSING_BANK_CREDIT", "145.00", null);
+        assertDiscrepancy(items, feeDivergenceReference, "MISSING_BANK_CREDIT", "140.00", null);
+        assertDiscrepancy(items, orphanReference, "MISSING_BANK_CREDIT", "88.00", null);
+        assertThat(types(items, feeDivergenceReference))
+                .containsExactlyInAnyOrder("FEE_DIVERGENCE", "MISSING_BANK_CREDIT");
+        assertThat(types(items, orphanReference))
+                .containsExactlyInAnyOrder("ORPHAN_SETTLEMENT", "MISSING_BANK_CREDIT");
+        assertThat(types(items, missingReference)).containsExactly("MISSING_SETTLEMENT");
+
+        String csv = mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/export", merchantId, runId)
                         .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Disposition", containsString("reconciliation-" + runId + ".csv")))
-                .andExpect(content().string(containsString("externalReference")))
-                .andExpect(content().string(containsString(matchedReference)))
-                .andExpect(content().string(containsString("MATCHED")))
-                .andExpect(content().string(containsString("FEE_DIVERGENCE")));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        assertCsvHeader(csv);
+        assertThat(csv).contains(matchedReference);
+        assertThat(csv).contains("MISSING_BANK_CREDIT");
+        assertThat(csv).contains("FEE_DIVERGENCE");
+    }
+
+    @Test
+    void shouldPairStatementLinesOnTheCompletedRun() throws Exception {
+        String exactReference = "TXN-EXACT-" + UUID.randomUUID();
+        String mismatchReference = "TXN-MISMATCH-" + UUID.randomUUID();
+        String missingBankReference = "TXN-NOBANK-" + UUID.randomUUID();
+        String laggedReference = "TXN-LAGBANK-" + UUID.randomUUID();
+        String outsideSale = "TXN-OLD-" + UUID.randomUUID();
+        String orphanLine = "L-ORPHAN-" + UUID.randomUUID();
+        String otherLine = "L-OTHER-" + UUID.randomUUID();
+        String lateLine = "L-LATE-" + UUID.randomUUID();
+        String ignoredLine = "L-OLD-" + UUID.randomUUID();
+
+        createTransaction(exactReference, "150.00", "CREDIT_CARD", 3);
+        createTransaction(mismatchReference, "150.00", "CREDIT_CARD", 3);
+        createTransaction(missingBankReference, "150.00", "CREDIT_CARD", 3);
+        createTransaction(laggedReference, "150.00", "CREDIT_CARD", 3, "2026-07-31");
+        createTransaction(outsideSale, "150.00", "CREDIT_CARD", 3, "2026-06-15");
+
+        importSettlements("""
+                externalReference,amount,netAmount,paymentMethod,installments,status,settlementDate
+                %s,150.00,145.00,CREDIT_CARD,3,APPROVED,2026-07-30
+                %s,150.00,145.00,CREDIT_CARD,3,APPROVED,2026-07-30
+                %s,150.00,145.00,CREDIT_CARD,3,APPROVED,2026-07-30
+                %s,150.00,145.00,CREDIT_CARD,3,APPROVED,2026-08-03
+                """.formatted(exactReference, mismatchReference, missingBankReference, laggedReference));
+
+        importBankStatement("""
+                lineReference,externalReference,amount,movementDate
+                L-EXACT-%s,%s,145.00,2026-07-30
+                L-MIS-%s,%s,100.00,2026-07-30
+                %s,,20.00,2026-07-30
+                L-LAG-%s,%s,145.00,2026-08-03
+                %s,%s,145.00,2026-08-06
+                %s,%s,145.00,2026-07-15
+                """.formatted(
+                UUID.randomUUID(), exactReference,
+                UUID.randomUUID(), mismatchReference,
+                orphanLine,
+                UUID.randomUUID(), laggedReference,
+                lateLine, missingBankReference,
+                ignoredLine, outsideSale));
+
+        String otherMerchantId = createMerchant("Merchant Outro Extrato");
+        importBankStatement(otherMerchantId, """
+                lineReference,externalReference,amount,movementDate
+                %s,%s,145.00,2026-07-30
+                """.formatted(otherLine, missingBankReference));
+
+        String runId = runReconciliation("2026-07-01", "2026-07-31");
+
+        mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}", merchantId, runId)
+                        .header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.totalItems").value(5))
+                .andExpect(jsonPath("$.matchedCount").value(2))
+                .andExpect(jsonPath("$.divergentCount").value(3));
+
+        String items = itemsJson(runId);
+        assertThat(types(items, exactReference)).isEmpty();
+        assertThat(resultOf(items, exactReference)).isEqualTo("MATCHED");
+        assertDiscrepancy(items, mismatchReference, "BANK_AMOUNT_MISMATCH", "145.00", "100.00");
+        assertThat(types(items, mismatchReference)).containsExactly("BANK_AMOUNT_MISMATCH");
+        assertDiscrepancy(items, missingBankReference, "MISSING_BANK_CREDIT", "145.00", null);
+        assertThat(types(items, missingBankReference)).containsExactly("MISSING_BANK_CREDIT");
+        assertDiscrepancy(items, orphanLine, "ORPHAN_BANK_CREDIT", null, "20.00");
+        assertThat(resultOf(items, orphanLine)).isEqualTo("DIVERGENT");
+        assertThat(field(items, orphanLine, "internalTransactionId")).isNull();
+        assertThat(field(items, orphanLine, "externalSettlementId")).isNull();
+        assertThat(types(items, laggedReference)).isEmpty();
+        assertThat(resultOf(items, laggedReference)).isEqualTo("MATCHED");
+        assertThat(references(items)).doesNotContain(otherLine, lateLine, ignoredLine, outsideSale);
+
+        String csv = mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/export", merchantId, runId)
+                        .header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        List<String[]> rows = csvRows(csv);
+        assertThat(rows.getFirst()).containsExactly(
+                "externalReference",
+                "result",
+                "discrepancyTypes",
+                "internalTransactionId",
+                "externalSettlementId",
+                "transactionAmount",
+                "expectedNetAmount",
+                "settlementAmount",
+                "settlementNetAmount",
+                "paymentMethod",
+                "installments",
+                "transactionStatus",
+                "settlementStatus",
+                "transactionDate",
+                "settlementDate");
+        assertThat(row(rows, mismatchReference)[2]).isEqualTo("BANK_AMOUNT_MISMATCH");
+        assertThat(row(rows, missingBankReference)[2]).isEqualTo("MISSING_BANK_CREDIT");
+        assertThat(row(rows, orphanLine)[2]).isEqualTo("ORPHAN_BANK_CREDIT");
+        assertThat(row(rows, exactReference)[1]).isEqualTo("MATCHED");
+        assertThat(row(rows, exactReference)[2]).isEmpty();
     }
 
     @Test
@@ -182,7 +306,12 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].transactionStatus").value("APPROVED"))
-                .andExpect(jsonPath("$.content[0].result").value("MATCHED"));
+                .andExpect(jsonPath("$.content[0].result").value("DIVERGENT"))
+                .andExpect(jsonPath("$.content[0].discrepancies.length()").value(1))
+                .andExpect(jsonPath("$.content[0].discrepancies[0].type").value("MISSING_BANK_CREDIT"))
+                .andExpect(jsonPath("$.content[0].discrepancies[0].status").value("OPEN"))
+                .andExpect(jsonPath("$.content[0].discrepancies[0].expectedValue").value("145.00"))
+                .andExpect(jsonPath("$.content[0].discrepancies[0].actualValue").value(nullValue()));
     }
 
     @Test
@@ -218,7 +347,13 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.content[0].externalReference").value(reference))
-                .andExpect(jsonPath("$.content[0].result").value("MATCHED"));
+                .andExpect(jsonPath("$.content[0].settlementDate").value("2026-08-02"))
+                .andExpect(jsonPath("$.content[0].result").value("DIVERGENT"))
+                .andExpect(jsonPath("$.content[0].discrepancies.length()").value(1))
+                .andExpect(jsonPath("$.content[0].discrepancies[0].type").value("MISSING_BANK_CREDIT"))
+                .andExpect(jsonPath("$.content[0].discrepancies[0].status").value("OPEN"))
+                .andExpect(jsonPath("$.content[0].discrepancies[0].expectedValue").value("145.00"))
+                .andExpect(jsonPath("$.content[0].discrepancies[0].actualValue").value(nullValue()));
     }
 
     @Test
@@ -274,7 +409,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .getResponse()
                 .getContentAsString();
 
-        String id = com.jayway.jsonpath.JsonPath.read(response, "$.id");
+        String id = JsonPath.read(response, "$.id");
         awaitCompleted(id);
         return id;
     }
@@ -318,7 +453,126 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                 .getResponse()
                 .getContentAsString();
 
-        return com.jayway.jsonpath.JsonPath.read(response, "$.id");
+        return JsonPath.read(response, "$.id");
+    }
+
+    private String itemsJson(String runId) throws Exception {
+        return mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/items", merchantId, runId)
+                        .header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+    }
+
+    private void assertDiscrepancy(
+            String items,
+            String reference,
+            String type,
+            String expectedValue,
+            String actualValue) {
+        Map<String, Object> discrepancy = discrepancies(items, reference).stream()
+                .filter(candidate -> type.equals(candidate.get("type")))
+                .findFirst()
+                .orElseThrow();
+        assertThat(discrepancy.get("expectedValue")).isEqualTo(expectedValue);
+        assertThat(discrepancy.get("actualValue")).isEqualTo(actualValue);
+        assertThat(discrepancy.get("status")).isEqualTo("OPEN");
+        assertThat(resultOf(items, reference)).isEqualTo("DIVERGENT");
+    }
+
+    private List<String> types(String items, String reference) {
+        return discrepancies(items, reference).stream()
+                .map(discrepancy -> (String) discrepancy.get("type"))
+                .toList();
+    }
+
+    private String resultOf(String items, String reference) {
+        return (String) item(items, reference).get("result");
+    }
+
+    private Object field(String items, String reference, String name) {
+        return item(items, reference).get(name);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> discrepancies(String items, String reference) {
+        return (List<Map<String, Object>>) item(items, reference).get("discrepancies");
+    }
+
+    private Map<String, Object> item(String items, String reference) {
+        List<Map<String, Object>> found = JsonPath.read(
+                items, "$.content[?(@.externalReference=='" + reference + "')]");
+        assertThat(found).hasSize(1);
+        return found.getFirst();
+    }
+
+    private List<String> references(String items) {
+        return JsonPath.read(items, "$.content[*].externalReference");
+    }
+
+    private void assertCsvHeader(String csv) throws Exception {
+        assertThat(csvRows(csv).getFirst()).containsExactly(
+                "externalReference",
+                "result",
+                "discrepancyTypes",
+                "internalTransactionId",
+                "externalSettlementId",
+                "transactionAmount",
+                "expectedNetAmount",
+                "settlementAmount",
+                "settlementNetAmount",
+                "paymentMethod",
+                "installments",
+                "transactionStatus",
+                "settlementStatus",
+                "transactionDate",
+                "settlementDate");
+    }
+
+    private List<String[]> csvRows(String csv) throws Exception {
+        try (CSVReader reader = new CSVReader(new StringReader(csv))) {
+            return reader.readAll();
+        }
+    }
+
+    private String[] row(List<String[]> rows, String reference) {
+        return rows.stream()
+                .filter(cells -> reference.equals(cells[0]))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private String createMerchant(String name) throws Exception {
+        String document = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String response = mockMvc.perform(post("/api/merchants")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"%s","document":"%s"}
+                                """.formatted(name, document)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        return JsonPath.read(response, "$.id");
+    }
+
+    private void importBankStatement(String csvContent) throws Exception {
+        importBankStatement(merchantId, csvContent);
+    }
+
+    private void importBankStatement(String targetMerchantId, String csvContent) throws Exception {
+        MockMultipartFile csvFile = new MockMultipartFile(
+                "file",
+                "statement.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(multipart("/api/merchants/{merchantId}/bank-statements/import", targetMerchantId)
+                        .file(csvFile)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isCreated());
     }
 
     private void importSettlements(String csvContent) throws Exception {

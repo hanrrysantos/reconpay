@@ -463,13 +463,13 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Um run com par exato, valor divergente, liquidação sem depósito e depósito sem liquidação mostra os quatro desfechos
-- [ ] Linha de outro merchant não entra no run
-- [ ] Run sem extrato marca cada liquidação incluída com `MISSING_BANK_CREDIT`
-- [ ] O cabeçalho do CSV de conciliação permanece o atual. O tipo novo pode aparecer em `discrepancyTypes`
-- [ ] Testes de run que esperavam `MATCHED` sem extrato passam a esperar o desfecho da spec
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido ou enfraquecido
+- [x] Um run com par exato, valor divergente, liquidação sem depósito e depósito sem liquidação mostra os quatro desfechos
+- [x] Linha de outro merchant não entra no run
+- [x] Run sem extrato marca cada liquidação incluída com `MISSING_BANK_CREDIT`
+- [x] O cabeçalho do CSV de conciliação permanece o atual. O tipo novo pode aparecer em `discrepancyTypes`
+- [x] Testes de run que esperavam `MATCHED` sem extrato passam a esperar o desfecho da spec
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido ou enfraquecido
 
 **Tests**: integration
 **Gate**: full

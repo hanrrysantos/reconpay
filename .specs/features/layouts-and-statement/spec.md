@@ -159,11 +159,11 @@ A API só aceita um CSV de liquidação com sete colunas fixas. O operador não 
 | LAY-21 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-22 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-23 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-24 | P1: Cruzar extrato e liquidação | Design | Pending |
+| LAY-24 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-25 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-26 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-27 | P1: Cruzar extrato e liquidação | Execute | Implementing |
-| LAY-28 | P1: Cruzar extrato e liquidação | - | Pending |
+| LAY-28 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 
 **Coverage:** 28 total, 0 mapped to tasks, 28 unmapped
 

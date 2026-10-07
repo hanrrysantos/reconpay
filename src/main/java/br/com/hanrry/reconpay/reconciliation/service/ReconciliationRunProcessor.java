@@ -1,5 +1,7 @@
 package br.com.hanrry.reconpay.reconciliation.service;
 
+import br.com.hanrry.reconpay.bankstatement.entity.BankStatementLineEntity;
+import br.com.hanrry.reconpay.bankstatement.repository.IBankStatementLineRepository;
 import br.com.hanrry.reconpay.exception.ReconciliationNotFoundException;
 import br.com.hanrry.reconpay.externalsettlement.entity.ExternalSettlementEntity;
 import br.com.hanrry.reconpay.externalsettlement.repository.ExternalSettlementSpecifications;
@@ -27,6 +29,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -49,6 +52,8 @@ public class ReconciliationRunProcessor {
     private final IReconciliationItemRepository reconciliationItemRepository;
     private final IInternalTransactionRepository transactionRepository;
     private final IExternalSettlementRepository externalSettlementRepository;
+    private final IBankStatementLineRepository bankStatementLineRepository;
+    private final BankStatementMatcher bankStatementMatcher;
     private final ReconciliationProperties properties;
     private final AuditLogger auditLogger;
     private final EntityManager entityManager;
@@ -86,6 +91,18 @@ public class ReconciliationRunProcessor {
         List<ReconciliationItemEntity> items = reconciliationEngine.reconcile(
                 transactionsByReference,
                 settlementsByReference);
+
+        LocalDate extendedTo = toDate.plusDays(properties.settlementLagDays());
+        List<BankStatementLineEntity> bankLines = bankStatementLineRepository
+                .findByMerchant_IdAndMovementDateBetween(merchantId, fromDate, extendedTo);
+        items = bankStatementMatcher.apply(
+                items,
+                bankLines,
+                referencesOutsideWindow(
+                        merchantId,
+                        transactionsByReference.keySet(),
+                        settlementsByReference.keySet(),
+                        bankLines));
 
         persistInBatches(items, runId);
 
@@ -158,6 +175,23 @@ public class ReconciliationRunProcessor {
             entityManager.flush();
             entityManager.clear();
         }
+    }
+
+    private Set<String> referencesOutsideWindow(
+            UUID merchantId,
+            Set<String> referencesInWindow,
+            Set<String> settlementReferences,
+            List<BankStatementLineEntity> lines) {
+        Set<String> candidates = lines.stream()
+                .map(BankStatementLineEntity::getExternalReference)
+                .filter(Objects::nonNull)
+                .filter(code -> !settlementReferences.contains(code))
+                .filter(code -> !referencesInWindow.contains(code))
+                .collect(Collectors.toSet());
+        if (candidates.isEmpty()) {
+            return Set.of();
+        }
+        return transactionRepository.findExistingReferences(merchantId, candidates);
     }
 
     private int countByResult(List<ReconciliationItemEntity> items, ReconciliationResult result) {
