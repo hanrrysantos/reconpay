@@ -185,13 +185,14 @@ T17
 
 **Done when**:
 
-- [ ] A classe é uma `RuntimeException` com mensagem
-- [ ] Gate: `./mvnw -B -DskipTests compile`
+- [x] A classe é uma `RuntimeException` com mensagem
+- [x] Gate: `./mvnw -B -DskipTests compile`
 
 **Tests**: none
 **Gate**: build
 
 **Commit**: `feat(exception): add the period conflict exception`
+**Status**: Done
 
 ---
 
