@@ -150,10 +150,10 @@ A API só aceita um CSV de liquidação com sete colunas fixas. O operador não 
 | LAY-12 | P1: Importar o extrato | Execute | Implementing |
 | LAY-13 | P1: Importar o extrato | Execute | Implementing |
 | LAY-14 | P1: Cruzar extrato e liquidação | Design | Pending |
-| LAY-15 | P1: Cruzar extrato e liquidação | Design | Pending |
+| LAY-15 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-16 | P1: Cruzar extrato e liquidação | Design | Pending |
-| LAY-17 | P1: Cruzar extrato e liquidação | Design | Pending |
-| LAY-18 | P1: Cruzar extrato e liquidação | Design | Pending |
+| LAY-17 | P1: Cruzar extrato e liquidação | Execute | Implementing |
+| LAY-18 | P1: Cruzar extrato e liquidação | Execute | Implementing |
 | LAY-19 | P1: Cruzar extrato e liquidação | Design | Pending |
 | LAY-20 | P1: Cruzar extrato e liquidação | Design | Pending |
 | LAY-21 | P1: Cruzar extrato e liquidação | Design | Pending |

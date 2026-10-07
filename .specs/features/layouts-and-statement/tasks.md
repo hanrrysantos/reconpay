@@ -400,9 +400,9 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Os quatro nomes existem e cabem em `VARCHAR(50)`
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] Os quatro nomes existem e cabem em `VARCHAR(50)`
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build
