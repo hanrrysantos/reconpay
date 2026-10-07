@@ -194,7 +194,7 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-06 | P1: Ler | - | Pending |
 | PER-07 | P1: Ler | - | Pending |
 | PER-08 | P1: Ler | - | Pending |
-| PER-09 | P1: Ler | - | Pending |
+| PER-09 | P1: Ler | Phase 2 | Implementing |
 | PER-10 | P1: Ler | - | Pending |
 | PER-11 | P1: Travar | Phase 1 | Implementing |
 | PER-12 | P1: Travar | - | Pending |
@@ -231,7 +231,7 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-43 | P1: Acesso | - | Pending |
 | PER-44 | P1: Acesso | - | Pending |
 
-**Coverage:** 44 total, 4 mapped to tasks, 40 unmapped
+**Coverage:** 44 total, 5 mapped to tasks, 39 unmapped
 
 ---
 
