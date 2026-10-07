@@ -141,12 +141,12 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Receita nula chama o parser com `RECONPAY`
-- [ ] `ACQUIRER` chama o parser com `ACQUIRER` e grava as liquidações mapeadas
-- [ ] Erro de linha ou referência já existente não chama `save` do lote
-- [ ] `SETTLEMENTS_IMPORTED` só é pedido depois do `save`
-- [ ] Gate: `./mvnw -B test -Dtest=ExternalSettlementServiceTest`
-- [ ] Nenhum teste removido
+- [x] Receita nula chama o parser com `RECONPAY`
+- [x] `ACQUIRER` chama o parser com `ACQUIRER` e grava as liquidações mapeadas
+- [x] Erro de linha ou referência já existente não chama `save` do lote
+- [x] `SETTLEMENTS_IMPORTED` só é pedido depois do `save`
+- [x] Gate: `./mvnw -B test -Dtest=ExternalSettlementServiceTest`
+- [x] Nenhum teste removido
 
 **Tests**: unit
 **Gate**: quick
