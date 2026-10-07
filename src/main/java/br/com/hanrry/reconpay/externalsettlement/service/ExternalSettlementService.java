@@ -9,6 +9,7 @@ import br.com.hanrry.reconpay.externalsettlement.dto.ExternalSettlementResponseD
 import br.com.hanrry.reconpay.externalsettlement.dto.SettlementImportResponseDTO;
 import br.com.hanrry.reconpay.externalsettlement.entity.ExternalSettlementEntity;
 import br.com.hanrry.reconpay.externalsettlement.entity.SettlementImportEntity;
+import br.com.hanrry.reconpay.externalsettlement.enums.SettlementLayout;
 import br.com.hanrry.reconpay.externalsettlement.mapper.IExternalSettlementMapper;
 import br.com.hanrry.reconpay.externalsettlement.mapper.ISettlementImportMapper;
 import br.com.hanrry.reconpay.externalsettlement.repository.ExternalSettlementSpecifications;
@@ -45,13 +46,22 @@ public class ExternalSettlementService {
 
     @Transactional
     public SettlementImportResponseDTO importCsv(UUID merchantId, MultipartFile file) {
+        return importCsv(merchantId, file, null);
+    }
+
+    @Transactional
+    public SettlementImportResponseDTO importCsv(
+            UUID merchantId,
+            MultipartFile file,
+            SettlementLayout layout) {
         MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(merchantId)
                 .orElseThrow(() -> new MerchantNotFoundException(
                         "Comerciante não encontrado com id: " + merchantId));
 
         validateFile(file);
 
-        List<SettlementCsvParser.ParsedSettlementRow> rows = parseFile(file);
+        SettlementLayout resolvedLayout = layout == null ? SettlementLayout.RECONPAY : layout;
+        List<SettlementCsvParser.ParsedSettlementRow> rows = parseFile(file, resolvedLayout);
         ensureNoDuplicateInDatabase(merchantId, rows);
 
         SettlementImportEntity importBatch = new SettlementImportEntity();
@@ -140,9 +150,11 @@ public class ExternalSettlementService {
         }
     }
 
-    private List<SettlementCsvParser.ParsedSettlementRow> parseFile(MultipartFile file) {
+    private List<SettlementCsvParser.ParsedSettlementRow> parseFile(
+            MultipartFile file,
+            SettlementLayout layout) {
         try {
-            return settlementCsvParser.parse(file.getInputStream());
+            return settlementCsvParser.parse(file.getInputStream(), layout);
         } catch (IOException ex) {
             throw new InvalidSettlementImportException("Erro ao ler arquivo CSV");
         }
