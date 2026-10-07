@@ -557,16 +557,17 @@ T17
 
 **Done when**:
 
-- [ ] Arquivo válido com uma data coberta lança `PeriodConflictException` e não grava lote nem linha
-- [ ] Arquivo inválido continua 400
-- [ ] Datas fora de toda trava gravam o lote
-- [ ] Gate: `./mvnw -B test -Dtest=BankStatementServiceTest`
-- [ ] Test count: pelo menos 3 testes passam em `BankStatementServiceTest`
+- [x] Arquivo válido com uma data coberta lança `PeriodConflictException` e não grava lote nem linha
+- [x] Arquivo inválido continua 400
+- [x] Datas fora de toda trava gravam o lote
+- [x] Gate: `./mvnw -B test -Dtest=BankStatementServiceTest`
+- [x] Test count: pelo menos 3 testes passam em `BankStatementServiceTest`
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(bankstatement): reject imports inside a locked window`
+**Status**: Done
 
 ---
 

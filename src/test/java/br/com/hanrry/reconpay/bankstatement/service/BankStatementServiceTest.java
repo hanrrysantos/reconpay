@@ -11,11 +11,13 @@ import br.com.hanrry.reconpay.bankstatement.repository.IBankStatementLineReposit
 import br.com.hanrry.reconpay.exception.DuplicateExternalSettlementException;
 import br.com.hanrry.reconpay.exception.InvalidSettlementImportException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
+import br.com.hanrry.reconpay.exception.PeriodConflictException;
 import br.com.hanrry.reconpay.exception.SettlementImportValidationException;
 import br.com.hanrry.reconpay.externalsettlement.dto.ImportRowErrorDTO;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.observability.AuditLogger;
+import br.com.hanrry.reconpay.reconciliation.service.PeriodGuard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -66,6 +69,9 @@ class BankStatementServiceTest {
     private IMerchantRepository merchantRepository;
 
     @Mock
+    private PeriodGuard periodGuard;
+
+    @Mock
     private AuditLogger auditLogger;
 
     private BankStatementService bankStatementService;
@@ -79,6 +85,7 @@ class BankStatementServiceTest {
                 bankStatementLineRepository,
                 bankStatementImportRepository,
                 merchantRepository,
+                periodGuard,
                 auditLogger);
     }
 
@@ -170,6 +177,89 @@ class BankStatementServiceTest {
         verify(bankStatementImportRepository, never()).save(any());
         verify(bankStatementLineRepository, never()).saveAll(anyList());
         verifyNoInteractions(auditLogger);
+    }
+
+    @Test
+    void importCsvShouldRejectACoveredMovementDateAndPersistNothing() throws IOException {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        MultipartFile file = csvFile("statement.csv", "content");
+        BankStatementCsvParser.ParsedBankStatementRow open = statementRow("LN-OPEN", LocalDate.parse("2026-07-20"));
+        BankStatementCsvParser.ParsedBankStatementRow covered = statementRow("LN-LOCKED", LocalDate.parse("2026-07-10"));
+        List<LocalDate> dates = List.of(open.movementDate(), covered.movementDate());
+
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(bankStatementCsvParser.parse(any(InputStream.class))).thenReturn(List.of(open, covered));
+        when(bankStatementLineRepository.findByMerchant_IdAndLineReferenceIn(
+                merchantId, List.of("LN-OPEN", "LN-LOCKED"))).thenReturn(List.of());
+        doThrow(new PeriodConflictException("Janela travada de 2026-07-01 a 2026-07-15"))
+                .when(periodGuard).assertDatesOpen(merchantId, dates);
+
+        assertThatThrownBy(() -> bankStatementService.importCsv(merchantId, file))
+                .isInstanceOf(PeriodConflictException.class);
+
+        verify(bankStatementImportRepository, never()).save(any());
+        verify(bankStatementLineRepository, never()).saveAll(anyList());
+        verifyNoInteractions(auditLogger);
+    }
+
+    @Test
+    void importCsvShouldKeepValidationErrorWhenTheFileIsInvalid() throws IOException {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        MultipartFile file = csvFile("statement.csv", """
+                lineReference,externalReference,amount,movementDate
+                LN-LOCKED,TXN-1,10.00,2026-07-10
+                """);
+
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(bankStatementCsvParser.parse(any(InputStream.class)))
+                .thenThrow(new InvalidSettlementImportException(
+                        "Cabeçalho CSV inválido. Esperado: lineReference,externalReference,amount,movementDate"));
+
+        assertThatThrownBy(() -> bankStatementService.importCsv(merchantId, file))
+                .isInstanceOf(InvalidSettlementImportException.class);
+
+        verifyNoInteractions(periodGuard);
+        verify(bankStatementImportRepository, never()).save(any());
+        verify(bankStatementLineRepository, never()).saveAll(anyList());
+    }
+
+    @Test
+    void importCsvShouldPersistMovementDatesOutsideEveryLockedWindow() throws IOException {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        LocalDate outside = LocalDate.parse("2026-07-20");
+        MultipartFile file = csvFile("statement.csv", "content");
+        BankStatementCsvParser.ParsedBankStatementRow row = statementRow("LN-OUT", outside);
+        BankStatementImportEntity savedImport = buildImport(merchant, "statement.csv", 1);
+
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(bankStatementCsvParser.parse(any(InputStream.class))).thenReturn(List.of(row));
+        when(bankStatementLineRepository.findByMerchant_IdAndLineReferenceIn(merchantId, List.of("LN-OUT")))
+                .thenReturn(List.of());
+        when(bankStatementImportRepository.save(any(BankStatementImportEntity.class))).thenReturn(savedImport);
+
+        BankStatementImportResponseDTO response = bankStatementService.importCsv(merchantId, file);
+
+        verify(periodGuard).assertDatesOpen(merchantId, List.of(outside));
+        verify(bankStatementImportRepository).save(any(BankStatementImportEntity.class));
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<BankStatementLineEntity>> linesCaptor = ArgumentCaptor.forClass(List.class);
+        verify(bankStatementLineRepository).saveAll(linesCaptor.capture());
+        assertThat(linesCaptor.getValue()).singleElement()
+                .extracting(BankStatementLineEntity::getMovementDate)
+                .isEqualTo(outside);
+        assertThat(response.totalRows()).isEqualTo(1);
+        assertThat(response.merchantId()).isEqualTo(merchantId);
+    }
+
+    private BankStatementCsvParser.ParsedBankStatementRow statementRow(String lineReference, LocalDate movementDate) {
+        return new BankStatementCsvParser.ParsedBankStatementRow(
+                lineReference,
+                "TXN-1",
+                new BigDecimal("10.00"),
+                movementDate);
     }
 
     @Test

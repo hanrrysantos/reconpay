@@ -14,6 +14,7 @@ import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.observability.AuditLogger;
+import br.com.hanrry.reconpay.reconciliation.service.PeriodGuard;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,7 @@ public class BankStatementService {
     private final IBankStatementLineRepository bankStatementLineRepository;
     private final IBankStatementImportRepository bankStatementImportRepository;
     private final IMerchantRepository merchantRepository;
+    private final PeriodGuard periodGuard;
     private final AuditLogger auditLogger;
 
     @Transactional
@@ -47,6 +49,9 @@ public class BankStatementService {
 
         List<BankStatementCsvParser.ParsedBankStatementRow> rows = parseFile(file);
         ensureNoDuplicateInDatabase(merchantId, rows);
+        periodGuard.assertDatesOpen(
+                merchantId,
+                rows.stream().map(BankStatementCsvParser.ParsedBankStatementRow::movementDate).toList());
 
         BankStatementImportEntity importBatch = new BankStatementImportEntity();
         importBatch.setMerchant(merchant);
