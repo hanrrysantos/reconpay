@@ -255,10 +255,10 @@ T17 → T18
 
 **Done when**:
 
-- [ ] O exemplo JSON tem `"status": 413` e `"error": "VALIDATION_ERROR"`
-- [ ] A description cita o máximo de 5MB
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] O exemplo JSON tem `"status": 413` e `"error": "VALIDATION_ERROR"`
+- [x] A description cita o máximo de 5MB
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build
