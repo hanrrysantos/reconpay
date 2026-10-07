@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 4,
+  "next_id": 7,
   "lessons": [
     {
       "id": "L-001",
@@ -59,6 +59,60 @@
       ],
       "created": "2026-10-07T13:31:28Z",
       "last_seen": "2026-10-07T13:31:28Z"
+    },
+    {
+      "id": "L-004",
+      "key": "spec_precision_gap::assert portuguese copy with a language check not only that the text is non blank",
+      "text": "Assert Portuguese copy with a language check, not only that the text is non-blank.",
+      "signal": "spec_precision_gap",
+      "scope": "openapi",
+      "status": "candidate",
+      "features": [
+        "api-docs"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ApiDocsIntegrationTest.java:110 (openapi)"
+      ],
+      "created": "2026-10-07T15:34:26Z",
+      "last_seen": "2026-10-07T15:34:26Z"
+    },
+    {
+      "id": "L-005",
+      "key": "spec_precision_gap::assert the login 401 phrase separately from the missing bearer 401 phrase because both share status 401 and error unauthorized",
+      "text": "Assert the login 401 phrase separately from the missing-bearer 401 phrase, because both share status 401 and error UNAUTHORIZED.",
+      "signal": "spec_precision_gap",
+      "scope": "openapi",
+      "status": "candidate",
+      "features": [
+        "api-docs"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ApiDocsIntegrationTest.java:706 (openapi)"
+      ],
+      "created": "2026-10-07T15:34:26Z",
+      "last_seen": "2026-10-07T15:34:26Z"
+    },
+    {
+      "id": "L-006",
+      "key": "spec_precision_gap::assert a 204 response omits its example not only that it omits a schema",
+      "text": "Assert a 204 response omits its example, not only that it omits a schema.",
+      "signal": "spec_precision_gap",
+      "scope": "openapi",
+      "status": "candidate",
+      "features": [
+        "api-docs"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "ApiDocsIntegrationTest.java:776 (openapi)"
+      ],
+      "created": "2026-10-07T15:34:26Z",
+      "last_seen": "2026-10-07T15:34:26Z"
     }
   ]
 }

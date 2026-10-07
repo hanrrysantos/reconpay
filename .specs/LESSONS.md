@@ -32,6 +32,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: ExternalSettlementServiceTest.java:336 (imports)
 - last seen: 2026-10-07T13:31:28Z
 
+### L-004 - Assert Portuguese copy with a language check, not only that the text is non-blank.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `openapi` · harmful: 0
+- features: api-docs
+- evidence: ApiDocsIntegrationTest.java:110 (openapi)
+- last seen: 2026-10-07T15:34:26Z
+
+### L-005 - Assert the login 401 phrase separately from the missing-bearer 401 phrase, because both share status 401 and error UNAUTHORIZED.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `openapi` · harmful: 0
+- features: api-docs
+- evidence: ApiDocsIntegrationTest.java:706 (openapi)
+- last seen: 2026-10-07T15:34:26Z
+
+### L-006 - Assert a 204 response omits its example, not only that it omits a schema.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `openapi` · harmful: 0
+- features: api-docs
+- evidence: ApiDocsIntegrationTest.java:776 (openapi)
+- last seen: 2026-10-07T15:34:26Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

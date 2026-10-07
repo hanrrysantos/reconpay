@@ -52,11 +52,11 @@
 
 ## Handoff
 
-- **Feature**: `.specs/features/api-docs/`
-- **Phase / Task**: Phase 5 complete / T18
-- **Completed**: T1–T18
+- **Feature**: `.specs/features/api-docs/` — **Complete** (validation PASS)
+- **Phase / Task**: none
+- **Completed**: T1–T18 + Verifier (`validation.md`)
 - **In-progress** (file:line): none
-- **Next step**: Verifier
+- **Next step**: period indicators, then the frontend
 - **Blockers**: none
 - **Uncommitted files**: none
 - **Branch**: main

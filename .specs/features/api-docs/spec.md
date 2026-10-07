@@ -6,8 +6,8 @@ Quem abre o Swagger encontra a autenticação descrita e o resto das rotas só c
 
 ## Goals
 
-- [ ] Cada operação em `/api/**` abre no Swagger com exemplo preenchido para teste e com cada código de resposta que essa operação produz, explicado
-- [ ] As tags seguem o fluxo operacional e a página inicial descreve o produto e os dois papéis, sem roteiro numerado de teste
+- [x] Cada operação em `/api/**` abre no Swagger com exemplo preenchido para teste e com cada código de resposta que essa operação produz, explicado
+- [x] As tags seguem o fluxo operacional e a página inicial descreve o produto e os dois papéis, sem roteiro numerado de teste
 
 ## Out of Scope
 
@@ -177,10 +177,10 @@ Quem abre o Swagger encontra a autenticação descrita e o resto das rotas só c
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| DOCS-01 | P1: Achar a rota e entender o produto | Tasks | Implementing |
-| DOCS-02 | P1: Testar a rota com o exemplo preenchido | Tasks | Implementing |
-| DOCS-03 | P1: Ler o que cada código significa | Tasks | Implementing |
-| DOCS-04 | P1: Manter o controller legível | Tasks | Implementing |
+| DOCS-01 | P1: Achar a rota e entender o produto | Execute | Verified |
+| DOCS-02 | P1: Testar a rota com o exemplo preenchido | Execute | Verified |
+| DOCS-03 | P1: Ler o que cada código significa | Execute | Verified |
+| DOCS-04 | P1: Manter o controller legível | Execute | Verified |
 
 **Coverage:** 4 total, 4 mapped to tasks, 0 unmapped
 
@@ -188,7 +188,7 @@ Quem abre o Swagger encontra a autenticação descrita e o resto das rotas só c
 
 ## Success Criteria
 
-- [ ] `/v3/api-docs` lists the nine tags in operational order and the intro names ADMIN and OPERATOR without a numbered call list
-- [ ] Every `/api/**` operation has a Portuguese summary, a request example when it has a JSON body, and the status codes in the response table, each described
-- [ ] The login example is the dev admin seed, and every JSON request example passes Bean Validation
-- [ ] The nine controllers implement a documentation interface and do not carry `@Operation` on their methods
+- [x] `/v3/api-docs` lists the nine tags in operational order and the intro names ADMIN and OPERATOR without a numbered call list
+- [x] Every `/api/**` operation has a Portuguese summary, a request example when it has a JSON body, and the status codes in the response table, each described
+- [x] The login example is the dev admin seed, and every JSON request example passes Bean Validation
+- [x] The nine controllers implement a documentation interface and do not carry `@Operation` on their methods
