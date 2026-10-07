@@ -587,10 +587,10 @@ T17 → T18
 
 **Done when**:
 
-- [ ] O teste falha se algum dos nove controllers deixar de implementar interface cujo nome termina em `Api`
-- [ ] O teste falha se um método declarado na classe do controller tiver `@Operation`
-- [ ] Gate: `./mvnw -B test -Dtest=ApiDocumentationInterfacesTest`
-- [ ] Nenhum teste removido
+- [x] O teste falha se algum dos nove controllers deixar de implementar interface cujo nome termina em `Api`
+- [x] O teste falha se um método declarado na classe do controller tiver `@Operation`
+- [x] Gate: `./mvnw -B test -Dtest=ApiDocumentationInterfacesTest`
+- [x] Nenhum teste removido
 
 **Tests**: unit
 **Gate**: quick

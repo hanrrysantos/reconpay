@@ -53,10 +53,10 @@
 ## Handoff
 
 - **Feature**: `.specs/features/api-docs/`
-- **Phase / Task**: Phase 3 complete / T12
-- **Completed**: T1–T12
+- **Phase / Task**: Phase 5 complete / T18
+- **Completed**: T1–T18
 - **In-progress** (file:line): none
-- **Next step**: T13
+- **Next step**: Verifier
 - **Blockers**: none
 - **Uncommitted files**: none
 - **Branch**: main

@@ -178,9 +178,9 @@ Quem abre o Swagger encontra a autenticação descrita e o resto das rotas só c
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
 | DOCS-01 | P1: Achar a rota e entender o produto | Tasks | Implementing |
-| DOCS-02 | P1: Testar a rota com o exemplo preenchido | Tasks | In Tasks |
-| DOCS-03 | P1: Ler o que cada código significa | Tasks | In Tasks |
-| DOCS-04 | P1: Manter o controller legível | Tasks | In Tasks |
+| DOCS-02 | P1: Testar a rota com o exemplo preenchido | Tasks | Implementing |
+| DOCS-03 | P1: Ler o que cada código significa | Tasks | Implementing |
+| DOCS-04 | P1: Manter o controller legível | Tasks | Implementing |
 
 **Coverage:** 4 total, 4 mapped to tasks, 0 unmapped
 
