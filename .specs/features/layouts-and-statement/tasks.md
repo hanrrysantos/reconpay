@@ -229,9 +229,9 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Campos mapeados em `bank_statement_imports`
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] Campos mapeados em `bank_statement_imports`
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build
