@@ -320,16 +320,17 @@ T17
 
 **Done when**:
 
-- [ ] Janela com linha de trava lança `PeriodConflictException` e a data igual a `fromDate` ou `toDate` também
-- [ ] Data fora de toda trava passa. Merchant inativo lança `MerchantNotFoundException`
-- [ ] As duas checagens chamam o lock pessimista antes de ler `period_locks`
-- [ ] Gate: `./mvnw -B test -Dtest=PeriodGuardTest`
-- [ ] Test count: pelo menos 5 testes passam em `PeriodGuardTest`
+- [x] Janela com linha de trava lança `PeriodConflictException` e a data igual a `fromDate` ou `toDate` também
+- [x] Data fora de toda trava passa. Merchant inativo lança `MerchantNotFoundException`
+- [x] As duas checagens chamam o lock pessimista antes de ler `period_locks`
+- [x] Gate: `./mvnw -B test -Dtest=PeriodGuardTest`
+- [x] Test count: pelo menos 5 testes passam em `PeriodGuardTest`
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(reconciliation): guard locked windows and dates`
+**Status**: Done
 
 ---
 
