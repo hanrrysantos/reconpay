@@ -339,11 +339,11 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Arquivo válido pede `save` do lote e das linhas, e `BANK_STATEMENTS_IMPORTED` depois do save
-- [ ] Erro de linha ou `lineReference` já existente não pede `save`
-- [ ] A listagem devolve só as linhas do merchant, com id, `lineReference`, `externalReference`, valor, data e id do lote
-- [ ] Gate: `./mvnw -B test -Dtest=BankStatementServiceTest`
-- [ ] Nenhum teste removido
+- [x] Arquivo válido pede `save` do lote e das linhas, e `BANK_STATEMENTS_IMPORTED` depois do save
+- [x] Erro de linha ou `lineReference` já existente não pede `save`
+- [x] A listagem devolve só as linhas do merchant, com id, `lineReference`, `externalReference`, valor, data e id do lote
+- [x] Gate: `./mvnw -B test -Dtest=BankStatementServiceTest`
+- [x] Nenhum teste removido
 
 **Tests**: unit
 **Gate**: quick

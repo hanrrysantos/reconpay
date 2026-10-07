@@ -1,6 +1,8 @@
 package br.com.hanrry.reconpay.bankstatement.repository;
 
 import br.com.hanrry.reconpay.bankstatement.entity.BankStatementLineEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -18,4 +20,11 @@ public interface IBankStatementLineRepository extends JpaRepository<BankStatemen
     List<BankStatementLineEntity> findByMerchant_IdAndLineReferenceIn(
             UUID merchantId,
             Collection<String> lineReferences);
+
+    Page<BankStatementLineEntity> findByMerchant_Id(UUID merchantId, Pageable pageable);
+
+    Page<BankStatementLineEntity> findByMerchant_IdAndImportBatch_Id(
+            UUID merchantId,
+            UUID importId,
+            Pageable pageable);
 }
