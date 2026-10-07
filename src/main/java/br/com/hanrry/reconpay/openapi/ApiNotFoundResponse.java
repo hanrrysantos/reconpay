@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Documented
 @ApiResponse(
         responseCode = "404",
-        description = "Recurso inexistente para o identificador informado",
+        description = "Recurso não encontrado para o identificador informado",
         content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = StandardError.class),

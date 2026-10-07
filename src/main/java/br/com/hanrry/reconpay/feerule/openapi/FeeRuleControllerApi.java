@@ -129,7 +129,7 @@ public interface FeeRuleControllerApi {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Regra de taxa encontrada",
+            description = "Regra de taxa encontrada com êxito",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = FeeRuleResponseDTO.class),
@@ -156,7 +156,7 @@ public interface FeeRuleControllerApi {
     )
     @ApiResponse(
             responseCode = "201",
-            description = "Regra de taxa criada",
+            description = "Regra de taxa criada com êxito",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = FeeRuleResponseDTO.class),
@@ -191,7 +191,7 @@ public interface FeeRuleControllerApi {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Regra de taxa atualizada",
+            description = "Regra de taxa atualizada com êxito",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = FeeRuleResponseDTO.class),

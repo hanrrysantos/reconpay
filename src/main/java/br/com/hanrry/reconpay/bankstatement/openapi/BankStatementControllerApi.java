@@ -144,7 +144,7 @@ public interface BankStatementControllerApi {
     )
     @ApiResponse(
             responseCode = "201",
-            description = "Arquivo de extrato importado",
+            description = "Arquivo de extrato importado com êxito",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = BankStatementImportResponseDTO.class),

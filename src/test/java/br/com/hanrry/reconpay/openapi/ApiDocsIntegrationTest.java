@@ -108,6 +108,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             JsonNode tag = tags.get(index);
             assertThat(tag.get("name").asText()).isEqualTo(TAG_ORDER.get(index));
             assertThat(tag.get("description").asText()).isNotBlank();
+            assertThat(tag.get("description").asText()).containsPattern(PORTUGUESE);
         }
 
         String description = document.path("info").path("description").asText();
@@ -704,7 +705,16 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             JsonNode response = responses.path(code);
             String description = response.path("description").asText();
             assertThat(description).as("%s %s %s", op.method, op.path, code).isNotBlank();
+            assertThat(description).as("%s %s %s", op.method, op.path, code).containsPattern(PORTUGUESE);
             assertThat(description).isNotEqualTo(HttpStatus.valueOf(Integer.parseInt(code)).getReasonPhrase());
+            if ("post".equals(op.method) && "/api/auth/login".equals(op.path) && "401".equals(code)) {
+                assertThat(description).contains("credenciais inválidas");
+                assertThat(description).doesNotContain("token Bearer ausente");
+            }
+            if ("get".equals(op.method) && "/api/me".equals(op.path) && "401".equals(code)) {
+                assertThat(description).contains("token Bearer ausente ou inválido");
+                assertThat(description).doesNotContain("credenciais inválidas");
+            }
             if (op.htmlCodes.contains(code)) {
                 assertHtml(response);
             } else if (op.noSchemaCodes.contains(code)) {
@@ -778,10 +788,15 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         if (content == null || content.isNull() || content.isEmpty()) {
             return;
         }
-        content.properties().forEach(entry ->
-                assertThat(entry.getValue().has("schema"))
-                        .as(entry.getKey())
-                        .isFalse());
+        content.properties().forEach(entry -> {
+            JsonNode media = entry.getValue();
+            assertThat(media.has("schema"))
+                    .as(entry.getKey())
+                    .isFalse();
+            assertThat(media.has("example") || media.has("examples"))
+                    .as(entry.getKey())
+                    .isFalse();
+        });
     }
 
     private void assertErrorExample(JsonNode response, String code) throws Exception {

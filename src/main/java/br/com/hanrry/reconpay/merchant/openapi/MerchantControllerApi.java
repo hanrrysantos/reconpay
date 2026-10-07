@@ -62,7 +62,7 @@ public interface MerchantControllerApi {
     )
     @ApiResponse(
             responseCode = "201",
-            description = "Estabelecimento criado",
+            description = "Estabelecimento criado com êxito",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MerchantResponseDTO.class),
@@ -142,7 +142,7 @@ public interface MerchantControllerApi {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Estabelecimento encontrado",
+            description = "Estabelecimento encontrado com êxito",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MerchantResponseDTO.class),
@@ -164,7 +164,7 @@ public interface MerchantControllerApi {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Estabelecimento atualizado",
+            description = "Estabelecimento atualizado com êxito",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MerchantResponseDTO.class),

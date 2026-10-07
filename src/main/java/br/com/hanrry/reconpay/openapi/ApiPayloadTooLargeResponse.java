@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Documented
 @ApiResponse(
         responseCode = "413",
-        description = "Arquivo CSV acima do limite de 5MB",
+        description = "Arquivo CSV acima do limite máximo de 5MB",
         content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = StandardError.class),

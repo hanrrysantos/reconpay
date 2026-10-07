@@ -189,7 +189,7 @@ public interface UserControllerApi {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Conta ativada",
+            description = "Conta do usuário ativada",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = UserResponseDTO.class),
@@ -273,7 +273,7 @@ public interface UserControllerApi {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Nome atualizado",
+            description = "Nome do usuário atualizado",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = UserResponseDTO.class),
