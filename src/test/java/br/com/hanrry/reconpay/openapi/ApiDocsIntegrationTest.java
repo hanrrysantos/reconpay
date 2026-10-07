@@ -16,8 +16,12 @@ import br.com.hanrry.reconpay.feerule.dto.UpdateFeeRuleRequestDTO;
 import br.com.hanrry.reconpay.merchant.controller.MerchantController;
 import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.dto.UpdateMerchantRequestDTO;
+import br.com.hanrry.reconpay.transaction.controller.TransactionController;
+import br.com.hanrry.reconpay.transaction.dto.CreateTransactionRequestDTO;
+import br.com.hanrry.reconpay.transaction.dto.UpdateTransactionStatusRequestDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
@@ -80,7 +84,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private Validator validator;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Test
     void apiDocsListsOperationalTagsAndNamesBothRoles() throws Exception {
@@ -405,6 +409,62 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         );
     }
 
+    @Test
+    void transactionEndpointsDocumentTheResponseTable() throws Exception {
+        JsonNode document = apiDocs();
+        List<String> transactionFields = List.of(
+                "id", "merchantId", "externalReference", "amount", "expectedNetAmount",
+                "paymentMethod", "installments", "status", "transactionDate", "createdAt", "updatedAt");
+        List<String> idOrigin = List.of("criação", "listagem");
+        String list = "/api/merchants/{merchantId}/transactions";
+        String byId = "/api/merchants/{merchantId}/transactions/{id}";
+        String status = "/api/merchants/{merchantId}/transactions/{id}/status";
+
+        assertOperation(document, new Op(
+                "get", list,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", transactionFields, true, Set.of(), Set.of(), idOrigin
+        ));
+        assertQueryExample(document, "get", list, "page", "0");
+        assertQueryExample(document, "get", list, "size", "20");
+        assertQueryExample(document, "get", list, "sort", "transactionDate,desc");
+        assertQueryExample(document, "get", list, "status", "APPROVED");
+        assertQueryExample(document, "get", list, "paymentMethod", "CREDIT_CARD");
+        assertQueryExample(document, "get", list, "fromDate", "2026-07-01");
+        assertQueryExample(document, "get", list, "toDate", "2026-07-31");
+        assertOperation(document, new Op(
+                "get", byId,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", transactionFields, false, Set.of(), Set.of(), idOrigin
+        ));
+        assertOperation(document, new Op(
+                "post", list,
+                Set.of("201", "400", "401", "403", "404", "409"),
+                true, CreateTransactionRequestDTO.class, Map.of(),
+                "201", transactionFields, false, Set.of(), Set.of(), idOrigin
+        ));
+        assertResponseDescriptionContains(document, "post", list, "409", "referência repetida", "taxa ativa ausente");
+        assertOperation(document, new Op(
+                "patch", status,
+                Set.of("200", "400", "401", "403", "404"),
+                true, UpdateTransactionStatusRequestDTO.class, Map.of(),
+                "200", transactionFields, false, Set.of(), Set.of(), idOrigin
+        ));
+
+        assertNoMappingAnnotations(
+                TransactionController.class,
+                Operation.class,
+                GetMapping.class,
+                PostMapping.class,
+                PutMapping.class,
+                PatchMapping.class,
+                DeleteMapping.class,
+                RequestMapping.class
+        );
+    }
+
     private JsonNode apiDocs() throws Exception {
         String body = mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
@@ -582,6 +642,15 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             return objectMapper.readTree(node.asText());
         }
         return node;
+    }
+
+    private void assertResponseDescriptionContains(
+            JsonNode document, String method, String path, String code, String... parts) {
+        String description = document.path("paths").path(path).path(method)
+                .path("responses").path(code).path("description").asText();
+        for (String part : parts) {
+            assertThat(description).as("%s %s %s", method, path, code).contains(part);
+        }
     }
 
     private void assertQueryExample(JsonNode document, String method, String path, String name, String expected) {

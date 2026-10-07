@@ -5,9 +5,8 @@ import br.com.hanrry.reconpay.transaction.dto.CreateTransactionRequestDTO;
 import br.com.hanrry.reconpay.transaction.dto.TransactionResponseDTO;
 import br.com.hanrry.reconpay.transaction.dto.UpdateTransactionStatusRequestDTO;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
+import br.com.hanrry.reconpay.transaction.openapi.TransactionControllerApi;
 import br.com.hanrry.reconpay.transaction.service.TransactionService;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -17,12 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -33,14 +28,11 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@SecurityRequirement(name = "Bearer Authentication")
-@Tag(name = "Transactions")
-@RequestMapping("/api/merchants/{merchantId}/transactions")
-public class TransactionController {
+public class TransactionController implements TransactionControllerApi {
 
     private final TransactionService transactionService;
 
-    @GetMapping
+    @Override
     public ResponseEntity<Page<TransactionResponseDTO>> findAll(
             @PathVariable UUID merchantId,
             @RequestParam(required = false) TransactionStatus status,
@@ -52,14 +44,14 @@ public class TransactionController {
                 merchantId, status, paymentMethod, fromDate, toDate, pageable));
     }
 
-    @GetMapping("/{id}")
+    @Override
     public ResponseEntity<TransactionResponseDTO> findById(
             @PathVariable UUID merchantId,
             @PathVariable UUID id) {
         return ResponseEntity.ok(transactionService.findById(merchantId, id));
     }
 
-    @PostMapping
+    @Override
     public ResponseEntity<TransactionResponseDTO> create(
             @PathVariable UUID merchantId,
             @Valid @RequestBody CreateTransactionRequestDTO request) {
@@ -71,7 +63,7 @@ public class TransactionController {
         return ResponseEntity.created(uri).body(transaction);
     }
 
-    @PatchMapping("/{id}/status")
+    @Override
     public ResponseEntity<TransactionResponseDTO> updateStatus(
             @PathVariable UUID merchantId,
             @PathVariable UUID id,

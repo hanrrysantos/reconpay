@@ -465,13 +465,13 @@ T17 → T18
 
 **Done when**:
 
-- [ ] POST documenta 201, 400, 401, 403, 404 e 409. A description do 409 cita referência repetida e taxa ativa ausente
-- [ ] PATCH de status documenta 200, 400, 401, 403 e 404
-- [ ] Listas e detalhe seguem a tabela da spec
-- [ ] Exemplos JSON de entrada passam na Bean Validation
-- [ ] `TransactionController` implementa a interface e não declara `@Operation` nem mapping
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] POST documenta 201, 400, 401, 403, 404 e 409. A description do 409 cita referência repetida e taxa ativa ausente
+- [x] PATCH de status documenta 200, 400, 401, 403 e 404
+- [x] Listas e detalhe seguem a tabela da spec
+- [x] Exemplos JSON de entrada passam na Bean Validation
+- [x] `TransactionController` implementa a interface e não declara `@Operation` nem mapping
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full
