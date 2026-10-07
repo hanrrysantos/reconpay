@@ -7,6 +7,7 @@ import br.com.hanrry.reconpay.bankstatement.controller.BankStatementController;
 import br.com.hanrry.reconpay.externalsettlement.controller.ExternalSettlementController;
 import br.com.hanrry.reconpay.feerule.controller.FeeRuleController;
 import br.com.hanrry.reconpay.merchant.controller.MerchantController;
+import br.com.hanrry.reconpay.reconciliation.controller.PeriodController;
 import br.com.hanrry.reconpay.reconciliation.controller.ReconciliationController;
 import br.com.hanrry.reconpay.transaction.controller.TransactionController;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,12 +30,13 @@ class ApiDocumentationInterfacesTest {
             TransactionController.class,
             ExternalSettlementController.class,
             BankStatementController.class,
-            ReconciliationController.class
+            ReconciliationController.class,
+            PeriodController.class
     );
 
     @Test
-    void nineControllersImplementAnApiInterfaceAndDoNotDeclareOperation() {
-        assertThat(CONTROLLERS).hasSize(9);
+    void controllersImplementAnApiInterfaceAndDoNotDeclareOperation() {
+        assertThat(CONTROLLERS).hasSize(10);
         for (Class<?> controller : CONTROLLERS) {
             long apiInterfaces = Arrays.stream(controller.getInterfaces())
                     .filter(type -> type.getSimpleName().endsWith("Api"))

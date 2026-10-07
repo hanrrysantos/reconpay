@@ -16,7 +16,9 @@ import br.com.hanrry.reconpay.feerule.controller.FeeRuleController;
 import br.com.hanrry.reconpay.feerule.dto.FeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feerule.dto.UpdateFeeRuleRequestDTO;
 import br.com.hanrry.reconpay.merchant.controller.MerchantController;
+import br.com.hanrry.reconpay.reconciliation.controller.PeriodController;
 import br.com.hanrry.reconpay.reconciliation.controller.ReconciliationController;
+import br.com.hanrry.reconpay.reconciliation.dto.PeriodWindowRequestDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.RunReconciliationRequestDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.UpdateDiscrepancyStatusRequestDTO;
 import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
@@ -669,6 +671,60 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
 
         assertNoMappingAnnotations(
                 ReconciliationController.class,
+                Operation.class,
+                GetMapping.class,
+                PostMapping.class,
+                PutMapping.class,
+                PatchMapping.class,
+                DeleteMapping.class,
+                RequestMapping.class
+        );
+    }
+
+    @Test
+    void periodEndpointsDocumentTheResponseTable() throws Exception {
+        JsonNode document = apiDocs();
+        List<String> periodFields = List.of(
+                "runId", "fromDate", "toDate", "totalItems", "matchedCount", "divergentCount",
+                "matchRate", "openAmount", "locked", "lockedAt", "closeDurationSeconds");
+        String periods = "/api/merchants/{merchantId}/periods";
+        String lock = "/api/merchants/{merchantId}/periods/lock";
+        String unlock = "/api/merchants/{merchantId}/periods/unlock";
+        Set<String> codes = Set.of("200", "400", "401", "403", "404", "409");
+
+        assertOperation(document, new Op(
+                "get", periods,
+                codes,
+                true, null, Map.of(),
+                "200", periodFields, false, Set.of(), Set.of(),
+                List.of("taxa", "valor em aberto", "duração")
+        ));
+        assertQueryExample(document, "get", periods, "fromDate", "2026-07-01");
+        assertQueryExample(document, "get", periods, "toDate", "2026-07-15");
+        assertOperationTag(document, "get", periods, "Reconciliations");
+
+        assertOperation(document, new Op(
+                "post", lock,
+                codes,
+                true, PeriodWindowRequestDTO.class,
+                Map.of("fromDate", "2026-07-01", "toDate", "2026-07-15"),
+                "200", periodFields, false, Set.of(), Set.of(),
+                List.of("concluído", "divergência", "duração")
+        ));
+        assertOperationTag(document, "post", lock, "Reconciliations");
+
+        assertOperation(document, new Op(
+                "post", unlock,
+                codes,
+                true, PeriodWindowRequestDTO.class,
+                Map.of("fromDate", "2026-07-01", "toDate", "2026-07-15"),
+                "200", periodFields, false, Set.of(), Set.of(),
+                List.of("Reabre", "duração")
+        ));
+        assertOperationTag(document, "post", unlock, "Reconciliations");
+
+        assertNoMappingAnnotations(
+                PeriodController.class,
                 Operation.class,
                 GetMapping.class,
                 PostMapping.class,

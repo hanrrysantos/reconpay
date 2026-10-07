@@ -411,15 +411,16 @@ T17
 
 **Done when**:
 
-- [ ] GET, lock e unlock têm texto em português, códigos da spec e exemplo de sucesso
-- [ ] `ApiDocumentationInterfacesTest` inclui `PeriodController` e continua exigindo um `*Api` sem `@Operation` no controller
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Test count: os testes de `ApiDocsIntegrationTest` e `ApiDocumentationInterfacesTest` passam, com as três operações novas afirmadas
+- [x] GET, lock e unlock têm texto em português, códigos da spec e exemplo de sucesso
+- [x] `ApiDocumentationInterfacesTest` inclui `PeriodController` e continua exigindo um `*Api` sem `@Operation` no controller
+- [x] Gate: `./mvnw -B verify`
+- [x] Test count: os testes de `ApiDocsIntegrationTest` e `ApiDocumentationInterfacesTest` passam, com as três operações novas afirmadas
 
 **Tests**: integration
 **Gate**: full
 
 **Commit**: `docs(openapi): document the period endpoints`
+**Status**: Done
 
 ---
 
