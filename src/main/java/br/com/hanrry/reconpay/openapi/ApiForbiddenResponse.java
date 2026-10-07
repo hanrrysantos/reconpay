@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Documented
 @ApiResponse(
         responseCode = "403",
-        description = "Acesso negado: falta o papel exigido ou a concessão do merchant",
+        description = "Acesso negado: o papel exigido ou o grant do merchant está ausente",
         content = @Content(
                 mediaType = "application/json",
                 schema = @Schema(implementation = StandardError.class),

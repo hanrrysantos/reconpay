@@ -18,14 +18,14 @@ public final class OpenApiTags {
 
     private static final List<Tag> ORDERED = List.of(
             described(AUTHENTICATION, "Login, cadastro e verificação de e-mail, sem token."),
-            described(SESSION, "Usuário autenticado e os estabelecimentos que ele pode acessar."),
-            described(USERS, "Administração de usuários, ativação e concessão de acesso."),
-            described(MERCHANTS, "Cadastro e manutenção dos estabelecimentos."),
-            described(FEE_RULES, "Regras de cobrança e taxa do estabelecimento."),
-            described(TRANSACTIONS, "Transações de venda registradas no estabelecimento."),
+            described(SESSION, "Usuário autenticado e os merchants que ele pode acessar."),
+            described(USERS, "Administração de usuários, ativação e grant de acesso."),
+            described(MERCHANTS, "Cadastro e manutenção dos merchants."),
+            described(FEE_RULES, "Regras de cobrança e taxa do merchant."),
+            described(TRANSACTIONS, "Transações de venda registradas no merchant."),
             described(EXTERNAL_SETTLEMENTS, "Liquidações recebidas e a importação do arquivo."),
             described(BANK_STATEMENTS, "Extrato bancário e a importação das linhas do arquivo."),
-            described(RECONCILIATIONS, "Execução da conciliação e o tratamento das divergências.")
+            described(RECONCILIATIONS, "Run da conciliação e o tratamento das divergências.")
     );
 
     private OpenApiTags() {

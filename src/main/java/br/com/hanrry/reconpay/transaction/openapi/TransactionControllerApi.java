@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Tag(name = OpenApiTags.TRANSACTIONS, description = "Transações de venda registradas no estabelecimento")
+@Tag(name = OpenApiTags.TRANSACTIONS, description = "Transações de venda registradas no merchant")
 @SecurityRequirement(name = OpenApiSecuritySchemes.BEARER_AUTH)
 @RequestMapping("/api/merchants/{merchantId}/transactions")
 public interface TransactionControllerApi {
@@ -78,9 +78,9 @@ public interface TransactionControllerApi {
     @Operation(
             summary = "Página de transações",
             description = """
-                    Lista paginada das transações do estabelecimento, com filtro opcional. \
-                    O id do estabelecimento vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento não existe."""
+                    Lista paginada das transações do merchant, com filtro opcional. \
+                    O id do merchant vem da resposta de criação ou da listagem. \
+                    Responde 404 quando o merchant não existe."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -136,9 +136,9 @@ public interface TransactionControllerApi {
     @Operation(
             summary = "Consulta da transação específica",
             description = """
-                    Devolve uma transação do estabelecimento. \
+                    Devolve uma transação do merchant. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento ou a transação não existe."""
+                    Responde 404 quando o merchant ou a transação não existe."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -164,8 +164,8 @@ public interface TransactionControllerApi {
             summary = "Criação de transação",
             description = """
                     Registra a transação e calcula o líquido esperado pela taxa ativa. \
-                    O id do estabelecimento vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento não existe."""
+                    O id do merchant vem da resposta de criação ou da listagem. \
+                    Responde 404 quando o merchant não existe."""
     )
     @ApiResponse(
             responseCode = "201",
@@ -219,7 +219,7 @@ public interface TransactionControllerApi {
             description = """
                     Altera o status da transação. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento ou a transação não existe."""
+                    Responde 404 quando o merchant ou a transação não existe."""
     )
     @ApiResponse(
             responseCode = "200",

@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.io.IOException;
 import java.util.UUID;
 
-@Tag(name = OpenApiTags.RECONCILIATIONS, description = "Execução da conciliação e o tratamento das divergências")
+@Tag(name = OpenApiTags.RECONCILIATIONS, description = "Run da conciliação e o tratamento das divergências")
 @SecurityRequirement(name = OpenApiSecuritySchemes.BEARER_AUTH)
 @RequestMapping("/api/merchants/{merchantId}/reconciliations")
 public interface ReconciliationControllerApi {
@@ -134,15 +134,15 @@ public interface ReconciliationControllerApi {
             """;
 
     @Operation(
-            summary = "Execução da conciliação",
+            summary = "Run da conciliação",
             description = """
                     Agenda a conciliação da janela de datas, inclusiva, sobre a data da transação. \
-                    O id do estabelecimento vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento não existe."""
+                    O id do merchant vem da resposta de criação ou da listagem. \
+                    Responde 404 quando o merchant não existe."""
     )
     @ApiResponse(
             responseCode = "202",
-            description = "Conciliação aceita para execução",
+            description = "Conciliação aceita para o run",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ReconciliationRunResponseDTO.class),
@@ -168,15 +168,15 @@ public interface ReconciliationControllerApi {
             @Valid @RequestBody RunReconciliationRequestDTO request);
 
     @Operation(
-            summary = "Página de execuções",
+            summary = "Página de runs",
             description = """
-                    Lista paginada das conciliações do estabelecimento. \
+                    Lista paginada das conciliações do merchant. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento não existe."""
+                    Responde 404 quando o merchant não existe."""
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Página de execuções da conciliação",
+            description = "Página de runs da conciliação",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     examples = @ExampleObject(name = "runs", value = RUN_PAGE_JSON)
@@ -193,15 +193,15 @@ public interface ReconciliationControllerApi {
             @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable);
 
     @Operation(
-            summary = "Consulta da execução específica",
+            summary = "Consulta do run específico",
             description = """
-                    Devolve uma execução da conciliação. \
+                    Devolve um run da conciliação. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento ou a execução não existe."""
+                    Responde 404 quando o merchant ou o run não existe."""
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Execução encontrada",
+            description = "Run da conciliação encontrado",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ReconciliationRunResponseDTO.class),
@@ -222,9 +222,9 @@ public interface ReconciliationControllerApi {
     @Operation(
             summary = "Página de itens da conciliação",
             description = """
-                    Lista paginada dos itens da execução. \
+                    Lista paginada dos itens do run. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento ou a execução não existe."""
+                    Responde 404 quando o merchant ou o run não existe."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -253,9 +253,9 @@ public interface ReconciliationControllerApi {
     @Operation(
             summary = "Exportação CSV da conciliação",
             description = """
-                    Devolve o CSV da execução. O exemplo é a linha de cabeçalho do arquivo. \
+                    Devolve o CSV do run. O exemplo é a linha de cabeçalho do arquivo. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento ou a execução não existe."""
+                    Responde 404 quando o merchant ou o run não existe."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -283,7 +283,7 @@ public interface ReconciliationControllerApi {
             description = """
                     Devolve a divergência com os ajustes e as transições. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento, a execução ou a divergência não existe."""
+                    Responde 404 quando o merchant, o run ou a divergência não existe."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -312,7 +312,7 @@ public interface ReconciliationControllerApi {
             description = """
                     Muda o status da divergência. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento, a execução ou a divergência não existe \
+                    Responde 404 quando o merchant, o run ou a divergência não existe \
                     e 409 quando a transição conflita com o estado atual."""
     )
     @ApiResponse(

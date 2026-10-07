@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.UUID;
 
-@Tag(name = OpenApiTags.MERCHANTS, description = "Cadastro e manutenção dos estabelecimentos")
+@Tag(name = OpenApiTags.MERCHANTS, description = "Cadastro e manutenção dos merchants")
 @SecurityRequirement(name = OpenApiSecuritySchemes.BEARER_AUTH)
 @RequestMapping("/api/merchants")
 public interface MerchantControllerApi {
@@ -55,14 +55,14 @@ public interface MerchantControllerApi {
             """;
 
     @Operation(
-            summary = "Criação de estabelecimento",
+            summary = "Criação de merchant",
             description = """
-                    Cria o estabelecimento e concede acesso ao criador (auto-grant). \
+                    Cria o merchant e concede acesso ao criador (auto-grant). \
                     Depois da criação, o id da resposta serve nas rotas seguintes."""
     )
     @ApiResponse(
             responseCode = "201",
-            description = "Estabelecimento criado com êxito",
+            description = "Merchant criado com êxito",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MerchantResponseDTO.class),
@@ -81,7 +81,7 @@ public interface MerchantControllerApi {
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = MerchantRequestDTO.class),
                             examples = @ExampleObject(
-                                    name = "novo-estabelecimento",
+                                    name = "novo-merchant",
                                     value = """
                                             {
                                               "name": "Loja Centro",
@@ -94,14 +94,14 @@ public interface MerchantControllerApi {
             @Valid @RequestBody MerchantRequestDTO request);
 
     @Operation(
-            summary = "Página de estabelecimentos",
+            summary = "Página de merchants",
             description = """
-                    Lista paginada dos estabelecimentos ativos. \
+                    Lista paginada dos merchants ativos. \
                     OPERATOR vê os grants; ADMIN vê todos os ativos."""
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Página de estabelecimentos ativos",
+            description = "Página de merchants ativos",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     examples = @ExampleObject(
@@ -137,12 +137,12 @@ public interface MerchantControllerApi {
             @ParameterObject @PageableDefault(size = 20) Pageable pageable);
 
     @Operation(
-            summary = "Consulta do estabelecimento específico",
-            description = "Devolve um estabelecimento ativo. O id vem da resposta de criação ou da listagem."
+            summary = "Consulta do merchant específico",
+            description = "Devolve um merchant ativo. O id vem da resposta de criação ou da listagem."
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Estabelecimento encontrado com êxito",
+            description = "Merchant encontrado com êxito",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MerchantResponseDTO.class),
@@ -155,16 +155,16 @@ public interface MerchantControllerApi {
     @ApiNotFoundResponse
     @GetMapping("/{id}")
     ResponseEntity<MerchantResponseDTO> findById(
-            @Parameter(description = "Identificador do estabelecimento. O id vem da resposta de criação ou da listagem.", example = MERCHANT_ID_EXAMPLE)
+            @Parameter(description = "Identificador do merchant. O id vem da resposta de criação ou da listagem.", example = MERCHANT_ID_EXAMPLE)
             @PathVariable UUID id);
 
     @Operation(
-            summary = "Atualização do estabelecimento",
-            description = "Altera o nome de um estabelecimento ativo. O id vem da resposta de criação ou da listagem."
+            summary = "Atualização do merchant",
+            description = "Altera o nome de um merchant ativo. O id vem da resposta de criação ou da listagem."
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Estabelecimento atualizado com êxito",
+            description = "Merchant atualizado com êxito",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MerchantResponseDTO.class),
@@ -177,7 +177,7 @@ public interface MerchantControllerApi {
     @ApiNotFoundResponse
     @PutMapping("/{id}")
     ResponseEntity<MerchantResponseDTO> update(
-            @Parameter(description = "Identificador do estabelecimento. O id vem da resposta de criação ou da listagem.", example = MERCHANT_ID_EXAMPLE)
+            @Parameter(description = "Identificador do merchant. O id vem da resposta de criação ou da listagem.", example = MERCHANT_ID_EXAMPLE)
             @PathVariable UUID id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
@@ -197,16 +197,16 @@ public interface MerchantControllerApi {
             @Valid @RequestBody UpdateMerchantRequestDTO request);
 
     @Operation(
-            summary = "Exclusão do estabelecimento",
-            description = "Desativa o estabelecimento. O id vem da resposta de criação ou da listagem."
+            summary = "Exclusão do merchant",
+            description = "Desativa o merchant. O id vem da resposta de criação ou da listagem."
     )
-    @ApiResponse(responseCode = "204", description = "Estabelecimento desativado; não há corpo na resposta")
+    @ApiResponse(responseCode = "204", description = "Merchant desativado; não há corpo na resposta")
     @ApiValidationErrorResponse
     @ApiUnauthenticatedResponse
     @ApiForbiddenResponse
     @ApiNotFoundResponse
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(
-            @Parameter(description = "Identificador do estabelecimento. O id vem da resposta de criação ou da listagem.", example = MERCHANT_ID_EXAMPLE)
+            @Parameter(description = "Identificador do merchant. O id vem da resposta de criação ou da listagem.", example = MERCHANT_ID_EXAMPLE)
             @PathVariable UUID id);
 }

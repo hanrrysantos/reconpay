@@ -20,12 +20,12 @@ public class OpenApiConfig {
                         .title("ReconPay API")
                         .description("""
                                 O ReconPay registra o que foi vendido, o que foi liquidado e o que o extrato \
-                                confirma. O time financeiro executa a conciliação por estabelecimento e vê \
+                                confirma. O time financeiro executa a conciliação por merchant e vê \
                                 as divergências que ainda pedem tratativa.
 
-                                ADMIN governa os usuários e acessa qualquer estabelecimento. \
-                                OPERATOR opera os estabelecimentos para os quais tem grant, inclusive o \
-                                auto-grant de quem cria um estabelecimento.
+                                ADMIN governa os usuários e acessa qualquer merchant. \
+                                OPERATOR opera os merchants para os quais tem grant, inclusive o \
+                                auto-grant de quem cria um merchant.
                                 """)
                         .version("1.0.0")
                         .contact(new Contact()

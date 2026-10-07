@@ -204,9 +204,9 @@ public interface UserControllerApi {
     ResponseEntity<UserResponseDTO> activate(@Parameter(description = "Identificador do usuário. O id vem da resposta de criação ou da listagem.", example = USER_ID_EXAMPLE) @PathVariable UUID id);
 
     @Operation(
-            summary = "Merchants concedidos ao usuário",
+            summary = "Grants de merchant do usuário",
             description = """
-                    Lista os estabelecimentos concedidos ao usuário. \
+                    Lista os grants de merchant do usuário. \
                     O id vem da resposta de criação ou da listagem. Somente ADMIN consulta."""
     )
     @ApiResponse(
@@ -228,7 +228,7 @@ public interface UserControllerApi {
     @Operation(
             summary = "Substituição dos merchants do usuário",
             description = """
-                    Substitui a lista de estabelecimentos concedidos. \
+                    Substitui a lista de grants de merchant. \
                     O id vem da resposta de criação ou da listagem. Somente ADMIN altera."""
     )
     @ApiResponse(

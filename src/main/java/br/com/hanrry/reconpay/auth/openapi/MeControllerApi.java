@@ -61,7 +61,7 @@ public interface MeControllerApi {
     @Operation(
             summary = "Merchants acessíveis",
             description = """
-                    Lista paginada dos estabelecimentos que o usuário pode operar. \
+                    Lista paginada dos merchants que o usuário pode operar. \
                     OPERATOR vê grants; ADMIN vê todos os merchants ativos."""
     )
     @ApiResponse(

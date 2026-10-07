@@ -111,9 +111,9 @@ public interface BankStatementControllerApi {
     @Operation(
             summary = "Página de linhas do extrato",
             description = """
-                    Lista paginada das linhas do extrato do estabelecimento. \
+                    Lista paginada das linhas do extrato do merchant. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento não existe."""
+                    Responde 404 quando o merchant não existe."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -138,7 +138,7 @@ public interface BankStatementControllerApi {
     @Operation(
             summary = "Importação do arquivo de extrato",
             description = """
-                    Envia um CSV na parte file. O id do estabelecimento vem da resposta de criação ou da listagem. \
+                    Envia um CSV na parte file. O id do merchant vem da resposta de criação ou da listagem. \
                     O Try it out não pré-carrega arquivo, então salve este CSV mínimo e selecione-o.
                     """ + MINIMAL_CSV
     )

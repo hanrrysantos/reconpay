@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.UUID;
 
-@Tag(name = OpenApiTags.FEE_RULES, description = "Regras de cobrança e taxa do estabelecimento")
+@Tag(name = OpenApiTags.FEE_RULES, description = "Regras de cobrança e taxa do merchant")
 @SecurityRequirement(name = OpenApiSecuritySchemes.BEARER_AUTH)
 @RequestMapping("/api/merchants/{merchantId}/fee-rules")
 public interface FeeRuleControllerApi {
@@ -72,9 +72,9 @@ public interface FeeRuleControllerApi {
     @Operation(
             summary = "Página de regras de taxa",
             description = """
-                    Lista paginada das regras de taxa do estabelecimento. \
-                    O id do estabelecimento vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento não existe."""
+                    Lista paginada das regras de taxa do merchant. \
+                    O id do merchant vem da resposta de criação ou da listagem. \
+                    Responde 404 quando o merchant não existe."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -123,9 +123,9 @@ public interface FeeRuleControllerApi {
     @Operation(
             summary = "Consulta da regra específica",
             description = """
-                    Devolve uma regra de taxa do estabelecimento. \
+                    Devolve uma regra de taxa do merchant. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento ou a regra não existe."""
+                    Responde 404 quando o merchant ou a regra não existe."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -150,9 +150,9 @@ public interface FeeRuleControllerApi {
     @Operation(
             summary = "Criação de regra de taxa",
             description = """
-                    Cria a regra de taxa do estabelecimento. \
-                    O id do estabelecimento vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento não existe e 409 na regra repetida."""
+                    Cria a regra de taxa do merchant. \
+                    O id do merchant vem da resposta de criação ou da listagem. \
+                    Responde 404 quando o merchant não existe e 409 na regra repetida."""
     )
     @ApiResponse(
             responseCode = "201",
@@ -187,7 +187,7 @@ public interface FeeRuleControllerApi {
             description = """
                     Altera a regra de taxa. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento ou a regra não existe e 409 na regra repetida."""
+                    Responde 404 quando o merchant ou a regra não existe e 409 na regra repetida."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -224,7 +224,7 @@ public interface FeeRuleControllerApi {
             description = """
                     Desativa a regra de taxa. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o estabelecimento ou a regra não existe."""
+                    Responde 404 quando o merchant ou a regra não existe."""
     )
     @ApiResponse(responseCode = "204", description = "Regra de taxa desativada; não há corpo na resposta")
     @ApiValidationErrorResponse
