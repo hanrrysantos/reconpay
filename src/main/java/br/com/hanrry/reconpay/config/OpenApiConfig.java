@@ -19,34 +19,13 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("ReconPay API")
                         .description("""
-                                O Reconpay permite registrar transações, importar arquivos de liquidação, \
-                                executar conciliação por estabelecimentos e analisar divergências \
-                                (valores, referências ausentes, duplicidades e inconsistências de taxa).
+                                O ReconPay registra o que foi vendido, o que foi liquidado e o que o extrato \
+                                confirma. O time financeiro executa a conciliação por estabelecimento e vê \
+                                as divergências que ainda pedem tratativa.
 
-                                O objetivo é dar visibilidade e controle ao time financeiro sobre o que \
-                                foi vendido, o que foi liquidado e o que ainda precisa de tratativa.
-
-                                ## Papéis
-                                - **ADMIN**: governança (`/api/users/**`) e bypass de escopo por merchant.
-                                - **OPERATOR**: fluxo operacional nos merchants concedidos (ou auto-grant ao criar).
-
-                                ## Fluxo de teste recomendado (seed dev)
-                                1. POST /api/auth/login com usuário ADMIN ou OPERATOR do README.
-                                2. Authorization: Bearer {token} nas rotas protegidas.
-                                3. GET /api/me e GET /api/me/merchants para validar contexto.
-
-                                ## Auto-cadastro
-                                1. POST /api/auth/register → conta OPERATOR inativa + e-mail de verificação.
-                                2. POST /api/auth/verify-email com o token recebido.
-                                3. POST /api/auth/login.
-
-                                **Configuração**
-                                1. POST /api/merchants (criador recebe grant)
-                                2. POST /api/merchants/{merchantId}/fee-rules
-
-                                **Dados e conciliação**
-                                3. POST .../transactions · 4. POST .../external-settlements/import
-                                5. POST .../reconciliations · 6. GET .../items · 7. GET .../export
+                                ADMIN governa os usuários e acessa qualquer estabelecimento. \
+                                OPERATOR opera os estabelecimentos para os quais tem grant, inclusive o \
+                                auto-grant de quem cria um estabelecimento.
                                 """)
                         .version("1.0.0")
                         .contact(new Contact()

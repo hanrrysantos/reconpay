@@ -42,13 +42,21 @@
 - **Date**: 2026-10-02
 - **Status**: active
 
+### AD-006
+- **Decision**: A documentação OpenAPI de cada controller fica numa interface `*Api` que ele implementa. O método do controller não carrega `@Operation`.
+- **Reason**: O volume de exemplo e de código de resposta enterraria o mapping HTTP. O login já usava essa forma.
+- **Trade-off**: Dois tipos por recurso. Um `openapi.yaml` manual ou a anotação no método ficam fora do padrão.
+- **Scope**: Controllers em `/api/**` e features futuras que publiquem endpoint.
+- **Date**: 2026-10-07
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: `.specs/features/layouts-and-statement/` — **Complete** (validation PASS)
-- **Phase / Task**: none
-- **Completed**: T1–T14 + Verifier (`validation.md`)
+- **Feature**: `.specs/features/api-docs/` — phase 1 complete
+- **Phase / Task**: Phase 1 complete
+- **Completed**: T1–T8
 - **In-progress** (file:line): none
-- **Next step**: period indicators, then the frontend
+- **Next step**: T9
 - **Blockers**: none
 - **Uncommitted files**: none
 - **Branch**: main

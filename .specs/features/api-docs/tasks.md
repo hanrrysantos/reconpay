@@ -282,11 +282,11 @@ T17 → T18
 
 **Done when**:
 
-- [ ] `info.description` está em português, nomeia ADMIN e OPERATOR, e não contém uma lista numerada de chamadas
-- [ ] `ApiDocsIntegrationTest` vê as nove tags na ordem de T1, cada uma com description
-- [ ] `application.yaml` não define `springdoc.swagger-ui.tags-sorter`
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] `info.description` está em português, nomeia ADMIN e OPERATOR, e não contém uma lista numerada de chamadas
+- [x] `ApiDocsIntegrationTest` vê as nove tags na ordem de T1, cada uma com description
+- [x] `application.yaml` não define `springdoc.swagger-ui.tags-sorter`
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full
