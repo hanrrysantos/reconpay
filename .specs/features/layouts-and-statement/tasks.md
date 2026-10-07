@@ -203,9 +203,9 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] `amount > 0`, `total_rows > 0` e `external_reference` nulo são permitidos
-- [ ] Gate: `./mvnw -B -DskipTests compile`
-- [ ] Nenhum teste removido
+- [x] `amount > 0`, `total_rows > 0` e `external_reference` nulo são permitidos
+- [x] Gate: `./mvnw -B -DskipTests compile`
+- [x] Nenhum teste removido
 
 **Tests**: none
 **Gate**: build
