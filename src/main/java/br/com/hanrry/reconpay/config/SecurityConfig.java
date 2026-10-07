@@ -27,6 +27,8 @@ public class SecurityConfig {
     private static final String PATH_MERCHANT_TRANSACTIONS = "/api/merchants/*/transactions/**";
     private static final String PATH_EXTERNAL_SETTLEMENTS = "/api/merchants/*/external-settlements/**";
     private static final String PATH_RECONCILIATIONS = "/api/merchants/*/reconciliations/**";
+    private static final String PATH_PERIODS = "/api/merchants/*/periods";
+    private static final String PATH_PERIODS_NESTED = "/api/merchants/*/periods/**";
     private static final String PATH_FEE_RULES = "/api/merchants/*/fee-rules/**";
     private static final String PATH_MERCHANTS = "/api/merchants";
     private static final String PATH_MERCHANT_BY_ID = "/api/merchants/*";
@@ -78,6 +80,8 @@ public class SecurityConfig {
                         .requestMatchers(PATH_EXTERNAL_SETTLEMENTS)
                         .hasAnyRole(ROLE_ADMIN, ROLE_OPERATOR)
                         .requestMatchers(PATH_RECONCILIATIONS)
+                        .hasAnyRole(ROLE_ADMIN, ROLE_OPERATOR)
+                        .requestMatchers(PATH_PERIODS, PATH_PERIODS_NESTED)
                         .hasAnyRole(ROLE_ADMIN, ROLE_OPERATOR)
                         .requestMatchers(PATH_MERCHANTS, PATH_MERCHANT_BY_ID)
                         .hasAnyRole(ROLE_ADMIN, ROLE_OPERATOR)

@@ -381,17 +381,18 @@ T17
 
 **Done when**:
 
-- [ ] O controller implementa `PeriodControllerApi` e não declara `@Operation` nem mapping
-- [ ] OPERATOR com grant e ADMIN sem `user_merchants` recebem o mesmo sucesso. Sem token: 401. Sem grant: 403
-- [ ] Data ausente, invertida ou acima de `maxWindowDays`: 400 `VALIDATION_ERROR`. Merchant inativo: 404
-- [ ] `SecurityConfig` exige `ADMIN` ou `OPERATOR` em `/api/merchants/*/periods` e `/api/merchants/*/periods/**`
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Test count: pelo menos 8 testes passam em `PeriodIntegrationTest`
+- [x] O controller implementa `PeriodControllerApi` e não declara `@Operation` nem mapping
+- [x] OPERATOR com grant e ADMIN sem `user_merchants` recebem o mesmo sucesso. Sem token: 401. Sem grant: 403
+- [x] Data ausente, invertida ou acima de `maxWindowDays`: 400 `VALIDATION_ERROR`. Merchant inativo: 404
+- [x] `SecurityConfig` exige `ADMIN` ou `OPERATOR` em `/api/merchants/*/periods` e `/api/merchants/*/periods/**`
+- [x] Gate: `./mvnw -B verify`
+- [x] Test count: pelo menos 8 testes passam em `PeriodIntegrationTest`
 
 **Tests**: integration
 **Gate**: full
 
 **Commit**: `feat(reconciliation): expose the period endpoints`
+**Status**: Done
 
 ---
 

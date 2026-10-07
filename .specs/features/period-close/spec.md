@@ -220,12 +220,12 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-32 | P1: Segurar | - | Pending |
 | PER-33 | P1: Segurar | - | Pending |
 | PER-34 | P1: Segurar | - | Pending |
-| PER-35 | P1: Acesso | - | Pending |
-| PER-36 | P1: Acesso | - | Pending |
-| PER-37 | P1: Acesso | - | Pending |
-| PER-38 | P1: Acesso | - | Pending |
-| PER-39 | P1: Acesso | - | Pending |
-| PER-40 | P1: Acesso | - | Pending |
+| PER-35 | P1: Acesso | Phase 3 | Verified |
+| PER-36 | P1: Acesso | Phase 3 | Verified |
+| PER-37 | P1: Acesso | Phase 3 | Verified |
+| PER-38 | P1: Acesso | Phase 3 | Verified |
+| PER-39 | P1: Acesso | Phase 3 | Verified |
+| PER-40 | P1: Acesso | Phase 3 | Verified |
 | PER-41 | P1: Acesso | Phase 1 | Implementing |
 | PER-42 | P1: Acesso | - | Pending |
 | PER-43 | P1: Acesso | - | Pending |
