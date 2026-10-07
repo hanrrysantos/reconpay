@@ -52,11 +52,11 @@
 
 ## Handoff
 
-- **Feature**: `.specs/features/api-docs/` — phase 1 complete
-- **Phase / Task**: Phase 1 complete
-- **Completed**: T1–T8
+- **Feature**: `.specs/features/api-docs/`
+- **Phase / Task**: Phase 3 complete / T12
+- **Completed**: T1–T12
 - **In-progress** (file:line): none
-- **Next step**: T9
+- **Next step**: T13
 - **Blockers**: none
 - **Uncommitted files**: none
 - **Branch**: main

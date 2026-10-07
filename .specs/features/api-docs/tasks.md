@@ -405,13 +405,13 @@ T17 → T18
 
 **Done when**:
 
-- [ ] POST documenta 201, 400, 401, 403 e 409. A description cita o auto-grant de quem cria
-- [ ] GET lista documenta 200, 400, 401 e 403
-- [ ] GET, PUT e DELETE por id documentam 404. DELETE é 204 sem schema
-- [ ] Exemplos JSON de entrada passam na Bean Validation e path id usa o UUID do design
-- [ ] `MerchantController` implementa a interface e não declara `@Operation` nem mapping
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Nenhum teste removido
+- [x] POST documenta 201, 400, 401, 403 e 409. A description cita o auto-grant de quem cria
+- [x] GET lista documenta 200, 400, 401 e 403
+- [x] GET, PUT e DELETE por id documentam 404. DELETE é 204 sem schema
+- [x] Exemplos JSON de entrada passam na Bean Validation e path id usa o UUID do design
+- [x] `MerchantController` implementa a interface e não declara `@Operation` nem mapping
+- [x] Gate: `./mvnw -B verify`
+- [x] Nenhum teste removido
 
 **Tests**: integration
 **Gate**: full
