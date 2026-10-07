@@ -5,6 +5,7 @@ import br.com.hanrry.reconpay.exception.InvalidInstallmentsForPaymentMethodExcep
 import br.com.hanrry.reconpay.exception.InvalidTransactionStatusTransitionException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.exception.MissingActiveFeeRuleException;
+import br.com.hanrry.reconpay.exception.PeriodConflictException;
 import br.com.hanrry.reconpay.exception.TransactionNotFoundException;
 import br.com.hanrry.reconpay.feerule.entity.FeeRuleEntity;
 import br.com.hanrry.reconpay.feerule.repository.IFeeRuleRepository;
@@ -19,6 +20,7 @@ import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import br.com.hanrry.reconpay.transaction.mapper.ITransactionMapper;
 import br.com.hanrry.reconpay.transaction.repository.IInternalTransactionRepository;
 import br.com.hanrry.reconpay.observability.AuditLogger;
+import br.com.hanrry.reconpay.reconciliation.service.PeriodGuard;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -29,14 +31,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -90,6 +95,9 @@ class TransactionServiceTest {
 
     @Mock
     private IFeeRuleRepository feeRuleRepository;
+
+    @Mock
+    private PeriodGuard periodGuard;
 
     @Mock
     private AuditLogger auditLogger;
@@ -294,6 +302,146 @@ class TransactionServiceTest {
                 .hasMessage("Transição de status inválida: REFUNDED -> APPROVED");
 
         verify(transactionRepository, never()).save(any());
+    }
+
+    @Test
+    void createShouldRejectADateInsideTheLockedWindowIncludingTheEnds() {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        FeeRuleEntity feeRule = buildFeeRule(merchant, PaymentMethod.PIX, 1);
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(transactionRepository.existsByMerchant_IdAndExternalReference(any(), any())).thenReturn(false);
+        when(feeRuleRepository.findByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(
+                merchantId, PaymentMethod.PIX, 1)).thenReturn(Optional.of(feeRule));
+
+        for (LocalDate covered : List.of(
+                LocalDate.parse("2026-07-01"),
+                LocalDate.parse("2026-07-10"),
+                LocalDate.parse("2026-07-15"))) {
+            doThrow(new PeriodConflictException("Janela travada de 2026-07-01 a 2026-07-15"))
+                    .when(periodGuard).assertDatesOpen(merchantId, List.of(covered));
+
+            assertThatThrownBy(() -> transactionService.create(
+                    merchantId, requestOn(covered)))
+                    .isInstanceOf(PeriodConflictException.class);
+        }
+
+        verify(transactionRepository, never()).save(any());
+        verifyNoInteractions(auditLogger);
+    }
+
+    @Test
+    void createShouldPersistADateOutsideEveryLockedWindow() {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        LocalDate openDate = LocalDate.parse("2026-07-20");
+        CreateTransactionRequestDTO request = requestOn(openDate);
+        FeeRuleEntity feeRule = buildFeeRule(merchant, PaymentMethod.PIX, 1);
+        InternalTransactionEntity saved = buildTransaction(merchant, "TXN-OPEN");
+        saved.setTransactionDate(openDate);
+        TransactionResponseDTO response = buildTransactionResponse(saved);
+
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(transactionRepository.existsByMerchant_IdAndExternalReference(merchantId, "TXN-OPEN"))
+                .thenReturn(false);
+        when(feeRuleRepository.findByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(
+                merchantId, PaymentMethod.PIX, 1)).thenReturn(Optional.of(feeRule));
+        when(transactionRepository.save(any(InternalTransactionEntity.class))).thenReturn(saved);
+        when(transactionMapper.toDTO(saved)).thenReturn(response);
+
+        TransactionResponseDTO created = transactionService.create(merchantId, request);
+
+        ArgumentCaptor<InternalTransactionEntity> savedEntity =
+                ArgumentCaptor.forClass(InternalTransactionEntity.class);
+        verify(periodGuard).assertDatesOpen(merchantId, List.of(openDate));
+        verify(transactionRepository).save(savedEntity.capture());
+        assertThat(savedEntity.getValue().getTransactionDate()).isEqualTo(openDate);
+        assertThat(savedEntity.getValue().getStatus()).isEqualTo(TransactionStatus.APPROVED);
+        assertThat(created).isEqualTo(response);
+    }
+
+    @Test
+    void createShouldKeepDuplicateFeeAndInstallmentErrorsWithoutConsultingTheLock() {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+
+        when(transactionRepository.existsByMerchant_IdAndExternalReference(merchantId, "TXN-DUP"))
+                .thenReturn(true);
+        assertThatThrownBy(() -> transactionService.create(
+                merchantId, buildCreateRequest("TXN-DUP", PaymentMethod.PIX, 1)))
+                .isInstanceOf(DuplicateExternalReferenceException.class);
+
+        when(transactionRepository.existsByMerchant_IdAndExternalReference(merchantId, "TXN-NO-FEE"))
+                .thenReturn(false);
+        when(feeRuleRepository.findByMerchant_IdAndPaymentMethodAndInstallmentsAndActiveTrue(
+                merchantId, PaymentMethod.BOLETO, 1)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> transactionService.create(
+                merchantId, buildCreateRequest("TXN-NO-FEE", PaymentMethod.BOLETO, 1)))
+                .isInstanceOf(MissingActiveFeeRuleException.class);
+
+        when(transactionRepository.existsByMerchant_IdAndExternalReference(merchantId, "TXN-PIX-3X"))
+                .thenReturn(false);
+        assertThatThrownBy(() -> transactionService.create(
+                merchantId, buildCreateRequest("TXN-PIX-3X", PaymentMethod.PIX, 3)))
+                .isInstanceOf(InvalidInstallmentsForPaymentMethodException.class);
+
+        verifyNoInteractions(periodGuard);
+        verify(transactionRepository, never()).save(any());
+    }
+
+    @Test
+    void updateStatusShouldRejectADateInsideTheLockedWindowAndKeepTheStatus() {
+        UUID merchantId = UUID.randomUUID();
+        UUID transactionId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        InternalTransactionEntity transaction = buildTransaction(merchant, "TXN-001");
+        transaction.setId(transactionId);
+        transaction.setStatus(TransactionStatus.APPROVED);
+        transaction.setTransactionDate(LocalDate.parse("2026-07-01"));
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(transactionRepository.findByIdAndMerchant_Id(transactionId, merchantId))
+                .thenReturn(Optional.of(transaction));
+        doThrow(new PeriodConflictException("Janela travada de 2026-07-01 a 2026-07-15"))
+                .when(periodGuard).assertDatesOpen(merchantId, List.of(LocalDate.parse("2026-07-01")));
+
+        assertThatThrownBy(() -> transactionService.updateStatus(
+                merchantId, transactionId, new UpdateTransactionStatusRequestDTO(TransactionStatus.REFUNDED)))
+                .isInstanceOf(PeriodConflictException.class);
+
+        assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.APPROVED);
+        verify(transactionRepository, never()).save(any());
+        verifyNoInteractions(auditLogger);
+    }
+
+    @Test
+    void updateStatusShouldRejectAnInvalidTransitionWithoutConsultingTheLock() {
+        UUID merchantId = UUID.randomUUID();
+        UUID transactionId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        InternalTransactionEntity transaction = buildTransaction(merchant, "TXN-001");
+        transaction.setId(transactionId);
+        transaction.setStatus(TransactionStatus.CANCELLED);
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(transactionRepository.findByIdAndMerchant_Id(transactionId, merchantId))
+                .thenReturn(Optional.of(transaction));
+
+        assertThatThrownBy(() -> transactionService.updateStatus(
+                merchantId, transactionId, new UpdateTransactionStatusRequestDTO(TransactionStatus.REFUNDED)))
+                .isInstanceOf(InvalidTransactionStatusTransitionException.class);
+
+        assertThat(transaction.getStatus()).isEqualTo(TransactionStatus.CANCELLED);
+        verifyNoInteractions(periodGuard);
+        verify(transactionRepository, never()).save(any());
+    }
+
+    private CreateTransactionRequestDTO requestOn(LocalDate transactionDate) {
+        return new CreateTransactionRequestDTO(
+                "TXN-OPEN",
+                new BigDecimal("100.00"),
+                PaymentMethod.PIX,
+                1,
+                transactionDate);
     }
 
     private CreateTransactionRequestDTO buildCreateRequest(

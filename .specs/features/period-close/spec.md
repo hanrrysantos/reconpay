@@ -209,15 +209,15 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-21 | P1: Reabrir | Phase 3 | Verified |
 | PER-22 | P1: Segurar | Phase 4 | Verified |
 | PER-23 | P1: Segurar | Phase 4 | Verified |
-| PER-24 | P1: Segurar | - | Pending |
-| PER-25 | P1: Segurar | - | Pending |
+| PER-24 | P1: Segurar | Phase 4 | Verified |
+| PER-25 | P1: Segurar | Phase 4 | Verified |
 | PER-26 | P1: Segurar | - | Pending |
 | PER-27 | P1: Segurar | - | Pending |
 | PER-28 | P1: Segurar | Phase 4 | Verified |
 | PER-29 | P1: Segurar | - | Pending |
 | PER-30 | P1: Segurar | - | Pending |
-| PER-31 | P1: Segurar | Phase 2 | Implementing |
-| PER-32 | P1: Segurar | - | Pending |
+| PER-31 | P1: Segurar | Phase 4 | Verified |
+| PER-32 | P1: Segurar | Phase 4 | Verified |
 | PER-33 | P1: Segurar | - | Pending |
 | PER-34 | P1: Segurar | Phase 4 | Verified |
 | PER-35 | P1: Acesso | Phase 3 | Verified |

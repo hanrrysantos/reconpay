@@ -12,6 +12,7 @@ import br.com.hanrry.reconpay.feerule.repository.IFeeRuleRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.observability.AuditLogger;
+import br.com.hanrry.reconpay.reconciliation.service.PeriodGuard;
 import br.com.hanrry.reconpay.shared.PaymentMethodRules;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.dto.CreateTransactionRequestDTO;
@@ -32,6 +33,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -49,6 +51,7 @@ public class TransactionService {
     private final IInternalTransactionRepository transactionRepository;
     private final IMerchantRepository merchantRepository;
     private final IFeeRuleRepository feeRuleRepository;
+    private final PeriodGuard periodGuard;
     private final AuditLogger auditLogger;
 
     @Transactional
@@ -81,6 +84,7 @@ public class TransactionService {
         entity.setInstallments(request.installments());
         entity.setStatus(TransactionStatus.APPROVED);
         entity.setTransactionDate(request.transactionDate());
+        periodGuard.assertDatesOpen(merchantId, List.of(entity.getTransactionDate()));
 
         InternalTransactionEntity savedTransaction = transactionRepository.save(entity);
         auditLogger.record("TRANSACTION_CREATED", "transaction", savedTransaction.getId(),
@@ -118,6 +122,7 @@ public class TransactionService {
             UpdateTransactionStatusRequestDTO request) {
         InternalTransactionEntity transaction = findTransactionForMerchant(merchantId, id);
         validateStatusTransition(transaction.getStatus(), request.status());
+        periodGuard.assertDatesOpen(merchantId, List.of(transaction.getTransactionDate()));
 
         TransactionStatus previousStatus = transaction.getStatus();
         transaction.setStatus(request.status());

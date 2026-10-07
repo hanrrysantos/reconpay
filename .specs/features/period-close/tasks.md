@@ -499,16 +499,17 @@ T17
 
 **Done when**:
 
-- [ ] Data coberta, inclusive `fromDate` e `toDate`, lança `PeriodConflictException` e não grava
-- [ ] Data fora de toda trava segue o sucesso atual
-- [ ] Duplicidade, taxa ausente, parcelas inválidas e transição inválida continuam com o erro de hoje, sem passar pelo guard
-- [ ] Gate: `./mvnw -B test -Dtest=TransactionServiceTest`
-- [ ] Test count: a classe passa, com pelo menos 4 testes novos
+- [x] Data coberta, inclusive `fromDate` e `toDate`, lança `PeriodConflictException` e não grava
+- [x] Data fora de toda trava segue o sucesso atual
+- [x] Duplicidade, taxa ausente, parcelas inválidas e transição inválida continuam com o erro de hoje, sem passar pelo guard
+- [x] Gate: `./mvnw -B test -Dtest=TransactionServiceTest`
+- [x] Test count: a classe passa, com pelo menos 4 testes novos
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(transaction): reject writes inside a locked window`
+**Status**: Done
 
 ---
 
