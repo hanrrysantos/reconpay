@@ -119,10 +119,10 @@ T17 → T18
 
 **Done when**:
 
-- [ ] Dado um `OpenAPI` com tags fora de ordem, `customise` grava as nove na ordem de T1, com as descriptions
-- [ ] O teste de unidade cobre essa substituição
-- [ ] Gate: `./mvnw -B test -Dtest=OpenApiTagOrderCustomizerTest`
-- [ ] Nenhum teste removido
+- [x] Dado um `OpenAPI` com tags fora de ordem, `customise` grava as nove na ordem de T1, com as descriptions
+- [x] O teste de unidade cobre essa substituição
+- [x] Gate: `./mvnw -B test -Dtest=OpenApiTagOrderCustomizerTest`
+- [x] Nenhum teste removido
 
 **Tests**: unit
 **Gate**: quick
