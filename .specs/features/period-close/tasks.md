@@ -265,15 +265,16 @@ T17
 
 **Done when**:
 
-- [ ] Cada tipo da tabela do design tem um resultado afirmado, inclusive extrato lido de `actualValue`
-- [ ] Nulo vira `0.00` antes da diferença. Status fora de `OPEN` não soma. A escala final é 2, half up
-- [ ] Gate: `./mvnw -B test -Dtest=OpenAmountCalculatorTest`
-- [ ] Test count: pelo menos 12 testes passam em `OpenAmountCalculatorTest`
+- [x] Cada tipo da tabela do design tem um resultado afirmado, inclusive extrato lido de `actualValue`
+- [x] Nulo vira `0.00` antes da diferença. Status fora de `OPEN` não soma. A escala final é 2, half up
+- [x] Gate: `./mvnw -B test -Dtest=OpenAmountCalculatorTest`
+- [x] Test count: pelo menos 12 testes passam em `OpenAmountCalculatorTest`
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(reconciliation): sum open discrepancy amounts`
+**Status**: Done
 
 ---
 
