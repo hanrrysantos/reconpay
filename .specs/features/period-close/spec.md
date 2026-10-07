@@ -201,7 +201,7 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-13 | P1: Travar | - | Pending |
 | PER-14 | P1: Travar | - | Pending |
 | PER-15 | P1: Travar | - | Pending |
-| PER-16 | P1: Travar | - | Pending |
+| PER-16 | P1: Travar | Phase 1 | Implementing |
 | PER-17 | P1: Travar | - | Pending |
 | PER-18 | P1: Reabrir | - | Pending |
 | PER-19 | P1: Reabrir | - | Pending |
@@ -226,12 +226,12 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-38 | P1: Acesso | - | Pending |
 | PER-39 | P1: Acesso | - | Pending |
 | PER-40 | P1: Acesso | - | Pending |
-| PER-41 | P1: Acesso | - | Pending |
+| PER-41 | P1: Acesso | Phase 1 | Implementing |
 | PER-42 | P1: Acesso | - | Pending |
 | PER-43 | P1: Acesso | - | Pending |
 | PER-44 | P1: Acesso | - | Pending |
 
-**Coverage:** 44 total, 1 mapped to tasks, 43 unmapped
+**Coverage:** 44 total, 3 mapped to tasks, 41 unmapped
 
 ---
 

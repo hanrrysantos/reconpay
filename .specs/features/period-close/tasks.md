@@ -129,13 +129,14 @@ T17
 
 **Done when**:
 
-- [ ] Campos do design mapeados, com `merchant` e `run` lazy
-- [ ] Gate: `./mvnw -B -DskipTests compile`
+- [x] Campos do design mapeados, com `merchant` e `run` lazy
+- [x] Gate: `./mvnw -B -DskipTests compile`
 
 **Tests**: none
 **Gate**: build
 
 **Commit**: `feat(reconciliation): add the period lock entity`
+**Status**: Done
 
 ---
 
@@ -154,15 +155,16 @@ T17
 
 **Done when**:
 
-- [ ] `findByMerchant_IdAndFromDateAndToDate` e `findByMerchant_Id` existem
-- [ ] O teste grava uma trava, relê pela janela e pelo merchant, e a segunda linha da mesma janela estoura o único
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Test count: pelo menos 2 testes passam em `PeriodLockRepositoryIntegrationTest`
+- [x] `findByMerchant_IdAndFromDateAndToDate` e `findByMerchant_Id` existem
+- [x] O teste grava uma trava, relê pela janela e pelo merchant, e a segunda linha da mesma janela estoura o único
+- [x] Gate: `./mvnw -B verify`
+- [x] Test count: pelo menos 2 testes passam em `PeriodLockRepositoryIntegrationTest`
 
 **Tests**: integration
 **Gate**: full
 
 **Commit**: `feat(reconciliation): add the period lock repository`
+**Status**: Done
 
 ---
 
