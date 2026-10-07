@@ -528,16 +528,17 @@ T17
 
 **Done when**:
 
-- [ ] Arquivo válido com uma data coberta lança `PeriodConflictException` e não grava lote nem linha
-- [ ] Arquivo inválido continua 400, mesmo com outra data coberta
-- [ ] `toDate` mais um dia, fora de toda trava, grava o lote
-- [ ] Gate: `./mvnw -B test -Dtest=ExternalSettlementServiceTest`
-- [ ] Test count: a classe passa, com pelo menos 3 testes novos
+- [x] Arquivo válido com uma data coberta lança `PeriodConflictException` e não grava lote nem linha
+- [x] Arquivo inválido continua 400, mesmo com outra data coberta
+- [x] `toDate` mais um dia, fora de toda trava, grava o lote
+- [x] Gate: `./mvnw -B test -Dtest=ExternalSettlementServiceTest`
+- [x] Test count: a classe passa, com pelo menos 3 testes novos
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(externalsettlement): reject imports inside a locked window`
+**Status**: Done
 
 ---
 

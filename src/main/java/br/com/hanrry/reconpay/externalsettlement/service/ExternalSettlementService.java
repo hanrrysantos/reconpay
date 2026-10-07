@@ -18,6 +18,7 @@ import br.com.hanrry.reconpay.externalsettlement.repository.ISettlementImportRep
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.observability.AuditLogger;
+import br.com.hanrry.reconpay.reconciliation.service.PeriodGuard;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class ExternalSettlementService {
     private final IExternalSettlementRepository externalSettlementRepository;
     private final ISettlementImportRepository settlementImportRepository;
     private final IMerchantRepository merchantRepository;
+    private final PeriodGuard periodGuard;
     private final AuditLogger auditLogger;
 
     @Transactional
@@ -63,6 +65,9 @@ public class ExternalSettlementService {
         SettlementLayout resolvedLayout = layout == null ? SettlementLayout.RECONPAY : layout;
         List<SettlementCsvParser.ParsedSettlementRow> rows = parseFile(file, resolvedLayout);
         ensureNoDuplicateInDatabase(merchantId, rows);
+        periodGuard.assertDatesOpen(
+                merchantId,
+                rows.stream().map(SettlementCsvParser.ParsedSettlementRow::settlementDate).toList());
 
         SettlementImportEntity importBatch = new SettlementImportEntity();
         importBatch.setMerchant(merchant);

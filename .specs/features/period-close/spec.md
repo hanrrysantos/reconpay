@@ -211,11 +211,11 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-23 | P1: Segurar | Phase 4 | Verified |
 | PER-24 | P1: Segurar | Phase 4 | Verified |
 | PER-25 | P1: Segurar | Phase 4 | Verified |
-| PER-26 | P1: Segurar | - | Pending |
+| PER-26 | P1: Segurar | Phase 4 | Verified |
 | PER-27 | P1: Segurar | - | Pending |
 | PER-28 | P1: Segurar | Phase 4 | Verified |
-| PER-29 | P1: Segurar | - | Pending |
-| PER-30 | P1: Segurar | - | Pending |
+| PER-29 | P1: Segurar | Phase 4 | Verified |
+| PER-30 | P1: Segurar | Phase 4 | Verified |
 | PER-31 | P1: Segurar | Phase 4 | Verified |
 | PER-32 | P1: Segurar | Phase 4 | Verified |
 | PER-33 | P1: Segurar | - | Pending |

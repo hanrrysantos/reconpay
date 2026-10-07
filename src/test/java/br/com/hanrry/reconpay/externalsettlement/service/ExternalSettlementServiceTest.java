@@ -4,6 +4,7 @@ import br.com.hanrry.reconpay.exception.DuplicateExternalSettlementException;
 import br.com.hanrry.reconpay.exception.ExternalSettlementNotFoundException;
 import br.com.hanrry.reconpay.exception.InvalidSettlementImportException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
+import br.com.hanrry.reconpay.exception.PeriodConflictException;
 import br.com.hanrry.reconpay.exception.SettlementImportNotFoundException;
 import br.com.hanrry.reconpay.exception.SettlementImportValidationException;
 import br.com.hanrry.reconpay.externalsettlement.dto.ExternalSettlementResponseDTO;
@@ -21,6 +22,7 @@ import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import br.com.hanrry.reconpay.observability.AuditLogger;
+import br.com.hanrry.reconpay.reconciliation.service.PeriodGuard;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -47,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -73,6 +76,9 @@ class ExternalSettlementServiceTest {
 
     @Mock
     private IMerchantRepository merchantRepository;
+
+    @Mock
+    private PeriodGuard periodGuard;
 
     @Mock
     private AuditLogger auditLogger;
@@ -394,6 +400,93 @@ class ExternalSettlementServiceTest {
         verify(settlementImportRepository, never()).save(any());
         verify(externalSettlementRepository, never()).saveAll(anyList());
         verifyNoInteractions(auditLogger);
+    }
+
+    @Test
+    void importCsvShouldRejectACoveredDateAndPersistNothing() throws IOException {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        MultipartFile file = csvFile("settlements.csv", "content");
+        SettlementCsvParser.ParsedSettlementRow open = parsedRow("EXT-OPEN", LocalDate.parse("2026-07-20"));
+        SettlementCsvParser.ParsedSettlementRow covered = parsedRow("EXT-LOCKED", LocalDate.parse("2026-07-10"));
+        List<LocalDate> dates = List.of(open.settlementDate(), covered.settlementDate());
+
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(settlementCsvParser.parse(any(InputStream.class), eq(SettlementLayout.RECONPAY)))
+                .thenReturn(List.of(open, covered));
+        when(externalSettlementRepository.findByMerchant_IdAndExternalReferenceIn(
+                merchantId, List.of("EXT-OPEN", "EXT-LOCKED"))).thenReturn(List.of());
+        doThrow(new PeriodConflictException("Janela travada de 2026-07-01 a 2026-07-15"))
+                .when(periodGuard).assertDatesOpen(merchantId, dates);
+
+        assertThatThrownBy(() -> externalSettlementService.importCsv(merchantId, file))
+                .isInstanceOf(PeriodConflictException.class);
+
+        verify(settlementImportRepository, never()).save(any());
+        verify(externalSettlementRepository, never()).saveAll(anyList());
+        verifyNoInteractions(auditLogger);
+    }
+
+    @Test
+    void importCsvShouldKeepValidationErrorWhenTheFileIsInvalidEvenIfADateIsCovered() throws IOException {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        MultipartFile file = csvFile("settlements.csv", """
+                externalReference,amount,netAmount,paymentMethod,installments,status,settlementDate
+                EXT-LOCKED,10.00,9.00,PIX,1,APPROVED,2026-07-10
+                """);
+        ImportRowErrorDTO rowError = new ImportRowErrorDTO(2, "netAmount inválido");
+
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(settlementCsvParser.parse(any(InputStream.class), eq(SettlementLayout.RECONPAY)))
+                .thenThrow(new SettlementImportValidationException("Erro na importação do CSV", List.of(rowError)));
+
+        assertThatThrownBy(() -> externalSettlementService.importCsv(merchantId, file))
+                .isInstanceOf(SettlementImportValidationException.class);
+
+        verifyNoInteractions(periodGuard);
+        verify(settlementImportRepository, never()).save(any());
+        verify(externalSettlementRepository, never()).saveAll(anyList());
+    }
+
+    @Test
+    void importCsvShouldPersistTheDayAfterTheLockedWindow() throws IOException {
+        UUID merchantId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        LocalDate dayAfter = LocalDate.parse("2026-07-16");
+        MultipartFile file = csvFile("settlements.csv", "content");
+        SettlementCsvParser.ParsedSettlementRow row = parsedRow("EXT-NEXT", dayAfter);
+        SettlementImportEntity savedImport = buildImport(merchant, "settlements.csv", 1);
+        SettlementImportResponseDTO expectedResponse = buildImportResponse(savedImport);
+
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(settlementCsvParser.parse(any(InputStream.class), eq(SettlementLayout.RECONPAY)))
+                .thenReturn(List.of(row));
+        when(externalSettlementRepository.findByMerchant_IdAndExternalReferenceIn(merchantId, List.of("EXT-NEXT")))
+                .thenReturn(List.of());
+        when(settlementImportRepository.save(any(SettlementImportEntity.class))).thenReturn(savedImport);
+        when(settlementImportMapper.toDTO(savedImport)).thenReturn(expectedResponse);
+
+        SettlementImportResponseDTO response = externalSettlementService.importCsv(merchantId, file);
+
+        verify(periodGuard).assertDatesOpen(merchantId, List.of(dayAfter));
+        verify(settlementImportRepository).save(any(SettlementImportEntity.class));
+        verify(externalSettlementRepository).saveAll(settlementsCaptor.capture());
+        assertThat(settlementsCaptor.getValue()).singleElement()
+                .extracting(ExternalSettlementEntity::getSettlementDate)
+                .isEqualTo(dayAfter);
+        assertThat(response).isEqualTo(expectedResponse);
+    }
+
+    private SettlementCsvParser.ParsedSettlementRow parsedRow(String reference, LocalDate settlementDate) {
+        return new SettlementCsvParser.ParsedSettlementRow(
+                reference,
+                new BigDecimal("100.00"),
+                new BigDecimal("98.00"),
+                PaymentMethod.PIX,
+                1,
+                TransactionStatus.APPROVED,
+                settlementDate);
     }
 
     @Test
