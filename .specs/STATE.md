@@ -52,11 +52,11 @@
 
 ## Handoff
 
-- **Feature**: `.specs/features/api-docs/` — **Complete** (validation PASS)
+- **Feature**: `.specs/features/period-close/` — **Complete** (validation PASS)
 - **Phase / Task**: none
-- **Completed**: T1–T18 + Verifier (`validation.md`)
+- **Completed**: T1–T19 + Verifier (`validation.md`)
 - **In-progress** (file:line): none
-- **Next step**: period indicators, then the frontend
+- **Next step**: the frontend
 - **Blockers**: none
 - **Uncommitted files**: none
 - **Branch**: main
