@@ -36,6 +36,9 @@ jobs:
       - name: Install dependencies
         run: corepack pnpm install --frozen-lockfile
 
+      - name: Audit dependencies
+        run: corepack pnpm audit --audit-level high
+
       - name: Test
         run: corepack pnpm test
 
@@ -86,8 +89,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # ponytail: Checkout-only scan misses resolved Maven JARs; add a backend scan after triaging its current findings.
       # Immutable action revision reviewed on 2026-09-14.
-      # Docker action: runner JDK is unused; JAVA_HOME is the image JDK.
+      # Docker action: runner JDK is unused; JAVA_HOME is the image JDK. Frontend audit runs above with pnpm installed.
       - name: Run OWASP dependency check
         uses: dependency-check/Dependency-Check_Action@1e54355a8b4c8abaa8cc7d0b70aa655a3bb15a6c
         env:
@@ -96,7 +100,7 @@ jobs:
           project: reconpay
           path: '.'
           format: 'HTML'
-          args: '--failOnCVSS 7'
+          args: '--disablePnpmAudit --failOnCVSS 7'
 
       - name: Upload dependency check report
         if: always()
