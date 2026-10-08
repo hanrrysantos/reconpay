@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 7,
+  "next_id": 8,
   "lessons": [
     {
       "id": "L-001",
@@ -113,6 +113,24 @@
       ],
       "created": "2026-10-07T15:34:26Z",
       "last_seen": "2026-10-07T15:34:26Z"
+    },
+    {
+      "id": "L-007",
+      "key": "gate_fail::truncate instant values to microseconds before persisting them so the api response matches the timestamp postgresql stores",
+      "text": "Truncate Instant values to microseconds before persisting them so the API response matches the timestamp PostgreSQL stores.",
+      "signal": "gate_fail",
+      "scope": "reconciliation",
+      "status": "candidate",
+      "features": [
+        "period-close"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "PeriodCloseIntegrationTest.java:182 PER-41 (reconciliation)"
+      ],
+      "created": "2026-10-08T00:18:47Z",
+      "last_seen": "2026-10-08T00:18:47Z"
     }
   ]
 }

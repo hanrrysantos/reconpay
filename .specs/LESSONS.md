@@ -50,6 +50,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: ApiDocsIntegrationTest.java:776 (openapi)
 - last seen: 2026-10-07T15:34:26Z
 
+### L-007 - Truncate Instant values to microseconds before persisting them so the API response matches the timestamp PostgreSQL stores.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `reconciliation` · harmful: 0
+- features: period-close
+- evidence: PeriodCloseIntegrationTest.java:182 PER-41 (reconciliation)
+- last seen: 2026-10-08T00:18:47Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
