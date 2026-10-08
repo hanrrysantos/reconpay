@@ -34,6 +34,14 @@ jobs:
             cd ~/reconpay
             git fetch origin main
             git reset --hard origin/main
-            docker compose up -d --build
+            docker compose up -d --build --wait
             docker compose ps
-            curl -sf http://127.0.0.1:8080/actuator/health | grep -q '"status":"UP"'
+            for attempt in $(seq 1 36); do
+              if curl -sf http://127.0.0.1:8080/actuator/health | grep -q '"status":"UP"'; then
+                exit 0
+              fi
+              sleep 5
+            done
+            echo "API health did not become UP within 3 minutes"
+            docker compose logs --tail 80 api-reconpay
+            exit 1
