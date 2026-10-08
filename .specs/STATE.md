@@ -50,13 +50,29 @@
 - **Date**: 2026-10-07
 - **Status**: active
 
+### AD-007
+- **Decision**: Frontend in `frontend/` with Next.js, React, TypeScript, Tailwind and the v0 dashboard layout; the browser sends the memory-only JWT directly to the Spring API.
+- **Reason**: Reuse the approved visual reference while making login, merchant selection and recent transactions functional without inventing financial metrics.
+- **Trade-off**: Reload requires login again; aggregated metrics remain unavailable until their API contract exists.
+- **Scope**: Frontend base.
+- **Date**: 2026-10-08
+- **Status**: active
+
+### AD-008
+- **Decision**: O projeto Maven, seu wrapper, código Java e Dockerfile ficam em `backend/`; `frontend/` é seu diretório irmão. Compose, `.env`, CI e documentação geral permanecem na raiz.
+- **Reason**: Separar os dois aplicativos sem duplicar segredos ou alterar os comandos do Compose na raiz.
+- **Trade-off**: Comandos Maven passam a rodar de `backend/`; o profile `dev` lê `../.env` a partir desse diretório.
+- **Scope**: Layout do repositório, build, desenvolvimento local e CI.
+- **Date**: 2026-10-08
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: `.specs/features/period-close/` — **Complete** (validation PASS)
+- **Feature**: organização do backend em `backend/` — **Complete** (`verify` e Docker build passaram)
 - **Phase / Task**: none
-- **Completed**: T1–T19 + Verifier (`validation.md`)
+- **Completed**: Next.js base e validação em `.specs/features/frontend-base/`; backend movido com 419 testes, JaCoCo e imagem Docker validados
 - **In-progress** (file:line): none
-- **Next step**: the frontend
+- **Next step**: integrate aggregated dashboard endpoints once their contract is available; then implement the remaining workflow screens
 - **Blockers**: none
 - **Uncommitted files**: none
 - **Branch**: main
