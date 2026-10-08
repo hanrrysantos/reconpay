@@ -19,7 +19,7 @@ services:
 
   api-reconpay:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     image: reconpay/api:1.0
     container_name: reconpay-api
