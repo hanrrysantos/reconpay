@@ -30,6 +30,7 @@ O time deixa de caçar desvio na planilha e passa a fechar cada janela com três
 
 - [Regras de negócio](#regras-de-negócio)
 - [Como executar](#como-executar)
+- [Frontend](#frontend)
 - [Stack](#stack)
 - [Módulos](#módulos)
 - [API](#api)
@@ -88,7 +89,7 @@ Tolerância, atraso e capacidade da fila não podem ser negativos; janela máxim
 
 ## Como executar
 
-**Pré-requisitos:** Java 21, Docker e Docker Compose. Maven via wrapper (`./mvnw`).
+**Pré-requisitos:** Java 21, Docker e Docker Compose. O wrapper Maven fica em `backend/mvnw`.
 
 ### 1. Clone e configure o ambiente
 
@@ -110,7 +111,7 @@ RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080
 RECONPAY_VERIFICATION_TOKEN_HOURS=24
 ```
 
-> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` diretamente; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece). Sem `RESEND_API_KEY`, o envio de e-mail de verificação é apenas logado no console (útil em dev).
+> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` da raiz ao rodar em `backend/`; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece). Sem `RESEND_API_KEY`, o envio de e-mail de verificação é apenas logado no console (útil em dev).
 
 ### 2. Escolha como subir a aplicação
 
@@ -122,6 +123,7 @@ Docker apenas para o banco; a API roda na sua máquina no profile `dev`, com os 
 
 ```bash
 docker compose up -d banco-reconpay
+cd backend
 SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 ```
 
@@ -221,7 +223,13 @@ Em `dev` e `test` existem usuários seed (nunca em produção):
 | ADMIN | `admin@reconpay.local` | `DevAdmin@2026` |
 | OPERATOR | `analyst@reconpay.local` | `DevAnalyst@2026` |
 
-CORS em `dev` libera origens em `reconpay.cors.allowed-origins` (padrão `http://localhost:5173`, Vite) para `/api/**`.
+CORS em `dev` libera origens em `reconpay.cors.allowed-origins` (incluindo `http://localhost:3000`, Next.js) para `/api/**`.
+
+---
+
+## Frontend
+
+O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. O login, cadastro, seleção de merchant e transações recentes usam a API. Os indicadores agregados aguardam os endpoints do dashboard e aparecem sem valores fictícios.
 
 ---
 
@@ -233,7 +241,7 @@ CORS em `dev` libera origens em `reconpay.cors.allowed-origins` (padrão `http:/
 | **Integração** | Testcontainers (PostgreSQL), MockMvc | Fluxos de ponta a ponta com banco real (precisa de Docker) |
 
 ```bash
-./mvnw verify
+cd backend && ./mvnw verify
 ```
 
 Isso roda os testes e falha se a cobertura ficar abaixo de 85% das linhas ou 75% dos ramos. Na GitHub Actions o mesmo `verify` corre em todo push e PR para `main`, junto com scan OWASP (reprova CVSS ≥ 7) e `docker build` da imagem.
