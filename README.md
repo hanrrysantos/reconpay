@@ -244,7 +244,7 @@ O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `ht
 cd backend && ./mvnw verify
 ```
 
-Isso roda os testes e falha se a cobertura ficar abaixo de 85% das linhas ou 75% dos ramos. Na GitHub Actions o mesmo `verify` corre em todo push e PR para `main`, junto com `pnpm audit` no frontend (reprova severidade alta ou crítica), scan OWASP (reprova CVSS ≥ 7) e `docker build` da imagem.
+Isso roda os testes e falha se a cobertura ficar abaixo de 85% das linhas ou 75% dos ramos. Na GitHub Actions, push e PR para `main` disparam só o que a mudança pede: `verify` quando `backend/` ou o workflow mudam; testes, typecheck, build e `pnpm audit` (severidade alta ou crítica) quando `frontend/` ou o workflow mudam; a imagem da API, com cache de camadas, quando `backend/`, o Compose ou o workflow mudam. O scan OWASP lê os JARs de runtime que o Maven resolve, reprova CVSS ≥ 7, e corre quando `backend/pom.xml` ou o workflow mudam, no disparo manual e toda segunda-feira.
 
 ---
 
