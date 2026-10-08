@@ -81,7 +81,7 @@ public class PeriodService {
         lock.setFromDate(fromDate);
         lock.setToDate(toDate);
         lock.setRun(run);
-        lock.setLockedAt(clock.instant());
+        lock.setLockedAt(clock.instant().truncatedTo(ChronoUnit.MICROS));
         PeriodLockEntity saved = periodLockRepository.saveAndFlush(lock);
         auditLogger.record(
                 "PERIOD_LOCKED",

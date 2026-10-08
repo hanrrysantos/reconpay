@@ -603,6 +603,34 @@ T17
 
 ---
 
+### T19: Persist lockedAt at microsecond precision
+
+**What**: O instante da trava é truncado para microssegundos antes do flush, para a resposta e a leitura do PostgreSQL serem o mesmo valor.
+**Where**: `src/main/java/br/com/hanrry/reconpay/reconciliation/service/PeriodService.java`
+**Depends on**: T17
+**Reuses**: `DiscrepancyResolutionService` truncates `Instant` to `ChronoUnit.MICROS`
+**Requirement**: PER-41
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [x] `lock` grava `clock.instant().truncatedTo(ChronoUnit.MICROS)`
+- [x] Um instante com nanossegundos persiste e volta truncado no `PeriodServiceTest`
+- [x] `PeriodCloseIntegrationTest` passa, inclusive as duas travas simultâneas
+- [x] Gate: `./mvnw -B test -Dtest=PeriodServiceTest,PeriodCloseIntegrationTest`
+
+**Tests**: integration
+**Gate**: full
+
+**Commit**: `fix(reconciliation): persist lockedAt at microsecond precision`
+**Status**: Done
+
+---
+
 ## Phase Execution Map
 
 ```

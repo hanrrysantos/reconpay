@@ -33,6 +33,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -303,6 +304,28 @@ class PeriodServiceTest {
         assertThat(saved.getValue().getLockedAt()).isEqualTo(LOCKED_AT);
         assertThat(detail.getValue()).contains(
                 merchantId.toString(), FROM.toString(), TO.toString(), runId.toString());
+    }
+
+    @Test
+    void shouldStoreLockedAtTruncatedToMicroseconds() {
+        Instant nanos = Instant.parse("2026-07-16T10:00:30.400000500Z");
+        clock.set(nanos);
+        ReconciliationRunEntity run = completedRun(1, 1, 0);
+        when(periodGuard.lockMerchant(merchantId)).thenReturn(merchant);
+        when(periodLockRepository.findByMerchant_IdAndFromDateAndToDate(merchantId, FROM, TO))
+                .thenReturn(Optional.empty());
+        stubNoInFlight();
+        stubCurrentRun(run);
+        when(discrepancyRepository.findByRunIdWithItem(runId)).thenReturn(List.of());
+        when(periodLockRepository.saveAndFlush(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        PeriodResponseDTO response = periodService.lock(merchantId, FROM, TO);
+
+        Instant micros = nanos.truncatedTo(ChronoUnit.MICROS);
+        ArgumentCaptor<PeriodLockEntity> saved = ArgumentCaptor.forClass(PeriodLockEntity.class);
+        verify(periodLockRepository).saveAndFlush(saved.capture());
+        assertThat(saved.getValue().getLockedAt()).isEqualTo(micros);
+        assertThat(response.lockedAt()).isEqualTo(micros);
     }
 
     @Test
