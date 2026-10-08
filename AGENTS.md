@@ -1,6 +1,6 @@
 # ReconPay
 
-API de conciliação financeira (monólito modular, Java 21, Spring Boot 3). Este arquivo é o mapa permanente do agente: o mínimo para não errar o caminho. **Não copie domínio, decisões ou specs para cá.**
+ReconPay: API de conciliação financeira em `backend/` (monólito modular, Java 21, Spring Boot 3) e aplicativo Next.js em `frontend/`. Este arquivo é o mapa permanente do agente: o mínimo para não errar o caminho. **Não copie domínio, decisões ou specs para cá.**
 
 ## Onde procurar
 
@@ -18,6 +18,8 @@ Nova feature ou implementação com spec: skill `tlc-spec-driven`. Resume: comec
 
 ## Stack e forma
 
+- Backend: `backend/pom.xml`, `backend/mvnw`, `backend/src/`. Rode `cd backend && ./mvnw verify`.
+- Frontend: `frontend/` (instruções em `frontend/README.md`).
 - Pacote raiz: `br.com.hanrry.reconpay`
 - Módulos: `auth`, `security`, `merchant`, `feerule`, `transaction`, `externalsettlement`, `bankstatement`, `reconciliation`, `exception`, `config`, `shared`, `observability`
 - Persistência: PostgreSQL + Flyway (não use `ddl-auto` para migrar)
