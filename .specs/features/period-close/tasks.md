@@ -588,17 +588,18 @@ T17
 
 **Done when**:
 
-- [ ] Travar `2026-07-01`–`2026-07-15`, criar venda em `2026-07-10` recebe 409, venda em `2026-07-20` recebe 201, liquidação em `2026-07-16` recebe 201
-- [ ] Run de outro par de datas recebe 202. Taxa e cadastro de merchant seguem com o sucesso atual
-- [ ] Duas travas simultâneas: um 200 e um 409. Duas reaberturas simultâneas: um 200 e um 409
-- [ ] Trava e mutação da mesma janela ao mesmo tempo: um grava e o outro recebe 409
-- [ ] Gate: `./mvnw -B verify`
-- [ ] Test count: pelo menos 6 testes passam em `PeriodCloseIntegrationTest`
+- [x] Travar `2026-07-01`–`2026-07-15`, criar venda em `2026-07-10` recebe 409, venda em `2026-07-20` recebe 201, liquidação em `2026-07-16` recebe 201
+- [x] Run de outro par de datas recebe 202. Taxa e cadastro de merchant seguem com o sucesso atual
+- [x] Duas travas simultâneas: um 200 e um 409. Duas reaberturas simultâneas: um 200 e um 409
+- [x] Trava e mutação da mesma janela ao mesmo tempo: um grava e o outro recebe 409
+- [x] Gate: `./mvnw -B verify`
+- [x] Test count: pelo menos 6 testes passam em `PeriodCloseIntegrationTest`
 
 **Tests**: integration
 **Gate**: full
 
 **Commit**: `test(reconciliation): prove period close over http`
+**Status**: Done
 
 ---
 

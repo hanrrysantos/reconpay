@@ -218,7 +218,7 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-30 | P1: Segurar | Phase 4 | Verified |
 | PER-31 | P1: Segurar | Phase 4 | Verified |
 | PER-32 | P1: Segurar | Phase 4 | Verified |
-| PER-33 | P1: Segurar | - | Pending |
+| PER-33 | P1: Segurar | Phase 5 | Verified |
 | PER-34 | P1: Segurar | Phase 4 | Verified |
 | PER-35 | P1: Acesso | Phase 3 | Verified |
 | PER-36 | P1: Acesso | Phase 3 | Verified |
@@ -226,9 +226,9 @@ O run vigente já responde o que bateu e o que divergiu, e o operador já dá de
 | PER-38 | P1: Acesso | Phase 3 | Verified |
 | PER-39 | P1: Acesso | Phase 3 | Verified |
 | PER-40 | P1: Acesso | Phase 3 | Verified |
-| PER-41 | P1: Acesso | Phase 1 | Implementing |
-| PER-42 | P1: Acesso | - | Pending |
-| PER-43 | P1: Acesso | - | Pending |
+| PER-41 | P1: Acesso | Phase 5 | Verified |
+| PER-42 | P1: Acesso | Phase 5 | Verified |
+| PER-43 | P1: Acesso | Phase 5 | Verified |
 | PER-44 | P1: Acesso | Phase 3 | Verified |
 
 **Coverage:** 44 total, 8 mapped to tasks, 36 unmapped
