@@ -24,6 +24,10 @@ O ReconPay executa esse fluxo de ponta a ponta. Cada merchant é uma unidade iso
 
 O time deixa de caçar desvio na planilha e passa a fechar cada janela com três respostas: o que bateu, o que a empresa vendeu e ainda não recebeu, e o que o adquirente pagou diferente do combinado. Cada execução fica gravada e exportável. Rodar de novo o mesmo período guarda o resultado antigo. O novo não apaga o anterior. O MVP está pronto para uso e já produz os dados para medir taxa de match, valor em aberto e tempo até fechar o período.
 
+API em produção: [https://reconpay.hanrry.top](https://reconpay.hanrry.top) · [Swagger](https://reconpay.hanrry.top/swagger-ui.html) · [Health](https://reconpay.hanrry.top/actuator/health).
+
+![Arquitetura de produção: DNS, Lightsail, Nginx, Docker Compose, GitHub Actions e Resend](docs/production-architecture.png)
+
 ---
 
 ## Sumário
@@ -111,7 +115,7 @@ RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080
 RECONPAY_VERIFICATION_TOKEN_HOURS=24
 ```
 
-> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` da raiz ao rodar em `backend/`; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece). Sem `RESEND_API_KEY`, o envio de e-mail de verificação é apenas logado no console (útil em dev).
+> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` da raiz ao rodar em `backend/`; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece). Em produção, `RECONPAY_VERIFICATION_BASE_URL` deve ser a URL pública HTTPS. Sem `RESEND_API_KEY`, o envio de e-mail de verificação é apenas logado no console (útil em dev).
 
 ### 2. Escolha como subir a aplicação
 
@@ -137,16 +141,16 @@ Sobe banco e API em containers no profile `prod`, usando o `.env` automaticament
 docker compose up --build
 ```
 
-Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo.
+Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo. Em produção o mesmo Compose sobe atrás de Nginx/HTTPS; o primeiro ADMIN entra direto no banco (não há seed). Push em `backend/` na `main` dispara o CD (`.github/workflows/deploy-prod.yml`).
 
 ### 3. Acesse
 
-| Recurso | URL |
-| :--- | :--- |
-| API | http://localhost:8080 |
-| Swagger | http://localhost:8080/swagger-ui.html |
-| Health | http://localhost:8080/actuator/health |
-| Métricas (autenticado) | http://localhost:8080/actuator/prometheus |
+| Recurso | Local | Produção |
+| :--- | :--- | :--- |
+| API | http://localhost:8080 | https://reconpay.hanrry.top |
+| Swagger | http://localhost:8080/swagger-ui.html | https://reconpay.hanrry.top/swagger-ui.html |
+| Health | http://localhost:8080/actuator/health | https://reconpay.hanrry.top/actuator/health |
+| Métricas (autenticado) | http://localhost:8080/actuator/prometheus | https://reconpay.hanrry.top/actuator/prometheus |
 
 ---
 
@@ -159,7 +163,7 @@ Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo.
 | Segurança | JWT (stateless) |
 | Observabilidade | Log estruturado (JSON Logstash em `prod`), auditoria, Prometheus, tracing |
 | Testes | JUnit 5, Mockito, MockMvc, AssertJ, Testcontainers |
-| Infra | Docker, Docker Compose, GitHub Actions |
+| Infra | Docker, Docker Compose, GitHub Actions (CI e CD) |
 
 ---
 
@@ -196,8 +200,8 @@ module/
 
 O contrato vivo está no Swagger, gerado a partir do código. Com a API no ar:
 
-- UI: http://localhost:8080/swagger-ui.html
-- OpenAPI: http://localhost:8080/v3/api-docs
+- UI: http://localhost:8080/swagger-ui.html ou https://reconpay.hanrry.top/swagger-ui.html
+- OpenAPI: http://localhost:8080/v3/api-docs ou https://reconpay.hanrry.top/v3/api-docs
 
 Faça login (`POST /api/auth/login`), copie o token e use **Authorize** no Swagger (`Bearer {token}`). Em `dev`, os usuários seed estão na seção Segurança. Rotas públicas: cadastro, login, verificação de e-mail, Swagger e `/actuator/health`.
 
@@ -244,7 +248,7 @@ O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `ht
 cd backend && ./mvnw verify
 ```
 
-Isso roda os testes e falha se a cobertura ficar abaixo de 85% das linhas ou 75% dos ramos. Na GitHub Actions, push e PR para `main` disparam só o que a mudança pede: `verify` quando `backend/` ou o workflow mudam; testes, typecheck, build e `pnpm audit` (severidade alta ou crítica) quando `frontend/` ou o workflow mudam; a imagem da API, com cache de camadas, quando `backend/`, o Compose ou o workflow mudam. O scan OWASP lê os JARs de runtime que o Maven resolve, reprova CVSS ≥ 7, e corre quando `backend/pom.xml` ou o workflow mudam, no disparo manual e toda segunda-feira.
+Isso roda os testes e falha se a cobertura ficar abaixo de 85% das linhas ou 75% dos ramos. Na GitHub Actions, push e PR para `main` disparam só o que a mudança pede: `verify` quando `backend/` ou o workflow mudam; testes, typecheck, build e `pnpm audit` (severidade alta ou crítica) quando `frontend/` ou o workflow mudam; a imagem da API, com cache de camadas, quando `backend/`, o Compose ou o workflow mudam. O scan OWASP lê os JARs de runtime que o Maven resolve, reprova CVSS ≥ 7, e corre quando `backend/pom.xml` ou o workflow mudam, no disparo manual e toda segunda-feira. Push em `backend/`, no Compose ou no workflow de deploy dispara o CD para a VPS (`.github/workflows/deploy-prod.yml`).
 
 ---
 
