@@ -9,6 +9,7 @@ function septemberDays(bank: (index: number) => string | null = () => '10000.00'
     expectedNetAmount: index === 26 ? '15060.00' : '10000.00',
     settledNetAmount: '10000.00',
     bankReceivedAmount: index === 26 ? (bank(index) === null ? null : '13582.00') : bank(index),
+    bankShortfallAmount: bank(index) === null ? null : index === 26 ? '1478.00' : '0.00',
     itemCount: 40,
     matchedCount: 38,
   }))
@@ -43,6 +44,24 @@ describe('CashflowChart', () => {
     const tooltip = screen.getByRole('tooltip')
     expect(tooltip).toHaveTextContent('27 set · esperado R$ 15.060,00')
     expect(tooltip).toHaveTextContent('Faltaram R$ 1.478,00')
+  })
+
+  it('a falta do tooltip é a bankShortfallAmount do servidor, sem conta local (AD-010)', () => {
+    const days = septemberDays().map((day, index) => index === 4 ? { ...day, bankShortfallAmount: '321.45' } : day)
+    const { container } = render(<CashflowChart days={days} bankReceivedAmount="303582.00" expectedNetAmount="305060.00" />)
+
+    fireEvent.mouseEnter(container.querySelector('[data-day="2026-09-05"]')!)
+
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Faltaram R$ 321,45')
+  })
+
+  it('banco acima do esperado (falta negativa) mostra "Nada faltou"', () => {
+    const days = septemberDays().map((day, index) => index === 4 ? { ...day, bankShortfallAmount: '-25.00' } : day)
+    const { container } = render(<CashflowChart days={days} bankReceivedAmount="303582.00" expectedNetAmount="305060.00" />)
+
+    fireEvent.mouseEnter(container.querySelector('[data-day="2026-09-05"]')!)
+
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Nada faltou')
   })
 
   it('dia sem falta não mostra valor faltando', () => {

@@ -3,7 +3,7 @@
 import { Check, X } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { ApiError, type DiscrepancyStatus, type DiscrepancyType, type ReconciliationItem } from '@/lib/api'
-import { formatMoney, subtractDecimal, toCents } from '@/lib/money'
+import { formatMoney, toCents } from '@/lib/money'
 import type { Window } from '@/lib/period'
 import { useDiscrepancy, useResolveDiscrepancy } from '@/lib/queries'
 import { cn } from '@/lib/utils'
@@ -228,7 +228,7 @@ export function ResolveDrawer({ merchantId, window, runId, list, index, total, l
                     />
                     <button
                       type="button"
-                      onClick={() => setAmount(subtractDecimal(item.settlementNetAmount, item.expectedNetAmount).replace('.', ','))}
+                      onClick={() => setAmount(item.netDifference.replace('.', ','))}
                       className="h-8 shrink-0 rounded-full bg-surface px-3 text-[12px] font-semibold"
                     >
                       Usar diferença

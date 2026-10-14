@@ -68,7 +68,10 @@ describe('período', () => {
   it('lê o resumo da janela sem arredondar valores nem contagens', async () => {
     const fetcher = stubFetch('{"runId":"r-1","grossAmount":12345678901234567.89,"feeAmount":1003.40,"bankReceivedAmount":null,'
       + '"openByType":{"MISSING_SETTLEMENT":3},"days":[{"date":"2026-09-01","expectedNetAmount":15060.00,"settledNetAmount":13582.00,'
-      + '"bankReceivedAmount":null,"itemCount":40,"matchedCount":38}],"previousRunMatchRate":0.9240,"previousWindowGrossAmount":null}')
+      + '"bankReceivedAmount":null,"bankShortfallAmount":null,"itemCount":40,"matchedCount":38},{"date":"2026-09-02",'
+      + '"expectedNetAmount":100.00,"settledNetAmount":100.00,"bankReceivedAmount":120.00,"bankShortfallAmount":-20.00,'
+      + '"itemCount":1,"matchedCount":1}],"previousRunMatchRate":0.9240,"previousWindowGrossAmount":null,'
+      + '"feePercent":3.00,"previousWindowGrossChangePercent":-6.3}')
     const summary = await getPeriodSummary('jwt', 'm-1', september)
     expect(call(fetcher)).toMatchObject({ url: `${base}/periods/summary?fromDate=2026-09-01&toDate=2026-09-30`, method: 'GET', auth: 'Bearer jwt' })
     expect(summary).toEqual({
@@ -77,19 +80,25 @@ describe('período', () => {
       feeAmount: '1003.40',
       bankReceivedAmount: null,
       openByType: { MISSING_SETTLEMENT: 3 },
-      days: [{ date: '2026-09-01', expectedNetAmount: '15060.00', settledNetAmount: '13582.00', bankReceivedAmount: null, itemCount: 40, matchedCount: 38 }],
+      days: [
+        { date: '2026-09-01', expectedNetAmount: '15060.00', settledNetAmount: '13582.00', bankReceivedAmount: null, bankShortfallAmount: null, itemCount: 40, matchedCount: 38 },
+        { date: '2026-09-02', expectedNetAmount: '100.00', settledNetAmount: '100.00', bankReceivedAmount: '120.00', bankShortfallAmount: '-20.00', itemCount: 1, matchedCount: 1 },
+      ],
       previousRunMatchRate: '0.9240',
       previousWindowGrossAmount: null,
+      feePercent: '3.00',
+      previousWindowGrossChangePercent: '-6.3',
     })
   })
 })
 
 describe('divergências', () => {
   it('pede as 4 abertas de maior diferença do run, com filtro opcional de tipo', async () => {
-    let fetcher = stubFetch('{"content":[{"id":"i-1","expectedNetAmount":4870.00,"settlementNetAmount":null,"discrepancies":[]}],"totalPages":3,"totalElements":12}')
+    let fetcher = stubFetch('{"content":[{"id":"i-1","expectedNetAmount":4870.00,"settlementNetAmount":null,"netDifference":-4870.00,"discrepancies":[]}],"totalPages":3,"totalElements":12}')
     const page = await getOpenDiscrepancies('jwt', 'm-1', 'r-1')
     expect(call(fetcher)).toMatchObject({ url: `${base}/reconciliations/r-1/items?discrepancyStatus=OPEN&sort=absDifference%2Cdesc&size=4`, method: 'GET', auth: 'Bearer jwt' })
     expect(page.content[0].expectedNetAmount).toBe('4870.00')
+    expect(page.content[0].netDifference).toBe('-4870.00')
     expect(page.totalElements).toBe(12)
 
     fetcher = stubFetch('{"content":[],"totalPages":0}')

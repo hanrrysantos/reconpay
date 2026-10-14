@@ -1,5 +1,4 @@
 import type { DiscrepancyStatus, DiscrepancyType, PeriodSummary } from '@/lib/api'
-import { toCents } from '@/lib/money'
 import { MONTH_NAMES, formatWindow, monthWindow, type Window } from '@/lib/period'
 
 const MINUS = '−'
@@ -56,18 +55,16 @@ export function openCount(summary: Pick<PeriodSummary, 'openByType'>): number {
   return Object.values(summary.openByType).reduce<number>((total, count) => total + (count ?? 0), 0)
 }
 
-/** `part / whole` as a percentage with fixed decimals, computed in integer cents (AD-010); null when `whole` is zero. */
-export function formatShare(part: string, whole: string, decimals: number, { signed = false } = {}): string | null {
-  const p = toCents(part)
-  const w = toCents(whole)
-  if (w === BigInt(0)) return null
-  const abs = (value: bigint) => (value < BigInt(0) ? -value : value)
-  const numerator = abs(p) * BigInt(100) * BigInt(`1${'0'.repeat(decimals)}`)
-  const rounded = (BigInt(2) * numerator + abs(w)) / (BigInt(2) * abs(w))
-  const negative = rounded > BigInt(0) && (p < BigInt(0)) !== (w < BigInt(0))
-  const digits = rounded.toString().padStart(decimals + 1, '0')
-  const text = decimals ? `${digits.slice(0, -decimals)},${digits.slice(-decimals)}` : digits
-  return `${negative ? MINUS : signed ? '+' : ''}${text}%`
+/**
+ * A percentage the API already computed and rounded ("6.2", "-3.8", "3.03"), shown as text without
+ * re-rounding (AD-010): "6,2%", "−3,8%"; `signed` prefixes "+" on a positive value.
+ */
+export function formatPercent(value: string, { signed = false } = {}): string {
+  const negative = value.startsWith('-')
+  const digits = negative ? value.slice(1) : value
+  const zero = /^0*(\.0*)?$/.test(digits)
+  const sign = zero ? '' : negative ? MINUS : signed ? '+' : ''
+  return `${sign}${digits.replace('.', ',')}%`
 }
 
 /** The only four statuses a discrepancy can have; there is no "Em análise". */

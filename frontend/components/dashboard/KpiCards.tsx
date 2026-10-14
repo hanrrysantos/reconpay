@@ -2,10 +2,10 @@ import { ArrowUpRight } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { Period, PeriodSummary } from '@/lib/api'
 import { seriesPath } from '@/lib/charts'
-import { formatMoney, subtractDecimal } from '@/lib/money'
+import { formatMoney } from '@/lib/money'
 import { MONTH_NAMES, monthWindow } from '@/lib/period'
 import { cn } from '@/lib/utils'
-import { formatShare, openCount } from './format'
+import { formatPercent, openCount } from './format'
 
 function Sparkline({ values, className }: { values: number[]; className?: string }) {
   if (values.length < 2) return null
@@ -48,10 +48,10 @@ function previousLabel(period: Period): string {
 export function KpiCards({ period, summary }: { period: Period; summary: PeriodSummary | undefined }) {
   const recent = summary?.days.slice(-7) ?? []
   const open = summary ? openCount(summary) : null
-  const grossChange = summary?.previousWindowGrossAmount
-    ? formatShare(subtractDecimal(summary.grossAmount, summary.previousWindowGrossAmount), summary.previousWindowGrossAmount, 1, { signed: true })
+  const grossChange = summary?.previousWindowGrossChangePercent
+    ? formatPercent(summary.previousWindowGrossChangePercent, { signed: true })
     : null
-  const feeShare = summary ? formatShare(summary.feeAmount, summary.grossAmount, 2) : null
+  const feeShare = summary?.feePercent ? formatPercent(summary.feePercent) : null
   const aboveContract = summary && !/^0+(\.0*)?$/.test(summary.feeAboveContractAmount)
 
   return (

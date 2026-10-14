@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import type { PeriodSummaryDay } from '@/lib/api'
 import { gapPolygon, seriesPath } from '@/lib/charts'
-import { formatMoney, subtractDecimal } from '@/lib/money'
+import { formatMoney } from '@/lib/money'
 import { MONTH_NAMES } from '@/lib/period'
 
 const W = 720
@@ -38,8 +38,8 @@ export function CashflowChart({ days, bankReceivedAmount, expectedNetAmount }: {
   const xStep = days.length > 1 ? W / (days.length - 1) : 0
   const xMarks = days.length ? [...new Set([0, 7, 14, 21, days.length - 1].filter(index => index < days.length))] : []
   const day = hovered === null ? null : days[hovered]
-  // Exact cents subtraction of two API values for the tooltip (DASH-03 AC5); never through a float.
-  const missing = day && day.bankReceivedAmount !== null ? subtractDecimal(day.expectedNetAmount, day.bankReceivedAmount) : null
+  // The server's per-day shortfall (DASH-03 AC5, AD-010); null when the run has no bank data.
+  const missing = day?.bankShortfallAmount ?? null
 
   return (
     <section className="flex min-w-0 flex-1 flex-col gap-5 rounded-lg bg-surface p-7">

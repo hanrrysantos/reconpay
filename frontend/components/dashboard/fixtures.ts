@@ -24,7 +24,8 @@ export function makeSummary(overrides: Partial<PeriodSummary> = {}): PeriodSumma
     runId: 'run-9', ...september, grossAmount: '125000.00', expectedNetAmount: '121212.50', feeAmount: '3787.50',
     feeAboveContractAmount: '35.50', bankReceivedAmount: '110823.12',
     openByType: { MISSING_SETTLEMENT: 7, FEE_DIVERGENCE: 5 }, days: [],
-    previousRunMatchRate: null, previousWindowGrossAmount: null, ...overrides,
+    previousRunMatchRate: null, previousWindowGrossAmount: null, feePercent: '3.03', previousWindowGrossChangePercent: null,
+    ...overrides,
   }
 }
 
@@ -32,7 +33,7 @@ export function makeItem(overrides: Partial<ReconciliationItem> = {}): Reconcili
   return {
     id: 'item-1', reconciliationRunId: 'run-9', externalReference: 'PED-10021', result: 'DIVERGENT',
     internalTransactionId: 'tx-1', externalSettlementId: 'st-1', transactionAmount: '5000.00', expectedNetAmount: '4870.00',
-    settlementAmount: null, settlementNetAmount: null, paymentMethod: 'CREDIT_CARD', installments: 3,
+    settlementAmount: null, settlementNetAmount: null, netDifference: '-4870.00', paymentMethod: 'CREDIT_CARD', installments: 3,
     transactionStatus: 'APPROVED', settlementStatus: null, transactionDate: '2026-09-26', settlementDate: null,
     discrepancies: [{ id: 'd-1', status: 'OPEN', type: 'MISSING_SETTLEMENT', expectedValue: '4870.00', actualValue: null }],
     createdAt: '2026-10-01T09:43:00Z', ...overrides,

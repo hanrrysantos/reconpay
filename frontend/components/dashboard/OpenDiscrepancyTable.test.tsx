@@ -9,12 +9,12 @@ const items: ReconciliationItem[] = [
   makeItem(),
   makeItem({
     id: 'item-2', externalReference: 'PED-10022', paymentMethod: 'PIX', installments: 1, transactionDate: '2026-09-24',
-    expectedNetAmount: '2287.13', settlementNetAmount: '1297.03',
+    expectedNetAmount: '2287.13', settlementNetAmount: '1297.03', netDifference: '-990.10',
     discrepancies: [{ id: 'd-2', status: 'OPEN', type: 'FEE_DIVERGENCE', expectedValue: '2287.13', actualValue: '1297.03' }],
   }),
-  makeItem({ id: 'item-3', externalReference: 'PED-10023', expectedNetAmount: '100.00', settlementNetAmount: '90.00',
+  makeItem({ id: 'item-3', externalReference: 'PED-10023', expectedNetAmount: '100.00', settlementNetAmount: '90.00', netDifference: '-10.00',
     discrepancies: [{ id: 'd-3', status: 'OPEN', type: 'INCORRECT_AMOUNT', expectedValue: null, actualValue: null }] }),
-  makeItem({ id: 'item-4', externalReference: 'PED-10024', expectedNetAmount: '50.00', settlementNetAmount: '45.00',
+  makeItem({ id: 'item-4', externalReference: 'PED-10024', expectedNetAmount: '50.00', settlementNetAmount: '45.00', netDifference: '-5.00',
     discrepancies: [{ id: 'd-4', status: 'OPEN', type: 'STATUS_MISMATCH', expectedValue: null, actualValue: null }] }),
   makeItem({ id: 'item-5', externalReference: 'PED-10025' }),
 ]
@@ -41,6 +41,11 @@ describe('OpenDiscrepancyTable', () => {
     renderTable()
     const cells = within(bodyRows()[1]).getAllByRole('cell').map(cell => cell.textContent)
     expect(cells.slice(0, 5)).toEqual(['PIXPED-10022Pix · 24 set', 'Taxa divergente', '2.287,13', '−990,10', 'Aberta'])
+  })
+
+  it('a diferença é a netDifference do servidor, sem conta local (AD-010, DASH-04 AC1)', () => {
+    renderTable({ items: [makeItem({ expectedNetAmount: '100.00', settlementNetAmount: '90.00', netDifference: '-12.34' })] })
+    expect(within(bodyRows()[0]).getAllByRole('cell')[3]).toHaveTextContent('−12,34')
   })
 
   it('sem liquidação, a diferença é o esperado negativo', () => {

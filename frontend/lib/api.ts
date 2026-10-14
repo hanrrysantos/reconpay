@@ -80,6 +80,8 @@ export type PeriodSummaryDay = {
   expectedNetAmount: string
   settledNetAmount: string
   bankReceivedAmount: string | null
+  /** Expected net − bank received, from the server; negative when the bank received more, null without bank data. */
+  bankShortfallAmount: string | null
   itemCount: number
   matchedCount: number
 }
@@ -97,6 +99,10 @@ export type PeriodSummary = {
   days: PeriodSummaryDay[]
   previousRunMatchRate: string | null
   previousWindowGrossAmount: string | null
+  /** Fee ÷ gross in percentage points, two decimals; null when gross is zero. */
+  feePercent: string | null
+  /** Gross change over the previous window in percentage points, one decimal; null without a comparable base. */
+  previousWindowGrossChangePercent: string | null
 }
 
 export type Discrepancy = {
@@ -118,6 +124,8 @@ export type ReconciliationItem = {
   expectedNetAmount: string | null
   settlementAmount: string | null
   settlementNetAmount: string | null
+  /** settlementNetAmount − expectedNetAmount with a missing side as zero, from the server. */
+  netDifference: string
   paymentMethod: string | null
   installments: number | null
   transactionStatus: string | null
@@ -152,7 +160,8 @@ export type SettlementImport = { id: string; merchantId: string; fileName: strin
 const DECIMAL_FIELDS = new Set([
   'amount', 'transactionAmount', 'expectedNetAmount', 'settlementAmount', 'settlementNetAmount', 'settledNetAmount',
   'matchRate', 'openAmount', 'grossAmount', 'feeAmount', 'feeAboveContractAmount', 'bankReceivedAmount',
-  'previousRunMatchRate', 'previousWindowGrossAmount',
+  'previousRunMatchRate', 'previousWindowGrossAmount', 'bankShortfallAmount', 'feePercent',
+  'previousWindowGrossChangePercent', 'netDifference',
 ])
 
 export class ApiError extends Error {

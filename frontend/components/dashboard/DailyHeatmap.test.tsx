@@ -4,7 +4,7 @@ import type { PeriodSummaryDay } from '@/lib/api'
 import { DailyHeatmap } from './DailyHeatmap'
 
 const day = (date: string, itemCount: number, matchedCount: number): PeriodSummaryDay => ({
-  date, expectedNetAmount: '0.00', settledNetAmount: '0.00', bankReceivedAmount: null, itemCount, matchedCount,
+  date, expectedNetAmount: '0.00', settledNetAmount: '0.00', bankReceivedAmount: null, bankShortfallAmount: null, itemCount, matchedCount,
 })
 
 const september = { fromDate: '2026-09-01', toDate: '2026-09-06' }

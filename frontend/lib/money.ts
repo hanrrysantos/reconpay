@@ -21,11 +21,3 @@ export function toCents(value: string | null): bigint {
   const absolute = BigInt(whole + cents.padEnd(2, '0'))
   return minus ? -absolute : absolute
 }
-
-/** `a − b` in integer cents; a null side counts as zero. Only for pre-filling inputs (AD-010). */
-export function subtractDecimal(a: string | null, b: string | null): string {
-  const result = toCents(a) - toCents(b)
-  const negative = result < BigInt(0)
-  const digits = (negative ? -result : result).toString().padStart(3, '0')
-  return `${negative ? '-' : ''}${digits.slice(0, -2)}.${digits.slice(-2)}`
-}

@@ -3,7 +3,7 @@
 import { ArrowRight, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import type { Discrepancy, DiscrepancyType, ReconciliationItem } from '@/lib/api'
-import { formatMoney, subtractDecimal } from '@/lib/money'
+import { formatMoney } from '@/lib/money'
 import { cn } from '@/lib/utils'
 import { METHOD_LABELS, STATUS_LABELS, TYPE_LABELS, shortDate } from './format'
 
@@ -80,10 +80,6 @@ export function OpenDiscrepancyTable({ items, total, types, typeFilter, onFilter
             {rows.map(item => {
               const discrepancy = rowDiscrepancy(item, typeFilter)
               const method = item.paymentMethod ? METHOD_LABELS[item.paymentMethod]?.short ?? item.paymentMethod.slice(0, 3) : '—'
-              // SPEC_DEVIATION: the items endpoint has no difference field, so the row subtracts the two
-              // net amounts in integer cents (exact, no float) instead of reading a server value (AD-010).
-              // Reason: DASH-04 AC1 asks for the difference column and DASH-09 orders by this same value.
-              const difference = subtractDecimal(item.settlementNetAmount, item.expectedNetAmount)
               return (
                 <tr key={item.id} className="group">
                   <td className="rounded-l-[14px] px-3 py-2 group-hover:bg-subtle group-focus-within:bg-subtle">
@@ -105,7 +101,7 @@ export function OpenDiscrepancyTable({ items, total, types, typeFilter, onFilter
                   </td>
                   <td className="px-3 py-2 text-right font-mono text-[13px] group-hover:bg-subtle group-focus-within:bg-subtle">{money(item.expectedNetAmount)}</td>
                   <td className="px-3 py-2 text-right font-mono text-[13px] text-danger group-hover:bg-subtle group-focus-within:bg-subtle">
-                    {formatMoney(difference, { currency: false, signed: true })}
+                    {formatMoney(item.netDifference, { currency: false, signed: true })}
                   </td>
                   <td className="px-3 py-2 group-hover:bg-subtle group-focus-within:bg-subtle">
                     {discrepancy && (

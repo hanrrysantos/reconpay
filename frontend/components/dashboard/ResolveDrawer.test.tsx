@@ -12,6 +12,7 @@ vi.mock('@/lib/auth', () => ({ useAuth: () => ({ token: 'jwt', signOut: vi.fn() 
 const feeItem = makeItem({
   id: 'item-2', externalReference: 'PED-10022', paymentMethod: 'PIX', installments: 1, transactionDate: '2026-09-24',
   transactionAmount: '2400.00', settlementAmount: '2400.00', expectedNetAmount: '2287.13', settlementNetAmount: '1297.03',
+  netDifference: '-990.10',
   settlementDate: '2026-09-25', settlementStatus: 'APPROVED',
   discrepancies: [{ id: 'd-2', status: 'OPEN', type: 'FEE_DIVERGENCE', expectedValue: '2287.13', actualValue: '1297.03' }],
 })
@@ -117,7 +118,7 @@ describe('ResolveDrawer', () => {
     expect(raw).toBe('{"status":"ADJUSTED","correctionAmount":-1000.00}')
   })
 
-  it('"Usar diferença" preenche liquidação − esperado', async () => {
+  it('"Usar diferença" preenche a netDifference do servidor', async () => {
     const { user } = renderDrawer()
     await user.click(screen.getByRole('radio', { name: /^Ajustar/ }))
     await user.click(screen.getByRole('button', { name: 'Usar diferença' }))

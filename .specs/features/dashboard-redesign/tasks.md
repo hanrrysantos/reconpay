@@ -1204,11 +1204,11 @@ T40 → T41 → T42
 
 **Done when**:
 
-- [ ] Tooltip mostra "Faltaram R$ 20,00" para `bankShortfallAmount` 20.00 e "Nada faltou" para 0.00 ou negativo
-- [ ] KPI mostra "3,04% do bruto" e "+6,2% vs ago" a partir dos campos; sem o campo, o rótulo some
-- [ ] Coluna "Diferença" e "Usar diferença" usam `netDifference` (fixture com valor que a subtração local não daria)
-- [ ] Nenhum `subtractDecimal`/divisão de valores no código de `components/` e `lib/` (exceto validação de zero do formulário)
-- [ ] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Tooltip mostra "Faltaram R$ 20,00" para `bankShortfallAmount` 20.00 e "Nada faltou" para 0.00 ou negativo
+- [x] KPI mostra "3,04% do bruto" e "+6,2% vs ago" a partir dos campos; sem o campo, o rótulo some
+- [x] Coluna "Diferença" e "Usar diferença" usam `netDifference` (fixture com valor que a subtração local não daria)
+- [x] Nenhum `subtractDecimal`/divisão de valores no código de `components/` e `lib/` (exceto validação de zero do formulário)
+- [x] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: unit
 **Gate**: full
