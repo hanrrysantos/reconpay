@@ -346,10 +346,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Cada campo do contrato do design calculado 1:1 com DASH-08 AC1–AC4
-- [ ] Dinheiro em `BigDecimal` com escala 2
-- [ ] Sem run anterior ou janela anterior, comparativos nulos
-- [ ] Gate passa: `cd backend && ./mvnw -B test -Dtest=PeriodSummaryServiceTest`
+- [x] Cada campo do contrato do design calculado 1:1 com DASH-08 AC1–AC4
+- [x] Dinheiro em `BigDecimal` com escala 2
+- [x] Sem run anterior ou janela anterior, comparativos nulos
+- [x] Gate passa: `cd backend && ./mvnw -B test -Dtest=PeriodSummaryServiceTest`
 
 **Tests**: unit
 **Gate**: quick

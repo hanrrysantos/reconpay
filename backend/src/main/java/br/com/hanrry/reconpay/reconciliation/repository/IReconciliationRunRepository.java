@@ -56,6 +56,13 @@ public interface IReconciliationRunRepository extends JpaRepository<Reconciliati
             LocalDate toDate,
             ReconciliationRunStatus status);
 
+    Optional<ReconciliationRunEntity>
+            findFirstByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNotNullOrderBySupersededAtDescCreatedAtDesc(
+            UUID merchantId,
+            LocalDate fromDate,
+            LocalDate toDate,
+            ReconciliationRunStatus status);
+
     boolean existsByMerchant_IdAndFromDateAndToDateAndStatusIn(
             UUID merchantId,
             LocalDate fromDate,
