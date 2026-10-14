@@ -107,14 +107,24 @@ public class PeriodSummaryService {
                 .orElse(null);
     }
 
+    /* A full calendar month compares with the whole previous month; any other window with the equal-length window before it. */
     private BigDecimal previousWindowGrossAmount(UUID merchantId, LocalDate fromDate, LocalDate toDate) {
-        long length = ChronoUnit.DAYS.between(fromDate, toDate) + 1;
+        LocalDate previousFrom;
+        if (isFullCalendarMonth(fromDate, toDate)) {
+            previousFrom = fromDate.minusMonths(1);
+        } else {
+            previousFrom = fromDate.minusDays(ChronoUnit.DAYS.between(fromDate, toDate) + 1);
+        }
         return runRepository
                 .findByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNull(
-                        merchantId, fromDate.minusDays(length), fromDate.minusDays(1),
+                        merchantId, previousFrom, fromDate.minusDays(1),
                         ReconciliationRunStatus.COMPLETED)
                 .map(previous -> money(itemRepository.sumRunTotals(previous.getId()).grossAmount()))
                 .orElse(null);
+    }
+
+    private static boolean isFullCalendarMonth(LocalDate fromDate, LocalDate toDate) {
+        return fromDate.getDayOfMonth() == 1 && toDate.equals(fromDate.withDayOfMonth(fromDate.lengthOfMonth()));
     }
 
     /* Same rule as the period response: no items means no rate. */

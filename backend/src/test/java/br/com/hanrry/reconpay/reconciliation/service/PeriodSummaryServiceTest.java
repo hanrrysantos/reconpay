@@ -191,6 +191,41 @@ class PeriodSummaryServiceTest {
     }
 
     @Test
+    void fullCalendarMonthComparesWithTheWholePreviousCalendarMonth() {
+        assertThat(previousGrossFor("2026-09-01", "2026-09-30", "2026-08-01", "2026-08-31", "1234.5"))
+                .isEqualTo(new BigDecimal("1234.50"));
+    }
+
+    @Test
+    void marchComparesWithTheWholeFebruaryOfACommonYear() {
+        assertThat(previousGrossFor("2026-03-01", "2026-03-31", "2026-02-01", "2026-02-28", "80"))
+                .isEqualTo(new BigDecimal("80.00"));
+    }
+
+    @Test
+    void marchComparesWithTheWholeFebruaryOfALeapYear() {
+        assertThat(previousGrossFor("2028-03-01", "2028-03-31", "2028-02-01", "2028-02-29", "81"))
+                .isEqualTo(new BigDecimal("81.00"));
+    }
+
+    @Test
+    void windowThatIsNotACalendarMonthComparesWithTheEqualLengthWindowBefore() {
+        assertThat(previousGrossFor("2026-09-10", "2026-09-19", "2026-08-31", "2026-09-09", "42.1"))
+                .isEqualTo(new BigDecimal("42.10"));
+    }
+
+    @Test
+    void windowFromDayOneThatEndsBeforeTheLastDayKeepsTheEqualLengthRule() {
+        assertThat(previousGrossFor("2026-09-01", "2026-09-29", "2026-08-03", "2026-08-31", "7"))
+                .isEqualTo(new BigDecimal("7.00"));
+    }
+
+    @Test
+    void fullCalendarMonthWithoutCurrentRunInThePreviousMonthHasNoComparison() {
+        assertThat(previousGrossFor("2026-09-01", "2026-09-30", "2026-08-01", "2026-08-31", null)).isNull();
+    }
+
+    @Test
     void previousRunMatchRateRoundsHalfUpToFourPlaces() {
         stubReadableWindow();
         when(itemRepository.sumRunTotals(run.getId())).thenReturn(new RunSummaryTotals(null, null, null, null));
@@ -260,6 +295,36 @@ class PeriodSummaryServiceTest {
         lenient().when(runRepository.findByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNull(
                 merchantId, PREVIOUS_FROM, PREVIOUS_TO, ReconciliationRunStatus.COMPLETED))
                 .thenReturn(Optional.empty());
+    }
+
+    /* Stubs only the expected previous window: a lookup of any other window fails under strict stubs. */
+    private BigDecimal previousGrossFor(
+            String from, String to, String previousFrom, String previousTo, String previousGross) {
+        LocalDate fromDate = LocalDate.parse(from);
+        LocalDate toDate = LocalDate.parse(to);
+        ReconciliationRunEntity current = run(fromDate, toDate, 0, 0);
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(new MerchantEntity()));
+        when(runRepository.existsByMerchant_IdAndFromDateAndToDateAndStatusIn(merchantId, fromDate, toDate, IN_FLIGHT))
+                .thenReturn(false);
+        when(runRepository.findByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNull(
+                merchantId, fromDate, toDate, ReconciliationRunStatus.COMPLETED))
+                .thenReturn(Optional.of(current));
+        when(itemRepository.sumRunTotals(current.getId())).thenReturn(new RunSummaryTotals(null, null, null, null));
+        LocalDate previousFromDate = LocalDate.parse(previousFrom);
+        LocalDate previousToDate = LocalDate.parse(previousTo);
+        if (previousGross == null) {
+            when(runRepository.findByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNull(
+                    merchantId, previousFromDate, previousToDate, ReconciliationRunStatus.COMPLETED))
+                    .thenReturn(Optional.empty());
+        } else {
+            ReconciliationRunEntity previous = run(previousFromDate, previousToDate, 1, 1);
+            when(runRepository.findByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNull(
+                    merchantId, previousFromDate, previousToDate, ReconciliationRunStatus.COMPLETED))
+                    .thenReturn(Optional.of(previous));
+            when(itemRepository.sumRunTotals(previous.getId())).thenReturn(new RunSummaryTotals(
+                    new BigDecimal(previousGross), null, null, null));
+        }
+        return service.summarize(merchantId, fromDate, toDate).previousWindowGrossAmount();
     }
 
     private static ReconciliationRunEntity run(LocalDate fromDate, LocalDate toDate, int total, int matched) {

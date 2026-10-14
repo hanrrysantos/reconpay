@@ -1037,11 +1037,11 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] Setembro (01–30/09) compara com o run vigente de 01–31/08
-- [ ] Março compara com fevereiro inteiro (28 ou 29 dias)
-- [ ] Janela que não é mês civil (ex.: 10–19/09) compara com 31/08–09/09
-- [ ] Sem run vigente no período anterior, `previousWindowGrossAmount` é null
-- [ ] Gate passa: `cd backend && ./mvnw -B test -Dtest=PeriodSummaryServiceTest`
+- [x] Setembro (01–30/09) compara com o run vigente de 01–31/08
+- [x] Março compara com fevereiro inteiro (28 ou 29 dias)
+- [x] Janela que não é mês civil (ex.: 10–19/09) compara com 31/08–09/09
+- [x] Sem run vigente no período anterior, `previousWindowGrossAmount` é null
+- [x] Gate passa: `cd backend && ./mvnw -B test -Dtest=PeriodSummaryServiceTest`
 
 **Tests**: unit
 **Gate**: quick
