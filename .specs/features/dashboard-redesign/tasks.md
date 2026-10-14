@@ -1343,8 +1343,8 @@ T43 → T44 → T45 → T46 → T47
 
 **Done when**:
 
-- [ ] Sem o desempate por `externalReference`, o teste falha (conferido removendo-o localmente)
-- [ ] Gate passa: `cd backend && ./mvnw -B test -Dtest=RunItemsSortIntegrationTest`
+- [x] Sem o desempate por `externalReference`, o teste falha (conferido removendo-o localmente)
+- [x] Gate passa: `cd backend && ./mvnw -B test -Dtest=RunItemsSortIntegrationTest`
 
 **Tests**: integration
 **Gate**: quick

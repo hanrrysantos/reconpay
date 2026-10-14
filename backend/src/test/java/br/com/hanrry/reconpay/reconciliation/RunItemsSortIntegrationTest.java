@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /*
  * |settlementNet - expectedNet| per item, missing side as zero:
- *   R4  100.00 vs 110.00 -> 10.00  OPEN   (saved before R1 to prove the tiebreak)
+ *   R4  100.00 vs 110.00 -> 10.00  OPEN   (ties with R1; the tiebreak itself is proven by the eight-item test)
  *   R1  100.00 vs  90.00 -> 10.00  OPEN
  *   R2   50.00 vs  null  -> 50.00  OPEN   (no settlement)
  *   R3   null  vs  30.00 -> 30.00  OPEN   (orphan settlement)
@@ -109,6 +109,39 @@ class RunItemsSortIntegrationTest extends AbstractIntegrationTest {
                 .contains("\"settlementNetAmount\":null,\"netDifference\":-50.00,")
                 .contains("\"settlementNetAmount\":30.00,\"netDifference\":30.00,")
                 .contains("\"settlementNetAmount\":null,\"netDifference\":0.00,");
+    }
+
+    /*
+     * Eight items share |difference| 7.00 and are saved in reverse alphabetical order, so only the
+     * externalReference tiebreak yields T1..T8; a chance ordering would match 1 in 40,320 times.
+     * Page size 1 also proves the order is stable across pages.
+     */
+    @Test
+    void equalDifferencesFollowExternalReferenceRegardlessOfInsertionOrder() throws Exception {
+        ReconciliationRunEntity run = runs.findById(runId).orElseThrow();
+        for (int index = 8; index >= 1; index--) {
+            item(run, "T" + index, "107.00", "100.00", DiscrepancyType.INSTALLMENTS_MISMATCH, DiscrepancyStatus.OPEN);
+        }
+
+        mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/items", merchantId, runId)
+                        .header("Authorization", "Bearer " + token)
+                        .param("discrepancyType", "INSTALLMENTS_MISMATCH")
+                        .param("sort", "absDifference,desc")
+                        .param("size", "20"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[*].externalReference")
+                        .value(contains("T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8")));
+
+        for (int page = 0; page < 8; page++) {
+            mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/items", merchantId, runId)
+                            .header("Authorization", "Bearer " + token)
+                            .param("discrepancyType", "INSTALLMENTS_MISMATCH")
+                            .param("sort", "absDifference,asc")
+                            .param("page", String.valueOf(page))
+                            .param("size", "1"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content[*].externalReference").value(contains("T" + (page + 1))));
+        }
     }
 
     @Test
