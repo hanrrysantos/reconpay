@@ -776,9 +776,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] DASH-03 AC1, AC8 e DASH-05 AC3 cobertos por teste
-- [ ] Janela com zero items mostra 0% e "0 de 0"
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] DASH-03 AC1, AC8 e DASH-05 AC3 cobertos por teste
+- [x] Janela com zero items mostra 0% e "0 de 0"
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
