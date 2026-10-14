@@ -957,9 +957,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] DASH-06 AC1–AC4, AC6 e DASH-05 AC5 cobertos por teste
-- [ ] `RunFailedCard` copia o run id e dispara "Rodar de novo"
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] DASH-06 AC1–AC4, AC6 e DASH-05 AC5 cobertos por teste
+- [x] `RunFailedCard` copia o run id e dispara "Rodar de novo"
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
