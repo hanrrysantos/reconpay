@@ -1318,8 +1318,8 @@ T43 → T44 → T45 → T46 → T47
 
 **Done when**:
 
-- [ ] Resumo 403 com período ok → estado `forbidden`
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] Resumo 403 com período ok → estado `forbidden`
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick

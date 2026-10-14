@@ -56,6 +56,11 @@ describe('deriveDashboardView', () => {
     expect(deriveDashboardView(input({ period: { error: forbidden }, summary: {} }))).toEqual({ kind: 'forbidden' })
   })
 
+  it('forbidden quando só o resumo responde 403, com run e período carregados (DASH-06 AC6)', () => {
+    const forbidden = new ApiError('Sem acesso', 403, 'FORBIDDEN')
+    expect(deriveDashboardView(input({ summary: { error: forbidden } }))).toEqual({ kind: 'forbidden' })
+  })
+
   it('empty com a janela quando ela não tem run', () => {
     expect(deriveDashboardView(input({ run: { data: null }, period: {}, summary: {} })))
       .toEqual({ kind: 'empty', window: september })
