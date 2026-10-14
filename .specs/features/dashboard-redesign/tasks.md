@@ -647,8 +647,8 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] Cada rota renderiza a casca com "em construção" e não dispara request
-- [ ] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] Cada rota renderiza a casca com "em construção" e não dispara request
+- [x] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: full
