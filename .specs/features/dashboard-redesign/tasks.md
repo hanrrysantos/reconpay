@@ -905,9 +905,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] DASH-04 AC1 e AC2 cobertos por teste
-- [ ] Status exibidos só entre Aberta, Aceita, Ajustada e Baixada
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] DASH-04 AC1 e AC2 cobertos por teste
+- [x] Status exibidos só entre Aberta, Aceita, Ajustada e Baixada
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick

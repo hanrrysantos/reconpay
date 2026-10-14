@@ -1,4 +1,4 @@
-import type { DiscrepancyType, PeriodSummary } from '@/lib/api'
+import type { DiscrepancyStatus, DiscrepancyType, PeriodSummary } from '@/lib/api'
 import { toCents } from '@/lib/money'
 import { MONTH_NAMES, formatWindow, monthWindow, type Window } from '@/lib/period'
 
@@ -69,3 +69,21 @@ export function formatShare(part: string, whole: string, decimals: number, { sig
   const text = decimals ? `${digits.slice(0, -decimals)},${digits.slice(-decimals)}` : digits
   return `${negative ? MINUS : signed ? '+' : ''}${text}%`
 }
+
+/** The only four statuses a discrepancy can have; there is no "Em análise". */
+export const STATUS_LABELS: Record<DiscrepancyStatus, string> = {
+  OPEN: 'Aberta',
+  ACCEPTED: 'Aceita',
+  ADJUSTED: 'Ajustada',
+  WRITTEN_OFF: 'Baixada',
+}
+
+export const METHOD_LABELS: Record<string, { short: string; label: string }> = {
+  CREDIT_CARD: { short: 'CR', label: 'Crédito' },
+  DEBIT_CARD: { short: 'DB', label: 'Débito' },
+  PIX: { short: 'PIX', label: 'Pix' },
+  BOLETO: { short: 'BOL', label: 'Boleto' },
+}
+
+/** "2026-09-26" → "26 set". */
+export const shortDate = (iso: string) => `${iso.slice(8, 10)} ${MONTH_NAMES[Number(iso.slice(5, 7)) - 1].slice(0, 3).toLowerCase()}`
