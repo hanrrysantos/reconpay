@@ -120,7 +120,7 @@ public class ReconciliationService {
         findRunForMerchant(merchantId, runId);
 
         return reconciliationItemRepository.findAll(
-                        ReconciliationItemSpecifications.withFilters(runId, result, discrepancyType),
+                        ReconciliationItemSpecifications.withFilters(runId, result, discrepancyType, null),
                         pageable)
                 .map(reconciliationMapper::toItemDTO);
     }

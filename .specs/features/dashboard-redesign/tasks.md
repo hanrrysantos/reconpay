@@ -237,10 +237,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] `discrepancyStatus=OPEN` devolve só items com ao menos uma divergência `OPEN`
-- [ ] `result`, `discrepancyType` e `discrepancyStatus` combinam
-- [ ] Item com duas divergências do mesmo tipo aparece uma vez
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] `discrepancyStatus=OPEN` devolve só items com ao menos uma divergência `OPEN`
+- [x] `result`, `discrepancyType` e `discrepancyStatus` combinam
+- [x] Item com duas divergências do mesmo tipo aparece uma vez
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full
