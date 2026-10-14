@@ -111,6 +111,7 @@ public interface PeriodControllerApi {
                   "expectedNetAmount": 146.19,
                   "settledNetAmount": 145.20,
                   "bankReceivedAmount": 145.20,
+                  "bankShortfallAmount": 0.99,
                   "itemCount": 2,
                   "matchedCount": 1
                 },
@@ -119,12 +120,15 @@ public interface PeriodControllerApi {
                   "expectedNetAmount": 0.00,
                   "settledNetAmount": 0.00,
                   "bankReceivedAmount": 0.00,
+                  "bankShortfallAmount": 0.00,
                   "itemCount": 0,
                   "matchedCount": 0
                 }
               ],
               "previousRunMatchRate": 0.5000,
-              "previousWindowGrossAmount": 120.00
+              "previousWindowGrossAmount": 120.00,
+              "feePercent": 2.90,
+              "previousWindowGrossChangePercent": 25.5
             }
             """;
 
@@ -139,6 +143,11 @@ public interface PeriodControllerApi {
                     previousRunMatchRate é a taxa do run anterior da mesma janela; \
                     previousWindowGrossAmount é o vendido da janela anterior de mesmo tamanho; \
                     ambos vêm nulos quando não existem. \
+                    bankShortfallAmount é o líquido esperado menos o recebido no banco em cada dia, \
+                    negativo quando o banco recebeu mais. \
+                    feePercent é a taxa sobre o vendido, com duas casas, \
+                    e previousWindowGrossChangePercent é a variação do vendido sobre a janela anterior, com uma casa, \
+                    ambos em pontos percentuais e nulos quando a base é zero ou não existe. \
                     Responde 404 quando o merchant está inativo ou não há run concluído vigente, \
                     e 409 quando há conciliação pendente ou em execução."""
     )

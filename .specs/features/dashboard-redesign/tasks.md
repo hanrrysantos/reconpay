@@ -1150,11 +1150,11 @@ T40 → T41 → T42
 
 **Done when**:
 
-- [ ] Dia com esperado 100.00 e banco 80.00 → `bankShortfallAmount` 20.00; banco 120.00 → −20.00; run sem dados de banco → null
-- [ ] Bruto 1000.00 e taxa 30.35 → `feePercent` 3.04 (HALF_UP); bruto zero → null
-- [ ] Bruto 1062.00 e anterior 1000.00 → `previousWindowGrossChangePercent` 6.2; queda 1000.00→937.50 → −6.3; anterior null ou zero → null
-- [ ] Endpoint devolve os campos com a escala definida (integração)
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] Dia com esperado 100.00 e banco 80.00 → `bankShortfallAmount` 20.00; banco 120.00 → −20.00; run sem dados de banco → null
+- [x] Bruto 1000.00 e taxa 30.35 → `feePercent` 3.04 (HALF_UP); bruto zero → null
+- [x] Bruto 1062.00 e anterior 1000.00 → `previousWindowGrossChangePercent` 6.2; queda 1000.00→937.50 → −6.3; anterior null ou zero → null
+- [x] Endpoint devolve os campos com a escala definida (integração)
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full

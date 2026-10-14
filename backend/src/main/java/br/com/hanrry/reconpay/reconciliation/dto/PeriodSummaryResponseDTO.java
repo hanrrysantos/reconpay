@@ -20,7 +20,9 @@ public record PeriodSummaryResponseDTO(
         Map<DiscrepancyType, Long> openByType,
         List<Day> days,
         BigDecimal previousRunMatchRate,
-        BigDecimal previousWindowGrossAmount
+        BigDecimal previousWindowGrossAmount,
+        BigDecimal feePercent,
+        BigDecimal previousWindowGrossChangePercent
 ) {
 
     public record Day(
@@ -28,6 +30,7 @@ public record PeriodSummaryResponseDTO(
             BigDecimal expectedNetAmount,
             BigDecimal settledNetAmount,
             BigDecimal bankReceivedAmount,
+            BigDecimal bankShortfallAmount,
             long itemCount,
             long matchedCount
     ) {

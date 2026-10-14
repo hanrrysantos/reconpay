@@ -110,11 +110,17 @@ class PeriodSummaryServiceTest {
                 DiscrepancyType.MISSING_SETTLEMENT, 1L,
                 DiscrepancyType.FEE_DIVERGENCE, 3L));
         assertThat(summary.days()).containsExactly(
-                new Day(FROM, new BigDecimal("146.19"), new BigDecimal("145.20"), new BigDecimal("145.20"), 2, 1),
-                new Day(LocalDate.parse("2026-06-02"), new BigDecimal("0.00"), new BigDecimal("0.00"), new BigDecimal("0.00"), 0, 0),
-                new Day(TO, new BigDecimal("29.21"), new BigDecimal("0.00"), new BigDecimal("0.00"), 2, 0));
+                new Day(FROM, new BigDecimal("146.19"), new BigDecimal("145.20"), new BigDecimal("145.20"),
+                        new BigDecimal("0.99"), 2, 1),
+                new Day(LocalDate.parse("2026-06-02"), new BigDecimal("0.00"), new BigDecimal("0.00"), new BigDecimal("0.00"),
+                        new BigDecimal("0.00"), 0, 0),
+                new Day(TO, new BigDecimal("29.21"), new BigDecimal("0.00"), new BigDecimal("0.00"),
+                        new BigDecimal("29.21"), 2, 0));
         assertThat(summary.previousRunMatchRate()).isEqualTo(new BigDecimal("0.7500"));
         assertThat(summary.previousWindowGrossAmount()).isEqualTo(new BigDecimal("50.50"));
+        // 5.45 / 185.65 = 2.9356%; (185.65 − 50.50) / 50.50 = 267.6238%
+        assertThat(summary.feePercent()).isEqualTo(new BigDecimal("2.94"));
+        assertThat(summary.previousWindowGrossChangePercent()).isEqualTo(new BigDecimal("267.6"));
     }
 
     @Test
@@ -130,7 +136,10 @@ class PeriodSummaryServiceTest {
 
         assertThat(summary.bankReceivedAmount()).isNull();
         assertThat(summary.days()).hasSize(3);
-        assertThat(summary.days()).allSatisfy(day -> assertThat(day.bankReceivedAmount()).isNull());
+        assertThat(summary.days()).allSatisfy(day -> {
+            assertThat(day.bankReceivedAmount()).isNull();
+            assertThat(day.bankShortfallAmount()).isNull();
+        });
         assertThat(summary.days().getFirst().settledNetAmount()).isEqualTo(new BigDecimal("9.70"));
     }
 
@@ -153,6 +162,7 @@ class PeriodSummaryServiceTest {
             assertThat(day.expectedNetAmount()).isEqualTo(new BigDecimal("0.00"));
             assertThat(day.settledNetAmount()).isEqualTo(new BigDecimal("0.00"));
             assertThat(day.bankReceivedAmount()).isEqualTo(new BigDecimal("0.00"));
+            assertThat(day.bankShortfallAmount()).isEqualTo(new BigDecimal("0.00"));
             assertThat(day.itemCount()).isZero();
             assertThat(day.matchedCount()).isZero();
         });
@@ -167,6 +177,7 @@ class PeriodSummaryServiceTest {
 
         assertThat(summary.previousRunMatchRate()).isNull();
         assertThat(summary.previousWindowGrossAmount()).isNull();
+        assertThat(summary.previousWindowGrossChangePercent()).isNull();
     }
 
     @Test
@@ -188,6 +199,37 @@ class PeriodSummaryServiceTest {
 
         assertThat(summary.previousRunMatchRate()).isNull();
         assertThat(summary.previousWindowGrossAmount()).isEqualTo(new BigDecimal("0.00"));
+        assertThat(summary.previousWindowGrossChangePercent()).as("no change over a zero base").isNull();
+        assertThat(summary.feePercent()).as("no fee share of zero gross").isNull();
+    }
+
+    @Test
+    void dailyShortfallIsExpectedMinusBankAndNegativeWhenTheBankReceivedMore() {
+        stubReadableWindow();
+        when(itemRepository.sumRunTotals(run.getId())).thenReturn(new RunSummaryTotals(null, null, null, null));
+        when(itemRepository.sumByTransactionDate(run.getId())).thenReturn(List.of(
+                new DailySummaryRow(FROM, new BigDecimal("100.00"), new BigDecimal("100.00"), new BigDecimal("80.00"), 1, 0),
+                new DailySummaryRow(TO, new BigDecimal("100.00"), new BigDecimal("100.00"), new BigDecimal("120.00"), 1, 0)));
+
+        PeriodSummaryResponseDTO summary = service.summarize(merchantId, FROM, TO);
+
+        assertThat(summary.days()).extracting(Day::bankShortfallAmount).containsExactly(
+                new BigDecimal("20.00"), new BigDecimal("0.00"), new BigDecimal("-20.00"));
+    }
+
+    @Test
+    void feePercentRoundsHalfUpToTwoPlaces() {
+        stubReadableWindow();
+        when(itemRepository.sumRunTotals(run.getId())).thenReturn(new RunSummaryTotals(
+                new BigDecimal("1000.00"), new BigDecimal("969.65"), new BigDecimal("30.35"), null));
+
+        assertThat(service.summarize(merchantId, FROM, TO).feePercent()).isEqualTo(new BigDecimal("3.04"));
+    }
+
+    @Test
+    void grossChangePercentRoundsHalfUpToOnePlaceInBothDirections() {
+        assertThat(grossChangeFor("1062.00", "1000.00")).isEqualTo(new BigDecimal("6.2"));
+        assertThat(grossChangeFor("937.50", "1000.00")).isEqualTo(new BigDecimal("-6.3"));
     }
 
     @Test
@@ -325,6 +367,25 @@ class PeriodSummaryServiceTest {
                     new BigDecimal(previousGross), null, null, null));
         }
         return service.summarize(merchantId, fromDate, toDate).previousWindowGrossAmount();
+    }
+
+    private BigDecimal grossChangeFor(String gross, String previousGross) {
+        LocalDate fromDate = LocalDate.parse("2026-09-01");
+        LocalDate toDate = LocalDate.parse("2026-09-30");
+        ReconciliationRunEntity current = run(fromDate, toDate, 0, 0);
+        ReconciliationRunEntity previous = run(LocalDate.parse("2026-08-01"), LocalDate.parse("2026-08-31"), 1, 1);
+        lenient().when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(new MerchantEntity()));
+        lenient().when(runRepository.findByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNull(
+                merchantId, fromDate, toDate, ReconciliationRunStatus.COMPLETED))
+                .thenReturn(Optional.of(current));
+        lenient().when(runRepository.findByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNull(
+                merchantId, previous.getFromDate(), previous.getToDate(), ReconciliationRunStatus.COMPLETED))
+                .thenReturn(Optional.of(previous));
+        when(itemRepository.sumRunTotals(current.getId())).thenReturn(new RunSummaryTotals(
+                new BigDecimal(gross), null, null, null));
+        when(itemRepository.sumRunTotals(previous.getId())).thenReturn(new RunSummaryTotals(
+                new BigDecimal(previousGross), null, null, null));
+        return service.summarize(merchantId, fromDate, toDate).previousWindowGrossChangePercent();
     }
 
     private static ReconciliationRunEntity run(LocalDate fromDate, LocalDate toDate, int total, int matched) {

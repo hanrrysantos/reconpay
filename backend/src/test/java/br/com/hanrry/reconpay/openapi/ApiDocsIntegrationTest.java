@@ -730,10 +730,12 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 "200",
                 List.of("runId", "fromDate", "toDate", "grossAmount", "expectedNetAmount", "feeAmount",
                         "feeAboveContractAmount", "bankReceivedAmount", "openByType", "days",
-                        "previousRunMatchRate", "previousWindowGrossAmount"),
+                        "previousRunMatchRate", "previousWindowGrossAmount", "feePercent",
+                        "previousWindowGrossChangePercent"),
                 false, Set.of(), Set.of(),
                 List.of("run concluído vigente", "taxa acima do contrato", "um dia por data da janela",
-                        "nulos", "janela anterior de mesmo tamanho")
+                        "nulos", "janela anterior de mesmo tamanho", "negativo quando o banco recebeu mais",
+                        "pontos percentuais")
         ));
         assertQueryExample(document, "get", summary, "fromDate", "2026-07-01");
         assertQueryExample(document, "get", summary, "toDate", "2026-07-02");
@@ -744,10 +746,13 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 .path("responses").path("200").path("content").path("application/json")).getFirst();
         JsonNode day = example.path("days").path(0);
         for (String field : List.of(
-                "date", "expectedNetAmount", "settledNetAmount", "bankReceivedAmount", "itemCount", "matchedCount")) {
+                "date", "expectedNetAmount", "settledNetAmount", "bankReceivedAmount", "bankShortfallAmount",
+                "itemCount", "matchedCount")) {
             assertThat(day.hasNonNull(field)).as("days[0].%s", field).isTrue();
         }
         assertThat(example.path("openByType").path("FEE_DIVERGENCE").asInt()).isEqualTo(1);
+        assertThat(example.path("feePercent").decimalValue()).isEqualByComparingTo("2.90");
+        assertThat(example.path("previousWindowGrossChangePercent").decimalValue()).isEqualByComparingTo("25.5");
     }
 
     @Test

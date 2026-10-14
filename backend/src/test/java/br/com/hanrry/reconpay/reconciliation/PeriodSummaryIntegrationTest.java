@@ -121,12 +121,14 @@ class PeriodSummaryIntegrationTest extends AbstractIntegrationTest {
                 .contains("\"bankReceivedAmount\":145.20")
                 .contains("\"previousRunMatchRate\":0.7500")
                 .contains("\"previousWindowGrossAmount\":80.40")
+                .contains("\"feePercent\":2.89")
+                .contains("\"previousWindowGrossChangePercent\":99.8")
                 .contains("{\"date\":\"2026-06-01\",\"expectedNetAmount\":146.19,\"settledNetAmount\":145.20,"
-                        + "\"bankReceivedAmount\":145.20,\"itemCount\":2,\"matchedCount\":1}")
+                        + "\"bankReceivedAmount\":145.20,\"bankShortfallAmount\":0.99,\"itemCount\":2,\"matchedCount\":1}")
                 .contains("{\"date\":\"2026-06-02\",\"expectedNetAmount\":0.00,\"settledNetAmount\":0.00,"
-                        + "\"bankReceivedAmount\":0.00,\"itemCount\":0,\"matchedCount\":0}")
+                        + "\"bankReceivedAmount\":0.00,\"bankShortfallAmount\":0.00,\"itemCount\":0,\"matchedCount\":0}")
                 .contains("{\"date\":\"2026-06-03\",\"expectedNetAmount\":9.81,\"settledNetAmount\":0.00,"
-                        + "\"bankReceivedAmount\":0.00,\"itemCount\":1,\"matchedCount\":0}");
+                        + "\"bankReceivedAmount\":0.00,\"bankShortfallAmount\":9.81,\"itemCount\":1,\"matchedCount\":0}");
 
         String adminBody = summary(adminToken, merchantId, FROM, TO)
                 .andExpect(status().isOk())
