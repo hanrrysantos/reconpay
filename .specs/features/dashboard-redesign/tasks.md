@@ -99,6 +99,12 @@ T36 → T37 → T38 → T39
 T40 → T41 → T42
 ```
 
+### Phase 10: Correções da verificação (iteração 1)
+
+```
+T43 → T44 → T45 → T46 → T47
+```
+
 ---
 
 ## Task Breakdown
@@ -1217,6 +1223,136 @@ T40 → T41 → T42
 
 ---
 
+### T43: Contagem de resolvidas no resumo
+
+**What**: `PeriodSummaryResponseDTO` ganha `resolvedCount` (divergências do run com status `ACCEPTED`, `ADJUSTED` ou `WRITTEN_OFF`), contado em consulta do repositório e documentado no `PeriodControllerApi` (DASH-08 AC10).
+**Where**: `backend/src/main/java/br/com/hanrry/reconpay/reconciliation/repository/IReconciliationDiscrepancyRepository.java`
+**Depends on**: None (Phase 9 concluída)
+**Reuses**: `countOpenByType`, `PeriodSummaryService`
+**Requirement**: DASH-08
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Run com 1 `ACCEPTED`, 1 `ADJUSTED`, 1 `WRITTEN_OFF` e 2 `OPEN` → `resolvedCount` 3 (integração do repositório)
+- [ ] Run sem divergências → 0
+- [ ] Endpoint devolve o campo e o `/v3/api-docs` o documenta
+- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+
+**Tests**: integration
+**Gate**: full
+
+**Commit**: `feat(reconciliation): count resolved discrepancies in period summary`
+
+---
+
+### T44: Anel mostra resolvidas
+
+**What**: `MatchRingCard` troca "divergentes" por "resolvidas" com `resolvedCount` do resumo; sem resumo mostra "—"; sai o `SPEC_DEVIATION` e o teste de DASH-03 AC1 passa a afirmar o resultado da spec.
+**Where**: `frontend/components/dashboard/MatchRingCard.tsx`
+**Depends on**: T43
+**Reuses**: `openCount`, fixtures
+**Requirement**: DASH-03
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Com `resolvedCount` 5, o card mostra "5 resolvidas" e não mostra "divergentes"
+- [ ] Sem resumo, "resolvidas" mostra "—" (DASH-06 AC7)
+- [ ] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+
+**Tests**: unit
+**Gate**: quick
+
+**Commit**: `feat(frontend): show resolved discrepancies on match ring`
+
+---
+
+### T45: Destravar testado na página
+
+**What**: Testes de página para o fluxo de destrava: confirmar "Destravar" envia só POST `/periods/unlock` com a janela e o estado volta a aberto; 409 no unlock mostra a mensagem e recarrega (DASH-07 AC3/AC4).
+**Where**: `frontend/components/dashboard/DashboardPage.test.tsx`
+**Depends on**: T44
+**Reuses**: servidor simulado dos testes de lock
+**Requirement**: DASH-07
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Destravar faz POST `/periods/unlock` com `fromDate`/`toDate` e nenhum POST `/lock`
+- [ ] Após a resposta, a página mostra o período aberto
+- [ ] 409 no unlock mostra o erro e recarrega o período
+- [ ] Gate passa: `cd frontend && corepack pnpm test`
+
+**Tests**: unit
+**Gate**: quick
+
+**Commit**: `test(frontend): cover period unlock on the dashboard page`
+
+---
+
+### T46: 403 só do resumo
+
+**What**: Caso de `deriveDashboardView` em que só a requisição do resumo responde 403 e a tela vira `forbidden` (DASH-06 AC6).
+**Where**: `frontend/components/dashboard/view.test.ts`
+**Depends on**: T45
+**Reuses**: casos de 403 existentes
+**Requirement**: DASH-06
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Resumo 403 com período ok → estado `forbidden`
+- [ ] Gate passa: `cd frontend && corepack pnpm test`
+
+**Tests**: unit
+**Gate**: quick
+
+**Commit**: `test(frontend): cover summary-only forbidden state`
+
+---
+
+### T47: Desempate da ordenação provado
+
+**What**: O fixture de empate do `RunItemsSortIntegrationTest` passa a gravar os items em ordem contrária à alfabética e a paginar com tamanho 1, para que só o desempate por `externalReference` dê a ordem esperada (DASH-09 AC2).
+**Where**: `backend/src/test/java/br/com/hanrry/reconpay/reconciliation/RunItemsSortIntegrationTest.java`
+**Depends on**: T46
+**Reuses**: `orderedByAbsDifference`
+**Requirement**: DASH-09
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Sem o desempate por `externalReference`, o teste falha (conferido removendo-o localmente)
+- [ ] Gate passa: `cd backend && ./mvnw -B test -Dtest=RunItemsSortIntegrationTest`
+
+**Tests**: integration
+**Gate**: quick
+
+**Commit**: `test(reconciliation): prove the abs difference tiebreak`
+
+---
+
 ## Phase Execution Map
 
 ```
@@ -1231,6 +1367,7 @@ Phase 6:  T31 → T32 → T33
 Phase 7:  T34 → T35
 Phase 8:  T36 → T37 → T38 → T39   (executada entre a Phase 3 e a Phase 4)
 Phase 9:  T40 → T41 → T42
+Phase 10: T43 → T44 → T45 → T46 → T47
 ```
 
 ---
@@ -1256,6 +1393,7 @@ Phase 9:  T40 → T41 → T42
 | T40 | Serviço + DTO + doc do mesmo contrato | ⚠️ Coeso (campo, cálculo e doc inseparáveis) |
 | T41 | DTO + mapper do mesmo campo | ⚠️ Coeso |
 | T42 | Leitura dos campos novos nos 4 pontos que os exibem | ⚠️ Coeso (remove a mesma aritmética local) |
+| T43–T47 | 1 consulta/componente/arquivo de teste cada | ✅ Granular |
 
 ---
 
@@ -1280,6 +1418,8 @@ Phase 9:  T40 → T41 → T42
 | T40 | None (ordem de fase) | início da Phase 9 | ✅ Match |
 | T41 | T40 | T40→T41 | ✅ Match |
 | T42 | T41 | T41→T42 | ✅ Match |
+| T43 | None (ordem de fase) | início da Phase 10 | ✅ Match |
+| T44–T47 | anterior da fase | cadeia T43→T47 | ✅ Match |
 
 ---
 
@@ -1311,3 +1451,7 @@ Phase 9:  T40 → T41 → T42
 | T40 | Service + DTO + OpenAPI | integration | integration | ✅ OK |
 | T41 | DTO exposto por controller | integration | integration | ✅ OK |
 | T42 | API client + componentes | unit | unit | ✅ OK |
+| T43 | Repository + service + OpenAPI | integration | integration | ✅ OK |
+| T44 | Componente | unit | unit | ✅ OK |
+| T45–T46 | Testes de componente / lib | unit | unit | ✅ OK |
+| T47 | Teste de integração | integration | integration | ✅ OK |

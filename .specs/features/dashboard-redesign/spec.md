@@ -50,7 +50,8 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 | Comparativos | Taxa vs run anterior da mesma janela; vendido vs mês civil anterior quando a janela é um mês civil inteiro, senão vs janela anterior de mesmo tamanho | Revisão do lote 2: a janela de mesmo tamanho nunca coincide com o run do mês anterior | y |
 | Total "caiu no banco" | Soma só créditos de items com venda (`transactionDate` não nulo); créditos de liquidação órfã ficam fora | Revisão do lote 2: total igual à soma da série diária | y |
 | Horário do último extrato | Endpoint `GET .../bank-statements/imports` (paginado, `createdAt` desc), espelho de `.../external-settlements/imports` | Revisão do lote 3: a linha do extrato não traz `createdAt` e não há listagem de imports | y |
-| Contas no frontend (AD-010) | Diferença, falta por dia e percentuais vêm prontos da API; o frontend só formata e compara sinal | Revisão final: quatro valores eram calculados no navegador | y |
+| Contas no frontend (AD-010) | Valores de dinheiro (diferença, falta por dia, percentuais sobre dinheiro) vêm prontos da API; o frontend só formata e compara sinal. Taxas de contagens (% de cada dia do heatmap, variação em pp entre duas taxas da API) podem ser derivadas no frontend | Revisão final e verificação: AD-010 cobre só dinheiro | y |
+| "Resolvidas" no anel | `resolvedCount` do resumo: divergências do run com status `ACCEPTED`, `ADJUSTED` ou `WRITTEN_OFF` | Verificação: nenhuma resposta trazia a contagem; o card mostrava "divergentes" | y |
 | Precisão dos percentuais | `feePercent` com 2 casas e `previousWindowGrossChangePercent` com 1 casa, já em pontos percentuais, `HALF_UP` | Mesma precisão da tela ("3,03%", "+6,2%"); arredonda uma vez, no servidor | y |
 | Erro de rede | Banner global; blocos já carregados permanecem | Estado "Erro" da referência | n |
 
@@ -108,7 +109,7 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 
 **Acceptance Criteria**:
 
-1. The frontend SHALL draw the match ring with the arc proportional to `matchRate` and show matched, resolved and open counts from the period and summary responses.
+1. The frontend SHALL draw the match ring with the arc proportional to `matchRate` and show matched (`matchedCount`), resolved (`resolvedCount`) and open counts from the period and summary responses.
 2. The frontend SHALL show "Valor em aberto" equal to `openAmount`, formatted as `R$ 1.234,56`, without passing the value through a binary floating-point number.
 3. The frontend SHALL show the gross sold total, the fee total with its percentage of gross (`feePercent`), and the fee amount above contract, from the summary.
 4. The frontend SHALL draw the daily chart with the expected net line, the bank-received area and the missing band between them, one point per day of the window.
@@ -117,7 +118,7 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 7. The frontend SHALL color each day of the heatmap by that day's match percentage using the five bands of `design-reference.md`.
 8. The frontend SHALL show the comparison labels (taxa vs run anterior, vendido vs janela anterior via `previousWindowGrossChangePercent`) only when the summary provides the value.
 9. IF a block's request fails THEN the frontend SHALL show that block's error with a reload action and keep the other blocks.
-10. The frontend SHALL display money differences and percentages as received from the API, without adding, subtracting or dividing amounts (AD-010).
+10. The frontend SHALL display money differences and percentages of money as received from the API, without adding, subtracting or dividing amounts (AD-010); rates of counts may be derived locally.
 
 **Independent Test**: Load a window with known fixtures and check each number, the ring arc, the missing band on day 27, and a heatmap day under 90% in red.
 
@@ -223,6 +224,7 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 7. The API SHALL document the operation in the `*Api` interface (AD-006) with example and each response code in Portuguese.
 8. The API SHALL include in each daily entry `bankShortfallAmount` = expected net − bank received (two decimals, negative when the bank received more), or null when the run has no bank data.
 9. The API SHALL include `feePercent` = fee total ÷ gross total × 100 with two decimals, and `previousWindowGrossChangePercent` = (gross − previous gross) ÷ previous gross × 100 with one decimal, both `HALF_UP`; each is null when its divisor is null or zero.
+10. The API SHALL include `resolvedCount`, the number of discrepancies of the run whose status is `ACCEPTED`, `ADJUSTED` or `WRITTEN_OFF`.
 
 **Independent Test**: Seed a run with known items and bank lines; call the endpoint and compare every total and one daily entry.
 
