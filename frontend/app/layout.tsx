@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { IBM_Plex_Mono, Inter, Inter_Tight } from 'next/font/google'
-import { AuthProvider } from '@/lib/auth'
+import { Providers } from './providers'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${interTight.variable} ${plexMono.variable}`}>
-      <body className="bg-background font-sans text-foreground antialiased"><AuthProvider>{children}</AuthProvider></body>
+      <body className="bg-background font-sans text-foreground antialiased"><Providers>{children}</Providers></body>
     </html>
   )
 }

@@ -560,11 +560,11 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Run `RUNNING` é refeito a cada 3 s e para em `COMPLETED`/`FAILED`
-- [ ] Mutação bem-sucedida invalida período, resumo, abertas, detalhe e runs da mesma chave
-- [ ] Troca de empresa não entrega resposta antiga ao bloco atual
-- [ ] 401 chama `signOut`
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] Run `RUNNING` é refeito a cada 3 s e para em `COMPLETED`/`FAILED`
+- [x] Mutação bem-sucedida invalida período, resumo, abertas, detalhe e runs da mesma chave
+- [x] Troca de empresa não entrega resposta antiga ao bloco atual
+- [x] 401 chama `signOut`
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
