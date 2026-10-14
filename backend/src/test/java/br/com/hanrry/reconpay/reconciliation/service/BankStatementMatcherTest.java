@@ -357,6 +357,87 @@ class BankStatementMatcherTest {
                 .isEqualTo(DiscrepancyStatus.OPEN);
     }
 
+    @Test
+    void shouldRecordMatchedBankCreditWhenPairedByReference() {
+        ReconciliationItemEntity settlement = settlementItem("TXN-1", "145.00", SETTLEMENT_DATE);
+        BankStatementLineEntity line = bankLine("L-1", "TXN-1", "145.00", OTHER_DATE);
+
+        matcher.apply(List.of(settlement), List.of(line), Set.of());
+
+        assertThat(settlement.getBankAmount()).isEqualByComparingTo("145.00");
+        assertThat(settlement.getBankMovementDate()).isEqualTo(OTHER_DATE);
+    }
+
+    @Test
+    void shouldRecordReceivedBankCreditWhenPairedByReferenceWithAmountMismatch() {
+        ReconciliationItemEntity settlement = settlementItem("TXN-1", "100.00", SETTLEMENT_DATE);
+        BankStatementLineEntity line = bankLine("L-1", "TXN-1", "90.00", OTHER_DATE);
+
+        matcher.apply(List.of(settlement), List.of(line), Set.of());
+
+        assertThat(settlement.getDiscrepancies())
+                .extracting(ReconciliationDiscrepancyEntity::getType)
+                .containsExactly(DiscrepancyType.BANK_AMOUNT_MISMATCH);
+        assertThat(settlement.getBankAmount()).isEqualByComparingTo("90.00");
+        assertThat(settlement.getBankMovementDate()).isEqualTo(OTHER_DATE);
+    }
+
+    @Test
+    void shouldRecordMatchedBankCreditWhenPairedByDateAndAmount() {
+        BankStatementMatcher tolerant = matcherWithTolerance("0.05");
+        ReconciliationItemEntity settlement = settlementItem("TXN-1", "100.00", SETTLEMENT_DATE);
+        BankStatementLineEntity line = bankLine("L-1", null, "100.05", SETTLEMENT_DATE);
+
+        tolerant.apply(List.of(settlement), List.of(line), Set.of());
+
+        assertThat(settlement.getBankAmount()).isEqualByComparingTo("100.05");
+        assertThat(settlement.getBankMovementDate()).isEqualTo(SETTLEMENT_DATE);
+    }
+
+    @Test
+    void shouldLeaveBankCreditEmptyWhenCreditIsMissingAndForOrphanLine() {
+        ReconciliationItemEntity settlement = settlementItem("TXN-1", "10.50", SETTLEMENT_DATE);
+        BankStatementLineEntity line = bankLine("L-1", null, "10.50", OTHER_DATE);
+
+        List<ReconciliationItemEntity> result = matcher.apply(List.of(settlement), List.of(line), Set.of());
+
+        assertThat(settlement.getBankAmount()).isNull();
+        assertThat(settlement.getBankMovementDate()).isNull();
+        ReconciliationItemEntity orphan = item(result, "L-1");
+        assertThat(orphan.getBankAmount()).isNull();
+        assertThat(orphan.getBankMovementDate()).isNull();
+    }
+
+    @Test
+    void shouldLeaveBankCreditEmptyForCodedOrphanLine() {
+        BankStatementLineEntity line = bankLine("L-ORPHAN", "UNKNOWN", "10.50", SETTLEMENT_DATE);
+
+        List<ReconciliationItemEntity> result = matcher.apply(List.of(), List.of(line), Set.of());
+
+        assertThat(result.getFirst().getBankAmount()).isNull();
+        assertThat(result.getFirst().getBankMovementDate()).isNull();
+    }
+
+    @Test
+    void shouldLeaveBankCreditEmptyWhenMatchIsAmbiguous() {
+        ReconciliationItemEntity first = settlementItem("TXN-1", "100.00", SETTLEMENT_DATE);
+        ReconciliationItemEntity second = settlementItem("TXN-2", "100.00", SETTLEMENT_DATE);
+        ReconciliationItemEntity lonely = settlementItem("TXN-3", "70.00", SETTLEMENT_DATE);
+        BankStatementLineEntity shared = bankLine("L-1", null, "100.00", SETTLEMENT_DATE);
+        BankStatementLineEntity twinA = bankLine("L-2", null, "70.00", SETTLEMENT_DATE);
+        BankStatementLineEntity twinB = bankLine("L-3", null, "70.00", SETTLEMENT_DATE);
+
+        List<ReconciliationItemEntity> result = matcher.apply(
+                List.of(first, second, lonely), List.of(shared, twinA, twinB), Set.of());
+
+        assertThat(result).allSatisfy(candidate -> {
+            assertThat(candidate.getResult()).isEqualTo(ReconciliationResult.DIVERGENT);
+            assertThat(candidate.getBankAmount()).isNull();
+            assertThat(candidate.getBankMovementDate()).isNull();
+        });
+        assertThat(result).hasSize(6);
+    }
+
     private void assertAmbiguousSettlement(ReconciliationItemEntity settlement) {
         assertThat(settlement.getResult()).isEqualTo(ReconciliationResult.DIVERGENT);
         assertThat(settlement.getDiscrepancies())

@@ -22,6 +22,7 @@ public record ReconciliationItemResponseDTO(
         BigDecimal expectedNetAmount,
         BigDecimal settlementAmount,
         BigDecimal settlementNetAmount,
+        BigDecimal netDifference,
         PaymentMethod paymentMethod,
         Integer installments,
         TransactionStatus transactionStatus,

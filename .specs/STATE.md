@@ -56,7 +56,7 @@
 - **Trade-off**: Reload requires login again; aggregated metrics remain unavailable until their API contract exists.
 - **Scope**: Frontend base.
 - **Date**: 2026-10-08
-- **Status**: active
+- **Status**: superseded by AD-009
 
 ### AD-008
 - **Decision**: O projeto Maven, seu wrapper, código Java e Dockerfile ficam em `backend/`; `frontend/` é seu diretório irmão. Compose, `.env`, CI e documentação geral permanecem na raiz.
@@ -66,13 +66,29 @@
 - **Date**: 2026-10-08
 - **Status**: active
 
+### AD-009
+- **Decision**: O frontend segue a direção visual "Lima" (`.specs/features/dashboard-redesign/design-reference.md`), com tokens no `@theme` do Tailwind 4, fontes Inter Tight / Inter / IBM Plex Mono e gráficos em SVG próprio. TanStack Query é a camada de dados. O navegador continua enviando o JWT, mantido só em memória, direto para a API Spring, e nenhum número aparece sem vir da API.
+- **Reason**: O layout v0 virou dívida de CSS escrito à mão; o dashboard novo precisa de polling, invalidação após mutação e chave por empresa/janela.
+- **Trade-off**: Dependência nova (TanStack Query) e testes com jsdom; recarregar a página continua pedindo login.
+- **Scope**: Todo o frontend em `frontend/`.
+- **Date**: 2026-10-13
+- **Status**: active
+
+### AD-010
+- **Decision**: Valores de dinheiro exibidos no frontend vêm prontos do backend: somas, séries, diferenças e percentuais sobre dinheiro (ex.: `GET /periods/summary`, `netDifference` nos items). O frontend só formata decimais recebidos como string e compara sinal; não soma, subtrai nem divide valores. A regra cobre só dinheiro: taxas de contagens (ex.: % conciliado de um dia, variação em pontos percentuais entre duas taxas da API) podem ser derivadas no frontend.
+- **Reason**: `BigDecimal` no servidor é a única fonte de verdade de dinheiro; calcular no navegador duplicaria regras de arredondamento e arriscaria divergir do CSV de auditoria.
+- **Trade-off**: Cada número derivado novo exige campo no contrato do backend.
+- **Scope**: Frontend e endpoints de leitura usados por ele.
+- **Date**: 2026-10-14 (revisado duas vezes no dia: sem aritmética local de dinheiro; escopo limitado a dinheiro)
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: organização do backend em `backend/` — **Complete** (`verify` e Docker build passaram)
-- **Phase / Task**: none
-- **Completed**: Next.js base e validação em `.specs/features/frontend-base/`; backend movido com 419 testes, JaCoCo e imagem Docker validados
+- **Feature**: dashboard-redesign (direção Lima) — **Verified** (`validation.md` iteração 2: PASS)
+- **Phase / Task**: T1–T47 concluídas; Verifier PASS em `63f4df6..f62d60c`
+- **Completed**: backend `GET /periods/summary` (totais, série diária, falta por dia, percentuais, `resolvedCount`), `netDifference` e filtro/ordem dos items, progresso do run, listagem de imports de extrato; frontend com tema Lima, TanStack Query, blocos em SVG, gaveta de resolução, estados e rotas vazias. Backend 489 testes, frontend 239.
 - **In-progress** (file:line): none
-- **Next step**: integrate aggregated dashboard endpoints once their contract is available; then implement the remaining workflow screens
+- **Next step**: conferência visual no navegador; push de `feat/dashboard-redesign` e PR (pelo usuário). Opcional: teste para DASH-01 AC1 (tokens do tema) e as notas cosméticas do `validation.md` (sparkline do bruto usa líquido; célula de diferença sempre vermelha).
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: main
+- **Branch**: feat/dashboard-redesign

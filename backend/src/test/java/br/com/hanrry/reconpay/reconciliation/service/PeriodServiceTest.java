@@ -100,11 +100,12 @@ class PeriodServiceTest {
         periodService = new PeriodService(
                 periodGuard,
                 new OpenAmountCalculator(),
-                reconciliationRunRepository,
+                new PeriodWindowPolicy(
+                        reconciliationRunRepository,
+                        new ReconciliationProperties(new BigDecimal("0.00"), 5, 366, true, 2, 50)),
                 periodLockRepository,
                 discrepancyRepository,
                 merchantRepository,
-                new ReconciliationProperties(new BigDecimal("0.00"), 5, 366, true, 2, 50),
                 auditLogger,
                 clock);
     }

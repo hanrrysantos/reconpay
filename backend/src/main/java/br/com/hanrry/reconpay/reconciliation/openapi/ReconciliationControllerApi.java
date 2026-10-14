@@ -12,6 +12,7 @@ import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationItemResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationRunResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.RunReconciliationRequestDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.UpdateDiscrepancyStatusRequestDTO;
+import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,6 +62,7 @@ public interface ReconciliationControllerApi {
               "toDate": "2026-07-31",
               "status": "COMPLETED",
               "totalItems": 1,
+              "processedItems": 1,
               "matchedCount": 1,
               "divergentCount": 0,
               "createdAt": "2026-08-10T12:00:00Z"
@@ -77,6 +79,7 @@ public interface ReconciliationControllerApi {
                   "toDate": "2026-07-31",
                   "status": "COMPLETED",
                   "totalItems": 1,
+                  "processedItems": 1,
                   "matchedCount": 1,
                   "divergentCount": 0,
                   "createdAt": "2026-08-10T12:00:00Z"
@@ -99,6 +102,9 @@ public interface ReconciliationControllerApi {
                   "result": "MATCHED",
                   "transactionAmount": 100.00,
                   "expectedNetAmount": 97.20,
+                  "settlementAmount": 100.00,
+                  "settlementNetAmount": 97.20,
+                  "netDifference": 0.00,
                   "paymentMethod": "CREDIT_CARD",
                   "installments": 1,
                   "transactionStatus": "APPROVED",
@@ -197,6 +203,8 @@ public interface ReconciliationControllerApi {
             description = """
                     Devolve um run da conciliação. \
                     O id vem da resposta de criação ou da listagem. \
+                    Use para acompanhar o progresso: processedItems é nulo em PENDING, \
+                    cresce até totalItems durante RUNNING e fica igual a totalItems em COMPLETED. \
                     Responde 404 quando o merchant ou o run não existe."""
     )
     @ApiResponse(
@@ -224,7 +232,15 @@ public interface ReconciliationControllerApi {
             description = """
                     Lista paginada dos itens do run. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o merchant ou o run não existe."""
+                    Os filtros result, discrepancyType e discrepancyStatus se combinam. \
+                    Tipo e status valem para a mesma divergência, e cada item aparece uma vez. \
+                    sort=absDifference,desc ordena pela maior diferença absoluta entre \
+                    settlementNetAmount e expectedNetAmount; o lado ausente conta como zero \
+                    e externalReference desempata. \
+                    netDifference é settlementNetAmount menos expectedNetAmount, \
+                    com o lado ausente como zero, e é o valor que absDifference ordena. \
+                    Responde 400 quando um filtro tem valor inválido \
+                    e 404 quando o merchant ou o run não existe."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -248,6 +264,8 @@ public interface ReconciliationControllerApi {
             @RequestParam(required = false) ReconciliationResult result,
             @Parameter(description = "Tipo de divergência", example = "FEE_DIVERGENCE")
             @RequestParam(required = false) DiscrepancyType discrepancyType,
+            @Parameter(description = "Status da divergência; o item entra se tiver ao menos uma nesse status", example = "OPEN")
+            @RequestParam(required = false) DiscrepancyStatus discrepancyStatus,
             @ParameterObject @PageableDefault(size = 20, sort = "externalReference", direction = Sort.Direction.ASC) Pageable pageable);
 
     @Operation(

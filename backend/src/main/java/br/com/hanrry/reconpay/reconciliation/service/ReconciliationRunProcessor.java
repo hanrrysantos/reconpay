@@ -54,6 +54,7 @@ public class ReconciliationRunProcessor {
     private final IExternalSettlementRepository externalSettlementRepository;
     private final IBankStatementLineRepository bankStatementLineRepository;
     private final BankStatementMatcher bankStatementMatcher;
+    private final ReconciliationRunStateService runStateService;
     private final ReconciliationProperties properties;
     private final AuditLogger auditLogger;
     private final EntityManager entityManager;
@@ -104,6 +105,7 @@ public class ReconciliationRunProcessor {
                         settlementsByReference.keySet(),
                         bankLines));
 
+        runStateService.recordTotal(runId, items.size());
         persistInBatches(items, runId);
 
         reconciliationRunRepository.supersedeWindow(
@@ -113,6 +115,10 @@ public class ReconciliationRunProcessor {
                 .orElseThrow(() -> new ReconciliationNotFoundException(
                         "Conciliação não encontrada com id: " + runId));
         finished.setTotalItems(items.size());
+        // Progress was committed outside this transaction; the final value is
+        // written here so this save never depends on having re-read it.
+        finished.setProcessedItems(items.size());
+        finished.setBankTracked(true);
         finished.setMatchedCount(countByResult(items, ReconciliationResult.MATCHED));
         finished.setDivergentCount(countByResult(items, ReconciliationResult.DIVERGENT));
         finished.setStatus(ReconciliationRunStatus.COMPLETED);
@@ -174,6 +180,7 @@ public class ReconciliationRunProcessor {
             reconciliationItemRepository.saveAll(batch);
             entityManager.flush();
             entityManager.clear();
+            runStateService.recordProgress(runId, end);
         }
     }
 

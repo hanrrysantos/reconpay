@@ -72,6 +72,14 @@ public class BankStatementService {
     }
 
     @Transactional(readOnly = true)
+    public Page<BankStatementImportResponseDTO> findAllImports(UUID merchantId, Pageable pageable) {
+        ensureMerchantExists(merchantId);
+
+        return bankStatementImportRepository.findAllByMerchant_Id(merchantId, pageable)
+                .map(bankStatementImportMapper::toDTO);
+    }
+
+    @Transactional(readOnly = true)
     public Page<BankStatementLineResponseDTO> findAll(UUID merchantId, UUID importId, Pageable pageable) {
         ensureMerchantExists(merchantId);
 

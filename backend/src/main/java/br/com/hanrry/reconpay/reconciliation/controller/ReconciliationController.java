@@ -5,6 +5,7 @@ import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationItemResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationRunResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.RunReconciliationRequestDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.UpdateDiscrepancyStatusRequestDTO;
+import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
 import br.com.hanrry.reconpay.reconciliation.openapi.ReconciliationControllerApi;
@@ -70,9 +71,10 @@ public class ReconciliationController implements ReconciliationControllerApi {
             @PathVariable UUID runId,
             @RequestParam(required = false) ReconciliationResult result,
             @RequestParam(required = false) DiscrepancyType discrepancyType,
+            @RequestParam(required = false) DiscrepancyStatus discrepancyStatus,
             @ParameterObject @PageableDefault(size = 20, sort = "externalReference", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(reconciliationService.findItems(
-                merchantId, runId, result, discrepancyType, pageable));
+                merchantId, runId, result, discrepancyType, discrepancyStatus, pageable));
     }
 
     /*

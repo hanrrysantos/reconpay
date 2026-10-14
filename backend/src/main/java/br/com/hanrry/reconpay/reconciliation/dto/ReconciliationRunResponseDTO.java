@@ -19,6 +19,7 @@ public record ReconciliationRunResponseDTO(
         Instant startedAt,
         Instant finishedAt,
         String errorMessage,
-        Instant supersededAt
+        Instant supersededAt,
+        Integer processedItems
 ) {
 }

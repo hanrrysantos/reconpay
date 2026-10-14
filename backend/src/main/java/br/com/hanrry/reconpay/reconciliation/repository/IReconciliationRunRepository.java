@@ -36,9 +36,28 @@ public interface IReconciliationRunRepository extends JpaRepository<Reconciliati
     @Query("update ReconciliationRunEntity r set r.status = 'FAILED', r.finishedAt = :now, r.errorMessage = :reason where r.id = :id and r.status = 'RUNNING'")
     int failRunning(@Param("id") UUID id, @Param("now") Instant now, @Param("reason") String reason);
 
+    @Modifying
+    @Query("update ReconciliationRunEntity r set r.totalItems = :total, r.processedItems = 0 where r.id = :id")
+    int recordTotal(@Param("id") UUID id, @Param("total") int total);
+
+    @Modifying
+    @Query("""
+            update ReconciliationRunEntity r
+            set r.processedItems = case when :processed > r.totalItems then r.totalItems else :processed end
+            where r.id = :id
+            """)
+    int recordProgress(@Param("id") UUID id, @Param("processed") int processed);
+
     Page<ReconciliationRunEntity> findAllByMerchant_Id(UUID merchantId, Pageable pageable);
 
     Optional<ReconciliationRunEntity> findByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNull(
+            UUID merchantId,
+            LocalDate fromDate,
+            LocalDate toDate,
+            ReconciliationRunStatus status);
+
+    Optional<ReconciliationRunEntity>
+            findFirstByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNotNullOrderBySupersededAtDescCreatedAtDesc(
             UUID merchantId,
             LocalDate fromDate,
             LocalDate toDate,

@@ -77,6 +77,24 @@ public interface BankStatementControllerApi {
             }
             """;
 
+    String IMPORT_PAGE_JSON = """
+            {
+              "content": [
+                {
+                  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                  "merchantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                  "fileName": "extrato.csv",
+                  "totalRows": 1,
+                  "createdAt": "2026-08-10T12:00:00Z"
+                }
+              ],
+              "totalElements": 1,
+              "totalPages": 1,
+              "size": 20,
+              "number": 0
+            }
+            """;
+
     String ROW_ERRORS_JSON = """
             {
               "timestamp": "2026-08-10T15:30:00Z",
@@ -187,4 +205,29 @@ public interface BankStatementControllerApi {
             @PathVariable UUID merchantId,
             @Parameter(hidden = true)
             @RequestParam("file") MultipartFile file);
+
+    @Operation(
+            summary = "Página de importações de extrato",
+            description = """
+                    Lista paginada das importações de extrato do merchant, da mais recente para a mais antiga. \
+                    O id vem da resposta de criação ou da listagem. \
+                    Responde 404 quando o merchant não existe."""
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Página de importações",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    examples = @ExampleObject(name = "imports", value = IMPORT_PAGE_JSON)
+            )
+    )
+    @ApiValidationErrorResponse
+    @ApiUnauthenticatedResponse
+    @ApiForbiddenResponse
+    @ApiNotFoundResponse
+    @GetMapping("/imports")
+    ResponseEntity<Page<BankStatementImportResponseDTO>> findAllImports(
+            @Parameter(description = ID_DESCRIPTION, example = ID_EXAMPLE)
+            @PathVariable UUID merchantId,
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable);
 }

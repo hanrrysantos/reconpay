@@ -558,6 +558,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         List<String> idOrigin = List.of("criação", "listagem");
         String list = "/api/merchants/{merchantId}/bank-statements";
         String importCsv = "/api/merchants/{merchantId}/bank-statements/import";
+        String imports = "/api/merchants/{merchantId}/bank-statements/imports";
         String csvHeader = "lineReference,externalReference,amount,movementDate";
 
         assertOperation(document, new Op(
@@ -583,6 +584,16 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         assertErrorDetails(document, "post", importCsv, "400", "rowErrors");
         assertErrorDetails(document, "post", importCsv, "409", "conflictingReferences");
         assertOperationTag(document, "post", importCsv, "Bank Statements");
+        assertOperation(document, new Op(
+                "get", imports,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", importFields, true, Set.of(), Set.of(), idOrigin
+        ));
+        assertQueryExample(document, "get", imports, "page", "0");
+        assertQueryExample(document, "get", imports, "size", "20");
+        assertQueryExample(document, "get", imports, "sort", "createdAt,desc");
+        assertOperationTag(document, "get", imports, "Bank Statements");
 
         assertNoMappingAnnotations(
                 BankStatementController.class,
@@ -601,10 +612,10 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         JsonNode document = apiDocs();
         List<String> runFields = List.of(
                 "id", "merchantId", "fromDate", "toDate", "status",
-                "totalItems", "matchedCount", "divergentCount", "createdAt");
+                "totalItems", "processedItems", "matchedCount", "divergentCount", "createdAt");
         List<String> itemFields = List.of(
                 "id", "reconciliationRunId", "externalReference", "result",
-                "transactionAmount", "expectedNetAmount", "paymentMethod", "installments",
+                "transactionAmount", "expectedNetAmount", "netDifference", "paymentMethod", "installments",
                 "transactionStatus", "transactionDate", "createdAt");
         List<String> discrepancyFields = List.of("id", "type", "expectedValue", "actualValue", "status");
         List<String> idOrigin = List.of("criação", "listagem");
@@ -635,7 +646,8 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 "get", runById,
                 Set.of("200", "400", "401", "403", "404"),
                 true, null, Map.of(),
-                "200", runFields, false, Set.of(), Set.of(), idOrigin
+                "200", runFields, false, Set.of(), Set.of(),
+                List.of("criação", "listagem", "processedItems", "PENDING", "totalItems")
         ));
         assertOperation(document, new Op(
                 "get", items,
@@ -679,6 +691,71 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 DeleteMapping.class,
                 RequestMapping.class
         );
+    }
+
+    @Test
+    void itemsDocumentDiscrepancyStatusAndAbsDifferenceSort() throws Exception {
+        JsonNode document = apiDocs();
+        String items = "/api/merchants/{merchantId}/reconciliations/{runId}/items";
+        JsonNode operation = document.path("paths").path(items).path("get");
+
+        assertQueryExample(document, "get", items, "discrepancyStatus", "OPEN");
+        String parameterDescription = null;
+        for (JsonNode parameter : operation.path("parameters")) {
+            if ("discrepancyStatus".equals(parameter.path("name").asText())) {
+                parameterDescription = parameter.path("description").asText();
+            }
+        }
+        assertThat(parameterDescription).contains("Status da divergência");
+
+        String description = operation.path("description").asText();
+        assertThat(description).contains(
+                "discrepancyStatus",
+                "sort=absDifference,desc",
+                "maior diferença absoluta",
+                "lado ausente conta como zero",
+                "externalReference desempata",
+                "netDifference é settlementNetAmount menos expectedNetAmount",
+                "Responde 400");
+    }
+
+    @Test
+    void periodSummaryDocumentsTheContractInPortuguese() throws Exception {
+        JsonNode document = apiDocs();
+        String summary = "/api/merchants/{merchantId}/periods/summary";
+
+        assertOperation(document, new Op(
+                "get", summary,
+                Set.of("200", "400", "401", "403", "404", "409"),
+                true, null, Map.of(),
+                "200",
+                List.of("runId", "fromDate", "toDate", "grossAmount", "expectedNetAmount", "feeAmount",
+                        "feeAboveContractAmount", "bankReceivedAmount", "openByType", "resolvedCount", "days",
+                        "previousRunMatchRate", "previousWindowGrossAmount", "feePercent",
+                        "previousWindowGrossChangePercent"),
+                false, Set.of(), Set.of(),
+                List.of("run concluído vigente", "taxa acima do contrato", "um dia por data da janela",
+                        "nulos", "janela anterior de mesmo tamanho", "negativo quando o banco recebeu mais",
+                        "aceitas, ajustadas ou baixadas",
+                        "pontos percentuais")
+        ));
+        assertQueryExample(document, "get", summary, "fromDate", "2026-07-01");
+        assertQueryExample(document, "get", summary, "toDate", "2026-07-02");
+        assertOperationTag(document, "get", summary, "Reconciliations");
+        assertResponseDescriptionContains(document, "get", summary, "200", "duas casas decimais");
+
+        JsonNode example = examples(document.path("paths").path(summary).path("get")
+                .path("responses").path("200").path("content").path("application/json")).getFirst();
+        JsonNode day = example.path("days").path(0);
+        for (String field : List.of(
+                "date", "expectedNetAmount", "settledNetAmount", "bankReceivedAmount", "bankShortfallAmount",
+                "itemCount", "matchedCount")) {
+            assertThat(day.hasNonNull(field)).as("days[0].%s", field).isTrue();
+        }
+        assertThat(example.path("openByType").path("FEE_DIVERGENCE").asInt()).isEqualTo(1);
+        assertThat(example.path("resolvedCount").asLong()).isEqualTo(3);
+        assertThat(example.path("feePercent").decimalValue()).isEqualByComparingTo("2.90");
+        assertThat(example.path("previousWindowGrossChangePercent").decimalValue()).isEqualByComparingTo("25.5");
     }
 
     @Test

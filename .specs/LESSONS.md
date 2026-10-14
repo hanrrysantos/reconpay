@@ -56,6 +56,48 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: PeriodCloseIntegrationTest.java:182 PER-41 (reconciliation)
 - last seen: 2026-10-08T00:18:47Z
 
+### L-008 - Add the backend field a specified count needs instead of showing a different count under a SPEC_DEVIATION.
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: dashboard-redesign
+- evidence: frontend/components/dashboard/MatchRingCard.tsx:37 (DASH-03 AC1) (frontend)
+- last seen: 2026-10-14T10:44:01Z
+
+### L-009 - Cover each page-level action handler with a page test that asserts the endpoint called, not only the child component callback.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: dashboard-redesign
+- evidence: F6 frontend/components/dashboard/DashboardPage.tsx:152 (frontend)
+- last seen: 2026-10-14T10:44:01Z
+
+### L-010 - Cover each page-level action handler with a page test that asserts the endpoint called, not only the child component callback.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: dashboard-redesign
+- evidence: DASH-07 AC3 (frontend)
+- last seen: 2026-10-14T10:44:01Z
+
+### L-011 - Test a derived-state rule once for every input it reads, not only for a subset of them.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: dashboard-redesign
+- evidence: F3 frontend/components/dashboard/view.ts:37 (frontend)
+- last seen: 2026-10-14T10:44:01Z
+
+### L-012 - Build tiebreak fixtures whose insertion order contradicts the expected order so the database cannot return it by chance.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `reconciliation` · harmful: 0
+- features: dashboard-redesign
+- evidence: B7 backend/src/main/java/br/com/hanrry/reconpay/reconciliation/repository/ReconciliationItemSpecifications.java:94 (reconciliation)
+- last seen: 2026-10-14T10:44:01Z
+
+### L-013 - State in the spec whether the no-arithmetic rule covers count-based rates before computing any rate or rate difference in the browser.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: dashboard-redesign
+- evidence: DASH-03 AC10 (frontend/components/dashboard/format.ts:38, DailyHeatmap.tsx:26) (frontend)
+- last seen: 2026-10-14T10:44:01Z
+
+### L-014 - Back a theme-token acceptance criterion with a test that reads the theme file.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: dashboard-redesign
+- evidence: DASH-01 AC1 (frontend/app/globals.css:3) (frontend)
+- last seen: 2026-10-14T10:44:01Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

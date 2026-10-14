@@ -73,6 +73,12 @@ public class ReconciliationRunEntity {
     @Column(name = "superseded_at")
     private Instant supersededAt;
 
+    @Column(name = "bank_tracked", nullable = false)
+    private boolean bankTracked;
+
+    @Column(name = "processed_items")
+    private Integer processedItems;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = Instant.now();

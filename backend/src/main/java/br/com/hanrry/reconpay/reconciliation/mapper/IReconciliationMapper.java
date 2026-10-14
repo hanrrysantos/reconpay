@@ -10,6 +10,9 @@ import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Mapper(componentModel = "spring")
 public interface IReconciliationMapper {
 
@@ -26,6 +29,7 @@ public interface IReconciliationMapper {
     @Mapping(source = "externalSettlement.id", target = "externalSettlementId")
     @Mapping(target = "paymentMethod", expression = "java(resolvePaymentMethod(entity))")
     @Mapping(target = "installments", expression = "java(resolveInstallments(entity))")
+    @Mapping(target = "netDifference", expression = "java(netDifference(entity))")
     ReconciliationItemResponseDTO toItemDTO(ReconciliationItemEntity entity);
 
     DiscrepancyResponseDTO toDiscrepancyDTO(ReconciliationDiscrepancyEntity entity);
@@ -34,6 +38,13 @@ public interface IReconciliationMapper {
         return entity.getTransactionPaymentMethod() != null
                 ? entity.getTransactionPaymentMethod()
                 : entity.getSettlementPaymentMethod();
+    }
+
+    /* settlementNet - expectedNet with a missing side as zero: the value sort=absDifference orders by. */
+    default BigDecimal netDifference(ReconciliationItemEntity entity) {
+        BigDecimal settled = entity.getSettlementNetAmount() == null ? BigDecimal.ZERO : entity.getSettlementNetAmount();
+        BigDecimal expected = entity.getExpectedNetAmount() == null ? BigDecimal.ZERO : entity.getExpectedNetAmount();
+        return settled.subtract(expected).setScale(2, RoundingMode.HALF_UP);
     }
 
     default Integer resolveInstallments(ReconciliationItemEntity entity) {
