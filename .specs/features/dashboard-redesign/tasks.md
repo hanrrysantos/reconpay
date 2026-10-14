@@ -480,9 +480,9 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Mês = dia 1 ao último dia (fevereiro bissexto incluso)
-- [ ] `monthsBack` vai do mês atual ao mais antigo com run, sem duplicar
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] Mês = dia 1 ao último dia (fevereiro bissexto incluso)
+- [x] `monthsBack` vai do mês atual ao mais antigo com run, sem duplicar
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
