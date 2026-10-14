@@ -87,6 +87,12 @@ T31 → T32 → T33
 T34 → T35
 ```
 
+### Phase 8: Correções pós-revisão (executar logo após a Phase 3, antes da Phase 4)
+
+```
+T36 → T37 → T38 → T39
+```
+
 ---
 
 ## Task Breakdown
@@ -978,6 +984,7 @@ T34 → T35
 **Done when**:
 
 - [ ] Abre na janela do run mais recente; sem run, no mês atual vazio (DASH-02 AC1–AC2)
+- [ ] Run que chega a `COMPLETED` recarrega período, resumo e divergências (DASH-05 AC4)
 - [ ] Fluxos com fetch simulado: resolver, rodar (até `COMPLETED`), 409 no run, travar, exportar, erro de um bloco, erro de rede
 - [ ] Nenhum teste antigo apagado sem equivalente migrado
 - [ ] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
@@ -1015,6 +1022,113 @@ T34 → T35
 
 ---
 
+### T36: Comparativo com o mês civil anterior
+
+**What**: `PeriodSummaryService` calcula `previousWindowGrossAmount` sobre o mês civil anterior quando `fromDate` é dia 1 e `toDate` o último dia do mesmo mês; nos demais casos mantém a janela anterior de mesmo tamanho.
+**Where**: `backend/src/main/java/br/com/hanrry/reconpay/reconciliation/service/PeriodSummaryService.java`
+**Depends on**: None (Phase 3 concluída)
+**Reuses**: `PeriodWindowPolicy`
+**Requirement**: DASH-08
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Setembro (01–30/09) compara com o run vigente de 01–31/08
+- [ ] Março compara com fevereiro inteiro (28 ou 29 dias)
+- [ ] Janela que não é mês civil (ex.: 10–19/09) compara com 31/08–09/09
+- [ ] Sem run vigente no período anterior, `previousWindowGrossAmount` é null
+- [ ] Gate passa: `cd backend && ./mvnw -B test -Dtest=PeriodSummaryServiceTest`
+
+**Tests**: unit
+**Gate**: quick
+
+**Commit**: `fix(reconciliation): compare monthly windows with the previous calendar month`
+
+---
+
+### T37: Total do banco igual à soma dos dias
+
+**What**: O total `bankReceivedAmount` do resumo passa a somar só items com `transactionDate` não nulo, igual à série diária.
+**Where**: `backend/src/main/java/br/com/hanrry/reconpay/reconciliation/repository/IReconciliationItemRepository.java`
+**Depends on**: T36
+**Reuses**: consultas de T9
+**Requirement**: DASH-08
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Com uma liquidação órfã casada no extrato, `bankReceivedAmount` = Σ `days[].bankReceivedAmount`
+- [ ] Demais totais inalterados
+- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+
+**Tests**: integration
+**Gate**: full
+
+**Commit**: `fix(reconciliation): exclude orphan credits from bank received total`
+
+---
+
+### T38: Listagem de imports de extrato
+
+**What**: `GET /api/merchants/{merchantId}/bank-statements/imports` paginado (`createdAt` desc) com `id`, `fileName`, `totalRows`, `createdAt`, documentado no `BankStatementControllerApi` (AD-006).
+**Where**: `backend/src/main/java/br/com/hanrry/reconpay/bankstatement/controller/BankStatementController.java`
+**Depends on**: T37
+**Reuses**: `ExternalSettlementController.findAllImports`, `IBankStatementImportRepository`, `IBankStatementImportMapper`
+**Requirement**: DASH-02
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] OPERATOR com grant e ADMIN recebem 200 com os imports do merchant, mais recente primeiro
+- [ ] 401 sem token, 403 OPERATOR sem grant, 404 merchant inexistente (mesmos códigos do endpoint de imports de liquidação)
+- [ ] Operação no `/v3/api-docs` com exemplo e textos em português
+- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+
+**Tests**: integration
+**Gate**: full
+
+**Commit**: `feat(bankstatement): list bank statement imports`
+
+---
+
+### T39: Cliente usa a listagem de imports de extrato
+
+**What**: `lib/api.ts` troca a busca da última linha do extrato pelo último import (`GET .../bank-statements/imports?size=1`), expondo `createdAt` para a régua.
+**Where**: `frontend/lib/api.ts`
+**Depends on**: T38
+**Reuses**: função de imports de liquidação de T17
+**Requirement**: DASH-02
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Função devolve `createdAt` do import mais recente ou null sem imports
+- [ ] Hook de imports (T18) entrega os dois horários (liquidação e extrato)
+- [ ] Gate passa: `cd frontend && corepack pnpm test`
+
+**Tests**: unit
+**Gate**: quick
+
+**Commit**: `feat(frontend): read latest bank statement import time`
+
+---
+
 ## Phase Execution Map
 
 ```
@@ -1027,6 +1141,7 @@ Phase 4:  T19 → T20 → T21 → T22
 Phase 5:  T23 → T24 → T25 → T26 → T27 → T28 → T29 → T30
 Phase 6:  T31 → T32 → T33
 Phase 7:  T34 → T35
+Phase 8:  T36 → T37 → T38 → T39   (executada entre a Phase 3 e a Phase 4)
 ```
 
 ---

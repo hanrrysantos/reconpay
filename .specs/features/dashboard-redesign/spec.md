@@ -47,7 +47,9 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 | Polling do run | GET do run a cada 3 s enquanto `PENDING` ou `RUNNING`; para ao sair da página | Executor assíncrono sem push | n |
 | Progresso do run | Campos novos no run (`processedItems`, `totalItems` estimado); sem eles, anel indeterminado sem número | Hoje o run só expõe status | n |
 | Abaixo de 1024px | Blocos empilham em uma coluna; nav rola horizontalmente | Sem design mobile aprovado | n |
-| Comparativos | Taxa vs run anterior da mesma janela; vendido vs janela anterior de mesmo tamanho | Definição dos rótulos "vs ontem"/"vs ago" do design | n |
+| Comparativos | Taxa vs run anterior da mesma janela; vendido vs mês civil anterior quando a janela é um mês civil inteiro, senão vs janela anterior de mesmo tamanho | Revisão do lote 2: a janela de mesmo tamanho nunca coincide com o run do mês anterior | y |
+| Total "caiu no banco" | Soma só créditos de items com venda (`transactionDate` não nulo); créditos de liquidação órfã ficam fora | Revisão do lote 2: total igual à soma da série diária | y |
+| Horário do último extrato | Endpoint `GET .../bank-statements/imports` (paginado, `createdAt` desc), espelho de `.../external-settlements/imports` | Revisão do lote 3: a linha do extrato não traz `createdAt` e não há listagem de imports | y |
 | Erro de rede | Banner global; blocos já carregados permanecem | Estado "Erro" da referência | n |
 
 **Open questions:** none - all resolved or logged above.
