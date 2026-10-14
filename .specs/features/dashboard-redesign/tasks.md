@@ -264,11 +264,11 @@ T34 → T35
 
 **Done when**:
 
-- [ ] `sort=absDifference,desc` ordena por `|coalesce(settlementNet,0) − coalesce(expectedNet,0)|`, desempate por `externalReference`
-- [ ] Lado ausente conta como zero
-- [ ] `discrepancyStatus` inválido responde 400 `VALIDATION_ERROR`
-- [ ] OpenAPI documenta parâmetro e ordenação em português
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] `sort=absDifference,desc` ordena por `|coalesce(settlementNet,0) − coalesce(expectedNet,0)|`, desempate por `externalReference`
+- [x] Lado ausente conta como zero
+- [x] `discrepancyStatus` inválido responde 400 `VALIDATION_ERROR`
+- [x] OpenAPI documenta parâmetro e ordenação em português
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full

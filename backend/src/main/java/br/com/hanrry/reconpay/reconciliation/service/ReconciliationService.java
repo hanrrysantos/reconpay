@@ -10,7 +10,9 @@ import br.com.hanrry.reconpay.reconciliation.config.ReconciliationProperties;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationItemResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationRunResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.RunReconciliationRequestDTO;
+import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationItemEntity;
 import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationRunEntity;
+import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationRunStatus;
@@ -25,6 +27,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +56,7 @@ public class ReconciliationService {
     private final EntityManager entityManager;
 
     private static final int EXPORT_CHUNK_SIZE = 500;
+    private static final String ABS_DIFFERENCE = "absDifference";
 
     /*
      * A full window can take minutes, which is well past what a client should
@@ -116,12 +121,26 @@ public class ReconciliationService {
             UUID runId,
             ReconciliationResult result,
             DiscrepancyType discrepancyType,
+            DiscrepancyStatus discrepancyStatus,
             Pageable pageable) {
         findRunForMerchant(merchantId, runId);
 
-        return reconciliationItemRepository.findAll(
-                        ReconciliationItemSpecifications.withFilters(runId, result, discrepancyType, null),
-                        pageable)
+        Specification<ReconciliationItemEntity> specification =
+                ReconciliationItemSpecifications.withFilters(runId, result, discrepancyType, discrepancyStatus);
+        Pageable page = pageable;
+
+        // absDifference is not a column, so it cannot go through the Pageable sort.
+        Sort.Order byDifference = pageable.getSort().getOrderFor(ABS_DIFFERENCE);
+        if (byDifference != null) {
+            Sort others = Sort.by(pageable.getSort().stream()
+                    .filter(order -> !ABS_DIFFERENCE.equals(order.getProperty()))
+                    .toList());
+            specification = specification.and(
+                    ReconciliationItemSpecifications.orderedByAbsDifference(byDifference.getDirection(), others));
+            page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        }
+
+        return reconciliationItemRepository.findAll(specification, page)
                 .map(reconciliationMapper::toItemDTO);
     }
 

@@ -683,6 +683,31 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void itemsDocumentDiscrepancyStatusAndAbsDifferenceSort() throws Exception {
+        JsonNode document = apiDocs();
+        String items = "/api/merchants/{merchantId}/reconciliations/{runId}/items";
+        JsonNode operation = document.path("paths").path(items).path("get");
+
+        assertQueryExample(document, "get", items, "discrepancyStatus", "OPEN");
+        String parameterDescription = null;
+        for (JsonNode parameter : operation.path("parameters")) {
+            if ("discrepancyStatus".equals(parameter.path("name").asText())) {
+                parameterDescription = parameter.path("description").asText();
+            }
+        }
+        assertThat(parameterDescription).contains("Status da divergência");
+
+        String description = operation.path("description").asText();
+        assertThat(description).contains(
+                "discrepancyStatus",
+                "sort=absDifference,desc",
+                "maior diferença absoluta",
+                "lado ausente conta como zero",
+                "externalReference desempata",
+                "Responde 400");
+    }
+
+    @Test
     void periodEndpointsDocumentTheResponseTable() throws Exception {
         JsonNode document = apiDocs();
         List<String> periodFields = List.of(

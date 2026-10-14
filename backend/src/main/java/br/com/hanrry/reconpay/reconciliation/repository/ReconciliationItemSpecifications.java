@@ -5,10 +5,17 @@ import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationItemEntity;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.query.QueryUtils;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public final class ReconciliationItemSpecifications {
@@ -62,6 +69,31 @@ public final class ReconciliationItemSpecifications {
             }
 
             return predicates;
+        };
+    }
+
+    /*
+     * Orders by |settlementNet - expectedNet| with a missing side counted as
+     * zero, then by any other requested order, then by externalReference so
+     * equal differences page deterministically. The count query that
+     * pagination issues gets no ORDER BY.
+     */
+    public static Specification<ReconciliationItemEntity> orderedByAbsDifference(
+            Sort.Direction direction,
+            Sort then) {
+        return (root, query, criteriaBuilder) -> {
+            if (Long.class.equals(query.getResultType())) {
+                return null;
+            }
+            Expression<BigDecimal> difference = criteriaBuilder.abs(criteriaBuilder.diff(
+                    criteriaBuilder.coalesce(root.<BigDecimal>get("settlementNetAmount"), BigDecimal.ZERO),
+                    criteriaBuilder.coalesce(root.<BigDecimal>get("expectedNetAmount"), BigDecimal.ZERO)));
+            List<Order> orders = new ArrayList<>();
+            orders.add(direction.isAscending() ? criteriaBuilder.asc(difference) : criteriaBuilder.desc(difference));
+            orders.addAll(QueryUtils.toOrders(then, root, criteriaBuilder));
+            orders.add(criteriaBuilder.asc(root.get("externalReference")));
+            query.orderBy(orders);
+            return null;
         };
     }
 }

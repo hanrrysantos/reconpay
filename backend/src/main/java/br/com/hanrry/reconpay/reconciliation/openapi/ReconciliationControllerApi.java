@@ -12,6 +12,7 @@ import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationItemResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.ReconciliationRunResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.RunReconciliationRequestDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.UpdateDiscrepancyStatusRequestDTO;
+import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus;
 import br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType;
 import br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult;
 import io.swagger.v3.oas.annotations.Operation;
@@ -228,7 +229,13 @@ public interface ReconciliationControllerApi {
             description = """
                     Lista paginada dos itens do run. \
                     O id vem da resposta de criação ou da listagem. \
-                    Responde 404 quando o merchant ou o run não existe."""
+                    Os filtros result, discrepancyType e discrepancyStatus se combinam. \
+                    Tipo e status valem para a mesma divergência, e cada item aparece uma vez. \
+                    sort=absDifference,desc ordena pela maior diferença absoluta entre \
+                    settlementNetAmount e expectedNetAmount; o lado ausente conta como zero \
+                    e externalReference desempata. \
+                    Responde 400 quando um filtro tem valor inválido \
+                    e 404 quando o merchant ou o run não existe."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -252,6 +259,8 @@ public interface ReconciliationControllerApi {
             @RequestParam(required = false) ReconciliationResult result,
             @Parameter(description = "Tipo de divergência", example = "FEE_DIVERGENCE")
             @RequestParam(required = false) DiscrepancyType discrepancyType,
+            @Parameter(description = "Status da divergência; o item entra se tiver ao menos uma nesse status", example = "OPEN")
+            @RequestParam(required = false) DiscrepancyStatus discrepancyStatus,
             @ParameterObject @PageableDefault(size = 20, sort = "externalReference", direction = Sort.Direction.ASC) Pageable pageable);
 
     @Operation(
