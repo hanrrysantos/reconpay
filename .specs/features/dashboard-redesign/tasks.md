@@ -699,8 +699,8 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] DASH-02 AC3, AC4 e AC5 cobertos por teste
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] DASH-02 AC3, AC4 e AC5 cobertos por teste
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
