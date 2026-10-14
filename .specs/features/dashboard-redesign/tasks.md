@@ -672,10 +672,10 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] Cada view tem teste com a entrada mínima que a produz
-- [ ] 409 do período com run em andamento resulta em `running` com dados anteriores
-- [ ] 404 do período resulta em `empty`
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] Cada view tem teste com a entrada mínima que a produz
+- [x] 409 do período com run em andamento resulta em `running` com dados anteriores
+- [x] 404 do período resulta em `empty`
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
