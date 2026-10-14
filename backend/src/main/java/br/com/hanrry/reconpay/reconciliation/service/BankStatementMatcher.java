@@ -94,6 +94,7 @@ public class BankStatementMatcher {
             }
             linkedSettlements.add(settlement);
             linkedLines.add(line);
+            recordBankCredit(settlement, line);
             if (!withinTolerance(line.getAmount(), settlement.getSettlementNetAmount())) {
                 addDiscrepancy(
                         settlement,
@@ -132,6 +133,7 @@ public class BankStatementMatcher {
             if (eligibleLines.size() == 1
                     && settlementsByLine.get(eligibleLines.getFirst()).size() == 1) {
                 pairedLines.add(eligibleLines.getFirst());
+                recordBankCredit(settlement, eligibleLines.getFirst());
                 continue;
             }
             if (eligibleLines.isEmpty()) {
@@ -165,6 +167,11 @@ public class BankStatementMatcher {
                     null,
                     formatAmount(line.getAmount()));
         }
+    }
+
+    private void recordBankCredit(ReconciliationItemEntity settlement, BankStatementLineEntity line) {
+        settlement.setBankAmount(line.getAmount());
+        settlement.setBankMovementDate(line.getMovementDate());
     }
 
     private boolean ignored(

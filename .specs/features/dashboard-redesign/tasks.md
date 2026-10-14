@@ -132,10 +132,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Casamento por referência grava valor e data da linha
-- [ ] Casamento por data+valor grava valor e data da linha
-- [ ] Linha órfã, crédito ausente e ambíguo deixam os campos nulos
-- [ ] Gate passa: `cd backend && ./mvnw -B test -Dtest=BankStatementMatcherTest`; contagem anterior de testes da classe mantida + novos
+- [x] Casamento por referência grava valor e data da linha
+- [x] Casamento por data+valor grava valor e data da linha
+- [x] Linha órfã, crédito ausente e ambíguo deixam os campos nulos
+- [x] Gate passa: `cd backend && ./mvnw -B test -Dtest=BankStatementMatcherTest`; contagem anterior de testes da classe mantida + novos
 
 **Tests**: unit
 **Gate**: quick
