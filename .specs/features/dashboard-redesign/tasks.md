@@ -620,10 +620,10 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] Lista todas as empresas de todas as páginas
-- [ ] Busca filtra por nome e por dígitos do CNPJ
-- [ ] Selecionar outra empresa atualiza o contexto
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] Lista todas as empresas de todas as páginas
+- [x] Busca filtra por nome e por dígitos do CNPJ
+- [x] Selecionar outra empresa atualiza o contexto
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
