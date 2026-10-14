@@ -127,7 +127,8 @@ class ReconciliationServiceTest {
                     saved.getStartedAt(),
                     saved.getFinishedAt(),
                     saved.getErrorMessage(),
-                    saved.getSupersededAt());
+                    saved.getSupersededAt(),
+                    saved.getProcessedItems());
         });
 
         ReconciliationRunResponseDTO response = reconciliationService.run(

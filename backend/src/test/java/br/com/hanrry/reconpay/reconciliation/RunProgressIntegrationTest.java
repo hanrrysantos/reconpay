@@ -12,15 +12,16 @@ import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.entity.InternalTransactionEntity;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import br.com.hanrry.reconpay.transaction.repository.IInternalTransactionRepository;
+import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import com.jayway.jsonpath.JsonPath;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -35,12 +36,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /*
  * The scheduler is parked so each test decides when its run is dispatched.
  * 501 sales produce two persistence batches (500 + 1), so progress has an
  * intermediate value to observe.
  */
+@AutoConfigureMockMvc
 @TestPropertySource(properties = "reconpay.reconciliation.dispatch-delay-ms=3600000")
 class RunProgressIntegrationTest extends AbstractIntegrationTest {
 
@@ -51,30 +55,31 @@ class RunProgressIntegrationTest extends AbstractIntegrationTest {
     @Autowired IReconciliationRunRepository runs;
     @Autowired IMerchantRepository merchants;
     @Autowired IInternalTransactionRepository transactions;
-    @Autowired PlatformTransactionManager transactionManager;
+    @Autowired MockMvc mockMvc;
     @Autowired JdbcTemplate jdbc;
 
     @Test
-    void runPublishesCommittedProgressAndCompletesWithProcessedEqualToTotal() {
+    void runPublishesCommittedProgressAndCompletesWithProcessedEqualToTotal() throws Exception {
         MerchantEntity merchant = merchantWithSales("Progress merchant", LocalDate.of(2026, 3, 10));
         UUID runId = pendingRun(merchant, LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 31));
 
-        ReconciliationRunEntity pending = runs.findById(runId).orElseThrow();
-        assertThat(pending.getStatus()).isEqualTo(ReconciliationRunStatus.PENDING);
-        assertThat(pending.getProcessedItems()).isNull();
+        String token = IntegrationTestUtils.obtainAdminToken(mockMvc);
+        UUID merchantId = merchant.getId();
+
+        assertThat(progressFromApi(token, merchantId, runId)).isEqualTo("PENDING/null/0");
 
         /*
          * The spy sits inside the transactional proxy, so each answer runs
-         * before its own write commits. Reading first shows what the previous
-         * write committed while the processor's transaction is still open.
+         * before its own write commits. Reading the API first shows what the
+         * previous write committed while the processor's transaction is open.
          */
         List<String> observed = new CopyOnWriteArrayList<>();
         doAnswer(invocation -> {
-            observed.add(committedProgress(invocation.getArgument(0)));
+            observed.add(progressFromApi(token, merchantId, runId));
             return invocation.callRealMethod();
         }).when(state).recordTotal(any(), anyInt());
         doAnswer(invocation -> {
-            observed.add(committedProgress(invocation.getArgument(0)));
+            observed.add(progressFromApi(token, merchantId, runId));
             return invocation.callRealMethod();
         }).when(state).recordProgress(any(), anyInt());
 
@@ -86,10 +91,9 @@ class RunProgressIntegrationTest extends AbstractIntegrationTest {
                 "RUNNING/0/" + SALES,
                 "RUNNING/500/" + SALES);
 
-        ReconciliationRunEntity completed = runs.findById(runId).orElseThrow();
-        assertThat(completed.getTotalItems()).isEqualTo(SALES);
-        assertThat(completed.getProcessedItems()).isEqualTo(completed.getTotalItems());
-        assertThat(completed.isBankTracked()).isTrue();
+        assertThat(progressFromApi(token, merchantId, runId))
+                .isEqualTo("COMPLETED/" + SALES + "/" + SALES);
+        assertThat(runs.findById(runId).orElseThrow().isBankTracked()).isTrue();
     }
 
     @Test
@@ -126,11 +130,15 @@ class RunProgressIntegrationTest extends AbstractIntegrationTest {
                 Integer.class, runId)).isZero();
     }
 
-    private String committedProgress(UUID runId) {
-        TransactionTemplate reader = new TransactionTemplate(transactionManager);
-        reader.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-        ReconciliationRunEntity run = reader.execute(status -> runs.findById(runId).orElseThrow());
-        return run.getStatus() + "/" + run.getProcessedItems() + "/" + run.getTotalItems();
+    private String progressFromApi(String token, UUID merchantId, UUID runId) throws Exception {
+        String body = mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}", merchantId, runId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        Object processed = JsonPath.read(body, "$.processedItems");
+        return JsonPath.read(body, "$.status") + "/" + processed + "/" + JsonPath.read(body, "$.totalItems");
     }
 
     private void awaitStatus(UUID runId, ReconciliationRunStatus expected) {

@@ -61,6 +61,7 @@ public interface ReconciliationControllerApi {
               "toDate": "2026-07-31",
               "status": "COMPLETED",
               "totalItems": 1,
+              "processedItems": 1,
               "matchedCount": 1,
               "divergentCount": 0,
               "createdAt": "2026-08-10T12:00:00Z"
@@ -77,6 +78,7 @@ public interface ReconciliationControllerApi {
                   "toDate": "2026-07-31",
                   "status": "COMPLETED",
                   "totalItems": 1,
+                  "processedItems": 1,
                   "matchedCount": 1,
                   "divergentCount": 0,
                   "createdAt": "2026-08-10T12:00:00Z"
@@ -197,6 +199,8 @@ public interface ReconciliationControllerApi {
             description = """
                     Devolve um run da conciliação. \
                     O id vem da resposta de criação ou da listagem. \
+                    Use para acompanhar o progresso: processedItems é nulo em PENDING, \
+                    cresce até totalItems durante RUNNING e fica igual a totalItems em COMPLETED. \
                     Responde 404 quando o merchant ou o run não existe."""
     )
     @ApiResponse(

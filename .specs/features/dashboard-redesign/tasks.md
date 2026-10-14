@@ -212,8 +212,8 @@ T34 → T35
 
 **Done when**:
 
-- [ ] `GET .../reconciliations/{runId}` devolve `processedItems` (null em `PENDING`, igual a `totalItems` em `COMPLETED`)
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] `GET .../reconciliations/{runId}` devolve `processedItems` (null em `PENDING`, igual a `totalItems` em `COMPLETED`)
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full

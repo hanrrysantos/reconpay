@@ -601,7 +601,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         JsonNode document = apiDocs();
         List<String> runFields = List.of(
                 "id", "merchantId", "fromDate", "toDate", "status",
-                "totalItems", "matchedCount", "divergentCount", "createdAt");
+                "totalItems", "processedItems", "matchedCount", "divergentCount", "createdAt");
         List<String> itemFields = List.of(
                 "id", "reconciliationRunId", "externalReference", "result",
                 "transactionAmount", "expectedNetAmount", "paymentMethod", "installments",
@@ -635,7 +635,8 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 "get", runById,
                 Set.of("200", "400", "401", "403", "404"),
                 true, null, Map.of(),
-                "200", runFields, false, Set.of(), Set.of(), idOrigin
+                "200", runFields, false, Set.of(), Set.of(),
+                List.of("criação", "listagem", "processedItems", "PENDING", "totalItems")
         ));
         assertOperation(document, new Op(
                 "get", items,
