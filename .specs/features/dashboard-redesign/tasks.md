@@ -828,9 +828,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] DASH-03 AC4 e AC5 cobertos por teste
-- [ ] Banco nulo: área e faixa não desenhadas e aviso "Extrato não disponível para este run"
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] DASH-03 AC4 e AC5 cobertos por teste
+- [x] Banco nulo: área e faixa não desenhadas e aviso "Extrato não disponível para este run"
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
