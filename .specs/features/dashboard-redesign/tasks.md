@@ -185,10 +185,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] `PENDING` mantém `processedItems` nulo; `COMPLETED` tem `processedItems = totalItems`
-- [ ] Run concluído tem `bankTracked = true`
-- [ ] Falha no meio deixa o run `FAILED` sem item persistido (comportamento atual preservado)
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] `PENDING` mantém `processedItems` nulo; `COMPLETED` tem `processedItems = totalItems`
+- [x] Run concluído tem `bankTracked = true`
+- [x] Falha no meio deixa o run `FAILED` sem item persistido (comportamento atual preservado)
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full
