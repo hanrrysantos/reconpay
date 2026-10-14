@@ -1178,9 +1178,9 @@ T40 → T41 → T42
 
 **Done when**:
 
-- [ ] Esperado 100.00 e liquidado 95.50 → −4.50; sem liquidação → −esperado; sem venda → +liquidado; ambos ausentes → 0.00
-- [ ] Ordem de `sort=absDifference,desc` coincide com `|netDifference|` decrescente (integração)
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] Esperado 100.00 e liquidado 95.50 → −4.50; sem liquidação → −esperado; sem venda → +liquidado; ambos ausentes → 0.00
+- [x] Ordem de `sort=absDifference,desc` coincide com `|netDifference|` decrescente (integração)
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full

@@ -102,6 +102,9 @@ public interface ReconciliationControllerApi {
                   "result": "MATCHED",
                   "transactionAmount": 100.00,
                   "expectedNetAmount": 97.20,
+                  "settlementAmount": 100.00,
+                  "settlementNetAmount": 97.20,
+                  "netDifference": 0.00,
                   "paymentMethod": "CREDIT_CARD",
                   "installments": 1,
                   "transactionStatus": "APPROVED",
@@ -234,6 +237,8 @@ public interface ReconciliationControllerApi {
                     sort=absDifference,desc ordena pela maior diferença absoluta entre \
                     settlementNetAmount e expectedNetAmount; o lado ausente conta como zero \
                     e externalReference desempata. \
+                    netDifference é settlementNetAmount menos expectedNetAmount, \
+                    com o lado ausente como zero, e é o valor que absDifference ordena. \
                     Responde 400 quando um filtro tem valor inválido \
                     e 404 quando o merchant ou o run não existe."""
     )

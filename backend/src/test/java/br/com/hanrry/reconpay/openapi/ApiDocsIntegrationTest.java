@@ -615,7 +615,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 "totalItems", "processedItems", "matchedCount", "divergentCount", "createdAt");
         List<String> itemFields = List.of(
                 "id", "reconciliationRunId", "externalReference", "result",
-                "transactionAmount", "expectedNetAmount", "paymentMethod", "installments",
+                "transactionAmount", "expectedNetAmount", "netDifference", "paymentMethod", "installments",
                 "transactionStatus", "transactionDate", "createdAt");
         List<String> discrepancyFields = List.of("id", "type", "expectedValue", "actualValue", "status");
         List<String> idOrigin = List.of("criação", "listagem");
@@ -715,6 +715,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 "maior diferença absoluta",
                 "lado ausente conta como zero",
                 "externalReference desempata",
+                "netDifference é settlementNetAmount menos expectedNetAmount",
                 "Responde 400");
     }
 

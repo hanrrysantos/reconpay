@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -83,12 +84,31 @@ class RunItemsSortIntegrationTest extends AbstractIntegrationTest {
         items("OPEN", "absDifference,desc", 0, 4)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[*].externalReference").value(contains("R2", "R3", "R1", "R4")))
+                .andExpect(jsonPath("$.content[*].netDifference").value(contains(-50.00, 30.00, -10.00, 10.00)))
                 .andExpect(jsonPath("$.totalElements").value(5))
                 .andExpect(jsonPath("$.totalPages").value(2));
 
         items("OPEN", "absDifference,desc", 1, 4)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[*].externalReference").value(contains("R5")));
+    }
+
+    @Test
+    void netDifferenceIsSettledMinusExpectedWithTwoDecimalsAndAMissingSideAsZero() throws Exception {
+        ReconciliationRunEntity run = runs.findById(runId).orElseThrow();
+        item(run, "R7", "100.00", "95.50", DiscrepancyType.FEE_DIVERGENCE, DiscrepancyStatus.OPEN);
+        item(run, "R8", null, null, DiscrepancyType.ORPHAN_BANK_CREDIT, DiscrepancyStatus.OPEN);
+
+        String body = items("OPEN", "externalReference,asc", 0, 20)
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        assertThat(body)
+                .contains("\"externalReference\":\"R7\"")
+                .contains("\"settlementNetAmount\":95.50,\"netDifference\":-4.50,")
+                .contains("\"settlementNetAmount\":null,\"netDifference\":-50.00,")
+                .contains("\"settlementNetAmount\":30.00,\"netDifference\":30.00,")
+                .contains("\"settlementNetAmount\":null,\"netDifference\":0.00,");
     }
 
     @Test
