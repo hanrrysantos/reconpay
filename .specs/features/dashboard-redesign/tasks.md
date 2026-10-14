@@ -880,8 +880,8 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] DASH-03 AC7 e o edge case de dia sem item cobertos por teste
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] DASH-03 AC7 e o edge case de dia sem item cobertos por teste
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
