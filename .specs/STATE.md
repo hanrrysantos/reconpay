@@ -56,7 +56,7 @@
 - **Trade-off**: Reload requires login again; aggregated metrics remain unavailable until their API contract exists.
 - **Scope**: Frontend base.
 - **Date**: 2026-10-08
-- **Status**: active
+- **Status**: superseded by AD-009
 
 ### AD-008
 - **Decision**: O projeto Maven, seu wrapper, código Java e Dockerfile ficam em `backend/`; `frontend/` é seu diretório irmão. Compose, `.env`, CI e documentação geral permanecem na raiz.
@@ -64,6 +64,22 @@
 - **Trade-off**: Comandos Maven passam a rodar de `backend/`; o profile `dev` lê `../.env` a partir desse diretório.
 - **Scope**: Layout do repositório, build, desenvolvimento local e CI.
 - **Date**: 2026-10-08
+- **Status**: active
+
+### AD-009
+- **Decision**: O frontend segue a direção visual "Lima" (`.specs/features/dashboard-redesign/design-reference.md`), com tokens no `@theme` do Tailwind 4, fontes Inter Tight / Inter / IBM Plex Mono e gráficos em SVG próprio. TanStack Query é a camada de dados. O navegador continua enviando o JWT, mantido só em memória, direto para a API Spring, e nenhum número aparece sem vir da API.
+- **Reason**: O layout v0 virou dívida de CSS escrito à mão; o dashboard novo precisa de polling, invalidação após mutação e chave por empresa/janela.
+- **Trade-off**: Dependência nova (TanStack Query) e testes com jsdom; recarregar a página continua pedindo login.
+- **Scope**: Todo o frontend em `frontend/`.
+- **Date**: 2026-10-13
+- **Status**: active
+
+### AD-010
+- **Decision**: Somas e séries de dinheiro exibidas no frontend vêm de endpoints do backend (ex.: `GET /periods/summary`). O frontend só formata decimais recebidos como string; aritmética local fica restrita a pré-preencher campos (ex.: "Usar diferença"), em centavos inteiros.
+- **Reason**: `BigDecimal` no servidor é a única fonte de verdade de dinheiro; somar no navegador arriscaria arredondamento e divergir do CSV de auditoria.
+- **Trade-off**: Cada bloco agregado novo exige contrato de backend.
+- **Scope**: Frontend e endpoints de leitura usados por ele.
+- **Date**: 2026-10-13
 - **Status**: active
 
 ## Handoff
