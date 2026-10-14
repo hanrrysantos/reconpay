@@ -594,9 +594,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] Sem token, qualquer rota do grupo redireciona para `/login`
-- [ ] Item da rota atual marcado como ativo (`aria-current="page"`)
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] Sem token, qualquer rota do grupo redireciona para `/login`
+- [x] Item da rota atual marcado como ativo (`aria-current="page"`)
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
