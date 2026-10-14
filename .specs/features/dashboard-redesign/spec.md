@@ -41,7 +41,7 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 | Sino de notificações | Não renderizado | Ver Out of Scope | n |
 | Menu de empresa | Busca, nome, CNPJ, marcação da atual, "Cadastrar empresa"; sem pill de status | Ver Out of Scope | n |
 | "Cadastrar empresa" e "Importar extrato" | Navegam para rotas vazias (`/empresas`, `/importacoes`) | As páginas ainda não existem | n |
-| "Usar diferença" | Preenche `correctionAmount` com `settlementNetAmount − expectedNetAmount` do item; sem liquidação, com `−expectedNetAmount` | Representa o quanto falta ou sobra em relação ao esperado | n |
+| "Usar diferença" | Preenche `correctionAmount` com o `netDifference` do item (`settlementNetAmount − expectedNetAmount`; sem liquidação, `−expectedNetAmount`) | Representa o quanto falta ou sobra em relação ao esperado | n |
 | Tabela do dashboard | 4 divergências `OPEN` do run vigente, maior diferença absoluta primeiro; filtros por tipo | Mesma regra do design ("maior diferença primeiro") | n |
 | Atalho J/K na gaveta | Navega entre as divergências abertas da lista carregada | Indicado no rodapé da gaveta | n |
 | Polling do run | GET do run a cada 3 s enquanto `PENDING` ou `RUNNING`; para ao sair da página | Executor assíncrono sem push | n |
@@ -50,6 +50,8 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 | Comparativos | Taxa vs run anterior da mesma janela; vendido vs mês civil anterior quando a janela é um mês civil inteiro, senão vs janela anterior de mesmo tamanho | Revisão do lote 2: a janela de mesmo tamanho nunca coincide com o run do mês anterior | y |
 | Total "caiu no banco" | Soma só créditos de items com venda (`transactionDate` não nulo); créditos de liquidação órfã ficam fora | Revisão do lote 2: total igual à soma da série diária | y |
 | Horário do último extrato | Endpoint `GET .../bank-statements/imports` (paginado, `createdAt` desc), espelho de `.../external-settlements/imports` | Revisão do lote 3: a linha do extrato não traz `createdAt` e não há listagem de imports | y |
+| Contas no frontend (AD-010) | Diferença, falta por dia e percentuais vêm prontos da API; o frontend só formata e compara sinal | Revisão final: quatro valores eram calculados no navegador | y |
+| Precisão dos percentuais | `feePercent` com 2 casas e `previousWindowGrossChangePercent` com 1 casa, já em pontos percentuais, `HALF_UP` | Mesma precisão da tela ("3,03%", "+6,2%"); arredonda uma vez, no servidor | y |
 | Erro de rede | Banner global; blocos já carregados permanecem | Estado "Erro" da referência | n |
 
 **Open questions:** none - all resolved or logged above.
@@ -108,13 +110,14 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 
 1. The frontend SHALL draw the match ring with the arc proportional to `matchRate` and show matched, resolved and open counts from the period and summary responses.
 2. The frontend SHALL show "Valor em aberto" equal to `openAmount`, formatted as `R$ 1.234,56`, without passing the value through a binary floating-point number.
-3. The frontend SHALL show the gross sold total, the fee total with its percentage of gross, and the fee amount above contract, from the summary.
+3. The frontend SHALL show the gross sold total, the fee total with its percentage of gross (`feePercent`), and the fee amount above contract, from the summary.
 4. The frontend SHALL draw the daily chart with the expected net line, the bank-received area and the missing band between them, one point per day of the window.
-5. WHEN the user hovers a day on the chart THEN the frontend SHALL show that day's expected amount and the missing amount.
+5. WHEN the user hovers a day on the chart THEN the frontend SHALL show that day's expected amount and the missing amount (`bankShortfallAmount`), or "Nada faltou" when it is zero or negative.
 6. The frontend SHALL draw the donut and legend with the count of open discrepancies per type.
 7. The frontend SHALL color each day of the heatmap by that day's match percentage using the five bands of `design-reference.md`.
-8. The frontend SHALL show the comparison labels (taxa vs run anterior, vendido vs janela anterior) only when the summary provides the previous value.
+8. The frontend SHALL show the comparison labels (taxa vs run anterior, vendido vs janela anterior via `previousWindowGrossChangePercent`) only when the summary provides the value.
 9. IF a block's request fails THEN the frontend SHALL show that block's error with a reload action and keep the other blocks.
+10. The frontend SHALL display money differences and percentages as received from the API, without adding, subtracting or dividing amounts (AD-010).
 
 **Independent Test**: Load a window with known fixtures and check each number, the ring arc, the missing band on day 27, and a heatmap day under 90% in red.
 
@@ -128,7 +131,7 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 
 **Acceptance Criteria**:
 
-1. The frontend SHALL list up to 4 `OPEN` discrepancies of the current run ordered by largest absolute difference, with reference, method, date, type, expected amount, difference and status.
+1. The frontend SHALL list up to 4 `OPEN` discrepancies of the current run ordered by largest absolute difference, with reference, method, date, type, expected amount, difference (`netDifference`) and status.
 2. WHEN the user picks a type filter THEN the frontend SHALL list only open discrepancies of that type.
 3. WHEN the user clicks "Resolver" THEN the frontend SHALL open the drawer with both sides of the snapshot, the divergent field highlighted, and the discrepancy history newest first.
 4. WHEN the user submits Aceitar or Baixar THEN the frontend SHALL send PATCH with `ACCEPTED` or `WRITTEN_OFF`, the note (blank sent as absent) and no `correctionAmount`.
@@ -218,6 +221,8 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 5. IF `fromDate` is after `toDate` or the window exceeds `max-window-days` THEN the API SHALL answer 400 `VALIDATION_ERROR`.
 6. IF the caller is an OPERATOR without grant THEN the API SHALL answer 403 `FORBIDDEN`; without authentication, 401.
 7. The API SHALL document the operation in the `*Api` interface (AD-006) with example and each response code in Portuguese.
+8. The API SHALL include in each daily entry `bankShortfallAmount` = expected net − bank received (two decimals, negative when the bank received more), or null when the run has no bank data.
+9. The API SHALL include `feePercent` = fee total ÷ gross total × 100 with two decimals, and `previousWindowGrossChangePercent` = (gross − previous gross) ÷ previous gross × 100 with one decimal, both `HALF_UP`; each is null when its divisor is null or zero.
 
 **Independent Test**: Seed a run with known items and bank lines; call the endpoint and compare every total and one daily entry.
 
@@ -235,6 +240,7 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 2. WHEN the client sorts by `absDifference,desc` THEN the API SHALL order items by the absolute value of `settlementNetAmount − expectedNetAmount`, treating a missing side as zero.
 3. The API SHALL keep the existing `result` and `discrepancyType` filters combinable with `discrepancyStatus`.
 4. IF `discrepancyStatus` is not a valid status THEN the API SHALL answer 400 `VALIDATION_ERROR`.
+5. The API SHALL include in each run item `netDifference` = `settlementNetAmount − expectedNetAmount` with a missing side as zero, two decimals — the same value `absDifference` orders by.
 
 **Independent Test**: Seed items with mixed statuses and differences; request page 0 size 4 and check the order.
 

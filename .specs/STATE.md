@@ -75,11 +75,11 @@
 - **Status**: active
 
 ### AD-010
-- **Decision**: Somas e séries de dinheiro exibidas no frontend vêm de endpoints do backend (ex.: `GET /periods/summary`). O frontend só formata decimais recebidos como string; aritmética local fica restrita a pré-preencher campos (ex.: "Usar diferença"), em centavos inteiros.
-- **Reason**: `BigDecimal` no servidor é a única fonte de verdade de dinheiro; somar no navegador arriscaria arredondamento e divergir do CSV de auditoria.
-- **Trade-off**: Cada bloco agregado novo exige contrato de backend.
+- **Decision**: Valores de dinheiro exibidos no frontend vêm prontos do backend: somas, séries, diferenças e percentuais (ex.: `GET /periods/summary`, `netDifference` nos items). O frontend só formata decimais recebidos como string e compara sinal; não soma, subtrai nem divide valores.
+- **Reason**: `BigDecimal` no servidor é a única fonte de verdade de dinheiro; calcular no navegador duplicaria regras de arredondamento e arriscaria divergir do CSV de auditoria.
+- **Trade-off**: Cada número derivado novo exige campo no contrato do backend.
 - **Scope**: Frontend e endpoints de leitura usados por ele.
-- **Date**: 2026-10-13
+- **Date**: 2026-10-14 (revisado; versão de 2026-10-13 permitia aritmética local para pré-preencher campos)
 - **Status**: active
 
 ## Handoff

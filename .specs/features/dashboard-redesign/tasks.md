@@ -93,6 +93,12 @@ T34 → T35
 T36 → T37 → T38 → T39
 ```
 
+### Phase 9: Valores derivados no backend (AD-010)
+
+```
+T40 → T41 → T42
+```
+
 ---
 
 ## Task Breakdown
@@ -1129,6 +1135,88 @@ T36 → T37 → T38 → T39
 
 ---
 
+### T40: Falta por dia e percentuais no resumo
+
+**What**: `PeriodSummaryResponseDTO` ganha `feePercent`, `previousWindowGrossChangePercent` e, em cada dia, `bankShortfallAmount`, calculados em `PeriodSummaryService` com `BigDecimal` (DASH-08 AC8 e AC9); a operação no `PeriodControllerApi` documenta os campos.
+**Where**: `backend/src/main/java/br/com/hanrry/reconpay/reconciliation/service/PeriodSummaryService.java`, `.../dto/PeriodSummaryResponseDTO.java`, `.../openapi/PeriodControllerApi.java`
+**Depends on**: None (Phase 7 concluída)
+**Reuses**: `RunSummaryTotals`, `DailySummaryRow`, `previousWindowGrossAmount` de T36
+**Requirement**: DASH-08
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Dia com esperado 100.00 e banco 80.00 → `bankShortfallAmount` 20.00; banco 120.00 → −20.00; run sem dados de banco → null
+- [ ] Bruto 1000.00 e taxa 30.35 → `feePercent` 3.04 (HALF_UP); bruto zero → null
+- [ ] Bruto 1062.00 e anterior 1000.00 → `previousWindowGrossChangePercent` 6.2; queda 1000.00→937.50 → −6.3; anterior null ou zero → null
+- [ ] Endpoint devolve os campos com a escala definida (integração)
+- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+
+**Tests**: integration
+**Gate**: full
+
+**Commit**: `feat(reconciliation): return shortfall and percentages in period summary`
+
+---
+
+### T41: Diferença líquida em cada item
+
+**What**: `ReconciliationItemResponseDTO` ganha `netDifference` = `settlementNetAmount − expectedNetAmount` (lado ausente = zero, escala 2), mesma regra de `orderedByAbsDifference` (DASH-09 AC5).
+**Where**: `backend/src/main/java/br/com/hanrry/reconpay/reconciliation/dto/ReconciliationItemResponseDTO.java`, `.../mapper/IReconciliationMapper.java`
+**Depends on**: T40
+**Reuses**: regra de `ReconciliationItemSpecifications.orderedByAbsDifference`
+**Requirement**: DASH-09
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Esperado 100.00 e liquidado 95.50 → −4.50; sem liquidação → −esperado; sem venda → +liquidado; ambos ausentes → 0.00
+- [ ] Ordem de `sort=absDifference,desc` coincide com `|netDifference|` decrescente (integração)
+- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+
+**Tests**: integration
+**Gate**: full
+
+**Commit**: `feat(reconciliation): expose net difference on run items`
+
+---
+
+### T42: Frontend só formata os valores derivados
+
+**What**: Tipos e parse decimal de `lib/api.ts` incluem os campos de T40/T41; gráfico, KPIs, tabela e "Usar diferença" leem esses campos; saem `subtractDecimal`, `formatShare` e o `SPEC_DEVIATION` da tabela (DASH-03 AC3/5/8/10, DASH-04 AC1).
+**Where**: `frontend/lib/api.ts`, `frontend/lib/money.ts`, `frontend/components/dashboard/{CashflowChart,KpiCards,OpenDiscrepancyTable,ResolveDrawer,format}.tsx?`
+**Depends on**: T41
+**Reuses**: `formatMoney`, fixtures de T26–T32
+**Requirement**: DASH-03, DASH-04
+
+**Tools**:
+
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+
+- [ ] Tooltip mostra "Faltaram R$ 20,00" para `bankShortfallAmount` 20.00 e "Nada faltou" para 0.00 ou negativo
+- [ ] KPI mostra "3,04% do bruto" e "+6,2% vs ago" a partir dos campos; sem o campo, o rótulo some
+- [ ] Coluna "Diferença" e "Usar diferença" usam `netDifference` (fixture com valor que a subtração local não daria)
+- [ ] Nenhum `subtractDecimal`/divisão de valores no código de `components/` e `lib/` (exceto validação de zero do formulário)
+- [ ] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+
+**Tests**: unit
+**Gate**: full
+
+**Commit**: `refactor(frontend): display server-computed differences and percentages`
+
+---
+
 ## Phase Execution Map
 
 ```
@@ -1142,6 +1230,7 @@ Phase 5:  T23 → T24 → T25 → T26 → T27 → T28 → T29 → T30
 Phase 6:  T31 → T32 → T33
 Phase 7:  T34 → T35
 Phase 8:  T36 → T37 → T38 → T39   (executada entre a Phase 3 e a Phase 4)
+Phase 9:  T40 → T41 → T42
 ```
 
 ---
@@ -1164,6 +1253,9 @@ Phase 8:  T36 → T37 → T38 → T39   (executada entre a Phase 3 e a Phase 4)
 | T33 | Componentes de estado num único arquivo | ⚠️ Coeso |
 | T34 | Página + composição + remoção dos arquivos antigos | ⚠️ Coeso (wiring) |
 | T35 | 2 READMEs | ⚠️ Coeso |
+| T40 | Serviço + DTO + doc do mesmo contrato | ⚠️ Coeso (campo, cálculo e doc inseparáveis) |
+| T41 | DTO + mapper do mesmo campo | ⚠️ Coeso |
+| T42 | Leitura dos campos novos nos 4 pontos que os exibem | ⚠️ Coeso (remove a mesma aritmética local) |
 
 ---
 
@@ -1185,6 +1277,9 @@ Phase 8:  T36 → T37 → T38 → T39   (executada entre a Phase 3 e a Phase 4)
 | T32–T33 | anterior da fase | cadeia T31→T33 | ✅ Match |
 | T34 | None (ordem de fase) | início da Phase 7 | ✅ Match |
 | T35 | T34 | T34→T35 | ✅ Match |
+| T40 | None (ordem de fase) | início da Phase 9 | ✅ Match |
+| T41 | T40 | T40→T41 | ✅ Match |
+| T42 | T41 | T41→T42 | ✅ Match |
 
 ---
 
@@ -1213,3 +1308,6 @@ Phase 8:  T36 → T37 → T38 → T39   (executada entre a Phase 3 e a Phase 4)
 | T23–T33 | Componentes | unit | unit | ✅ OK |
 | T34 | Componente de página | unit | unit | ✅ OK |
 | T35 | Documentação | none | none | ✅ OK |
+| T40 | Service + DTO + OpenAPI | integration | integration | ✅ OK |
+| T41 | DTO exposto por controller | integration | integration | ✅ OK |
+| T42 | API client + componentes | unit | unit | ✅ OK |
