@@ -1,8 +1,22 @@
-import type { PeriodSummary } from '@/lib/api'
+import type { DiscrepancyType, PeriodSummary } from '@/lib/api'
 import { toCents } from '@/lib/money'
 import { MONTH_NAMES, formatWindow, monthWindow, type Window } from '@/lib/period'
 
 const MINUS = '−'
+
+export const TYPE_LABELS: Record<DiscrepancyType, string> = {
+  MISSING_SETTLEMENT: 'Liquidação ausente',
+  ORPHAN_SETTLEMENT: 'Liquidação órfã',
+  INCORRECT_AMOUNT: 'Valor bruto incorreto',
+  FEE_DIVERGENCE: 'Taxa divergente',
+  STATUS_MISMATCH: 'Status inconsistente',
+  PAYMENT_METHOD_MISMATCH: 'Método divergente',
+  INSTALLMENTS_MISMATCH: 'Parcelas divergentes',
+  BANK_AMOUNT_MISMATCH: 'Valor no banco divergente',
+  MISSING_BANK_CREDIT: 'Sem linha no extrato',
+  ORPHAN_BANK_CREDIT: 'Crédito sem venda',
+  AMBIGUOUS_BANK_MATCH: 'Extrato ambíguo',
+}
 
 /** A 0–1 decimal string (scale 4) in basis points, read as text so it never rounds through a float. */
 function basisPoints(rate: string): number {

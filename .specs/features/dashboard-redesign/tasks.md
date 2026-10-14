@@ -854,9 +854,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] DASH-03 AC6 coberto por teste
-- [ ] Zero abertas mostra anel vazio e "0 abertas"
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] DASH-03 AC6 coberto por teste
+- [x] Zero abertas mostra anel vazio e "0 abertas"
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
