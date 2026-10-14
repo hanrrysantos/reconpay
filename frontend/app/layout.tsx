@@ -1,6 +1,11 @@
 import type { Metadata } from 'next'
+import { IBM_Plex_Mono, Inter, Inter_Tight } from 'next/font/google'
 import { AuthProvider } from '@/lib/auth'
 import './globals.css'
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
+const interTight = Inter_Tight({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-inter-tight', display: 'swap' })
+const plexMono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-ibm-plex-mono', display: 'swap' })
 
 export const metadata: Metadata = {
   title: 'ReconPay · Conciliação financeira',
@@ -14,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR">
-      <body className="antialiased"><AuthProvider>{children}</AuthProvider></body>
+    <html lang="pt-BR" className={`${inter.variable} ${interTight.variable} ${plexMono.variable}`}>
+      <body className="bg-background font-sans text-foreground antialiased"><AuthProvider>{children}</AuthProvider></body>
     </html>
   )
 }

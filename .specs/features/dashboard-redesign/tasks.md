@@ -427,9 +427,9 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Nenhuma classe do CSS antigo (`.sidebar`, `.metric-card`…) permanece
-- [ ] Tokens acessíveis como utilitários (`bg-surface`, `text-muted`, `font-display`)
-- [ ] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Nenhuma classe do CSS antigo (`.sidebar`, `.metric-card`…) permanece
+- [x] Tokens acessíveis como utilitários (`bg-surface`, `text-muted`, `font-display`)
+- [x] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: none
 **Gate**: build
