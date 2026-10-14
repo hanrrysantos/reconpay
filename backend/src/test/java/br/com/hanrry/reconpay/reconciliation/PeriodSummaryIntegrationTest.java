@@ -137,6 +137,31 @@ class PeriodSummaryIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void orphanSettlementCreditStaysOutOfTheBankTotalSoItEqualsTheSumOfTheDays() throws Exception {
+        ReconciliationRunEntity current = runs.findById(currentRunId).orElseThrow();
+        item(current, "O1", null, ReconciliationResult.DIVERGENT, null, null, "30.00", "30.00",
+                DiscrepancyType.ORPHAN_SETTLEMENT, DiscrepancyStatus.OPEN);
+
+        String body = summary(adminToken, merchantId, FROM, TO)
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BigDecimal daysTotal = JsonPath.<java.util.List<Object>>read(body, "$.days[*].bankReceivedAmount").stream()
+                .map(value -> new BigDecimal(value.toString()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal total = new BigDecimal(JsonPath.read(body, "$.bankReceivedAmount").toString());
+        assertThat(daysTotal).isEqualByComparingTo("145.20");
+        assertThat(total).isEqualByComparingTo(daysTotal);
+        assertThat(body)
+                .contains("\"grossAmount\":160.65")
+                .contains("\"expectedNetAmount\":156.00")
+                .contains("\"feeAmount\":4.65")
+                .contains("\"feeAboveContractAmount\":0.99");
+    }
+
+    @Test
     void invalidWindowReturnsValidationError() throws Exception {
         summary(adminToken, merchantId, TO, FROM)
                 .andExpect(status().isBadRequest())
@@ -239,7 +264,7 @@ class PeriodSummaryIntegrationTest extends AbstractIntegrationTest {
         item.setReconciliationRun(run);
         item.setExternalReference(reference);
         item.setResult(result);
-        item.setTransactionDate(LocalDate.parse(saleDate));
+        item.setTransactionDate(saleDate == null ? null : LocalDate.parse(saleDate));
         item.setTransactionAmount(money(transaction));
         item.setExpectedNetAmount(money(expectedNet));
         item.setSettlementNetAmount(money(settledNet));

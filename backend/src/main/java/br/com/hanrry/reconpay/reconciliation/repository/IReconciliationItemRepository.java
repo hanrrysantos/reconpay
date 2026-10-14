@@ -38,15 +38,15 @@ public interface IReconciliationItemRepository extends
 
     /*
      * Orphan settlements carry no transaction amounts, so they drop out of
-     * the sale sums on their own while their bank credit still counts as
-     * received.
+     * the sale sums on their own; their bank credit is excluded too, so the
+     * received total matches the daily series keyed by sale date.
      */
     @Query("""
             SELECT new br.com.hanrry.reconpay.reconciliation.repository.RunSummaryTotals(
                 SUM(item.transactionAmount),
                 SUM(item.expectedNetAmount),
                 SUM(item.transactionAmount - item.expectedNetAmount),
-                SUM(item.bankAmount))
+                SUM(CASE WHEN item.transactionDate IS NOT NULL THEN item.bankAmount END))
             FROM ReconciliationItemEntity item
             WHERE item.reconciliationRun.id = :runId
             """)

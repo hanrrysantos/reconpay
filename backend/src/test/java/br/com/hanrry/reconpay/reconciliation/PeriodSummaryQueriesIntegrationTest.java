@@ -83,7 +83,8 @@ class PeriodSummaryQueriesIntegrationTest extends AbstractIntegrationTest {
         assertThat(totals.grossAmount()).isEqualByComparingTo("185.65");
         assertThat(totals.expectedNetAmount()).isEqualByComparingTo("180.20");
         assertThat(totals.feeAmount()).isEqualByComparingTo("5.45");
-        assertThat(totals.bankReceivedAmount()).isEqualByComparingTo("199.73");
+        // Orphan O1 (30.33) has no sale date, so it stays out like in the daily series.
+        assertThat(totals.bankReceivedAmount()).isEqualByComparingTo("169.40");
     }
 
     @Test

@@ -1065,9 +1065,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] Com uma liquidação órfã casada no extrato, `bankReceivedAmount` = Σ `days[].bankReceivedAmount`
-- [ ] Demais totais inalterados
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] Com uma liquidação órfã casada no extrato, `bankReceivedAmount` = Σ `days[].bankReceivedAmount`
+- [x] Demais totais inalterados
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full
