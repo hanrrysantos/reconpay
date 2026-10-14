@@ -1,4 +1,5 @@
 import type { PeriodSummary } from '@/lib/api'
+import { toCents } from '@/lib/money'
 import { MONTH_NAMES, formatWindow, monthWindow, type Window } from '@/lib/period'
 
 const MINUS = '−'
@@ -39,4 +40,18 @@ export const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.
 
 export function openCount(summary: Pick<PeriodSummary, 'openByType'>): number {
   return Object.values(summary.openByType).reduce<number>((total, count) => total + (count ?? 0), 0)
+}
+
+/** `part / whole` as a percentage with fixed decimals, computed in integer cents (AD-010); null when `whole` is zero. */
+export function formatShare(part: string, whole: string, decimals: number, { signed = false } = {}): string | null {
+  const p = toCents(part)
+  const w = toCents(whole)
+  if (w === BigInt(0)) return null
+  const abs = (value: bigint) => (value < BigInt(0) ? -value : value)
+  const numerator = abs(p) * BigInt(100) * BigInt(`1${'0'.repeat(decimals)}`)
+  const rounded = (BigInt(2) * numerator + abs(w)) / (BigInt(2) * abs(w))
+  const negative = rounded > BigInt(0) && (p < BigInt(0)) !== (w < BigInt(0))
+  const digits = rounded.toString().padStart(decimals + 1, '0')
+  const text = decimals ? `${digits.slice(0, -decimals)},${digits.slice(-decimals)}` : digits
+  return `${negative ? MINUS : signed ? '+' : ''}${text}%`
 }

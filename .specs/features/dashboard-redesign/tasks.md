@@ -802,9 +802,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] DASH-03 AC2, AC3 e AC8 cobertos por teste
-- [ ] Nenhum número sem origem na resposta (DASH-06 AC7)
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] DASH-03 AC2, AC3 e AC8 cobertos por teste
+- [x] Nenhum número sem origem na resposta (DASH-06 AC7)
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick

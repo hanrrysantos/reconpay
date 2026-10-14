@@ -13,7 +13,7 @@ export function formatMoney(value: string, { currency = true, signed = false }: 
   return `${sign}${currency ? 'R$ ' : ''}${digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${fraction}`
 }
 
-function toCents(value: string | null): bigint {
+export function toCents(value: string | null): bigint {
   if (value === null) return BigInt(0)
   const match = DECIMAL.exec(value)
   if (!match) throw new Error(`Valor decimal inválido: ${value}`)
