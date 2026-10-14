@@ -1011,9 +1011,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] Fluxos do frontend descrevem o dashboard novo e as rotas vazias
-- [ ] Endpoints novos listados no README raiz
-- [ ] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Fluxos do frontend descrevem o dashboard novo e as rotas vazias
+- [x] Endpoints novos listados no README raiz
+- [x] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: none
 **Gate**: build

@@ -270,16 +270,16 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| DASH-01 | P1: Casca, tema e rotas | Tasks | In Tasks |
+| DASH-01 | P1: Casca, tema e rotas | Execute | Implementing |
 | DASH-02 | P1: Período e cabeçalho de fechamento | Execute | Implementing |
 | DASH-03 | P1: Indicadores do período | Execute | Implementing |
 | DASH-04 | P1: Divergências abertas e gaveta de resolução | Execute | Implementing |
 | DASH-05 | P1: Run de conciliação | Execute | Implementing |
 | DASH-06 | P1: Estados da tela | Execute | Implementing |
 | DASH-07 | P2: Trava, destrava e exportação | Execute | Implementing |
-| DASH-08 | P1: Resumo do período no backend | Tasks | In Tasks |
-| DASH-09 | P1: Divergências abertas ordenadas no backend | Tasks | In Tasks |
-| DASH-10 | P2: Progresso do run no backend | Tasks | In Tasks |
+| DASH-08 | P1: Resumo do período no backend | Execute | Implementing |
+| DASH-09 | P1: Divergências abertas ordenadas no backend | Execute | Implementing |
+| DASH-10 | P2: Progresso do run no backend | Execute | Implementing |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 

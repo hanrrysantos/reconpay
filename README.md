@@ -207,6 +207,17 @@ Faça login (`POST /api/auth/login`), copie o token e use **Authorize** no Swagg
 
 A conciliação é assíncrona: o POST devolve `202 Accepted` e o `Location` aponta para o GET da execução.
 
+### Endpoints usados pelo dashboard
+
+Todos ficam sob `/api/merchants/{merchantId}` e seguem as mesmas regras de acesso (OPERATOR com grant ou ADMIN).
+
+| Endpoint | O que devolve |
+| :--- | :--- |
+| `GET /periods/summary?fromDate&toDate` | Resumo do run vigente da janela: bruto, líquido esperado, taxas, taxa acima do contrato, total que caiu no banco, abertas por tipo, um registro por dia da janela e os comparativos (taxa do run anterior, bruto do período anterior). Dinheiro com duas casas. `400` janela inválida, `404` sem run vigente, `409` run em andamento. |
+| `GET /reconciliations/{runId}/items?discrepancyStatus=OPEN&sort=absDifference,desc` | Items com ao menos uma divergência no status pedido, da maior diferença absoluta (`settlementNetAmount − expectedNetAmount`, lado ausente vale zero) para a menor. Combina com `result` e `discrepancyType`; status inválido responde `400`. |
+| `GET /reconciliations/{runId}` | O run ganha `processedItems`: nulo em `PENDING`, cresce durante `RUNNING` sem passar de `totalItems` e fica igual a ele em `COMPLETED`. |
+| `GET /bank-statements/imports` | Imports de extrato paginados, mais recente primeiro (`id`, `fileName`, `totalRows`, `createdAt`). |
+
 ---
 
 ## Segurança
@@ -233,7 +244,7 @@ CORS em `dev` libera origens em `reconpay.cors.allowed-origins` (incluindo `http
 
 ## Frontend
 
-O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. O login, cadastro, seleção de merchant e transações recentes usam a API. Os indicadores agregados aguardam os endpoints do dashboard e aparecem sem valores fictícios.
+O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. O dashboard em `/` lê o fechamento da janela, resolve divergências, roda a conciliação, trava e exporta, sempre com dados da API.
 
 ---
 

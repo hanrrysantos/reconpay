@@ -1,6 +1,6 @@
 # Frontend ReconPay
 
-Next.js 16, React 19, TypeScript, Tailwind CSS e o estilo shadcn do protótipo v0. Tudo do aplicativo web fica nesta pasta.
+Next.js 16, React 19, TypeScript e Tailwind CSS 4 com o tema "Lima" (tokens em `app/globals.css`). TanStack Query busca e mantém os dados da API. Gráficos são SVG próprio, sem biblioteca. Tudo do aplicativo web fica nesta pasta.
 
 ## Rodar localmente
 
@@ -18,9 +18,24 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
 ## Fluxos disponíveis
 
 - Cadastro e login; após o cadastro, a verificação de email abre o link servido pela API.
-- Sessão JWT apenas em memória: atualizar a página pede novo login.
-- Perfil, lista de merchants acessíveis e cinco transações recentes do merchant escolhido.
-- Indicadores, gráfico e saúde das fontes aparecem sem valores até existir um contrato de API para esses dados.
+- Sessão JWT apenas em memória: atualizar a página pede novo login. Qualquer `401` encerra a sessão e volta ao login. "Sair" fica na barra superior.
+- Barra superior com Visão geral, Conciliações, Divergências, Transações, Importações e Fechamento, e o menu de empresa (busca por nome ou CNPJ, "Cadastrar empresa").
+- Dashboard em `/`:
+  - abre na janela do run mais recente da empresa; sem run, no mês atual com os três passos (liquidação, extrato, conciliar);
+  - menu de período com meses ("Sem run", "Aberto", travado) e intervalo personalizado; janela inválida mostra a mensagem da API e mantém a anterior;
+  - régua de fechamento Importado → Conciliado → Zerar divergências → Travar período;
+  - taxa de conciliação, valor em aberto, bruto, taxas, gráfico esperado × recebido no banco, divergências por tipo e conciliação por dia, todos vindos de `/periods` e `/periods/summary`;
+  - tabela das 4 divergências abertas de maior diferença, com filtro por tipo e gaveta de resolução (aceitar, ajustar com valor, baixar, reabrir; `J`/`K` navegam, `Esc` fecha);
+  - "Conciliar período" acompanha o run a cada 3 s e recarrega os blocos ao concluir; run com falha mostra a mensagem, o id e "Rodar de novo";
+  - travar, destravar e "Exportar relatório" (CSV do run);
+  - estados de carregamento, sem empresa, sem acesso, erro de um bloco e erro de rede ("Tentar de novo").
+- `/conciliacoes`, `/divergencias`, `/transacoes`, `/importacoes`, `/fechamento` e `/empresas` mostram a barra e "em construção", sem chamar a API.
+
+## Dependências
+
+- `@tanstack/react-query`: cache, polling do run e invalidação após cada ação.
+- `lossless-json`: mantém decimais como texto; dinheiro nunca passa por `number`.
+- Testes: Vitest (`*.test.ts` em node, `*.test.tsx` em jsdom), Testing Library (`react`, `user-event`, `jest-dom`).
 
 ## Verificação
 
