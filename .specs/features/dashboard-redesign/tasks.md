@@ -931,9 +931,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] DASH-04 AC3–AC12 cobertos por teste (incluindo submit bloqueado e mensagem do 409)
-- [ ] Foco preso na gaveta e `Esc` fecha
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] DASH-04 AC3–AC12 cobertos por teste (incluindo submit bloqueado e mensagem do 409)
+- [x] Foco preso na gaveta e `Esc` fecha
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
