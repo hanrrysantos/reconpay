@@ -1118,9 +1118,9 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] Função devolve `createdAt` do import mais recente ou null sem imports
-- [ ] Hook de imports (T18) entrega os dois horários (liquidação e extrato)
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] Função devolve `createdAt` do import mais recente ou null sem imports
+- [x] Hook de imports (T18) entrega os dois horários (liquidação e extrato)
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick

@@ -2,7 +2,7 @@
 
 import { MutationCache, QueryCache, QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  ApiError, exportRunCsv, getDiscrepancy, getLatestBankStatementLine, getLatestSettlementImport, getOpenDiscrepancies,
+  ApiError, exportRunCsv, getDiscrepancy, getLatestBankStatementImportTime, getLatestSettlementImport, getOpenDiscrepancies,
   getPeriod, getPeriodSummary, getRuns, lockPeriod, runReconciliation, unlockPeriod, updateDiscrepancy,
   type DiscrepancyType, type DiscrepancyUpdate, type Run,
 } from './api'
@@ -120,11 +120,11 @@ export function useLatestImports(merchantId: string | null) {
   return useQuery({
     queryKey: queryKeys.imports(merchantId ?? ''),
     queryFn: async () => {
-      const [settlement, bankLine] = await Promise.all([
+      const [settlement, bankStatementImportedAt] = await Promise.all([
         getLatestSettlementImport(token!, merchantId!),
-        getLatestBankStatementLine(token!, merchantId!),
+        getLatestBankStatementImportTime(token!, merchantId!),
       ])
-      return { settlement, bankLine }
+      return { settlementImportedAt: settlement?.createdAt ?? null, bankStatementImportedAt }
     },
     enabled: Boolean(token && merchantId),
   })

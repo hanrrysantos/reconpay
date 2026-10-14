@@ -148,15 +148,6 @@ export type DiscrepancyUpdate = { status: DiscrepancyStatus; note?: string; corr
 
 export type SettlementImport = { id: string; merchantId: string; fileName: string; totalRows: number; createdAt: string }
 
-export type BankStatementLine = {
-  id: string
-  lineReference: string
-  externalReference: string | null
-  amount: string
-  movementDate: string
-  importId: string
-}
-
 /** Fields the API serializes as BigDecimal; an integral value (e.g. `0`) is still kept as text. */
 const DECIMAL_FIELDS = new Set([
   'amount', 'transactionAmount', 'expectedNetAmount', 'settlementAmount', 'settlementNetAmount', 'settledNetAmount',
@@ -327,10 +318,10 @@ export async function getLatestSettlementImport(token: string, merchantId: strin
   return page.content[0] ?? null
 }
 
-/** The API has no bank statement import list; the most recently created line stands for the latest import. */
-export async function getLatestBankStatementLine(token: string, merchantId: string): Promise<BankStatementLine | null> {
-  const page = await request<Page<BankStatementLine>>(`${merchantPath(merchantId)}/bank-statements?size=1&sort=createdAt%2Cdesc`, {}, token)
-  return page.content[0] ?? null
+/** Time the latest bank statement import was created; null when the merchant has none. */
+export async function getLatestBankStatementImportTime(token: string, merchantId: string): Promise<string | null> {
+  const page = await request<Page<{ createdAt: string }>>(`${merchantPath(merchantId)}/bank-statements/imports?size=1&sort=createdAt%2Cdesc`, {}, token)
+  return page.content[0]?.createdAt ?? null
 }
 
 export async function exportRunCsv(token: string, merchantId: string, runId: string): Promise<Blob> {

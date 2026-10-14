@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as api from './api'
 import { ApiError, type Period, type Run } from './api'
 import {
-  createQueryClient, useLatestRun, useLockPeriod, usePeriod, usePeriodSummary, useResolveDiscrepancy,
+  createQueryClient, useLatestImports, useLatestRun, useLockPeriod, usePeriod, usePeriodSummary, useResolveDiscrepancy,
   useRunReconciliation, useUnlockPeriod,
 } from './queries'
 
@@ -15,6 +15,8 @@ vi.mock('./api', async importOriginal => {
   return {
     ...original,
     getRuns: vi.fn(),
+    getLatestSettlementImport: vi.fn(),
+    getLatestBankStatementImportTime: vi.fn(),
     getPeriod: vi.fn(),
     getPeriodSummary: vi.fn(),
     updateDiscrepancy: vi.fn(),
@@ -92,6 +94,30 @@ describe('useLatestRun', () => {
 
     rerender({ window: { fromDate: '2026-07-01', toDate: '2026-07-31' } })
     await waitFor(() => expect(result.current.data).toBeNull())
+  })
+})
+
+describe('useLatestImports', () => {
+  it('entrega o horário do último import de liquidação e do último import de extrato', async () => {
+    vi.mocked(api.getLatestSettlementImport).mockResolvedValue({
+      id: 'imp-1', merchantId: 'm-1', fileName: 'set.csv', totalRows: 10, createdAt: '2026-10-05T09:42:00Z',
+    })
+    vi.mocked(api.getLatestBankStatementImportTime).mockResolvedValue('2026-10-06T18:10:00Z')
+    const { result } = renderHook(() => useLatestImports('m-1'), { wrapper })
+
+    await waitFor(() => expect(result.current.data).toEqual({
+      settlementImportedAt: '2026-10-05T09:42:00Z', bankStatementImportedAt: '2026-10-06T18:10:00Z',
+    }))
+    expect(api.getLatestSettlementImport).toHaveBeenCalledWith('jwt', 'm-1')
+    expect(api.getLatestBankStatementImportTime).toHaveBeenCalledWith('jwt', 'm-1')
+  })
+
+  it('entrega null para o tipo de arquivo que ainda não foi importado', async () => {
+    vi.mocked(api.getLatestSettlementImport).mockResolvedValue(null)
+    vi.mocked(api.getLatestBankStatementImportTime).mockResolvedValue(null)
+    const { result } = renderHook(() => useLatestImports('m-1'), { wrapper })
+
+    await waitFor(() => expect(result.current.data).toEqual({ settlementImportedAt: null, bankStatementImportedAt: null }))
   })
 })
 

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
-  ApiError, exportRunCsv, getDiscrepancy, getLatestBankStatementLine, getLatestSettlementImport, getOpenDiscrepancies,
+  ApiError, exportRunCsv, getDiscrepancy, getLatestBankStatementImportTime, getLatestSettlementImport, getOpenDiscrepancies,
   getPeriod, getPeriodSummary, getRun, getRuns, lockPeriod, runReconciliation, unlockPeriod, updateDiscrepancy,
 } from './api'
 
@@ -140,13 +140,13 @@ describe('importações e exportação', () => {
     await expect(getLatestSettlementImport('jwt', 'm-1')).resolves.toBeNull()
   })
 
-  it('lê a última linha de extrato importada ou null', async () => {
-    let fetcher = stubFetch('{"content":[{"id":"l-1","amount":1478.00,"movementDate":"2026-09-30","importId":"bi-1"}],"totalPages":9}')
-    await expect(getLatestBankStatementLine('jwt', 'm-1')).resolves.toEqual({ id: 'l-1', amount: '1478.00', movementDate: '2026-09-30', importId: 'bi-1' })
-    expect(call(fetcher)).toMatchObject({ url: `${base}/bank-statements?size=1&sort=createdAt%2Cdesc`, auth: 'Bearer jwt' })
+  it('lê o horário do último import de extrato ou null', async () => {
+    let fetcher = stubFetch('{"content":[{"id":"bi-1","merchantId":"m-1","fileName":"extrato.csv","totalRows":9,"createdAt":"2026-10-06T18:10:00Z"}],"totalPages":3}')
+    await expect(getLatestBankStatementImportTime('jwt', 'm-1')).resolves.toBe('2026-10-06T18:10:00Z')
+    expect(call(fetcher)).toMatchObject({ url: `${base}/bank-statements/imports?size=1&sort=createdAt%2Cdesc`, method: 'GET', auth: 'Bearer jwt' })
 
     fetcher = stubFetch('{"content":[],"totalPages":0}')
-    await expect(getLatestBankStatementLine('jwt', 'm-1')).resolves.toBeNull()
+    await expect(getLatestBankStatementImportTime('jwt', 'm-1')).resolves.toBeNull()
   })
 
   it('baixa o CSV do run como blob com o token da sessão', async () => {
