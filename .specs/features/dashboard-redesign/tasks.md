@@ -533,10 +533,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Cada função monta URL, método e corpo esperados (PATCH: `correctionAmount` como string decimal, nota em branco omitida)
-- [ ] Decimais chegam como string
-- [ ] Erros 401/403/404/409 e rede viram `ApiError` com status
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] Cada função monta URL, método e corpo esperados (PATCH: `correctionAmount` como string decimal, nota em branco omitida)
+- [x] Decimais chegam como string
+- [x] Erros 401/403/404/409 e rede viram `ApiError` com status
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
