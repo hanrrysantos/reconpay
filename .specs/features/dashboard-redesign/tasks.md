@@ -159,9 +159,9 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Valores ficam visíveis para outra transação antes do commit do processor
-- [ ] `processedItems` nunca é gravado acima de `totalItems`
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] Valores ficam visíveis para outra transação antes do commit do processor
+- [x] `processedItems` nunca é gravado acima de `totalItems`
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full

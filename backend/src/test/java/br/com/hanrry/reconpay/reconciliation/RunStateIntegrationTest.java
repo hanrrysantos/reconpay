@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -52,5 +53,42 @@ class RunStateIntegrationTest extends AbstractIntegrationTest {
         assertThat(failed.getStatus()).isEqualTo(ReconciliationRunStatus.FAILED);
         assertThat(failed.getErrorMessage()).isEqualTo("Não foi possível concluir a conciliação.");
         assertThat(failed.getFinishedAt()).isNotNull();
+    }
+
+    @Test void progressIsVisibleToOtherTransactionsBeforeTheCallerCommitsAndNeverExceedsTotal() {
+        var merchant = new MerchantEntity();
+        merchant.setName("Progress run");
+        merchant.setDocument(UUID.randomUUID().toString().replace("-", "").substring(0, 14));
+        merchant.setActive(true);
+        merchant = merchants.saveAndFlush(merchant);
+        var run = new ReconciliationRunEntity();
+        run.setMerchant(merchant);
+        run.setFromDate(LocalDate.of(2026, 2, 1));
+        run.setToDate(LocalDate.of(2026, 2, 2));
+        run.setTotalItems(0); run.setMatchedCount(0); run.setDivergentCount(0);
+        UUID id = runs.saveAndFlush(run).getId();
+        assertThat(runs.findById(id).orElseThrow().getProcessedItems()).isNull();
+
+        var reader = new TransactionTemplate(transactions);
+        reader.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        new TransactionTemplate(transactions).executeWithoutResult(tx -> {
+            state.recordTotal(id, 10);
+            var afterTotal = reader.execute(status -> runs.findById(id).orElseThrow());
+            assertThat(afterTotal.getTotalItems()).isEqualTo(10);
+            assertThat(afterTotal.getProcessedItems()).isZero();
+
+            state.recordProgress(id, 4);
+            assertThat(reader.<Integer>execute(status -> runs.findById(id).orElseThrow().getProcessedItems()))
+                    .isEqualTo(4);
+
+            state.recordProgress(id, 15);
+            assertThat(reader.<Integer>execute(status -> runs.findById(id).orElseThrow().getProcessedItems()))
+                    .isEqualTo(10);
+            tx.setRollbackOnly();
+        });
+
+        var persisted = runs.findById(id).orElseThrow();
+        assertThat(persisted.getTotalItems()).isEqualTo(10);
+        assertThat(persisted.getProcessedItems()).isEqualTo(10);
     }
 }

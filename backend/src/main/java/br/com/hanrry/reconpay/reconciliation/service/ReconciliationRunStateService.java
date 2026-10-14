@@ -28,6 +28,18 @@ public class ReconciliationRunStateService {
         repository.failRunning(runId, Instant.now(clock), "Não foi possível concluir a conciliação.");
     }
 
+    /*
+     * The processor writes items in one long transaction; progress goes through
+     * these separate commits so pollers see it before that transaction ends.
+     */
+    public void recordTotal(UUID runId, int total) {
+        repository.recordTotal(runId, total);
+    }
+
+    public void recordProgress(UUID runId, int processed) {
+        repository.recordProgress(runId, processed);
+    }
+
     public void recoverInterruptedRuns() {
         repository.recoverRunning();
     }
