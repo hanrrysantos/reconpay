@@ -1291,10 +1291,10 @@ T43 → T44 → T45 → T46 → T47
 
 **Done when**:
 
-- [ ] Destravar faz POST `/periods/unlock` com `fromDate`/`toDate` e nenhum POST `/lock`
-- [ ] Após a resposta, a página mostra o período aberto
-- [ ] 409 no unlock mostra o erro e recarrega o período
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] Destravar faz POST `/periods/unlock` com `fromDate`/`toDate` e nenhum POST `/lock`
+- [x] Após a resposta, a página mostra o período aberto
+- [x] 409 no unlock mostra o erro e recarrega o período
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick

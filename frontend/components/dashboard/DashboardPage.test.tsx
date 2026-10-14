@@ -27,6 +27,7 @@ let server: {
   patch: () => Reply
   postRun: () => Reply
   lock: () => Reply
+  unlock: () => Reply
 }
 let calls: Call[]
 
@@ -47,7 +48,7 @@ function route(method: string, path: string, search: URLSearchParams, body: unkn
   if (tail === 'periods') return resolve(server.period(merchantId, search))
   if (tail === 'periods/summary') return resolve(server.summary())
   if (tail === 'periods/lock') return resolve(server.lock())
-  if (tail === 'periods/unlock') return json(makePeriod())
+  if (tail === 'periods/unlock') return resolve(server.unlock())
   if (tail.endsWith('/items')) return json(page(server.items()))
   if (tail.includes('/discrepancies/')) return method === 'PATCH' ? resolve(server.patch()) : json(server.detail())
   if (tail.endsWith('/export')) return new Response('externalReference;result\nPED-1;MATCHED\n', { headers: { 'Content-Type': 'text/csv' } })
@@ -69,6 +70,7 @@ beforeEach(() => {
     patch: () => json(makeDetail({ status: 'ACCEPTED' })),
     postRun: () => json(makeRun({ id: 'run-10', status: 'PENDING', processedItems: null })),
     lock: () => json(makePeriod({ locked: true, lockedAt: '2026-10-14T10:00:00Z' })),
+    unlock: () => json(makePeriod()),
   }
   vi.stubGlobal('fetch', vi.fn(async (input: string, init: RequestInit = {}) => {
     const url = new URL(input)
@@ -249,6 +251,37 @@ describe('DashboardPage', () => {
 
     expect(await screen.findByText('O período tem divergências abertas.')).toBeInTheDocument()
     await waitFor(() => expect(requests('GET', '/periods').length).toBeGreaterThan(periodGets))
+  })
+
+  it('destravar envia só o unlock com a janela e volta ao estado aberto (DASH-07 AC3)', async () => {
+    server.period = () => json(makePeriod({ locked: true }))
+    server.summary = () => json(makeSummary({ openByType: {} }))
+    const user = renderPage()
+    await screen.findByRole('heading', { name: 'Setembro fechado em 94,2%' })
+    server.period = () => json(makePeriod())
+    await user.click(screen.getByRole('button', { name: 'Destravar' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Destravar' }))
+
+    await waitFor(() => expect(requests('POST', '/periods/unlock')).toHaveLength(1))
+    expect(requests('POST', '/periods/unlock')[0].body).toEqual({ fromDate: '2026-09-01', toDate: '2026-09-30' })
+    expect(requests('POST', '/periods/lock')).toHaveLength(0)
+    expect(await screen.findByRole('heading', { name: 'Setembro sem divergências abertas' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Conciliar período' })).toBeEnabled()
+  })
+
+  it('409 no unlock mostra a mensagem da API e recarrega o período (DASH-07 AC4)', async () => {
+    server.period = () => json(makePeriod({ locked: true }))
+    server.summary = () => json(makeSummary({ openByType: {} }))
+    server.unlock = () => fail(409, 'O período já está aberto.')
+    const user = renderPage()
+    await screen.findByRole('heading', { name: 'Setembro fechado em 94,2%' })
+    const periodGets = requests('GET', '/periods').length
+    await user.click(screen.getByRole('button', { name: 'Destravar' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Destravar' }))
+
+    expect(await screen.findByText('O período já está aberto.')).toBeInTheDocument()
+    await waitFor(() => expect(requests('GET', '/periods').length).toBeGreaterThan(periodGets))
+    expect(requests('POST', '/periods/lock')).toHaveLength(0)
   })
 
   it('exportar baixa o CSV do run com o token da sessão (DASH-07 AC6)', async () => {
