@@ -373,10 +373,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] OPERATOR com grant e ADMIN recebem 200 com o contrato do design
-- [ ] 400 janela inválida, 401 sem token, 403 OPERATOR sem grant, 404 sem run vigente, 409 run em andamento
-- [ ] Operação aparece no `/v3/api-docs` com exemplo e textos em português
-- [ ] Gate passa: `cd backend && ./mvnw -B verify` (JaCoCo dentro do limite)
+- [x] OPERATOR com grant e ADMIN recebem 200 com o contrato do design
+- [x] 400 janela inválida, 401 sem token, 403 OPERATOR sem grant, 404 sem run vigente, 409 run em andamento
+- [x] Operação aparece no `/v3/api-docs` com exemplo e textos em português
+- [x] Gate passa: `cd backend && ./mvnw -B verify` (JaCoCo dentro do limite)
 
 **Tests**: integration
 **Gate**: full

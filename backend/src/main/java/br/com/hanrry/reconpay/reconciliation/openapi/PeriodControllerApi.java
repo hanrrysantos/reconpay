@@ -8,6 +8,7 @@ import br.com.hanrry.reconpay.openapi.ApiValidationErrorResponse;
 import br.com.hanrry.reconpay.openapi.OpenApiSecuritySchemes;
 import br.com.hanrry.reconpay.openapi.OpenApiTags;
 import br.com.hanrry.reconpay.reconciliation.dto.PeriodResponseDTO;
+import br.com.hanrry.reconpay.reconciliation.dto.PeriodSummaryResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.PeriodWindowRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -89,6 +90,79 @@ public interface PeriodControllerApi {
             @Parameter(description = "Início da janela, inclusivo", example = "2026-07-01")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @Parameter(description = "Fim da janela, inclusivo", example = "2026-07-15")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate);
+
+    String SUMMARY_JSON = """
+            {
+              "runId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              "fromDate": "2026-07-01",
+              "toDate": "2026-07-02",
+              "grossAmount": 150.55,
+              "expectedNetAmount": 146.19,
+              "feeAmount": 4.36,
+              "feeAboveContractAmount": 0.99,
+              "bankReceivedAmount": 145.20,
+              "openByType": {
+                "FEE_DIVERGENCE": 1
+              },
+              "days": [
+                {
+                  "date": "2026-07-01",
+                  "expectedNetAmount": 146.19,
+                  "settledNetAmount": 145.20,
+                  "bankReceivedAmount": 145.20,
+                  "itemCount": 2,
+                  "matchedCount": 1
+                },
+                {
+                  "date": "2026-07-02",
+                  "expectedNetAmount": 0.00,
+                  "settledNetAmount": 0.00,
+                  "bankReceivedAmount": 0.00,
+                  "itemCount": 0,
+                  "matchedCount": 0
+                }
+              ],
+              "previousRunMatchRate": 0.5000,
+              "previousWindowGrossAmount": 120.00
+            }
+            """;
+
+    @Operation(
+            summary = "Resumo do período",
+            description = """
+                    Soma o run concluído vigente da janela exata: vendido bruto, líquido esperado, \
+                    taxa, taxa acima do contrato e valor recebido no banco. \
+                    Traz as divergências em aberto por tipo e um dia por data da janela, \
+                    inclusive dias sem venda, com contagens zeradas. \
+                    Os valores do banco vêm nulos quando o run não registrou o extrato. \
+                    previousRunMatchRate é a taxa do run anterior da mesma janela; \
+                    previousWindowGrossAmount é o vendido da janela anterior de mesmo tamanho; \
+                    ambos vêm nulos quando não existem. \
+                    Responde 404 quando o merchant está inativo ou não há run concluído vigente, \
+                    e 409 quando há conciliação pendente ou em execução."""
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Resumo da janela, com totais em duas casas decimais e a série diária",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = PeriodSummaryResponseDTO.class),
+                    examples = @ExampleObject(name = "resumo", value = SUMMARY_JSON)
+            )
+    )
+    @ApiValidationErrorResponse
+    @ApiUnauthenticatedResponse
+    @ApiForbiddenResponse
+    @ApiNotFoundResponse
+    @ApiConflictResponse
+    @GetMapping("/summary")
+    ResponseEntity<PeriodSummaryResponseDTO> summary(
+            @Parameter(description = "Identificador do merchant. O id vem da resposta de criação ou da listagem.", example = ID_EXAMPLE)
+            @PathVariable UUID merchantId,
+            @Parameter(description = "Início da janela, inclusivo", example = "2026-07-01")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @Parameter(description = "Fim da janela, inclusivo", example = "2026-07-02")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate);
 
     @Operation(

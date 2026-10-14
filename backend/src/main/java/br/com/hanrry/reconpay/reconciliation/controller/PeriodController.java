@@ -1,9 +1,11 @@
 package br.com.hanrry.reconpay.reconciliation.controller;
 
 import br.com.hanrry.reconpay.reconciliation.dto.PeriodResponseDTO;
+import br.com.hanrry.reconpay.reconciliation.dto.PeriodSummaryResponseDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.PeriodWindowRequestDTO;
 import br.com.hanrry.reconpay.reconciliation.openapi.PeriodControllerApi;
 import br.com.hanrry.reconpay.reconciliation.service.PeriodService;
+import br.com.hanrry.reconpay.reconciliation.service.PeriodSummaryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class PeriodController implements PeriodControllerApi {
 
     private final PeriodService periodService;
+    private final PeriodSummaryService periodSummaryService;
 
     @Override
     public ResponseEntity<PeriodResponseDTO> get(
@@ -28,6 +31,14 @@ public class PeriodController implements PeriodControllerApi {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
         return ResponseEntity.ok(periodService.get(merchantId, fromDate, toDate));
+    }
+
+    @Override
+    public ResponseEntity<PeriodSummaryResponseDTO> summary(
+            @PathVariable UUID merchantId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
+        return ResponseEntity.ok(periodSummaryService.summarize(merchantId, fromDate, toDate));
     }
 
     @Override

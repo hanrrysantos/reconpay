@@ -708,6 +708,38 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void periodSummaryDocumentsTheContractInPortuguese() throws Exception {
+        JsonNode document = apiDocs();
+        String summary = "/api/merchants/{merchantId}/periods/summary";
+
+        assertOperation(document, new Op(
+                "get", summary,
+                Set.of("200", "400", "401", "403", "404", "409"),
+                true, null, Map.of(),
+                "200",
+                List.of("runId", "fromDate", "toDate", "grossAmount", "expectedNetAmount", "feeAmount",
+                        "feeAboveContractAmount", "bankReceivedAmount", "openByType", "days",
+                        "previousRunMatchRate", "previousWindowGrossAmount"),
+                false, Set.of(), Set.of(),
+                List.of("run concluído vigente", "taxa acima do contrato", "um dia por data da janela",
+                        "nulos", "janela anterior de mesmo tamanho")
+        ));
+        assertQueryExample(document, "get", summary, "fromDate", "2026-07-01");
+        assertQueryExample(document, "get", summary, "toDate", "2026-07-02");
+        assertOperationTag(document, "get", summary, "Reconciliations");
+        assertResponseDescriptionContains(document, "get", summary, "200", "duas casas decimais");
+
+        JsonNode example = examples(document.path("paths").path(summary).path("get")
+                .path("responses").path("200").path("content").path("application/json")).getFirst();
+        JsonNode day = example.path("days").path(0);
+        for (String field : List.of(
+                "date", "expectedNetAmount", "settledNetAmount", "bankReceivedAmount", "itemCount", "matchedCount")) {
+            assertThat(day.hasNonNull(field)).as("days[0].%s", field).isTrue();
+        }
+        assertThat(example.path("openByType").path("FEE_DIVERGENCE").asInt()).isEqualTo(1);
+    }
+
+    @Test
     void periodEndpointsDocumentTheResponseTable() throws Exception {
         JsonNode document = apiDocs();
         List<String> periodFields = List.of(
