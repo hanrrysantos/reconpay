@@ -983,11 +983,11 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] Abre na janela do run mais recente; sem run, no mês atual vazio (DASH-02 AC1–AC2)
-- [ ] Run que chega a `COMPLETED` recarrega período, resumo e divergências (DASH-05 AC4)
-- [ ] Fluxos com fetch simulado: resolver, rodar (até `COMPLETED`), 409 no run, travar, exportar, erro de um bloco, erro de rede
-- [ ] Nenhum teste antigo apagado sem equivalente migrado
-- [ ] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Abre na janela do run mais recente; sem run, no mês atual vazio (DASH-02 AC1–AC2)
+- [x] Run que chega a `COMPLETED` recarrega período, resumo e divergências (DASH-05 AC4)
+- [x] Fluxos com fetch simulado: resolver, rodar (até `COMPLETED`), 409 no run, travar, exportar, erro de um bloco, erro de rede
+- [x] Nenhum teste antigo apagado sem equivalente migrado
+- [x] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: unit
 **Gate**: build

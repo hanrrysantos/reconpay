@@ -1,10 +1,12 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { TopNav } from './TopNav'
 
 const navigation = vi.hoisted(() => ({ pathname: '/' }))
 vi.mock('next/navigation', () => ({ usePathname: () => navigation.pathname }))
-vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: { name: 'Ana Souza' } }) }))
+const signOut = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: { name: 'Ana Souza' }, signOut }) }))
 
 const ITEMS: Array<[string, string]> = [
   ['Visão geral', '/'],
@@ -54,5 +56,11 @@ describe('TopNav', () => {
     render(<TopNav merchantSwitcher={<button>Empresa X</button>} />)
 
     expect(screen.getByRole('button', { name: 'Empresa X' })).toBeInTheDocument()
+  })
+
+  it('"Sair" encerra a sessão (migrado do dashboard antigo)', async () => {
+    render(<TopNav />)
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Sair' }))
+    expect(signOut).toHaveBeenCalledOnce()
   })
 })

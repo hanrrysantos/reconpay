@@ -1,6 +1,6 @@
 'use client'
 
-import { Check } from 'lucide-react'
+import { Check, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
@@ -27,7 +27,7 @@ function initials(name: string): string {
 /** Product navigation; the notification bell is out of scope (no data source). */
 export function TopNav({ merchantSwitcher }: { merchantSwitcher?: ReactNode }) {
   const pathname = usePathname()
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
 
   return (
     <header className="flex min-h-10 items-center gap-6">
@@ -71,6 +71,10 @@ export function TopNav({ merchantSwitcher }: { merchantSwitcher?: ReactNode }) {
             {initials(user.name)}
           </span>
         )}
+        {/* Ending the session clears the token; AppShell then redirects to /login. */}
+        <button type="button" aria-label="Sair" onClick={signOut} className="grid size-10 place-items-center rounded-full bg-surface">
+          <LogOut aria-hidden="true" className="size-4" />
+        </button>
       </div>
     </header>
   )
