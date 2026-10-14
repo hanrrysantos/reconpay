@@ -84,11 +84,11 @@
 
 ## Handoff
 
-- **Feature**: organização do backend em `backend/` — **Complete** (`verify` e Docker build passaram)
-- **Phase / Task**: none
-- **Completed**: Next.js base e validação em `.specs/features/frontend-base/`; backend movido com 419 testes, JaCoCo e imagem Docker validados
+- **Feature**: dashboard-redesign (direção Lima) — **Verified** (`validation.md` iteração 2: PASS)
+- **Phase / Task**: T1–T47 concluídas; Verifier PASS em `63f4df6..f62d60c`
+- **Completed**: backend `GET /periods/summary` (totais, série diária, falta por dia, percentuais, `resolvedCount`), `netDifference` e filtro/ordem dos items, progresso do run, listagem de imports de extrato; frontend com tema Lima, TanStack Query, blocos em SVG, gaveta de resolução, estados e rotas vazias. Backend 489 testes, frontend 239.
 - **In-progress** (file:line): none
-- **Next step**: integrate aggregated dashboard endpoints once their contract is available; then implement the remaining workflow screens
+- **Next step**: conferência visual no navegador; push de `feat/dashboard-redesign` e PR (pelo usuário). Opcional: teste para DASH-01 AC1 (tokens do tema) e as notas cosméticas do `validation.md` (sparkline do bruto usa líquido; célula de diferença sempre vermelha).
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: main
+- **Branch**: feat/dashboard-redesign

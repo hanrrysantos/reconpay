@@ -278,16 +278,16 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| DASH-01 | P1: Casca, tema e rotas | Execute | Implementing |
-| DASH-02 | P1: Período e cabeçalho de fechamento | Execute | Implementing |
-| DASH-03 | P1: Indicadores do período | Execute | Implementing |
-| DASH-04 | P1: Divergências abertas e gaveta de resolução | Execute | Implementing |
-| DASH-05 | P1: Run de conciliação | Execute | Implementing |
-| DASH-06 | P1: Estados da tela | Execute | Implementing |
-| DASH-07 | P2: Trava, destrava e exportação | Execute | Implementing |
-| DASH-08 | P1: Resumo do período no backend | Execute | Implementing |
-| DASH-09 | P1: Divergências abertas ordenadas no backend | Execute | Implementing |
-| DASH-10 | P2: Progresso do run no backend | Execute | Implementing |
+| DASH-01 | P1: Casca, tema e rotas | Verify | Verified |
+| DASH-02 | P1: Período e cabeçalho de fechamento | Verify | Verified |
+| DASH-03 | P1: Indicadores do período | Verify | Verified |
+| DASH-04 | P1: Divergências abertas e gaveta de resolução | Verify | Verified |
+| DASH-05 | P1: Run de conciliação | Verify | Verified |
+| DASH-06 | P1: Estados da tela | Verify | Verified |
+| DASH-07 | P2: Trava, destrava e exportação | Verify | Verified |
+| DASH-08 | P1: Resumo do período no backend | Verify | Verified |
+| DASH-09 | P1: Divergências abertas ordenadas no backend | Verify | Verified |
+| DASH-10 | P2: Progresso do run no backend | Verify | Verified |
 
 **Coverage:** 10 total, 10 mapped to tasks, 0 unmapped
 
@@ -295,6 +295,6 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 
 ## Success Criteria
 
-- [ ] `corepack pnpm test`, `typecheck` e `build` passam no frontend; `./mvnw verify` passa no backend com o gate JaCoCo.
-- [ ] Nenhum valor numérico do dashboard vem de constante no código.
-- [ ] Cada artboard Lima (principal, 5 estados, 2 interações) tem estado correspondente demonstrável na aplicação.
+- [x] `corepack pnpm test`, `typecheck` e `build` passam no frontend; `./mvnw verify` passa no backend com o gate JaCoCo.
+- [x] Nenhum valor numérico do dashboard vem de constante no código.
+- [ ] Cada artboard Lima (principal, 5 estados, 2 interações) tem estado correspondente demonstrável na aplicação. (Estados cobertos por testes; conferência visual no navegador pendente com o usuário.)
