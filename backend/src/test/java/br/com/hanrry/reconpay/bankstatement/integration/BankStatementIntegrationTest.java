@@ -392,6 +392,78 @@ class BankStatementIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.content[0].externalReference").value("TXN-ADMIN"));
     }
 
+    @Test
+    void operatorWithGrantAndAdminListOnlyThatMerchantsImportsNewestFirst() throws Exception {
+        String firstId = importNamed(merchantId, "primeiro.csv", "LN-FIRST-" + UUID.randomUUID(), 2);
+        String secondId = importNamed(merchantId, "segundo.csv", "LN-SECOND-" + UUID.randomUUID(), 1);
+        String otherMerchantId = createMerchant("Merchant Outros Imports");
+        importNamed(otherMerchantId, "outro.csv", "LN-OTHER-" + UUID.randomUUID(), 1);
+
+        for (String token : List.of(operatorToken, adminToken)) {
+            mockMvc.perform(get("/api/merchants/{merchantId}/bank-statements/imports", merchantId)
+                            .header("Authorization", "Bearer " + token))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalElements").value(2))
+                    .andExpect(jsonPath("$.content[0].id").value(secondId))
+                    .andExpect(jsonPath("$.content[0].merchantId").value(merchantId))
+                    .andExpect(jsonPath("$.content[0].fileName").value("segundo.csv"))
+                    .andExpect(jsonPath("$.content[0].totalRows").value(1))
+                    .andExpect(jsonPath("$.content[0].createdAt").isNotEmpty())
+                    .andExpect(jsonPath("$.content[1].id").value(firstId))
+                    .andExpect(jsonPath("$.content[1].fileName").value("primeiro.csv"))
+                    .andExpect(jsonPath("$.content[1].totalRows").value(2));
+        }
+
+        mockMvc.perform(get("/api/merchants/{merchantId}/bank-statements/imports", merchantId)
+                        .header("Authorization", "Bearer " + operatorToken)
+                        .param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(secondId));
+    }
+
+    @Test
+    void listingImportsWithoutTokenReturns401() throws Exception {
+        mockMvc.perform(get("/api/merchants/{merchantId}/bank-statements/imports", merchantId))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error").value("UNAUTHORIZED"));
+    }
+
+    @Test
+    void operatorWithoutGrantCannotListImports() throws Exception {
+        String ungrantedMerchantId = createMerchant("Merchant Imports Sem Grant");
+
+        mockMvc.perform(get("/api/merchants/{merchantId}/bank-statements/imports", ungrantedMerchantId)
+                        .header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("FORBIDDEN"));
+    }
+
+    @Test
+    void listingImportsOfUnknownMerchantReturns404() throws Exception {
+        mockMvc.perform(get("/api/merchants/{merchantId}/bank-statements/imports", UUID.randomUUID())
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("NOT_FOUND"));
+    }
+
+    private String importNamed(String targetMerchantId, String fileName, String referencePrefix, int rows)
+            throws Exception {
+        StringBuilder csv = new StringBuilder("lineReference,externalReference,amount,movementDate\n");
+        for (int row = 0; row < rows; row++) {
+            csv.append(referencePrefix).append('-').append(row).append(",,10.00,2026-07-30\n");
+        }
+        String response = mockMvc.perform(multipart("/api/merchants/{merchantId}/bank-statements/import", targetMerchantId)
+                        .file(new MockMultipartFile(
+                                "file", fileName, "text/csv", csv.toString().getBytes(StandardCharsets.UTF_8)))
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        return com.jayway.jsonpath.JsonPath.read(response, "$.id");
+    }
+
     private String createMerchant(String name) throws Exception {
         String uniqueDocument = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
 

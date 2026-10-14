@@ -45,4 +45,11 @@ public class BankStatementController implements BankStatementControllerApi {
                 .toUri();
         return ResponseEntity.created(uri).body(importResult);
     }
+
+    @Override
+    public ResponseEntity<Page<BankStatementImportResponseDTO>> findAllImports(
+            @PathVariable UUID merchantId,
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(bankStatementService.findAllImports(merchantId, pageable));
+    }
 }

@@ -1091,10 +1091,10 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] OPERATOR com grant e ADMIN recebem 200 com os imports do merchant, mais recente primeiro
-- [ ] 401 sem token, 403 OPERATOR sem grant, 404 merchant inexistente (mesmos códigos do endpoint de imports de liquidação)
-- [ ] Operação no `/v3/api-docs` com exemplo e textos em português
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] OPERATOR com grant e ADMIN recebem 200 com os imports do merchant, mais recente primeiro
+- [x] 401 sem token, 403 OPERATOR sem grant, 404 merchant inexistente (mesmos códigos do endpoint de imports de liquidação)
+- [x] Operação no `/v3/api-docs` com exemplo e textos em português
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full

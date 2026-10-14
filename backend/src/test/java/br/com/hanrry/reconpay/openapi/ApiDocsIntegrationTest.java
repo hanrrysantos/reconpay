@@ -558,6 +558,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         List<String> idOrigin = List.of("criação", "listagem");
         String list = "/api/merchants/{merchantId}/bank-statements";
         String importCsv = "/api/merchants/{merchantId}/bank-statements/import";
+        String imports = "/api/merchants/{merchantId}/bank-statements/imports";
         String csvHeader = "lineReference,externalReference,amount,movementDate";
 
         assertOperation(document, new Op(
@@ -583,6 +584,16 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         assertErrorDetails(document, "post", importCsv, "400", "rowErrors");
         assertErrorDetails(document, "post", importCsv, "409", "conflictingReferences");
         assertOperationTag(document, "post", importCsv, "Bank Statements");
+        assertOperation(document, new Op(
+                "get", imports,
+                Set.of("200", "400", "401", "403", "404"),
+                true, null, Map.of(),
+                "200", importFields, true, Set.of(), Set.of(), idOrigin
+        ));
+        assertQueryExample(document, "get", imports, "page", "0");
+        assertQueryExample(document, "get", imports, "size", "20");
+        assertQueryExample(document, "get", imports, "sort", "createdAt,desc");
+        assertOperationTag(document, "get", imports, "Bank Statements");
 
         assertNoMappingAnnotations(
                 BankStatementController.class,
