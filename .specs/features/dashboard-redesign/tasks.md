@@ -506,10 +506,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] `ringDash('0.9420', 439.8)` = `414.3 439.8`; taxa 0 e 1 nos extremos
-- [ ] `gapPolygon` fecha o polígono entre as duas séries
-- [ ] `heatBand` cobre as cinco faixas e `empty` para dia sem item
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] `ringDash('0.9420', 439.8)` = `414.3 439.8`; taxa 0 e 1 nos extremos
+- [x] `gapPolygon` fecha o polígono entre as duas séries
+- [x] `heatBand` cobre as cinco faixas e `empty` para dia sem item
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
