@@ -1,4 +1,4 @@
-# ReconPay
+# ReconPay [![ci](https://github.com/hanrrysantos/reconpay/actions/workflows/ci.yml/badge.svg)](https://github.com/hanrrysantos/reconpay/actions/workflows/ci.yml) [![cd](https://github.com/hanrrysantos/reconpay/actions/workflows/deploy-prod.yml/badge.svg)](https://github.com/hanrrysantos/reconpay/actions/workflows/deploy-prod.yml)
 
 ![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
