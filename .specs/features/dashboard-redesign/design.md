@@ -76,7 +76,7 @@ graph TD
 - **Purpose**: fontes, tema e providers.
 - **Location**: `frontend/app/layout.tsx`, `frontend/app/providers.tsx`
 - **Interfaces**: `<Providers>{children}</Providers>` = `QueryClientProvider` + `AuthProvider`.
-- **Details**: `next/font/google` carrega Inter, Inter Tight e IBM Plex Mono como variáveis CSS. `globals.css` passa a conter só `@import 'tailwindcss'` + `@theme` de `design-reference.md`. `QueryClient` com `retry: false` para 4xx, `refetchOnWindowFocus: false`.
+- **Details**: `next/font/local` carrega Inter, Inter Tight e IBM Plex Mono (arquivos latin dos pacotes `@fontsource`) como variáveis CSS. `globals.css` passa a conter só `@import 'tailwindcss'` + `@theme` de `design-reference.md`. `QueryClient` com `retry: false` para 4xx, `refetchOnWindowFocus: false`.
 
 ### AppShell (rotas autenticadas)
 
@@ -268,7 +268,7 @@ type DashboardView =
 | O processor grava tudo numa transação; progresso não seria visível | `backend/.../service/ReconciliationRunProcessor.java:65-120` | Progresso sempre nulo até o fim | `REQUIRES_NEW` por `UPDATE` JPQL; `save` final fixa `processedItems = totalItems` para não ser sobrescrito pela entidade em memória |
 | Filtro por tipo usa `join` + `distinct` | `backend/.../repository/ReconciliationItemSpecifications.java:35` | `ORDER BY abs(...)` com `DISTINCT` falha no PostgreSQL | Trocar por `EXISTS`; teste de integração cobre filtro + ordem juntos |
 | Casamento com o extrato não é persistido | `backend/.../service/BankStatementMatcher.java` | Resumo não saberia o valor recebido | Colunas novas em V23; runs antigos com `bankTracked=false` devolvem banco nulo |
-| `next/font/google` baixa fontes no build | `frontend/app/layout.tsx` | Build offline falha | CI tem rede; se faltar, trocar por `next/font/local` com os arquivos no repo |
+| `next/font/google` baixa fontes no build | `frontend/app/layout.tsx` | Build falha quando o Google Fonts responde diferente (ocorreu na CI do PR) | Resolvido: `next/font/local` com arquivos `@fontsource` fixados no lockfile; o build não usa rede |
 | Testes atuais renderizam com `renderToStaticMarkup` em ambiente node | `frontend/components/dashboard.test.ts:3` | Interações (gaveta, teclado, menus) ficam sem teste | Adicionar `jsdom`, `@testing-library/react` e `@testing-library/user-event` como devDependencies |
 | `dashboard.tsx` e `app/page.tsx` são removidos | `frontend/components/dashboard.tsx`, `frontend/app/page.tsx` | Testes existentes quebram | Os testes de formatação migram para `lib/money.test.ts`; os de estado vazio viram testes de `deriveDashboardView` |
 | Volume do resumo em janelas longas | agregação por dia | Janela de 366 dias = 366 registros | Aceitável; agregação é SQL, não carrega items |
@@ -282,7 +282,7 @@ type DashboardView =
 | Camada de dados do frontend | TanStack Query v5 | Escolha do usuário; polling, invalidação e chave por empresa/janela |
 | Gráficos | SVG à mão com funções puras de geometria | Escolha do usuário; testável sem DOM |
 | Testes de interação | Vitest + jsdom + Testing Library | Gaveta, menus e teclado precisam de eventos |
-| Fontes | `next/font/google` | Sem arquivos binários no repo; self-host automático |
+| Fontes | `next/font/local` + `@fontsource` | Sem arquivos binários no repo e sem rede no build; versões fixadas no lockfile |
 | Valor do banco por item | Colunas em `reconciliation_items` + `bank_tracked` no run | Escolha do usuário; resumo por SQL |
 | Ordem por diferença | Propriedade de ordenação virtual `absDifference` | Mantém o contrato paginado existente |
 | Rotas | Grupo `app/(app)` com layout autenticado | Shell compartilhado entre dashboard e stubs sem afetar `/login` |
