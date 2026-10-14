@@ -13,8 +13,9 @@ describe('MatchRingCard', () => {
     expect(arc(container)).toHaveAttribute('stroke-dasharray', '414.3 439.8')
     expect(screen.getByTestId('ring-value')).toHaveTextContent('94,2%')
     expect(count('bateram')).toHaveTextContent('1.209')
-    expect(count('divergentes')).toHaveTextContent('75')
+    expect(count('resolvidas')).toHaveTextContent('63')
     expect(count('abertas')).toHaveTextContent('12')
+    expect(screen.queryByText('divergentes')).not.toBeInTheDocument()
     expect(screen.getByText('1.209 de 1.284 itens conciliados')).toBeInTheDocument()
   })
 
@@ -37,8 +38,9 @@ describe('MatchRingCard', () => {
     expect(screen.getByText('0 de 0 itens conciliados')).toBeInTheDocument()
   })
 
-  it('sem resumo não inventa a contagem de abertas (DASH-06 AC7)', () => {
+  it('sem resumo não inventa as contagens de resolvidas e abertas (DASH-06 AC7)', () => {
     render(<MatchRingCard period={makePeriod()} summary={undefined} run={makeRun()} />)
+    expect(count('resolvidas')).toHaveTextContent('—')
     expect(count('abertas')).toHaveTextContent('—')
   })
 

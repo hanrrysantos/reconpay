@@ -23,7 +23,7 @@ export function makeSummary(overrides: Partial<PeriodSummary> = {}): PeriodSumma
   return {
     runId: 'run-9', ...september, grossAmount: '125000.00', expectedNetAmount: '121212.50', feeAmount: '3787.50',
     feeAboveContractAmount: '35.50', bankReceivedAmount: '110823.12',
-    openByType: { MISSING_SETTLEMENT: 7, FEE_DIVERGENCE: 5 }, days: [],
+    openByType: { MISSING_SETTLEMENT: 7, FEE_DIVERGENCE: 5 }, resolvedCount: 63, days: [],
     previousRunMatchRate: null, previousWindowGrossAmount: null, feePercent: '3.03', previousWindowGrossChangePercent: null,
     ...overrides,
   }

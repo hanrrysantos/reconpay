@@ -32,11 +32,7 @@ function Stat({ value, label, className }: { value: string; label: string; class
   )
 }
 
-/**
- * Match ring of the window. Running runs show progress instead.
- * SPEC_DEVIATION: DASH-03 AC1 asks for a "resolvidas" count, but no response carries it; the card shows
- * the period's divergent item count instead of deriving a number (DASH-06 AC7).
- */
+/** Match ring of the window. Running runs show progress instead. */
 export function MatchRingCard({ period, summary, run }: { period: Period | undefined; summary: PeriodSummary | undefined; run: Run | null | undefined }) {
   const running = run?.status === 'PENDING' || run?.status === 'RUNNING'
 
@@ -82,7 +78,7 @@ export function MatchRingCard({ period, summary, run }: { period: Period | undef
         </Ring>
         <div className="flex flex-col gap-3">
           <Stat value={count(period.matchedCount)} label="bateram" />
-          <Stat value={count(period.divergentCount)} label="divergentes" />
+          <Stat value={summary ? count(summary.resolvedCount) : '—'} label="resolvidas" />
           <Stat value={open === null ? '—' : count(open)} label="abertas" className="text-[#FF7A7E]" />
         </div>
       </div>

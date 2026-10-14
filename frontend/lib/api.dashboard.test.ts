@@ -67,7 +67,7 @@ describe('período', () => {
 
   it('lê o resumo da janela sem arredondar valores nem contagens', async () => {
     const fetcher = stubFetch('{"runId":"r-1","grossAmount":12345678901234567.89,"feeAmount":1003.40,"bankReceivedAmount":null,'
-      + '"openByType":{"MISSING_SETTLEMENT":3},"days":[{"date":"2026-09-01","expectedNetAmount":15060.00,"settledNetAmount":13582.00,'
+      + '"openByType":{"MISSING_SETTLEMENT":3},"resolvedCount":2,"days":[{"date":"2026-09-01","expectedNetAmount":15060.00,"settledNetAmount":13582.00,'
       + '"bankReceivedAmount":null,"bankShortfallAmount":null,"itemCount":40,"matchedCount":38},{"date":"2026-09-02",'
       + '"expectedNetAmount":100.00,"settledNetAmount":100.00,"bankReceivedAmount":120.00,"bankShortfallAmount":-20.00,'
       + '"itemCount":1,"matchedCount":1}],"previousRunMatchRate":0.9240,"previousWindowGrossAmount":null,'
@@ -80,6 +80,7 @@ describe('período', () => {
       feeAmount: '1003.40',
       bankReceivedAmount: null,
       openByType: { MISSING_SETTLEMENT: 3 },
+      resolvedCount: 2,
       days: [
         { date: '2026-09-01', expectedNetAmount: '15060.00', settledNetAmount: '13582.00', bankReceivedAmount: null, bankShortfallAmount: null, itemCount: 40, matchedCount: 38 },
         { date: '2026-09-02', expectedNetAmount: '100.00', settledNetAmount: '100.00', bankReceivedAmount: '120.00', bankShortfallAmount: '-20.00', itemCount: 1, matchedCount: 1 },

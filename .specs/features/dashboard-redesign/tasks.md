@@ -1265,9 +1265,9 @@ T43 → T44 → T45 → T46 → T47
 
 **Done when**:
 
-- [ ] Com `resolvedCount` 5, o card mostra "5 resolvidas" e não mostra "divergentes"
-- [ ] Sem resumo, "resolvidas" mostra "—" (DASH-06 AC7)
-- [ ] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] Com `resolvedCount` 5, o card mostra "5 resolvidas" e não mostra "divergentes"
+- [x] Sem resumo, "resolvidas" mostra "—" (DASH-06 AC7)
+- [x] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: quick

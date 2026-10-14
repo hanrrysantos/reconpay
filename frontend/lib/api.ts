@@ -96,6 +96,8 @@ export type PeriodSummary = {
   feeAboveContractAmount: string
   bankReceivedAmount: string | null
   openByType: Partial<Record<DiscrepancyType, number>>
+  /** Discrepancies of the run already ACCEPTED, ADJUSTED or WRITTEN_OFF. */
+  resolvedCount: number
   days: PeriodSummaryDay[]
   previousRunMatchRate: string | null
   previousWindowGrossAmount: string | null
