@@ -724,10 +724,10 @@ T36 → T37 → T38 → T39
 
 **Done when**:
 
-- [ ] Manchete "Faltam N divergências para fechar <mês>" com N da soma de `openByType`
-- [ ] Travado: "<Mês> fechado em X%" e "Exportar relatório"
-- [ ] Rodando: ação desabilitada "Conciliando…"
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] Manchete "Faltam N divergências para fechar <mês>" com N da soma de `openByType`
+- [x] Travado: "<Mês> fechado em X%" e "Exportar relatório"
+- [x] Rodando: ação desabilitada "Conciliando…"
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
