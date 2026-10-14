@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,4 +35,55 @@ public interface IReconciliationItemRepository extends
             ORDER BY item.externalReference ASC
             """)
     List<ReconciliationItemEntity> findAllWithDiscrepanciesByIdIn(@Param("ids") List<UUID> ids);
+
+    /*
+     * Orphan settlements carry no transaction amounts, so they drop out of
+     * the sale sums on their own while their bank credit still counts as
+     * received.
+     */
+    @Query("""
+            SELECT new br.com.hanrry.reconpay.reconciliation.repository.RunSummaryTotals(
+                SUM(item.transactionAmount),
+                SUM(item.expectedNetAmount),
+                SUM(item.transactionAmount - item.expectedNetAmount),
+                SUM(item.bankAmount))
+            FROM ReconciliationItemEntity item
+            WHERE item.reconciliationRun.id = :runId
+            """)
+    RunSummaryTotals sumRunTotals(@Param("runId") UUID runId);
+
+    /*
+     * Settled net short of the expected net, only where the engine flagged
+     * a fee divergence; a settlement above the expected net counts as zero.
+     */
+    @Query("""
+            SELECT SUM(CASE WHEN item.expectedNetAmount > item.settlementNetAmount
+                            THEN item.expectedNetAmount - item.settlementNetAmount
+                            ELSE 0 END)
+            FROM ReconciliationItemEntity item
+            WHERE item.reconciliationRun.id = :runId
+              AND EXISTS (
+                  SELECT discrepancy.id FROM ReconciliationDiscrepancyEntity discrepancy
+                  WHERE discrepancy.reconciliationItem = item
+                    AND discrepancy.type = br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType.FEE_DIVERGENCE)
+            """)
+    BigDecimal sumFeeAboveContract(@Param("runId") UUID runId);
+
+    /* Days without items are absent; orphan settlements have no sale date. */
+    @Query("""
+            SELECT new br.com.hanrry.reconpay.reconciliation.repository.DailySummaryRow(
+                item.transactionDate,
+                SUM(item.expectedNetAmount),
+                SUM(item.settlementNetAmount),
+                SUM(item.bankAmount),
+                COUNT(item),
+                SUM(CASE WHEN item.result = br.com.hanrry.reconpay.reconciliation.enums.ReconciliationResult.MATCHED
+                         THEN 1 ELSE 0 END))
+            FROM ReconciliationItemEntity item
+            WHERE item.reconciliationRun.id = :runId
+              AND item.transactionDate IS NOT NULL
+            GROUP BY item.transactionDate
+            ORDER BY item.transactionDate
+            """)
+    List<DailySummaryRow> sumByTransactionDate(@Param("runId") UUID runId);
 }

@@ -319,10 +319,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Totais e série batem com fixture conhecida, inclusive valores com centavos
-- [ ] Liquidação órfã (sem `transactionDate`) fica fora da série e dos totais de venda
-- [ ] Abertas por tipo contam só status `OPEN` do run pedido
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] Totais e série batem com fixture conhecida, inclusive valores com centavos
+- [x] Liquidação órfã (sem `transactionDate`) fica fora da série e dos totais de venda
+- [x] Abertas por tipo contam só status `OPEN` do run pedido
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full
