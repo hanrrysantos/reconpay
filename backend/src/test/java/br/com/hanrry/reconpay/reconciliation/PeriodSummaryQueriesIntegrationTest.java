@@ -25,7 +25,9 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import static br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus.ACCEPTED;
+import static br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus.ADJUSTED;
 import static br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus.OPEN;
+import static br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus.WRITTEN_OFF;
 import static br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType.BANK_AMOUNT_MISMATCH;
 import static br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType.FEE_DIVERGENCE;
 import static br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyType.MISSING_SETTLEMENT;
@@ -53,10 +55,11 @@ class PeriodSummaryQueriesIntegrationTest extends AbstractIntegrationTest {
 
     private UUID runId;
     private UUID emptyRunId;
+    private MerchantEntity merchant;
 
     @BeforeEach
     void seed() {
-        MerchantEntity merchant = new MerchantEntity();
+        merchant = new MerchantEntity();
         merchant.setName("Summary queries merchant");
         merchant.setDocument(UUID.randomUUID().toString().replace("-", "").substring(0, 14));
         merchant = merchants.saveAndFlush(merchant);
@@ -107,6 +110,21 @@ class PeriodSummaryQueriesIntegrationTest extends AbstractIntegrationTest {
                 new DiscrepancyTypeCount(BANK_AMOUNT_MISMATCH, 1),
                 new DiscrepancyTypeCount(MISSING_SETTLEMENT, 1),
                 new DiscrepancyTypeCount(ORPHAN_SETTLEMENT, 1));
+    }
+
+    @Test
+    void resolvedCountsEveryNonOpenStatusOfTheRequestedRunOnly() {
+        ReconciliationRunEntity resolvedRun = run(merchant, LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 3));
+        item(resolvedRun, "A1", "2026-07-01", DIVERGENT, "1.00", "1.00", "0.90", "0.90", FEE_DIVERGENCE, ACCEPTED);
+        item(resolvedRun, "A2", "2026-07-01", DIVERGENT, "1.00", "1.00", "0.90", "0.90", FEE_DIVERGENCE, ADJUSTED);
+        item(resolvedRun, "A3", "2026-07-02", DIVERGENT, "1.00", "1.00", "0.90", "0.90", FEE_DIVERGENCE, WRITTEN_OFF);
+        item(resolvedRun, "A4", "2026-07-02", DIVERGENT, "1.00", "1.00", "0.90", "0.90", FEE_DIVERGENCE, OPEN);
+        item(resolvedRun, "A5", "2026-07-03", DIVERGENT, "1.00", "1.00", null, null, MISSING_SETTLEMENT, OPEN);
+
+        assertThat(discrepancies.countResolved(resolvedRun.getId())).isEqualTo(3);
+        // The fixture run holds one ACCEPTED (S4); the other run's OPEN discrepancy does not count.
+        assertThat(discrepancies.countResolved(runId)).isEqualTo(1);
+        assertThat(discrepancies.countResolved(emptyRunId)).isZero();
     }
 
     @Test

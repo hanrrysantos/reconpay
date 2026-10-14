@@ -99,6 +99,7 @@ class PeriodSummaryIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.openByType.FEE_DIVERGENCE").value(1))
                 .andExpect(jsonPath("$.openByType.MISSING_SETTLEMENT").value(1))
                 .andExpect(jsonPath("$.openByType.length()").value(2))
+                .andExpect(jsonPath("$.resolvedCount").value(0))
                 .andExpect(jsonPath("$.days.length()").value(3))
                 .andExpect(jsonPath("$.days[0].date").value("2026-06-01"))
                 .andExpect(jsonPath("$.days[0].itemCount").value(2))

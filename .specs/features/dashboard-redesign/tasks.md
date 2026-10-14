@@ -1238,10 +1238,10 @@ T43 → T44 → T45 → T46 → T47
 
 **Done when**:
 
-- [ ] Run com 1 `ACCEPTED`, 1 `ADJUSTED`, 1 `WRITTEN_OFF` e 2 `OPEN` → `resolvedCount` 3 (integração do repositório)
-- [ ] Run sem divergências → 0
-- [ ] Endpoint devolve o campo e o `/v3/api-docs` o documenta
-- [ ] Gate passa: `cd backend && ./mvnw -B verify`
+- [x] Run com 1 `ACCEPTED`, 1 `ADJUSTED`, 1 `WRITTEN_OFF` e 2 `OPEN` → `resolvedCount` 3 (integração do repositório)
+- [x] Run sem divergências → 0
+- [x] Endpoint devolve o campo e o `/v3/api-docs` o documenta
+- [x] Gate passa: `cd backend && ./mvnw -B verify`
 
 **Tests**: integration
 **Gate**: full

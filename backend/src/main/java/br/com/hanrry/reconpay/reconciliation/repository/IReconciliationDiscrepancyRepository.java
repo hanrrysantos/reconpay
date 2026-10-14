@@ -40,4 +40,13 @@ public interface IReconciliationDiscrepancyRepository extends JpaRepository<Reco
             GROUP BY discrepancy.type
             """)
     List<DiscrepancyTypeCount> countOpenByType(@Param("runId") UUID runId);
+
+    /* Resolved = any outcome other than OPEN: ACCEPTED, ADJUSTED or WRITTEN_OFF. */
+    @Query("""
+            SELECT COUNT(discrepancy)
+            FROM ReconciliationDiscrepancyEntity discrepancy
+            WHERE discrepancy.reconciliationItem.reconciliationRun.id = :runId
+              AND discrepancy.status <> br.com.hanrry.reconpay.reconciliation.enums.DiscrepancyStatus.OPEN
+            """)
+    long countResolved(@Param("runId") UUID runId);
 }

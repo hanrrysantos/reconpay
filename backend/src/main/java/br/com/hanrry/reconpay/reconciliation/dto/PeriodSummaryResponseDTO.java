@@ -18,6 +18,7 @@ public record PeriodSummaryResponseDTO(
         BigDecimal feeAboveContractAmount,
         BigDecimal bankReceivedAmount,
         Map<DiscrepancyType, Long> openByType,
+        long resolvedCount,
         List<Day> days,
         BigDecimal previousRunMatchRate,
         BigDecimal previousWindowGrossAmount,

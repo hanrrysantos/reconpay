@@ -730,12 +730,13 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 true, null, Map.of(),
                 "200",
                 List.of("runId", "fromDate", "toDate", "grossAmount", "expectedNetAmount", "feeAmount",
-                        "feeAboveContractAmount", "bankReceivedAmount", "openByType", "days",
+                        "feeAboveContractAmount", "bankReceivedAmount", "openByType", "resolvedCount", "days",
                         "previousRunMatchRate", "previousWindowGrossAmount", "feePercent",
                         "previousWindowGrossChangePercent"),
                 false, Set.of(), Set.of(),
                 List.of("run concluído vigente", "taxa acima do contrato", "um dia por data da janela",
                         "nulos", "janela anterior de mesmo tamanho", "negativo quando o banco recebeu mais",
+                        "aceitas, ajustadas ou baixadas",
                         "pontos percentuais")
         ));
         assertQueryExample(document, "get", summary, "fromDate", "2026-07-01");
@@ -752,6 +753,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             assertThat(day.hasNonNull(field)).as("days[0].%s", field).isTrue();
         }
         assertThat(example.path("openByType").path("FEE_DIVERGENCE").asInt()).isEqualTo(1);
+        assertThat(example.path("resolvedCount").asLong()).isEqualTo(3);
         assertThat(example.path("feePercent").decimalValue()).isEqualByComparingTo("2.90");
         assertThat(example.path("previousWindowGrossChangePercent").decimalValue()).isEqualByComparingTo("25.5");
     }

@@ -67,6 +67,7 @@ public class PeriodSummaryService {
                 money(itemRepository.sumFeeAboveContract(run.getId())),
                 bankTracked ? money(totals.bankReceivedAmount()) : null,
                 openByType(run.getId()),
+                discrepancyRepository.countResolved(run.getId()),
                 days(run.getId(), fromDate, toDate, bankTracked),
                 previousRunMatchRate(merchantId, fromDate, toDate),
                 previousGrossAmount,

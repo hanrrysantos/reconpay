@@ -105,6 +105,7 @@ public interface PeriodControllerApi {
               "openByType": {
                 "FEE_DIVERGENCE": 1
               },
+              "resolvedCount": 3,
               "days": [
                 {
                   "date": "2026-07-01",
@@ -137,7 +138,8 @@ public interface PeriodControllerApi {
             description = """
                     Soma o run concluído vigente da janela exata: vendido bruto, líquido esperado, \
                     taxa, taxa acima do contrato e valor recebido no banco. \
-                    Traz as divergências em aberto por tipo e um dia por data da janela, \
+                    Traz as divergências em aberto por tipo, resolvedCount com as divergências \
+                    aceitas, ajustadas ou baixadas, e um dia por data da janela, \
                     inclusive dias sem venda, com contagens zeradas. \
                     Os valores do banco vêm nulos quando o run não registrou o extrato. \
                     previousRunMatchRate é a taxa do run anterior da mesma janela; \

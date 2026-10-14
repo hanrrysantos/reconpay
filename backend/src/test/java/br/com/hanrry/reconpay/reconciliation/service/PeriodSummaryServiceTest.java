@@ -84,6 +84,7 @@ class PeriodSummaryServiceTest {
         when(discrepancyRepository.countOpenByType(run.getId())).thenReturn(List.of(
                 new DiscrepancyTypeCount(DiscrepancyType.MISSING_SETTLEMENT, 1),
                 new DiscrepancyTypeCount(DiscrepancyType.FEE_DIVERGENCE, 3)));
+        when(discrepancyRepository.countResolved(run.getId())).thenReturn(4L);
         ReconciliationRunEntity superseded = run(FROM, TO, 4, 3);
         when(runRepository
                 .findFirstByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNotNullOrderBySupersededAtDescCreatedAtDesc(
@@ -109,6 +110,7 @@ class PeriodSummaryServiceTest {
         assertThat(summary.openByType()).containsExactlyInAnyOrderEntriesOf(Map.of(
                 DiscrepancyType.MISSING_SETTLEMENT, 1L,
                 DiscrepancyType.FEE_DIVERGENCE, 3L));
+        assertThat(summary.resolvedCount()).isEqualTo(4);
         assertThat(summary.days()).containsExactly(
                 new Day(FROM, new BigDecimal("146.19"), new BigDecimal("145.20"), new BigDecimal("145.20"),
                         new BigDecimal("0.99"), 2, 1),
