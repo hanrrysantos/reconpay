@@ -12,6 +12,7 @@ import {
   Wallet,
   Zap,
 } from 'lucide-react'
+import { formatMoney } from '@/lib/money'
 
 export type DashboardProps = {
   user: { name: string; email: string; role: string }
@@ -59,10 +60,7 @@ function initials(value: string) {
 }
 
 export function formatAmount(value: string) {
-  const match = /^(-?)(\d+)(?:\.(\d{1,2}))?$/.exec(value)
-  if (!match) return `R$ ${value}`
-  const [, sign, whole, cents = ''] = match
-  return `${sign}R$ ${whole.replace(/\B(?=(\d{3})+(?!\d))/g, '.').replace(/^0+(?=\d)/, '')},${cents.padEnd(2, '0')}`
+  return formatMoney(value)
 }
 
 function formatDate(value: string) {

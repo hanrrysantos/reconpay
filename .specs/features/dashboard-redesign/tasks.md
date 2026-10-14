@@ -453,10 +453,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] `R$ 10.389,38`, `−4.870,00` (U+2212) e valor sem `R$` formatados como na referência
-- [ ] Valor acima de 13 dígitos sem arredondar (edge case)
-- [ ] `subtractDecimal('1297.03','2287.13') = '-990.10'`; lado nulo vale zero
-- [ ] Gate passa: `cd frontend && corepack pnpm test`
+- [x] `R$ 10.389,38`, `−4.870,00` (U+2212) e valor sem `R$` formatados como na referência
+- [x] Valor acima de 13 dígitos sem arredondar (edge case)
+- [x] `subtractDecimal('1297.03','2287.13') = '-990.10'`; lado nulo vale zero
+- [x] Gate passa: `cd frontend && corepack pnpm test`
 
 **Tests**: unit
 **Gate**: quick
