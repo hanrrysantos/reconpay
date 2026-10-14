@@ -292,10 +292,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Datas invertidas e janela acima de `max-window-days` lançam a exceção que vira 400
-- [ ] Sem run vigente lança a exceção que vira 404; run em andamento, a que vira 409
-- [ ] `PeriodServiceTest` e `PeriodIntegrationTest` continuam passando sem alteração de asserção
-- [ ] Gate passa: `cd backend && ./mvnw -B test -Dtest='PeriodWindowPolicyTest,PeriodServiceTest'`
+- [x] Datas invertidas e janela acima de `max-window-days` lançam a exceção que vira 400
+- [x] Sem run vigente lança a exceção que vira 404; run em andamento, a que vira 409
+- [x] `PeriodServiceTest` e `PeriodIntegrationTest` continuam passando sem alteração de asserção
+- [x] Gate passa: `cd backend && ./mvnw -B test -Dtest='PeriodWindowPolicyTest,PeriodServiceTest'`
 
 **Tests**: unit
 **Gate**: quick
