@@ -400,10 +400,10 @@ T34 → T35
 
 **Done when**:
 
-- [ ] `pnpm install --frozen-lockfile` funciona com o lockfile atualizado
-- [ ] `pnpm audit --audit-level high` sem achado novo
-- [ ] Os 10 testes atuais continuam passando
-- [ ] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] `pnpm install --frozen-lockfile` funciona com o lockfile atualizado
+- [x] `pnpm audit --audit-level high` sem achado novo
+- [x] Os 10 testes atuais continuam passando
+- [x] Gate passa: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: none
 **Gate**: build
