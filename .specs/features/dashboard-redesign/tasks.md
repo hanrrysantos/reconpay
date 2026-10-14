@@ -106,9 +106,9 @@ T34 → T35
 
 **Done when**:
 
-- [ ] Migration aplicada pelo Flyway no contexto de teste (sem `ddl-auto`)
-- [ ] Campos mapeados com `precision = 19, scale = 2` onde for dinheiro
-- [ ] Gate passa: `cd backend && ./mvnw -B -DskipTests compile`
+- [x] Migration aplicada pelo Flyway no contexto de teste (sem `ddl-auto`)
+- [x] Campos mapeados com `precision = 19, scale = 2` onde for dinheiro
+- [x] Gate passa: `cd backend && ./mvnw -B -DskipTests compile`
 
 **Tests**: none
 **Gate**: build

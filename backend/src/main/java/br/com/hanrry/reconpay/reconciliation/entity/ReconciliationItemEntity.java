@@ -103,6 +103,12 @@ public class ReconciliationItemEntity {
     @Column(name = "settlement_date")
     private LocalDate settlementDate;
 
+    @Column(name = "bank_amount", precision = 19, scale = 2)
+    private BigDecimal bankAmount;
+
+    @Column(name = "bank_movement_date")
+    private LocalDate bankMovementDate;
+
     @OneToMany(mappedBy = "reconciliationItem", cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 100)
     private List<ReconciliationDiscrepancyEntity> discrepancies = new ArrayList<>();
