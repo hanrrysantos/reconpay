@@ -104,7 +104,7 @@
 - **Phase / Task**: concluído em `d33a40d..4e44dae`
 - **Completed**: `GET /reconciliations` filtra pela janela exata (`fromDate` + `toDate`) e `useLatestRun` usa o filtro; `sort` por campo inexistente responde `400`; tipos `PaymentMethod`/`TransactionStatus` no frontend; código morto removido; `.claude/` e `.agents/` fora do git (skill em escopo de usuário). Backend 497 testes, frontend 239.
 - **In-progress** (file:line): none
-- **Next step**: (1) tela de Empresas (`/empresas`: listar, cadastrar, editar); (2) depois de finalizada, import CSV de transações no backend (AD-011). Tela de Regras de taxa (AD-012) ainda sem ordem definida.
+- **Next step**: features em sequência, cada uma com spec e PR próprios: (1) tela de Empresas (`/empresas`: listar, cadastrar, editar); (2) tela de Regras de taxa (`/taxas`, AD-012); (3) import CSV de transações no backend (AD-011), que exige regra de taxa ativa por linha.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: feat/api-contract-alignment (local, sem push)
+- **Branch**: feat/api-contract-alignment (merged em `main` pelo PR #43)
