@@ -100,11 +100,11 @@
 
 ## Handoff
 
-- **Feature**: alinhamento do contrato frontend × backend — **Done** (sem spec; ajustes pontuais pedidos pelo usuário)
-- **Phase / Task**: concluído em `d33a40d..4e44dae`
-- **Completed**: `GET /reconciliations` filtra pela janela exata (`fromDate` + `toDate`) e `useLatestRun` usa o filtro; `sort` por campo inexistente responde `400`; tipos `PaymentMethod`/`TransactionStatus` no frontend; código morto removido; `.claude/` e `.agents/` fora do git (skill em escopo de usuário). Backend 497 testes, frontend 239.
+- **Feature**: merchants-screen (tela de Empresas) — **Verified** (`validation.md` iteração 2: PASS)
+- **Phase / Task**: T1–T12 concluídas; correções da iteração 1 em `91310bf`, `f0c30e4`, `df2066c`
+- **Completed**: backend normaliza e valida CNPJ (`CnpjRules`, `@ValidCnpj`, duplicidade por dígitos inclusive desativadas e legado formatado); frontend `/empresas` com lista paginada, gaveta de cadastro/edição, desativação com confirmação e seleção no menu do topo. Backend 532 testes, frontend 322.
 - **In-progress** (file:line): none
-- **Next step**: features em sequência, cada uma com spec e PR próprios: (1) tela de Empresas (`/empresas`: listar, cadastrar, editar); (2) tela de Regras de taxa (`/taxas`, AD-012); (3) import CSV de transações no backend (AD-011), que exige regra de taxa ativa por linha.
+- **Next step**: conferência visual em `/empresas`; push de `feat/merchants-screen` e PR (pelo usuário). Depois: (2) tela de Regras de taxa (`/taxas`, AD-012); (3) import CSV de transações no backend (AD-011). Follow-ups: exemplo inválido `12345678000199` em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: feat/api-contract-alignment (merged em `main` pelo PR #43)
+- **Branch**: feat/merchants-screen (local, sem push)

@@ -98,6 +98,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: DASH-01 AC1 (frontend/app/globals.css:3) (frontend)
 - last seen: 2026-10-14T10:44:01Z
 
+### L-015 - When a request field carries several Bean Validation constraints, make sure only one can fail for a given input or give them the same message, because the 400 handler reports the first violation in unspecified order
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `backend-validation` · harmful: 0
+- features: merchants-screen
+- evidence: MDOC-02/MDOC-03 - backend/src/main/java/br/com/hanrry/reconpay/merchant/dto/MerchantRequestDTO.java:14 (backend-validation)
+- last seen: 2026-10-15T19:48:05Z
+
+### L-016 - State the exact text of each field validation message in the acceptance criterion instead of referring to the field message
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: merchants-screen
+- evidence: MCAD-05 (spec)
+- last seen: 2026-10-15T19:48:05Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

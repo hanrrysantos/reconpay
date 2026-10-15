@@ -175,45 +175,45 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| MCAD-01 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-02 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-03 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-04 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-05 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-06 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-07 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-08 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-09 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-10 | P1: Cadastrar empresa | Execute | Implementing |
-| MDOC-01 | P1: CNPJ no backend | Execute | Implementing |
-| MDOC-02 | P1: CNPJ no backend | Execute | Implementing |
-| MDOC-03 | P1: CNPJ no backend | Execute | Implementing |
-| MDOC-04 | P1: CNPJ no backend | Execute | Implementing |
-| MDOC-05 | P1: CNPJ no backend | Execute | Implementing |
-| MLIST-01 | P1: Listar empresas | Execute | Implementing |
-| MLIST-02 | P1: Listar empresas | Execute | Implementing |
-| MLIST-03 | P1: Listar empresas | Execute | Implementing |
-| MLIST-04 | P1: Listar empresas | Execute | Implementing |
-| MLIST-05 | P1: Listar empresas | Execute | Implementing |
-| MLIST-06 | P1: Listar empresas | Execute | Implementing |
-| MLIST-07 | P1: Listar empresas | Execute | Implementing |
-| MLIST-08 | P1: Listar empresas | Execute | Implementing |
-| MEDIT-01 | P2: Renomear empresa | Execute | Implementing |
-| MEDIT-02 | P2: Renomear empresa | Execute | Implementing |
-| MEDIT-03 | P2: Renomear empresa | Execute | Implementing |
-| MEDIT-04 | P2: Renomear empresa | Execute | Implementing |
-| MEDIT-05 | P2: Renomear empresa | Execute | Implementing |
-| MEDIT-06 | P2: Renomear empresa | Execute | Implementing |
-| MDES-01 | P2: Desativar empresa | Execute | Implementing |
-| MDES-02 | P2: Desativar empresa | Execute | Implementing |
-| MDES-03 | P2: Desativar empresa | Execute | Implementing |
-| MDES-04 | P2: Desativar empresa | Execute | Implementing |
-| MDES-05 | P2: Desativar empresa | Execute | Implementing |
-| MDES-06 | P2: Desativar empresa | Execute | Implementing |
+| MCAD-01 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-02 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-03 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-04 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-05 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-06 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-07 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-08 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-09 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-10 | P1: Cadastrar empresa | Execute | Verified |
+| MDOC-01 | P1: CNPJ no backend | Execute | Verified |
+| MDOC-02 | P1: CNPJ no backend | Execute | Verified |
+| MDOC-03 | P1: CNPJ no backend | Execute | Verified |
+| MDOC-04 | P1: CNPJ no backend | Execute | Verified |
+| MDOC-05 | P1: CNPJ no backend | Execute | Verified |
+| MLIST-01 | P1: Listar empresas | Execute | Verified |
+| MLIST-02 | P1: Listar empresas | Execute | Verified |
+| MLIST-03 | P1: Listar empresas | Execute | Verified |
+| MLIST-04 | P1: Listar empresas | Execute | Verified |
+| MLIST-05 | P1: Listar empresas | Execute | Verified |
+| MLIST-06 | P1: Listar empresas | Execute | Verified |
+| MLIST-07 | P1: Listar empresas | Execute | Verified |
+| MLIST-08 | P1: Listar empresas | Execute | Verified |
+| MEDIT-01 | P2: Renomear empresa | Execute | Verified |
+| MEDIT-02 | P2: Renomear empresa | Execute | Verified |
+| MEDIT-03 | P2: Renomear empresa | Execute | Verified |
+| MEDIT-04 | P2: Renomear empresa | Execute | Verified |
+| MEDIT-05 | P2: Renomear empresa | Execute | Verified |
+| MEDIT-06 | P2: Renomear empresa | Execute | Verified |
+| MDES-01 | P2: Desativar empresa | Execute | Verified |
+| MDES-02 | P2: Desativar empresa | Execute | Verified |
+| MDES-03 | P2: Desativar empresa | Execute | Verified |
+| MDES-04 | P2: Desativar empresa | Execute | Verified |
+| MDES-05 | P2: Desativar empresa | Execute | Verified |
+| MDES-06 | P2: Desativar empresa | Execute | Verified |
 
 **ID format:** `M<STORY>-<NN>` (`MCAD`, `MDOC`, `MLIST`, `MEDIT`, `MDES`); o número é a posição do critério na story.
 
-**Coverage:** 35 total, 0 mapped to tasks, 35 unmapped ⚠️ (tasks ainda não criadas)
+**Coverage:** 35 total, 35 mapped to tasks, 0 unmapped
 
 ---
 
