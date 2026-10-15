@@ -181,7 +181,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T5: lib/cnpj.ts
+### T5: lib/cnpj.ts ✅
 
 **What**: `cnpjDigits`, `maskCnpj`, `formatCnpj` (movida do menu) e `isValidCnpj`; `MerchantMenu.tsx` passa a importar `formatCnpj` daqui.
 **Where**: `frontend/lib/cnpj.ts`
@@ -196,11 +196,11 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] `maskCnpj` progressivo (`12` → `12`, `12345` → `12.345`, 15 dígitos colados → corta em 14, colado formatado → reformata)
-- [ ] `isValidCnpj` com os mesmos casos do T2
-- [ ] `formatCnpj` deixa documento sem 14 dígitos como está
-- [ ] Testes existentes do `MerchantMenu` continuam passando
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] `maskCnpj` progressivo (`12` → `12`, `12345` → `12.345`, 15 dígitos colados → corta em 14, colado formatado → reformata)
+- [x] `isValidCnpj` com os mesmos casos do T2
+- [x] `formatCnpj` deixa documento sem 14 dígitos como está
+- [x] Testes existentes do `MerchantMenu` continuam passando
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: quick

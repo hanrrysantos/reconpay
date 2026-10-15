@@ -176,11 +176,11 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
 | MCAD-01 | P1: Cadastrar empresa | Design | Pending |
-| MCAD-02 | P1: Cadastrar empresa | Design | Pending |
+| MCAD-02 | P1: Cadastrar empresa | Execute | Implementing |
 | MCAD-03 | P1: Cadastrar empresa | Design | Pending |
 | MCAD-04 | P1: Cadastrar empresa | Design | Pending |
 | MCAD-05 | P1: Cadastrar empresa | Design | Pending |
-| MCAD-06 | P1: Cadastrar empresa | Design | Pending |
+| MCAD-06 | P1: Cadastrar empresa | Execute | Implementing |
 | MCAD-07 | P1: Cadastrar empresa | Design | Pending |
 | MCAD-08 | P1: Cadastrar empresa | Design | Pending |
 | MCAD-09 | P1: Cadastrar empresa | Design | Pending |
@@ -197,7 +197,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MLIST-05 | P1: Listar empresas | Design | Pending |
 | MLIST-06 | P1: Listar empresas | Design | Pending |
 | MLIST-07 | P1: Listar empresas | Design | Pending |
-| MLIST-08 | P1: Listar empresas | Design | Pending |
+| MLIST-08 | P1: Listar empresas | Execute | Implementing |
 | MEDIT-01 | P2: Renomear empresa | Design | Pending |
 | MEDIT-02 | P2: Renomear empresa | Design | Pending |
 | MEDIT-03 | P2: Renomear empresa | Design | Pending |

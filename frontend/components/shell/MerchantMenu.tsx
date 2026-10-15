@@ -5,6 +5,7 @@ import { Check, ChevronDown, Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { getMerchants, type Merchant } from '@/lib/api'
+import { cnpjDigits, formatCnpj } from '@/lib/cnpj'
 import { useAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
@@ -51,21 +52,13 @@ export function useSelectedMerchant(): SelectedMerchantValue {
   return context
 }
 
-const digits = (value: string) => value.replace(/\D/g, '')
 const fold = (value: string) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
-
-export function formatCnpj(document: string): string {
-  const value = digits(document)
-  return value.length === 14
-    ? `${value.slice(0, 2)}.${value.slice(2, 5)}.${value.slice(5, 8)}/${value.slice(8, 12)}-${value.slice(12)}`
-    : document
-}
 
 /** A query made only of digits and CNPJ punctuation searches the CNPJ; any other text searches the name. */
 function matches(merchant: Merchant, query: string): boolean {
   const text = query.trim()
   if (!text) return true
-  if (/^[\d.\-/\s]+$/.test(text)) return digits(merchant.document).includes(digits(text))
+  if (/^[\d.\-/\s]+$/.test(text)) return cnpjDigits(merchant.document).includes(cnpjDigits(text))
   return fold(merchant.name).includes(fold(text))
 }
 
