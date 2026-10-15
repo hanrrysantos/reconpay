@@ -17,25 +17,24 @@ export type Merchant = {
   document: string
 }
 
+export type PaymentMethod = 'CREDIT_CARD' | 'DEBIT_CARD' | 'PIX' | 'BOLETO'
+export type TransactionStatus = 'APPROVED' | 'CANCELLED' | 'REFUNDED' | 'CHARGEBACK'
+
 export type Transaction = {
   id: string
   merchantId: string
   externalReference: string
   amount: string
   expectedNetAmount: string
-  paymentMethod: string
+  paymentMethod: PaymentMethod
   installments: number
-  status: string
+  status: TransactionStatus
   transactionDate: string
   createdAt: string
   updatedAt: string
 }
 
 export type Page<T> = { content: T[]; totalPages: number; totalElements?: number }
-type TransactionWire = Omit<Transaction, 'amount' | 'expectedNetAmount'> & {
-  amount: string | number
-  expectedNetAmount: string | number
-}
 
 export type DiscrepancyType =
   | 'MISSING_SETTLEMENT' | 'ORPHAN_SETTLEMENT' | 'INCORRECT_AMOUNT' | 'FEE_DIVERGENCE' | 'STATUS_MISMATCH'
@@ -128,10 +127,10 @@ export type ReconciliationItem = {
   settlementNetAmount: string | null
   /** settlementNetAmount − expectedNetAmount with a missing side as zero, from the server. */
   netDifference: string
-  paymentMethod: string | null
+  paymentMethod: PaymentMethod | null
   installments: number | null
-  transactionStatus: string | null
-  settlementStatus: string | null
+  transactionStatus: TransactionStatus | null
+  settlementStatus: TransactionStatus | null
   transactionDate: string | null
   settlementDate: string | null
   discrepancies: Discrepancy[]
@@ -247,16 +246,12 @@ export async function getMerchants(token: string): Promise<Merchant[]> {
 }
 
 export async function getTransactions(token: string, merchantId: string): Promise<Transaction[]> {
-  const result = await request<Page<TransactionWire>>(
+  const result = await request<Page<Transaction>>(
     `/api/merchants/${encodeURIComponent(merchantId)}/transactions?size=5&sort=transactionDate%2Cdesc`,
     {},
     token,
   )
-  return result.content.map(transaction => ({
-    ...transaction,
-    amount: String(transaction.amount),
-    expectedNetAmount: String(transaction.expectedNetAmount),
-  }))
+  return result.content
 }
 
 const merchantPath = (merchantId: string) => `/api/merchants/${encodeURIComponent(merchantId)}`
