@@ -1,5 +1,6 @@
 package br.com.hanrry.reconpay.merchant.dto;
 
+import br.com.hanrry.reconpay.merchant.validation.ValidCnpj;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -11,6 +12,7 @@ public record MerchantRequestDTO(
 
         @NotBlank(message = "Documento é obrigatório")
         @Size(max = 30, message = "Documento deve ter no máximo 30 caracteres")
+        @ValidCnpj
         String document
 ) {
 }

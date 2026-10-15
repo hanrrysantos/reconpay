@@ -125,7 +125,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T3: @ValidCnpj no cadastro
+### T3: @ValidCnpj no cadastro ✅
 
 **What**: Anotação `@ValidCnpj` + `CnpjValidator` (branco/`null` válidos para ela) aplicada em `MerchantRequestDTO.document`, com mensagem "CNPJ inválido"; exemplos do OpenAPI trocados para `12345678000195`.
 **Where**: `backend/src/main/java/br/com/hanrry/reconpay/merchant/validation/`
@@ -140,10 +140,10 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] `POST /api/merchants` com 13 dígitos, verificador errado, `11111111111111` ou `12A45678000195` responde `400` `VALIDATION_ERROR` "CNPJ inválido"
-- [ ] `POST` com documento vazio responde só a mensagem do `@NotBlank`
-- [ ] Unit test do `CnpjValidator` (branco, `null`, válido, inválido)
-- [ ] Gate check passes: `cd backend && ./mvnw verify`
+- [x] `POST /api/merchants` com 13 dígitos, verificador errado, `11111111111111` ou `12A45678000195` responde `400` `VALIDATION_ERROR` "CNPJ inválido"
+- [x] `POST` com documento vazio responde só a mensagem do `@NotBlank`
+- [x] Unit test do `CnpjValidator` (branco, `null`, válido, inválido)
+- [x] Gate check passes: `cd backend && ./mvnw verify`
 
 **Tests**: integration
 **Gate**: full

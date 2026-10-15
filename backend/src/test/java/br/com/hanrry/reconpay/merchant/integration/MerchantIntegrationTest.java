@@ -5,6 +5,8 @@ import br.com.hanrry.reconpay.util.IntegrationTestUtils;
 import br.com.hanrry.reconpay.util.TestCnpj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -101,6 +103,39 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
                                 """))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("CONFLICT"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"1234567800019", "12345678000199", "11111111111111", "00000000000000", "12A45678000195"})
+    void shouldRejectInvalidCnpj(String document) throws Exception {
+        mockMvc.perform(post("/api/merchants")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Loja Inválida",
+                                  "document": "%s"
+                                }
+                                """.formatted(document)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("CNPJ inválido"));
+    }
+
+    @Test
+    void shouldReportOnlyRequiredMessageForBlankDocument() throws Exception {
+        mockMvc.perform(post("/api/merchants")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Loja Sem Documento",
+                                  "document": ""
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Documento é obrigatório"));
     }
 
     @Test
