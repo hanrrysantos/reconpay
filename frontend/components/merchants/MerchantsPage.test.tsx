@@ -193,6 +193,21 @@ describe('MerchantsPage', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
+  it('falha de rede na busca mostra a mensagem de conexão com "Tentar de novo" (MLIST-07)', async () => {
+    let failing = true
+    server.list = () => failing ? new TypeError('Failed to fetch') : json(page([alfa]))
+    const user = renderPage()
+    // Network errors get the query client's single retry (about 1 s) before the error state appears.
+    const alert = await screen.findByRole('alert', {}, { timeout: 4000 })
+    expect(alert).toHaveTextContent('Não foi possível conectar à API. Tente novamente.')
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
+
+    failing = false
+    await user.click(within(alert).getByRole('button', { name: 'Tentar de novo' }))
+    await screen.findByRole('row', { name: /Alfa Pagamentos/ })
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
   it('documento gravado sem 14 dígitos aparece como está, sem máscara (MLIST-08)', async () => {
     server.merchants = [record('m-9', 'Legado Ltda', 'ABC-123')]
     renderPage()
