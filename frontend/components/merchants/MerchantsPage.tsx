@@ -8,6 +8,7 @@ import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import { formatCnpj } from '@/lib/cnpj'
 import { useMerchantPage } from '@/lib/queries'
 import { cn } from '@/lib/utils'
+import { DeactivateDialog } from './DeactivateDialog'
 import { MerchantDrawer } from './MerchantDrawer'
 
 const messageOf = (error: unknown) => error instanceof Error ? error.message : 'Não foi possível carregar as empresas.'
@@ -27,6 +28,7 @@ export function MerchantsPage() {
   const [page, setPage] = useState(0)
   /** null: closed; 'create': new merchant; a merchant: rename it. */
   const [drawer, setDrawer] = useState<'create' | MerchantRecord | null>(null)
+  const [deactivating, setDeactivating] = useState<MerchantRecord | null>(null)
   const list = useMerchantPage(page)
   const { merchantId, select } = useSelectedMerchant()
   const merchants = list.data?.content ?? []
@@ -82,6 +84,7 @@ export function MerchantsPage() {
                       <td className={cn('rounded-r-[14px] px-3 py-2 group-hover:bg-subtle', selected && 'bg-surface group-hover:bg-surface')}>
                         <div className="flex justify-end gap-1">
                           <button type="button" onClick={() => setDrawer(merchant)} className="h-8 rounded-full bg-white px-3 text-[13px] font-semibold shadow-[inset_0_0_0_1px_var(--color-border)]">Editar</button>
+                          <button type="button" onClick={() => setDeactivating(merchant)} className="h-8 rounded-full bg-white px-3 text-[13px] font-semibold text-danger-strong shadow-[inset_0_0_0_1px_var(--color-border)]">Desativar</button>
                         </div>
                       </td>
                     </tr>
@@ -108,6 +111,7 @@ export function MerchantsPage() {
       )}
 
       {drawer !== null && <MerchantDrawer merchant={drawer === 'create' ? undefined : drawer} onClose={() => setDrawer(null)} />}
+      {deactivating !== null && <DeactivateDialog merchant={deactivating} onClose={() => setDeactivating(null)} />}
     </>
   )
 }

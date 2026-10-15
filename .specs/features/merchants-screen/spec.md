@@ -204,12 +204,12 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MEDIT-04 | P2: Renomear empresa | Execute | Implementing |
 | MEDIT-05 | P2: Renomear empresa | Execute | Implementing |
 | MEDIT-06 | P2: Renomear empresa | Execute | Implementing |
-| MDES-01 | P2: Desativar empresa | Design | Pending |
+| MDES-01 | P2: Desativar empresa | Execute | Implementing |
 | MDES-02 | P2: Desativar empresa | Execute | Implementing |
 | MDES-03 | P2: Desativar empresa | Execute | Implementing |
 | MDES-04 | P2: Desativar empresa | Execute | Implementing |
-| MDES-05 | P2: Desativar empresa | Design | Pending |
-| MDES-06 | P2: Desativar empresa | Design | Pending |
+| MDES-05 | P2: Desativar empresa | Execute | Implementing |
+| MDES-06 | P2: Desativar empresa | Execute | Implementing |
 
 **ID format:** `M<STORY>-<NN>` (`MCAD`, `MDOC`, `MLIST`, `MEDIT`, `MDES`); o número é a posição do critério na story.
 

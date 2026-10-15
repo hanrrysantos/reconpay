@@ -1,11 +1,10 @@
 'use client'
 
 import { Check, X } from 'lucide-react'
-import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { ApiError, type Merchant } from '@/lib/api'
 import { cnpjDigits, formatCnpj, isValidCnpj, maskCnpj } from '@/lib/cnpj'
-import { queryKeys, useCreateMerchant, useRenameMerchant } from '@/lib/queries'
+import { useCreateMerchant, useInvalidateMerchants, useRenameMerchant } from '@/lib/queries'
 import { cn } from '@/lib/utils'
 
 export const NAME_LIMIT = 150
@@ -33,7 +32,7 @@ export function MerchantDrawer({ merchant, onClose }: { merchant?: Merchant; onC
   const editing = merchant !== undefined
   const create = useCreateMerchant()
   const rename = useRenameMerchant()
-  const queryClient = useQueryClient()
+  const reloadLists = useInvalidateMerchants()
   const panel = useRef<HTMLDivElement>(null)
   const nameInput = useRef<HTMLInputElement>(null)
   const sending = useRef(false)
@@ -61,12 +60,7 @@ export function MerchantDrawer({ merchant, onClose }: { merchant?: Merchant; onC
       onClose()
     } catch (failure) {
       setError(messageOf(failure))
-      if (isGone(failure)) {
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: queryKeys.merchantPage() }),
-          queryClient.invalidateQueries({ queryKey: queryKeys.merchants }),
-        ])
-      }
+      if (isGone(failure)) await reloadLists()
     } finally {
       sending.current = false
       setPending(false)

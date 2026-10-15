@@ -337,7 +337,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T11: Desativar empresa
+### T11: Desativar empresa ✅
 
 **What**: `DeactivateDialog` (`alertdialog` com nome e aviso de CNPJ reservado, Confirmar/Cancelar, `Esc`, erro da API) aberto pela ação "Desativar" da lista.
 **Where**: `frontend/components/merchants/DeactivateDialog.tsx`
@@ -352,8 +352,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Um teste por AC MDES-01..06 e o edge case `403` ao desativar
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Um teste por AC MDES-01..06 e o edge case `403` ao desativar
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: unit
 **Gate**: build

@@ -17,14 +17,16 @@ const alfa = record('m-1', 'Alfa Pagamentos', '12345678000195')
 const beta = record('m-2', 'Beta Comércio', '11222333000181')
 
 /**
- * In-memory API: `merchants` answers the top menu and, by default, `GET /api/merchants`; `list`, `create` and `rename`
- * override those answers. Without an override, `POST` stores the merchant (201) and `PUT` renames it (200).
+ * In-memory API: `merchants` answers the top menu and, by default, `GET /api/merchants`; `list`, `create`, `rename`
+ * and `deactivate` override those answers. Without an override, `POST` stores the merchant (201), `PUT` renames it
+ * (200) and `DELETE` removes it (204).
  */
 let server: {
   merchants: MerchantRecord[]
   list: ((search: URLSearchParams) => Reply) | null
   create: ((body: { name: string; document: string }) => Reply) | null
   rename: ((merchantId: string, body: { name: string }) => Reply) | null
+  deactivate: ((merchantId: string) => Reply) | null
 }
 let calls: Call[]
 
@@ -49,6 +51,11 @@ function storeName(merchantId: string, name: string): Response {
   return json(server.merchants.find(merchant => merchant.id === merchantId))
 }
 
+function remove(merchantId: string): Response {
+  server.merchants = server.merchants.filter(merchant => merchant.id !== merchantId)
+  return new Response(null, { status: 204 })
+}
+
 async function route(method: string, path: string, search: URLSearchParams, body: unknown): Promise<Response> {
   if (path === '/api/me/merchants') return json(page(server.merchants.map(({ id, name, document }) => ({ id, name, document }))))
   if (path === '/api/merchants' && method === 'GET') return answer(server.list?.(search) ?? json(page(server.merchants)))
@@ -61,12 +68,13 @@ async function route(method: string, path: string, search: URLSearchParams, body
     const input = body as { name: string }
     return answer(server.rename?.(merchantId, input) ?? storeName(merchantId, input.name))
   }
+  if (merchantId && method === 'DELETE') return answer(server.deactivate?.(merchantId) ?? remove(merchantId))
   throw new Error(`rota sem resposta no teste: ${method} ${path}`)
 }
 
 beforeEach(() => {
   calls = []
-  server = { merchants: [alfa, beta], list: null, create: null, rename: null }
+  server = { merchants: [alfa, beta], list: null, create: null, rename: null, deactivate: null }
   vi.stubGlobal('fetch', vi.fn(async (input: string, init: RequestInit = {}) => {
     const url = new URL(input)
     const method = init.method ?? 'GET'
@@ -450,5 +458,96 @@ describe('Renomear empresa', () => {
     await waitFor(() => expect(screen.queryByRole('row', { name: /Alfa Pagamentos/ })).not.toBeInTheDocument())
     expect(listRequests().length).toBeGreaterThan(before)
     expect(row('Beta Comércio')).toBeInTheDocument()
+  })
+})
+
+describe('Desativar empresa', () => {
+  const deletes = () => calls.filter(call => call.method === 'DELETE')
+  const dialog = () => screen.getByRole('alertdialog')
+  const confirmButton = () => within(dialog()).getByRole('button', { name: 'Desativar' })
+
+  async function openDialog(name = 'Alfa Pagamentos') {
+    const user = renderPage()
+    await screen.findByRole('row', { name: new RegExp(name) })
+    await waitFor(() => expect(menuButton()).toHaveTextContent('Alfa Pagamentos'))
+    await user.click(within(row(name)).getByRole('button', { name: 'Desativar' }))
+    return user
+  }
+
+  it('"Desativar" abre a confirmação com o nome e o aviso do CNPJ reservado (MDES-01)', async () => {
+    await openDialog()
+    expect(dialog()).toHaveAccessibleName('Desativar Alfa Pagamentos?')
+    expect(dialog()).toHaveAccessibleDescription(/O CNPJ 12\.345\.678\/0001-95 não poderá ser cadastrado de novo\./)
+    expect(deletes()).toHaveLength(0)
+  })
+
+  it('confirmar chama DELETE /api/merchants/{id} (MDES-02)', async () => {
+    const user = await openDialog()
+    await user.click(confirmButton())
+    await waitFor(() => expect(deletes()).toHaveLength(1))
+    expect(deletes()[0].path).toBe('/api/merchants/m-1')
+    expect(deletes()[0].body).toBeUndefined()
+  })
+
+  it('204 fecha o diálogo e tira a empresa da lista e do menu (MDES-03)', async () => {
+    const user = await openDialog('Beta Comércio')
+    await user.click(confirmButton())
+
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByRole('row', { name: /Beta Comércio/ })).not.toBeInTheDocument())
+    await user.click(menuButton())
+    expect(screen.queryByRole('option', { name: /Beta Comércio/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('option', { name: /Alfa Pagamentos/ })).toBeInTheDocument()
+  })
+
+  it('desativar a selecionada passa o menu para a primeira empresa restante (MDES-04)', async () => {
+    const user = await openDialog('Alfa Pagamentos')
+    await user.click(confirmButton())
+    await waitFor(() => expect(screen.queryByRole('row', { name: /Alfa Pagamentos/ })).not.toBeInTheDocument())
+    expect(menuButton()).toHaveTextContent('Beta Comércio')
+    expect(row('Beta Comércio')).toHaveAttribute('aria-current', 'true')
+  })
+
+  it('desativar a última empresa mostra o estado sem empresa (MDES-04)', async () => {
+    server.merchants = [alfa]
+    const user = await openDialog('Alfa Pagamentos')
+    await user.click(confirmButton())
+    expect(await screen.findByRole('heading', { name: 'Nenhuma empresa no seu acesso' })).toBeInTheDocument()
+    expect(menuButton()).toHaveTextContent('Nenhuma empresa')
+  })
+
+  it.each([
+    ['Cancelar', (user: ReturnType<typeof userEvent.setup>) => user.click(within(dialog()).getByRole('button', { name: 'Cancelar' }))],
+    ['Esc', (user: ReturnType<typeof userEvent.setup>) => user.keyboard('{Escape}')],
+  ])('%s fecha o diálogo sem chamar a API (MDES-05)', async (_case, close) => {
+    const user = await openDialog()
+    await close(user)
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(deletes()).toHaveLength(0)
+    expect(row('Alfa Pagamentos')).toBeInTheDocument()
+  })
+
+  it.each([
+    ['erro da API', () => fail(500, 'Erro interno ao desativar'), 'Erro interno ao desativar'],
+    ['falha de rede', () => new TypeError('Failed to fetch'), 'Não foi possível conectar à API. Tente novamente.'],
+  ])('%s mantém o diálogo aberto e mostra a mensagem (MDES-06)', async (_case, reply, message) => {
+    server.deactivate = reply
+    const user = await openDialog()
+    await user.click(confirmButton())
+    expect(await within(dialog()).findByRole('alert')).toHaveTextContent(message)
+    expect(dialog()).toHaveAccessibleName('Desativar Alfa Pagamentos?')
+  })
+
+  it('403 ao desativar mostra a mensagem e recarrega a lista (edge case)', async () => {
+    server.deactivate = merchantId => {
+      server.merchants = server.merchants.filter(merchant => merchant.id !== merchantId)
+      return fail(403, 'Você não tem acesso a esta empresa')
+    }
+    const user = await openDialog()
+    const before = listRequests().length
+    await user.click(confirmButton())
+    expect(await within(dialog()).findByRole('alert')).toHaveTextContent('Você não tem acesso a esta empresa')
+    await waitFor(() => expect(screen.queryByRole('row', { name: /Alfa Pagamentos/ })).not.toBeInTheDocument())
+    expect(listRequests().length).toBeGreaterThan(before)
   })
 })

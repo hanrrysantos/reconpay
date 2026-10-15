@@ -187,7 +187,7 @@ export function useMerchantPage(page: number) {
 }
 
 /** Resolves only after the page list and the top menu list have reloaded. */
-function useInvalidateMerchants() {
+export function useInvalidateMerchants() {
   const queryClient = useQueryClient()
   return () => Promise.all([
     queryClient.invalidateQueries({ queryKey: queryKeys.merchantPage() }),
