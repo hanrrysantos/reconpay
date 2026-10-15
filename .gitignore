@@ -34,3 +34,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Agent tooling (local only) ###
+.claude/
+.agents/

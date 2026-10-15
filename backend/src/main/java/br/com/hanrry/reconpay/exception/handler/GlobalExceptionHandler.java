@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<StandardError> handleMalformedInput(Exception ex, HttpServletRequest request) {
         return buildError(HttpStatus.BAD_REQUEST, ApiErrorCode.VALIDATION_ERROR,
                 "Requisição inválida. Verifique os campos e parâmetros enviados.", request);
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<StandardError> handleUnknownSortProperty(
+            PropertyReferenceException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, ApiErrorCode.VALIDATION_ERROR,
+                "Parâmetro de ordenação inválido: " + ex.getPropertyName(), request);
     }
 
     @ExceptionHandler(OptimisticLockingFailureException.class)

@@ -50,6 +50,12 @@ public interface IReconciliationRunRepository extends JpaRepository<Reconciliati
 
     Page<ReconciliationRunEntity> findAllByMerchant_Id(UUID merchantId, Pageable pageable);
 
+    Page<ReconciliationRunEntity> findAllByMerchant_IdAndFromDateAndToDate(
+            UUID merchantId,
+            LocalDate fromDate,
+            LocalDate toDate,
+            Pageable pageable);
+
     Optional<ReconciliationRunEntity> findByMerchant_IdAndFromDateAndToDateAndStatusAndSupersededAtIsNull(
             UUID merchantId,
             LocalDate fromDate,

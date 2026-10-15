@@ -215,8 +215,11 @@ Todos ficam sob `/api/merchants/{merchantId}` e seguem as mesmas regras de acess
 | :--- | :--- |
 | `GET /periods/summary?fromDate&toDate` | Resumo do run vigente da janela: bruto, líquido esperado, taxas, taxa acima do contrato, total que caiu no banco, abertas por tipo, um registro por dia da janela e os comparativos (taxa do run anterior, bruto do período anterior). Dinheiro com duas casas. `400` janela inválida, `404` sem run vigente, `409` run em andamento. |
 | `GET /reconciliations/{runId}/items?discrepancyStatus=OPEN&sort=absDifference,desc` | Items com ao menos uma divergência no status pedido, da maior diferença absoluta (`settlementNetAmount − expectedNetAmount`, lado ausente vale zero) para a menor. Combina com `result` e `discrepancyType`; status inválido responde `400`. |
+| `GET /reconciliations?fromDate&toDate` | Runs da janela exata, mais recente primeiro; sem os dois parâmetros, todos os runs do merchant. Só um deles responde `400`. |
 | `GET /reconciliations/{runId}` | O run ganha `processedItems`: nulo em `PENDING`, cresce durante `RUNNING` sem passar de `totalItems` e fica igual a ele em `COMPLETED`. |
 | `GET /bank-statements/imports` | Imports de extrato paginados, mais recente primeiro (`id`, `fileName`, `totalRows`, `createdAt`). |
+
+Nas listagens paginadas, `sort` por um campo que não existe responde `400 VALIDATION_ERROR`.
 
 ---
 

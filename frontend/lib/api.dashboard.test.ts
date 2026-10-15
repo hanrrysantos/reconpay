@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   ApiError, exportRunCsv, getDiscrepancy, getLatestBankStatementImportTime, getLatestSettlementImport, getOpenDiscrepancies,
-  getPeriod, getPeriodSummary, getRun, getRuns, lockPeriod, runReconciliation, unlockPeriod, updateDiscrepancy,
+  getPeriod, getPeriodSummary, getRuns, lockPeriod, runReconciliation, unlockPeriod, updateDiscrepancy,
 } from './api'
 
 const base = 'http://localhost:8080/api/merchants/m-1'
@@ -34,10 +34,10 @@ describe('runs', () => {
     expect(call(fetcher).url).toBe(`${base}/reconciliations?page=0&size=1&sort=createdAt%2Casc`)
   })
 
-  it('busca um run pelo id', async () => {
-    const fetcher = stubFetch('{"id":"r-1","status":"COMPLETED"}')
-    await expect(getRun('jwt', 'm-1', 'r-1')).resolves.toEqual({ id: 'r-1', status: 'COMPLETED' })
-    expect(call(fetcher)).toMatchObject({ url: `${base}/reconciliations/r-1`, method: 'GET', auth: 'Bearer jwt' })
+  it('filtra os runs pela janela exata', async () => {
+    const fetcher = stubFetch('{"content":[],"totalPages":0}')
+    await getRuns('jwt', 'm-1', { size: 1, window: september })
+    expect(call(fetcher).url).toBe(`${base}/reconciliations?page=0&size=1&sort=createdAt%2Cdesc&fromDate=2026-09-01&toDate=2026-09-30`)
   })
 
   it('dispara o run com a janela no corpo', async () => {

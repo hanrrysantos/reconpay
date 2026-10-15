@@ -30,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Tag(name = OpenApiTags.RECONCILIATIONS, description = "Run da conciliação e o tratamento das divergências")
@@ -178,6 +180,8 @@ public interface ReconciliationControllerApi {
             description = """
                     Lista paginada das conciliações do merchant. \
                     O id vem da resposta de criação ou da listagem. \
+                    Com fromDate e toDate, devolve só os runs dessa janela exata; \
+                    informe os dois ou nenhum. \
                     Responde 404 quando o merchant não existe."""
     )
     @ApiResponse(
@@ -196,6 +200,10 @@ public interface ReconciliationControllerApi {
     ResponseEntity<Page<ReconciliationRunResponseDTO>> findAllRuns(
             @Parameter(description = ID_DESCRIPTION, example = ID_EXAMPLE)
             @PathVariable UUID merchantId,
+            @Parameter(description = "Início exato da janela do run; exige toDate", example = "2026-07-01")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @Parameter(description = "Fim exato da janela do run; exige fromDate", example = "2026-07-31")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
             @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable);
 
     @Operation(

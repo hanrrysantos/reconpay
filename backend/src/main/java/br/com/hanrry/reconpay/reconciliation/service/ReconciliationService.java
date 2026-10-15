@@ -102,11 +102,17 @@ public class ReconciliationService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ReconciliationRunResponseDTO> findAllRuns(UUID merchantId, Pageable pageable) {
+    public Page<ReconciliationRunResponseDTO> findAllRuns(
+            UUID merchantId, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+        if ((fromDate == null) != (toDate == null)) {
+            throw new InvalidReconciliationWindowException("fromDate e toDate devem ser informados juntos");
+        }
         ensureMerchantExists(merchantId);
 
-        return reconciliationRunRepository.findAllByMerchant_Id(merchantId, pageable)
-                .map(reconciliationMapper::toRunDTO);
+        Page<ReconciliationRunEntity> runs = fromDate == null
+                ? reconciliationRunRepository.findAllByMerchant_Id(merchantId, pageable)
+                : reconciliationRunRepository.findAllByMerchant_IdAndFromDateAndToDate(merchantId, fromDate, toDate, pageable);
+        return runs.map(reconciliationMapper::toRunDTO);
     }
 
     @Transactional(readOnly = true)

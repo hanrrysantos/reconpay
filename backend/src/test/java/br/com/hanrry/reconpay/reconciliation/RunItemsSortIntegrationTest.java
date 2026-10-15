@@ -176,6 +176,14 @@ class RunItemsSortIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void unknownSortPropertyReturnsValidationError() throws Exception {
+        items("OPEN", "nope,desc", 0, 4)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Parâmetro de ordenação inválido: nope"));
+    }
+
+    @Test
     void invalidDiscrepancyStatusReturnsValidationError() throws Exception {
         items("RESOLVED", "absDifference,desc", 0, 4)
                 .andExpect(status().isBadRequest())
