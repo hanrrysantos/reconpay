@@ -287,7 +287,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T9: Gaveta de cadastro
+### T9: Gaveta de cadastro ✅
 
 **What**: `MerchantDrawer` em modo `create` (Nome, CNPJ com máscara, validação local, erro da API, botão desabilitado no envio, `Esc`/Cancelar) aberta por "Cadastrar empresa".
 **Where**: `frontend/components/merchants/MerchantDrawer.tsx`
@@ -302,8 +302,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Um teste por AC MCAD-01..10, incluindo nome com 150 caracteres aceito e 151 bloqueado, e duplo clique gerando um só `POST`
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Um teste por AC MCAD-01..10, incluindo nome com 150 caracteres aceito e 151 bloqueado, e duplo clique gerando um só `POST`
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: unit
 **Gate**: build

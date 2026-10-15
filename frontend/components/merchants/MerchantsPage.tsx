@@ -7,6 +7,7 @@ import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import { formatCnpj } from '@/lib/cnpj'
 import { useMerchantPage } from '@/lib/queries'
 import { cn } from '@/lib/utils'
+import { MerchantDrawer } from './MerchantDrawer'
 
 const messageOf = (error: unknown) => error instanceof Error ? error.message : 'Não foi possível carregar as empresas.'
 const createdOn = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -23,7 +24,7 @@ function TableSkeleton() {
 /** `/empresas`: the merchants the user can access, 20 per page by name; a click on the name selects it in the top menu. */
 export function MerchantsPage() {
   const [page, setPage] = useState(0)
-  const [, setCreating] = useState(false)
+  const [creating, setCreating] = useState(false)
   const list = useMerchantPage(page)
   const { merchantId, select } = useSelectedMerchant()
   const merchants = list.data?.content ?? []
@@ -97,6 +98,8 @@ export function MerchantsPage() {
           )}
         </section>
       )}
+
+      {creating && <MerchantDrawer onClose={() => setCreating(false)} />}
     </>
   )
 }

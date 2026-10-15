@@ -175,16 +175,16 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| MCAD-01 | P1: Cadastrar empresa | Design | Pending |
+| MCAD-01 | P1: Cadastrar empresa | Execute | Implementing |
 | MCAD-02 | P1: Cadastrar empresa | Execute | Implementing |
 | MCAD-03 | P1: Cadastrar empresa | Execute | Implementing |
 | MCAD-04 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-05 | P1: Cadastrar empresa | Design | Pending |
+| MCAD-05 | P1: Cadastrar empresa | Execute | Implementing |
 | MCAD-06 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-07 | P1: Cadastrar empresa | Design | Pending |
-| MCAD-08 | P1: Cadastrar empresa | Design | Pending |
-| MCAD-09 | P1: Cadastrar empresa | Design | Pending |
-| MCAD-10 | P1: Cadastrar empresa | Design | Pending |
+| MCAD-07 | P1: Cadastrar empresa | Execute | Implementing |
+| MCAD-08 | P1: Cadastrar empresa | Execute | Implementing |
+| MCAD-09 | P1: Cadastrar empresa | Execute | Implementing |
+| MCAD-10 | P1: Cadastrar empresa | Execute | Implementing |
 | MDOC-01 | P1: CNPJ no backend | Execute | Implementing |
 | MDOC-02 | P1: CNPJ no backend | Execute | Implementing |
 | MDOC-03 | P1: CNPJ no backend | Execute | Implementing |

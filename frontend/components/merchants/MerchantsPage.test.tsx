@@ -9,39 +9,59 @@ import { MerchantSwitcher, SelectedMerchantProvider } from '@/components/shell/M
 
 vi.mock('@/lib/auth', () => ({ useAuth: () => ({ token: 'jwt', user: { id: 'u-1', name: 'Ana Souza' }, signOut: vi.fn() }) }))
 
-type Reply = Response | (() => Response | Promise<Response>)
+type Reply = Response | Error | (() => Response | Promise<Response>)
 type Call = { method: string; path: string; search: URLSearchParams; body: unknown }
 
 const record = (id: string, name: string, document: string): MerchantRecord => ({ id, name, document, active: true, createdAt: '2026-10-01T12:00:00Z' })
 const alfa = record('m-1', 'Alfa Pagamentos', '12345678000195')
 const beta = record('m-2', 'Beta Comércio', '11222333000181')
 
-/** In-memory API: `merchants` answers the top menu; `list` answers `GET /api/merchants` (defaults to the same merchants). */
-let server: { merchants: MerchantRecord[]; list: ((search: URLSearchParams) => Reply) | null }
+/**
+ * In-memory API: `merchants` answers the top menu and, by default, `GET /api/merchants`; `list` and `create` override
+ * those answers. Without an override, `POST /api/merchants` stores the merchant and answers 201.
+ */
+let server: {
+  merchants: MerchantRecord[]
+  list: ((search: URLSearchParams) => Reply) | null
+  create: ((body: { name: string; document: string }) => Reply) | null
+}
 let calls: Call[]
 
 const json = (body: unknown, status = 200) => Response.json(body, { status })
 const fail = (status: number, message: string) => json({ error: status === 409 ? 'CONFLICT' : 'ERROR', message }, status)
 const page = <T,>(content: T[], totalPages = 1) => ({ content, totalPages, totalElements: content.length })
 
-async function route(method: string, path: string, search: URLSearchParams): Promise<Response> {
+const answer = async (reply: Reply) => {
+  if (reply instanceof Error) throw reply
+  return typeof reply === 'function' ? reply() : reply
+}
+const byName = (merchants: MerchantRecord[]) => [...merchants].sort((a, b) => a.name.localeCompare(b.name))
+
+function store(body: { name: string; document: string }): Response {
+  const created = record(`m-${server.merchants.length + 1}`, body.name, body.document)
+  server.merchants = byName([...server.merchants, created])
+  return json(created, 201)
+}
+
+async function route(method: string, path: string, search: URLSearchParams, body: unknown): Promise<Response> {
   if (path === '/api/me/merchants') return json(page(server.merchants.map(({ id, name, document }) => ({ id, name, document }))))
-  if (path === '/api/merchants' && method === 'GET') {
-    const reply = server.list?.(search) ?? json(page(server.merchants))
-    return typeof reply === 'function' ? reply() : reply
+  if (path === '/api/merchants' && method === 'GET') return answer(server.list?.(search) ?? json(page(server.merchants)))
+  if (path === '/api/merchants' && method === 'POST') {
+    const input = body as { name: string; document: string }
+    return answer(server.create?.(input) ?? store(input))
   }
   throw new Error(`rota sem resposta no teste: ${method} ${path}`)
 }
 
 beforeEach(() => {
   calls = []
-  server = { merchants: [alfa, beta], list: null }
+  server = { merchants: [alfa, beta], list: null, create: null }
   vi.stubGlobal('fetch', vi.fn(async (input: string, init: RequestInit = {}) => {
     const url = new URL(input)
     const method = init.method ?? 'GET'
     const body = init.body ? JSON.parse(String(init.body)) : undefined
     calls.push({ method, path: url.pathname, search: url.searchParams, body })
-    return route(method, url.pathname, url.searchParams)
+    return route(method, url.pathname, url.searchParams, body)
   }))
 })
 afterEach(() => vi.unstubAllGlobals())
@@ -60,7 +80,8 @@ function renderPage() {
 
 const listRequests = () => calls.filter(call => call.method === 'GET' && call.path === '/api/merchants')
 const row = (name: string) => screen.getByRole('row', { name: new RegExp(name) })
-const menuButton = () => screen.getByRole('button', { expanded: false, name: /Pagamentos|Comércio|Nenhuma empresa/ })
+/** The top menu trigger is the only button with `aria-expanded`. */
+const menuButton = () => screen.getByRole('button', { expanded: false })
 
 describe('MerchantsPage', () => {
   it('busca a primeira página por nome e lista nome, CNPJ formatado e data de cadastro (MLIST-01)', async () => {
@@ -158,5 +179,166 @@ describe('MerchantsPage', () => {
     renderPage()
     const legacy = await screen.findByRole('row', { name: /Legado Ltda/ })
     expect(within(legacy).getByText('ABC-123')).toBeInTheDocument()
+  })
+})
+
+describe('Cadastrar empresa', () => {
+  const posts = () => calls.filter(call => call.method === 'POST' && call.path === '/api/merchants')
+  const drawer = () => screen.getByRole('dialog', { name: 'Cadastrar empresa' })
+  const nameField = () => within(drawer()).getByLabelText('Nome')
+  const cnpjField = () => within(drawer()).getByLabelText('CNPJ')
+  const submitButton = () => within(drawer()).getByRole('button', { name: 'Cadastrar' })
+
+  async function openDrawer() {
+    const user = renderPage()
+    await screen.findByRole('row', { name: /Alfa Pagamentos/ })
+    await user.click(screen.getByRole('button', { name: 'Cadastrar empresa' }))
+    return user
+  }
+
+  async function fill(user: ReturnType<typeof userEvent.setup>, name: string, cnpj: string) {
+    if (name) await user.type(nameField(), name)
+    if (cnpj) await user.type(cnpjField(), cnpj)
+  }
+
+  it('"Cadastrar empresa" abre a gaveta com Nome e CNPJ vazios (MCAD-01)', async () => {
+    await openDrawer()
+    expect(nameField()).toHaveValue('')
+    expect(cnpjField()).toHaveValue('')
+  })
+
+  it('o estado vazio também abre a gaveta (MCAD-01, MLIST-05)', async () => {
+    server.merchants = []
+    const user = renderPage()
+    const heading = await screen.findByRole('heading', { name: 'Nenhuma empresa no seu acesso' })
+    await user.click(within(heading.closest('section')!).getByRole('button', { name: 'Cadastrar empresa' }))
+    expect(nameField()).toHaveValue('')
+    expect(cnpjField()).toHaveValue('')
+  })
+
+  it('o CNPJ digitado recebe a máscara e para em 14 dígitos (MCAD-02)', async () => {
+    const user = await openDrawer()
+    await user.type(cnpjField(), '12345')
+    expect(cnpjField()).toHaveValue('12.345')
+    await user.type(cnpjField(), '6780001959')
+    expect(cnpjField()).toHaveValue('12.345.678/0001-95')
+  })
+
+  it('CNPJ colado já formatado é aceito e reformatado (edge case)', async () => {
+    const user = await openDrawer()
+    await user.click(cnpjField())
+    await user.paste('12.345.678/0001-95')
+    expect(cnpjField()).toHaveValue('12.345.678/0001-95')
+    await user.clear(cnpjField())
+    await user.paste('12 345 678 0001 95')
+    expect(cnpjField()).toHaveValue('12.345.678/0001-95')
+  })
+
+  it('envia POST /api/merchants com o nome sem espaços nas pontas e só os 14 dígitos (MCAD-03)', async () => {
+    const user = await openDrawer()
+    await fill(user, '  Loja Teste  ', '12345678000195')
+    await user.click(submitButton())
+    await waitFor(() => expect(posts()).toHaveLength(1))
+    expect(posts()[0].body).toEqual({ name: 'Loja Teste', document: '12345678000195' })
+  })
+
+  it('201 fecha a gaveta e mostra a empresa na lista e no menu, já selecionada (MCAD-04)', async () => {
+    server.merchants = [alfa, beta]
+    const user = await openDrawer()
+    await fill(user, 'Loja Teste', '11444777000161')
+    await user.click(submitButton())
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    await waitFor(() => expect(row('Loja Teste')).toHaveAttribute('aria-current', 'true'))
+    expect(within(row('Loja Teste')).getByText('11.444.777/0001-61')).toBeInTheDocument()
+    expect(menuButton()).toHaveTextContent('Loja Teste')
+    await user.click(menuButton())
+    expect(screen.getByRole('option', { name: /Loja Teste/ })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('nome vazio após remover espaços bloqueia o envio e mostra a mensagem do campo (MCAD-05)', async () => {
+    const user = await openDrawer()
+    await fill(user, '   ', '12345678000195')
+    await user.click(submitButton())
+    expect(within(drawer()).getByText('Informe o nome da empresa')).toBeInTheDocument()
+    expect(nameField()).toHaveAttribute('aria-invalid', 'true')
+    expect(posts()).toHaveLength(0)
+  })
+
+  it('nome com 151 caracteres bloqueia o envio; com 150 é aceito (MCAD-05, edge case)', async () => {
+    const user = await openDrawer()
+    await user.click(nameField())
+    await user.paste('a'.repeat(151))
+    await user.type(cnpjField(), '12345678000195')
+    await user.click(submitButton())
+    expect(within(drawer()).getByText('Use no máximo 150 caracteres')).toBeInTheDocument()
+    expect(posts()).toHaveLength(0)
+
+    await user.type(nameField(), '{Backspace}')
+    await user.click(submitButton())
+    await waitFor(() => expect(posts()).toHaveLength(1))
+    expect(posts()[0].body).toEqual({ name: 'a'.repeat(150), document: '12345678000195' })
+  })
+
+  it.each([
+    ['13 dígitos', '1234567800019'],
+    ['dígito verificador errado', '12345678000196'],
+    ['dígitos todos iguais', '11111111111111'],
+  ])('CNPJ com %s mostra "CNPJ inválido" sem chamar a API (MCAD-06)', async (_case, cnpj) => {
+    const user = await openDrawer()
+    await fill(user, 'Loja Teste', cnpj)
+    await user.click(submitButton())
+    expect(within(drawer()).getByText('CNPJ inválido')).toBeInTheDocument()
+    expect(cnpjField()).toHaveAttribute('aria-invalid', 'true')
+    expect(posts()).toHaveLength(0)
+  })
+
+  it('409 mantém a gaveta com os valores e mostra a mensagem do StandardError (MCAD-07)', async () => {
+    server.create = () => fail(409, 'Já existe uma empresa com o documento 12345678000195')
+    const user = await openDrawer()
+    await fill(user, 'Loja Teste', '12345678000195')
+    await user.click(submitButton())
+    expect(await within(drawer()).findByRole('alert')).toHaveTextContent('Já existe uma empresa com o documento 12345678000195')
+    expect(nameField()).toHaveValue('Loja Teste')
+    expect(cnpjField()).toHaveValue('12.345.678/0001-95')
+  })
+
+  it.each([
+    ['outro erro da API', () => fail(500, 'Erro interno ao cadastrar'), 'Erro interno ao cadastrar'],
+    ['falha de rede', () => new TypeError('Failed to fetch'), 'Não foi possível conectar à API. Tente novamente.'],
+  ])('%s mantém a gaveta com os valores e mostra a mensagem (MCAD-08)', async (_case, reply, message) => {
+    server.create = reply
+    const user = await openDrawer()
+    await fill(user, 'Loja Teste', '12345678000195')
+    await user.click(submitButton())
+    expect(await within(drawer()).findByRole('alert')).toHaveTextContent(message)
+    expect(nameField()).toHaveValue('Loja Teste')
+    expect(cnpjField()).toHaveValue('12.345.678/0001-95')
+  })
+
+  it('durante o envio o botão fica desabilitado e cliques repetidos geram um só POST (MCAD-09)', async () => {
+    let respond!: () => void
+    server.create = body => () => new Promise<Response>(resolve => { respond = () => resolve(store(body)) })
+    const user = await openDrawer()
+    await fill(user, 'Loja Teste', '12345678000195')
+    await user.dblClick(submitButton())
+    await user.click(submitButton())
+    expect(submitButton()).toBeDisabled()
+    expect(posts()).toHaveLength(1)
+
+    respond()
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(posts()).toHaveLength(1)
+  })
+
+  it.each([
+    ['Esc', (user: ReturnType<typeof userEvent.setup>) => user.keyboard('{Escape}')],
+    ['Cancelar', (user: ReturnType<typeof userEvent.setup>) => user.click(within(drawer()).getByRole('button', { name: 'Cancelar' }))],
+  ])('%s fecha a gaveta sem chamar a API (MCAD-10)', async (_case, close) => {
+    const user = await openDrawer()
+    await fill(user, 'Loja Teste', '12345678000195')
+    await close(user)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(posts()).toHaveLength(0)
   })
 })
