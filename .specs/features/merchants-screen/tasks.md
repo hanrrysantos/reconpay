@@ -235,7 +235,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T7: Hooks de merchant
+### T7: Hooks de merchant ✅
 
 **What**: `useMerchantPage`, `useCreateMerchant` (aguarda invalidação e seleciona o id criado), `useRenameMerchant`, `useDeactivateMerchant`; todas as mutações aguardam a invalidação de `['merchantPage']` e `['merchants']`.
 **Where**: `frontend/lib/queries.ts`
@@ -250,10 +250,10 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Após criar, o menu já contém a empresa e ela é a selecionada
-- [ ] Após renomear/desativar, as duas listas são refeitas
-- [ ] Desativar a selecionada faz o menu cair na primeira restante (ou `null` sem nenhuma)
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] Após criar, o menu já contém a empresa e ela é a selecionada
+- [x] Após renomear/desativar, as duas listas são refeitas
+- [x] Desativar a selecionada faz o menu cair na primeira restante (ou `null` sem nenhuma)
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: quick

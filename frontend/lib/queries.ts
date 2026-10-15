@@ -1,9 +1,11 @@
 'use client'
 
 import { MutationCache, QueryCache, QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import {
-  ApiError, exportRunCsv, getDiscrepancy, getLatestBankStatementImportTime, getLatestSettlementImport, getOpenDiscrepancies,
-  getPeriod, getPeriodSummary, getRuns, lockPeriod, runReconciliation, unlockPeriod, updateDiscrepancy,
+  ApiError, createMerchant, deactivateMerchant, exportRunCsv, getDiscrepancy, getLatestBankStatementImportTime,
+  getLatestSettlementImport, getMerchantPage, getOpenDiscrepancies, getPeriod, getPeriodSummary, getRuns, lockPeriod,
+  renameMerchant, runReconciliation, unlockPeriod, updateDiscrepancy,
   type DiscrepancyType, type DiscrepancyUpdate, type Run,
 } from './api'
 import { useAuth } from './auth'
@@ -41,6 +43,9 @@ export const queryKeys = {
   discrepancy: (merchantId: string, runId?: string, discrepancyId?: string) =>
     (runId === undefined ? ['discrepancy', merchantId] : ['discrepancy', merchantId, runId, discrepancyId ?? '']) as readonly string[],
   imports: (merchantId: string) => ['imports', merchantId] as const,
+  merchantPage: (page?: number) => (page === undefined ? ['merchantPage'] : ['merchantPage', page]) as readonly unknown[],
+  /** Prefix of the top menu list, `['merchants', userId]`, owned by `SelectedMerchantProvider`. */
+  merchants: ['merchants'] as const,
 }
 
 const inFlight = (run: Run | null | undefined) => run?.status === 'PENDING' || run?.status === 'RUNNING'
@@ -170,4 +175,55 @@ export function useUnlockPeriod(merchantId: string, window: Window) {
 export function useExportRun(merchantId: string) {
   const { token } = useAuth()
   return useMutation({ mutationFn: (runId: string) => exportRunCsv(token!, merchantId, runId) })
+}
+
+export function useMerchantPage(page: number) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: queryKeys.merchantPage(page),
+    queryFn: () => getMerchantPage(token!, page),
+    enabled: Boolean(token),
+  })
+}
+
+/** Resolves only after the page list and the top menu list have reloaded. */
+function useInvalidateMerchants() {
+  const queryClient = useQueryClient()
+  return () => Promise.all([
+    queryClient.invalidateQueries({ queryKey: queryKeys.merchantPage() }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.merchants }),
+  ])
+}
+
+/** Selects the new merchant once the menu already lists it; before that, the menu would fall back to the first one. */
+export function useCreateMerchant() {
+  const { token } = useAuth()
+  const { select } = useSelectedMerchant()
+  const invalidate = useInvalidateMerchants()
+  return useMutation({
+    mutationFn: (input: { name: string; document: string }) => createMerchant(token!, input),
+    onSuccess: async merchant => {
+      await invalidate()
+      select(merchant.id)
+    },
+  })
+}
+
+export function useRenameMerchant() {
+  const { token } = useAuth()
+  const invalidate = useInvalidateMerchants()
+  return useMutation({
+    mutationFn: ({ merchantId, name }: { merchantId: string; name: string }) => renameMerchant(token!, merchantId, name),
+    onSuccess: invalidate,
+  })
+}
+
+/** When the deactivated merchant was selected, the menu falls back to the first remaining one, or to none. */
+export function useDeactivateMerchant() {
+  const { token } = useAuth()
+  const invalidate = useInvalidateMerchants()
+  return useMutation({
+    mutationFn: (merchantId: string) => deactivateMerchant(token!, merchantId),
+    onSuccess: invalidate,
+  })
 }
