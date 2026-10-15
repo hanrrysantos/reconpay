@@ -82,13 +82,29 @@
 - **Date**: 2026-10-14 (revisado duas vezes no dia: sem aritmética local de dinheiro; escopo limitado a dinheiro)
 - **Status**: active
 
+### AD-011
+- **Decision**: Transações internas entram por dois caminhos que convivem: formulário (uma transação, sobre o `POST /transactions` existente) e import CSV em lote, com validação por linha e lote rastreável, no mesmo padrão do import de liquidação.
+- **Reason**: No domínio, as transações vêm em lote do sistema do lojista; o formulário cobre a transação avulsa, a correção e o caso de teste isolado.
+- **Trade-off**: O import CSV é uma feature nova de backend (endpoint, parser, lote, OpenAPI, testes); cada linha exige regra de taxa ativa e vira erro por linha quando não há.
+- **Scope**: Módulo `transaction`, tela de Transações (formulário e status) e tela de Importações (três arquivos: transações, liquidação, extrato).
+- **Date**: 2026-10-15
+- **Status**: active
+
+### AD-012
+- **Decision**: Regras de taxa ficam em rota própria (`/taxas`), sempre da empresa selecionada, acessada pelo menu de empresa ("Regras de taxa da <empresa>"), não pela barra superior nem como aba de `/empresas/[id]`.
+- **Reason**: A barra superior é do fluxo operacional diário; regra de taxa é configuração da empresa, alterada raramente. Rota própria não depende da página de detalhe de Empresas, então as duas telas podem ser feitas em paralelo.
+- **Trade-off**: A tela fica a um clique a mais; outros pontos de entrada (link na lista de `/empresas`, aviso no `409` por falta de regra ativa) entram depois.
+- **Scope**: Frontend: `/taxas`, `MerchantMenu`.
+- **Date**: 2026-10-15
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: dashboard-redesign (direção Lima) — **Verified** (`validation.md` iteração 2: PASS)
-- **Phase / Task**: T1–T47 concluídas; Verifier PASS em `63f4df6..f62d60c`
-- **Completed**: backend `GET /periods/summary` (totais, série diária, falta por dia, percentuais, `resolvedCount`), `netDifference` e filtro/ordem dos items, progresso do run, listagem de imports de extrato; frontend com tema Lima, TanStack Query, blocos em SVG, gaveta de resolução, estados e rotas vazias. Backend 489 testes, frontend 239.
+- **Feature**: alinhamento do contrato frontend × backend — **Done** (sem spec; ajustes pontuais pedidos pelo usuário)
+- **Phase / Task**: concluído em `d33a40d..4e44dae`
+- **Completed**: `GET /reconciliations` filtra pela janela exata (`fromDate` + `toDate`) e `useLatestRun` usa o filtro; `sort` por campo inexistente responde `400`; tipos `PaymentMethod`/`TransactionStatus` no frontend; código morto removido; `.claude/` e `.agents/` fora do git (skill em escopo de usuário). Backend 497 testes, frontend 239.
 - **In-progress** (file:line): none
-- **Next step**: conferência visual no navegador; push de `feat/dashboard-redesign` e PR (pelo usuário). Opcional: teste para DASH-01 AC1 (tokens do tema) e as notas cosméticas do `validation.md` (sparkline do bruto usa líquido; célula de diferença sempre vermelha).
+- **Next step**: (1) tela de Empresas (`/empresas`: listar, cadastrar, editar); (2) depois de finalizada, import CSV de transações no backend (AD-011). Tela de Regras de taxa (AD-012) ainda sem ordem definida.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: feat/dashboard-redesign
+- **Branch**: feat/api-contract-alignment (local, sem push)
