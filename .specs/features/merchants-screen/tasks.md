@@ -152,7 +152,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T4: Gravar dígitos e checar duplicidade por dígitos
+### T4: Gravar dígitos e checar duplicidade por dígitos ✅
 
 **What**: `IMerchantRepository.existsByDocumentDigits` (JPQL com `regexp_replace`, ativas e desativadas) e `MerchantService.create` gravando `CnpjRules.digits` e usando a nova checagem.
 **Where**: `backend/src/main/java/br/com/hanrry/reconpay/merchant/service/MerchantService.java`
@@ -167,12 +167,12 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] `POST` com `12.345.678/0001-95` responde `201` com `document` `12345678000195`
-- [ ] `POST` com os mesmos dígitos (sem pontuação) responde `409`
-- [ ] Empresa legada gravada direto no repositório como `12.345.678/0001-95` faz `POST 12345678000195` responder `409`
-- [ ] Empresa desativada bloqueia o mesmo CNPJ com `409`
-- [ ] `MerchantServiceTest` cobre normalização e duplicidade com o método novo
-- [ ] Gate check passes: `cd backend && ./mvnw verify`
+- [x] `POST` com `12.345.678/0001-95` responde `201` com `document` `12345678000195`
+- [x] `POST` com os mesmos dígitos (sem pontuação) responde `409`
+- [x] Empresa legada gravada direto no repositório como `12.345.678/0001-95` faz `POST 12345678000195` responder `409`
+- [x] Empresa desativada bloqueia o mesmo CNPJ com `409`
+- [x] `MerchantServiceTest` cobre normalização e duplicidade com o método novo
+- [x] Gate check passes: `cd backend && ./mvnw verify`
 
 **Tests**: integration
 **Gate**: full

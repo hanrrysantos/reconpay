@@ -92,7 +92,7 @@ class MerchantServiceTest {
         MerchantEntity savedEntity = buildMerchant(UUID.randomUUID(), "Loja Exemplo", "12345678000199");
         MerchantResponseDTO expectedResponse = toResponseDTO(savedEntity);
 
-        when(merchantRepository.existsByDocument("12345678000199")).thenReturn(false);
+        when(merchantRepository.existsByDocumentDigits("12345678000199")).thenReturn(false);
         when(merchantMapper.toEntity(request)).thenReturn(mappedEntity);
         when(merchantRepository.save(mappedEntity)).thenReturn(savedEntity);
         when(merchantMapper.toDTO(savedEntity)).thenReturn(expectedResponse);
@@ -110,7 +110,7 @@ class MerchantServiceTest {
         MerchantEntity mappedEntity = buildMerchant(null, "Loja Exemplo", "99999999000199");
         MerchantEntity savedEntity = buildMerchant(UUID.randomUUID(), "Loja Exemplo", "99999999000199");
 
-        when(merchantRepository.existsByDocument("99999999000199")).thenReturn(false);
+        when(merchantRepository.existsByDocumentDigits("99999999000199")).thenReturn(false);
         when(merchantMapper.toEntity(request)).thenReturn(mappedEntity);
         when(merchantRepository.save(mappedEntity)).thenReturn(savedEntity);
         doThrow(new IllegalStateException("grant failed"))
@@ -125,13 +125,43 @@ class MerchantServiceTest {
     void createShouldThrowWhenDocumentAlreadyExists() {
         MerchantRequestDTO request = new MerchantRequestDTO("Loja B", "12345678000199");
 
-        when(merchantRepository.existsByDocument("12345678000199")).thenReturn(true);
+        when(merchantRepository.existsByDocumentDigits("12345678000199")).thenReturn(true);
 
         assertThatThrownBy(() -> merchantService.create(request))
                 .isInstanceOf(MerchantAlreadyExistsException.class)
                 .hasMessage("Comerciante já cadastrado com documento: 12345678000199");
 
         verify(merchantMapper, never()).toEntity(any());
+        verify(merchantRepository, never()).save(any());
+    }
+
+    @Test
+    void createShouldCheckAndStoreOnlyTheDigitsOfAFormattedDocument() {
+        MerchantRequestDTO request = new MerchantRequestDTO("Loja Exemplo", "12.345.678/0001-95");
+        MerchantEntity mappedEntity = buildMerchant(null, "Loja Exemplo", "12.345.678/0001-95");
+        MerchantEntity savedEntity = buildMerchant(UUID.randomUUID(), "Loja Exemplo", "12345678000195");
+
+        when(merchantRepository.existsByDocumentDigits("12345678000195")).thenReturn(false);
+        when(merchantMapper.toEntity(request)).thenReturn(mappedEntity);
+        when(merchantRepository.save(mappedEntity)).thenReturn(savedEntity);
+
+        merchantService.create(request);
+
+        ArgumentCaptor<MerchantEntity> entityCaptor = ArgumentCaptor.forClass(MerchantEntity.class);
+        verify(merchantRepository).save(entityCaptor.capture());
+        assertThat(entityCaptor.getValue().getDocument()).isEqualTo("12345678000195");
+    }
+
+    @Test
+    void createShouldThrowWhenTheDigitsOfAFormattedDocumentAlreadyExist() {
+        MerchantRequestDTO request = new MerchantRequestDTO("Loja B", "12.345.678/0001-95");
+
+        when(merchantRepository.existsByDocumentDigits("12345678000195")).thenReturn(true);
+
+        assertThatThrownBy(() -> merchantService.create(request))
+                .isInstanceOf(MerchantAlreadyExistsException.class)
+                .hasMessage("Comerciante já cadastrado com documento: 12345678000195");
+
         verify(merchantRepository, never()).save(any());
     }
 
