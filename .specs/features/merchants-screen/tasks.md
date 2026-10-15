@@ -99,7 +99,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T2: CnpjRules
+### T2: CnpjRules ✅
 
 **What**: Util estático com `digits` (remove `.`, `/`, `-`, espaço) e `isValid` (14 dígitos, não todos iguais, verificadores corretos, nenhum outro caractere).
 **Where**: `backend/src/main/java/br/com/hanrry/reconpay/shared/CnpjRules.java`
@@ -114,9 +114,9 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] `digits("12.345.678/0001-95")` = `12345678000195`
-- [ ] `isValid` verdadeiro para `12345678000195` e `12.345.678/0001-95`; falso para 13/15 dígitos, verificador errado, `11111111111111`, `00000000000000`, letra no meio
-- [ ] Gate check passes: `cd backend && ./mvnw -q test -Dtest=CnpjRulesTest`
+- [x] `digits("12.345.678/0001-95")` = `12345678000195`
+- [x] `isValid` verdadeiro para `12345678000195` e `12.345.678/0001-95`; falso para 13/15 dígitos, verificador errado, `11111111111111`, `00000000000000`, letra no meio
+- [x] Gate check passes: `cd backend && ./mvnw -q test -Dtest=CnpjRulesTest`
 
 **Tests**: unit
 **Gate**: full
