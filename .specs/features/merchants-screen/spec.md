@@ -198,12 +198,12 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MLIST-06 | P1: Listar empresas | Execute | Implementing |
 | MLIST-07 | P1: Listar empresas | Execute | Implementing |
 | MLIST-08 | P1: Listar empresas | Execute | Implementing |
-| MEDIT-01 | P2: Renomear empresa | Design | Pending |
+| MEDIT-01 | P2: Renomear empresa | Execute | Implementing |
 | MEDIT-02 | P2: Renomear empresa | Execute | Implementing |
 | MEDIT-03 | P2: Renomear empresa | Execute | Implementing |
-| MEDIT-04 | P2: Renomear empresa | Design | Pending |
-| MEDIT-05 | P2: Renomear empresa | Design | Pending |
-| MEDIT-06 | P2: Renomear empresa | Design | Pending |
+| MEDIT-04 | P2: Renomear empresa | Execute | Implementing |
+| MEDIT-05 | P2: Renomear empresa | Execute | Implementing |
+| MEDIT-06 | P2: Renomear empresa | Execute | Implementing |
 | MDES-01 | P2: Desativar empresa | Design | Pending |
 | MDES-02 | P2: Desativar empresa | Execute | Implementing |
 | MDES-03 | P2: Desativar empresa | Execute | Implementing |

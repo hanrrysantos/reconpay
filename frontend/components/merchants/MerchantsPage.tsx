@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { useState } from 'react'
+import type { MerchantRecord } from '@/lib/api'
 import { BlockError, NoMerchant } from '@/components/dashboard/states'
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import { formatCnpj } from '@/lib/cnpj'
@@ -24,7 +25,8 @@ function TableSkeleton() {
 /** `/empresas`: the merchants the user can access, 20 per page by name; a click on the name selects it in the top menu. */
 export function MerchantsPage() {
   const [page, setPage] = useState(0)
-  const [creating, setCreating] = useState(false)
+  /** null: closed; 'create': new merchant; a merchant: rename it. */
+  const [drawer, setDrawer] = useState<'create' | MerchantRecord | null>(null)
   const list = useMerchantPage(page)
   const { merchantId, select } = useSelectedMerchant()
   const merchants = list.data?.content ?? []
@@ -39,7 +41,7 @@ export function MerchantsPage() {
           <h1 className="font-display text-[44px] leading-none font-extrabold tracking-[-0.04em]">Empresas</h1>
         </div>
         {!empty && (
-          <button type="button" onClick={() => setCreating(true)} className="flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-[14px] font-semibold text-foreground">
+          <button type="button" onClick={() => setDrawer('create')} className="flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-[14px] font-semibold text-foreground">
             <Plus aria-hidden="true" className="size-4" />
             Cadastrar empresa
           </button>
@@ -48,7 +50,7 @@ export function MerchantsPage() {
 
       {list.isPending && <TableSkeleton />}
       {list.isError && <BlockError message={messageOf(list.error)} action="Tentar de novo" onRetry={() => void list.refetch()} />}
-      {empty && <NoMerchant onCreate={() => setCreating(true)} />}
+      {empty && <NoMerchant onCreate={() => setDrawer('create')} />}
 
       {list.data && !empty && (
         <section className="flex flex-col gap-2 rounded-lg bg-surface p-2">
@@ -59,6 +61,7 @@ export function MerchantsPage() {
                   <th scope="col" className="px-3 font-normal">Nome</th>
                   <th scope="col" className="w-[200px] px-3 font-normal">CNPJ</th>
                   <th scope="col" className="w-[120px] px-3 font-normal">Cadastro</th>
+                  <th scope="col" className="w-[200px] px-3"><span className="sr-only">Ações</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -75,7 +78,12 @@ export function MerchantsPage() {
                         </div>
                       </td>
                       <td className={cn('px-3 py-2 font-mono text-[13px] group-hover:bg-subtle', selected && 'bg-surface group-hover:bg-surface')}>{formatCnpj(merchant.document)}</td>
-                      <td className={cn('rounded-r-[14px] px-3 py-2 font-mono text-[13px] text-muted group-hover:bg-subtle', selected && 'bg-surface group-hover:bg-surface')}>{createdOn(merchant.createdAt)}</td>
+                      <td className={cn('px-3 py-2 font-mono text-[13px] text-muted group-hover:bg-subtle', selected && 'bg-surface group-hover:bg-surface')}>{createdOn(merchant.createdAt)}</td>
+                      <td className={cn('rounded-r-[14px] px-3 py-2 group-hover:bg-subtle', selected && 'bg-surface group-hover:bg-surface')}>
+                        <div className="flex justify-end gap-1">
+                          <button type="button" onClick={() => setDrawer(merchant)} className="h-8 rounded-full bg-white px-3 text-[13px] font-semibold shadow-[inset_0_0_0_1px_var(--color-border)]">Editar</button>
+                        </div>
+                      </td>
                     </tr>
                   )
                 })}
@@ -99,7 +107,7 @@ export function MerchantsPage() {
         </section>
       )}
 
-      {creating && <MerchantDrawer onClose={() => setCreating(false)} />}
+      {drawer !== null && <MerchantDrawer merchant={drawer === 'create' ? undefined : drawer} onClose={() => setDrawer(null)} />}
     </>
   )
 }

@@ -17,13 +17,14 @@ const alfa = record('m-1', 'Alfa Pagamentos', '12345678000195')
 const beta = record('m-2', 'Beta Comércio', '11222333000181')
 
 /**
- * In-memory API: `merchants` answers the top menu and, by default, `GET /api/merchants`; `list` and `create` override
- * those answers. Without an override, `POST /api/merchants` stores the merchant and answers 201.
+ * In-memory API: `merchants` answers the top menu and, by default, `GET /api/merchants`; `list`, `create` and `rename`
+ * override those answers. Without an override, `POST` stores the merchant (201) and `PUT` renames it (200).
  */
 let server: {
   merchants: MerchantRecord[]
   list: ((search: URLSearchParams) => Reply) | null
   create: ((body: { name: string; document: string }) => Reply) | null
+  rename: ((merchantId: string, body: { name: string }) => Reply) | null
 }
 let calls: Call[]
 
@@ -43,6 +44,11 @@ function store(body: { name: string; document: string }): Response {
   return json(created, 201)
 }
 
+function storeName(merchantId: string, name: string): Response {
+  server.merchants = byName(server.merchants.map(merchant => merchant.id === merchantId ? { ...merchant, name } : merchant))
+  return json(server.merchants.find(merchant => merchant.id === merchantId))
+}
+
 async function route(method: string, path: string, search: URLSearchParams, body: unknown): Promise<Response> {
   if (path === '/api/me/merchants') return json(page(server.merchants.map(({ id, name, document }) => ({ id, name, document }))))
   if (path === '/api/merchants' && method === 'GET') return answer(server.list?.(search) ?? json(page(server.merchants)))
@@ -50,12 +56,17 @@ async function route(method: string, path: string, search: URLSearchParams, body
     const input = body as { name: string; document: string }
     return answer(server.create?.(input) ?? store(input))
   }
+  const merchantId = path.match(/^\/api\/merchants\/([^/]+)$/)?.[1]
+  if (merchantId && method === 'PUT') {
+    const input = body as { name: string }
+    return answer(server.rename?.(merchantId, input) ?? storeName(merchantId, input.name))
+  }
   throw new Error(`rota sem resposta no teste: ${method} ${path}`)
 }
 
 beforeEach(() => {
   calls = []
-  server = { merchants: [alfa, beta], list: null, create: null }
+  server = { merchants: [alfa, beta], list: null, create: null, rename: null }
   vi.stubGlobal('fetch', vi.fn(async (input: string, init: RequestInit = {}) => {
     const url = new URL(input)
     const method = init.method ?? 'GET'
@@ -340,5 +351,104 @@ describe('Cadastrar empresa', () => {
     await close(user)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(posts()).toHaveLength(0)
+  })
+})
+
+describe('Renomear empresa', () => {
+  const puts = () => calls.filter(call => call.method === 'PUT')
+  const drawer = () => screen.getByRole('dialog', { name: 'Editar empresa' })
+  const nameField = () => within(drawer()).getByLabelText('Nome')
+  const saveButton = () => within(drawer()).getByRole('button', { name: 'Salvar' })
+
+  async function openEdit(name = 'Alfa Pagamentos') {
+    const user = renderPage()
+    await screen.findByRole('row', { name: new RegExp(name) })
+    await user.click(within(row(name)).getByRole('button', { name: 'Editar' }))
+    return user
+  }
+
+  async function rename(user: ReturnType<typeof userEvent.setup>, name: string) {
+    await user.clear(nameField())
+    if (name) await user.type(nameField(), name)
+    await user.click(saveButton())
+  }
+
+  it('"Editar" abre a gaveta com o nome atual editável e o CNPJ formatado somente leitura (MEDIT-01)', async () => {
+    await openEdit()
+    expect(nameField()).toHaveValue('Alfa Pagamentos')
+    expect(nameField()).not.toHaveAttribute('readonly')
+    const cnpj = within(drawer()).getByLabelText('CNPJ')
+    expect(cnpj).toHaveValue('12.345.678/0001-95')
+    expect(cnpj).toHaveAttribute('readonly')
+  })
+
+  it('salvar chama PUT /api/merchants/{id} só com o nome sem espaços nas pontas (MEDIT-02)', async () => {
+    const user = await openEdit()
+    await rename(user, '  Alfa Matriz  ')
+    await waitFor(() => expect(puts()).toHaveLength(1))
+    expect(puts()[0].path).toBe('/api/merchants/m-1')
+    expect(puts()[0].body).toEqual({ name: 'Alfa Matriz' })
+  })
+
+  it('200 fecha a gaveta e mostra o novo nome na lista e no menu do topo (MEDIT-03)', async () => {
+    const user = await openEdit()
+    await waitFor(() => expect(menuButton()).toHaveTextContent('Alfa Pagamentos'))
+    await rename(user, 'Alfa Matriz')
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    await waitFor(() => expect(within(row('Alfa Matriz')).getByRole('button', { name: 'Alfa Matriz' })).toBeInTheDocument())
+    expect(screen.queryByRole('row', { name: /Alfa Pagamentos/ })).not.toBeInTheDocument()
+    expect(menuButton()).toHaveTextContent('Alfa Matriz')
+  })
+
+  it.each([
+    ['vazio após remover espaços', '   ', 'Informe o nome da empresa'],
+    ['com 151 caracteres', 'b'.repeat(151), 'Use no máximo 150 caracteres'],
+  ])('nome %s bloqueia o envio sem chamar a API (MEDIT-04)', async (_case, name, message) => {
+    const user = await openEdit()
+    await user.clear(nameField())
+    await user.click(nameField())
+    await user.paste(name)
+    await user.click(saveButton())
+    expect(within(drawer()).getByText(message)).toBeInTheDocument()
+    expect(puts()).toHaveLength(0)
+  })
+
+  it.each([
+    ['erro da API', () => fail(500, 'Erro interno ao renomear'), 'Erro interno ao renomear'],
+    ['falha de rede', () => new TypeError('Failed to fetch'), 'Não foi possível conectar à API. Tente novamente.'],
+  ])('%s mantém a gaveta com o nome digitado e mostra a mensagem (MEDIT-05)', async (_case, reply, message) => {
+    server.rename = reply
+    const user = await openEdit()
+    await rename(user, 'Alfa Matriz')
+    expect(await within(drawer()).findByRole('alert')).toHaveTextContent(message)
+    expect(nameField()).toHaveValue('Alfa Matriz')
+  })
+
+  it('durante o envio o botão de salvar fica desabilitado (MEDIT-06)', async () => {
+    let respond!: () => void
+    server.rename = (merchantId, body) => () => new Promise<Response>(resolve => { respond = () => resolve(storeName(merchantId, body.name)) })
+    const user = await openEdit()
+    await rename(user, 'Alfa Matriz')
+    expect(saveButton()).toBeDisabled()
+    await user.click(saveButton())
+    expect(puts()).toHaveLength(1)
+
+    respond()
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  })
+
+  it('404 ao editar mostra a mensagem e recarrega a lista (edge case)', async () => {
+    server.rename = merchantId => {
+      server.merchants = server.merchants.filter(merchant => merchant.id !== merchantId)
+      return fail(404, 'Empresa não encontrada')
+    }
+    const user = await openEdit()
+    const before = listRequests().length
+    await rename(user, 'Alfa Matriz')
+    expect(await within(drawer()).findByRole('alert')).toHaveTextContent('Empresa não encontrada')
+    await waitFor(() => expect(screen.queryByRole('row', { name: /Alfa Pagamentos/ })).not.toBeInTheDocument())
+    expect(listRequests().length).toBeGreaterThan(before)
+    expect(row('Beta Comércio')).toBeInTheDocument()
   })
 })

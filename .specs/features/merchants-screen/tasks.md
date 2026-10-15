@@ -312,7 +312,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T10: Renomear empresa
+### T10: Renomear empresa ✅
 
 **What**: Modo `edit` da `MerchantDrawer` (nome editável, CNPJ formatado somente leitura) aberto pela ação "Editar" da lista; `403`/`404` mostram a mensagem e recarregam a lista.
 **Where**: `frontend/components/merchants/MerchantDrawer.tsx`
@@ -327,8 +327,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Um teste por AC MEDIT-01..06 e o edge case `404` ao editar
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] Um teste por AC MEDIT-01..06 e o edge case `404` ao editar
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: quick
