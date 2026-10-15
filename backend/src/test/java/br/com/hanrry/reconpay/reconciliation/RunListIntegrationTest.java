@@ -130,6 +130,17 @@ class RunListIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
     }
 
+    @Test
+    void unknownSortPropertyIsRejectedAsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations", merchantId)
+                        .header("Authorization", "Bearer " + token)
+                        .param("sort", "nope,desc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Parâmetro de ordenação inválido: nope"));
+    }
+
     private ReconciliationRunEntity run(MerchantEntity merchant, LocalDate fromDate, LocalDate toDate) {
         ReconciliationRunEntity run = new ReconciliationRunEntity();
         run.setMerchant(merchant);
