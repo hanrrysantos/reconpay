@@ -3,7 +3,6 @@ import type { ComponentType } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ConciliacoesPage from '@/app/(app)/conciliacoes/page'
 import DivergenciasPage from '@/app/(app)/divergencias/page'
-import EmpresasPage from '@/app/(app)/empresas/page'
 import FechamentoPage from '@/app/(app)/fechamento/page'
 import ImportacoesPage from '@/app/(app)/importacoes/page'
 import TransacoesPage from '@/app/(app)/transacoes/page'
@@ -18,7 +17,6 @@ const ROUTES: Array<[string, string, ComponentType]> = [
   ['/transacoes', 'Transações', TransacoesPage],
   ['/importacoes', 'Importações', ImportacoesPage],
   ['/fechamento', 'Fechamento', FechamentoPage],
-  ['/empresas', 'Empresas', EmpresasPage],
 ]
 
 describe('rotas vazias', () => {

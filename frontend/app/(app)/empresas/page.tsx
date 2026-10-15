@@ -1,5 +1,5 @@
-import { UnderConstruction } from '@/components/shell/UnderConstruction'
+import { MerchantsPage } from '@/components/merchants/MerchantsPage'
 
 export default function EmpresasPage() {
-  return <UnderConstruction title="Empresas" />
+  return <MerchantsPage />
 }

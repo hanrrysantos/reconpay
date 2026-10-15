@@ -191,12 +191,12 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MDOC-04 | P1: CNPJ no backend | Execute | Implementing |
 | MDOC-05 | P1: CNPJ no backend | Execute | Implementing |
 | MLIST-01 | P1: Listar empresas | Execute | Implementing |
-| MLIST-02 | P1: Listar empresas | Design | Pending |
-| MLIST-03 | P1: Listar empresas | Design | Pending |
-| MLIST-04 | P1: Listar empresas | Design | Pending |
-| MLIST-05 | P1: Listar empresas | Design | Pending |
-| MLIST-06 | P1: Listar empresas | Design | Pending |
-| MLIST-07 | P1: Listar empresas | Design | Pending |
+| MLIST-02 | P1: Listar empresas | Execute | Implementing |
+| MLIST-03 | P1: Listar empresas | Execute | Implementing |
+| MLIST-04 | P1: Listar empresas | Execute | Implementing |
+| MLIST-05 | P1: Listar empresas | Execute | Implementing |
+| MLIST-06 | P1: Listar empresas | Execute | Implementing |
+| MLIST-07 | P1: Listar empresas | Execute | Implementing |
 | MLIST-08 | P1: Listar empresas | Execute | Implementing |
 | MEDIT-01 | P2: Renomear empresa | Design | Pending |
 | MEDIT-02 | P2: Renomear empresa | Execute | Implementing |

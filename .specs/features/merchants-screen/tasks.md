@@ -262,7 +262,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T8: Lista de empresas em /empresas
+### T8: Lista de empresas em /empresas ✅
 
 **What**: `MerchantsPage` com tabela (nome, CNPJ, cadastro), marca da selecionada, clique no nome seleciona, paginação Anterior/Próxima, estados carregando/vazio/erro com "Tentar de novo"; `app/(app)/empresas/page.tsx` renderiza a página.
 **Where**: `frontend/components/merchants/MerchantsPage.tsx`
@@ -277,8 +277,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Um teste por AC MLIST-01..08 (fetch falso no estilo de `DashboardPage.test.tsx`)
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] Um teste por AC MLIST-01..08 (fetch falso no estilo de `DashboardPage.test.tsx`)
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: quick
