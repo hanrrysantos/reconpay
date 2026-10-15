@@ -362,7 +362,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T12: Documentação
+### T12: Documentação ✅
 
 **What**: README raiz (regra de Merchants: CNPJ de 14 dígitos normalizado, duplicidade por dígitos) e `frontend/README.md` (fluxo de `/empresas` fora da lista "em construção").
 **Where**: `README.md`
@@ -377,8 +377,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Os dois READMEs descrevem o comportamento entregue
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Os dois READMEs descrevem o comportamento entregue
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: none
 **Gate**: build
