@@ -58,7 +58,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 2. WHEN o usuário digita no campo CNPJ THEN the system SHALL exibir o valor com a máscara `00.000.000/0000-00` e aceitar no máximo 14 dígitos.
 3. WHEN o usuário envia nome e CNPJ válidos THEN the system SHALL chamar `POST /api/merchants` com `name` sem espaços nas pontas e `document` só com os 14 dígitos.
 4. WHEN a API responde `201` THEN the system SHALL fechar a gaveta, mostrar a empresa na lista e no menu do topo e torná-la a empresa selecionada.
-5. IF o nome está vazio (após remover espaços) ou tem mais de 150 caracteres THEN the system SHALL bloquear o envio e mostrar a mensagem do campo sem chamar a API.
+5. IF o nome está vazio (após remover espaços) ou tem mais de 150 caracteres THEN the system SHALL bloquear o envio sem chamar a API e mostrar no campo "Informe o nome da empresa" (vazio) ou "Use no máximo 150 caracteres" (longo).
 6. IF o CNPJ não tem 14 dígitos ou os dígitos verificadores não conferem THEN the system SHALL bloquear o envio e mostrar "CNPJ inválido" sem chamar a API.
 7. IF a API responde `409` THEN the system SHALL manter a gaveta aberta com os valores digitados e mostrar a mensagem do `StandardError`.
 8. IF a API responde outro erro ou a rede falha THEN the system SHALL manter a gaveta aberta com os valores digitados e mostrar a mensagem do erro.
