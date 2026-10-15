@@ -11,7 +11,6 @@ public record MerchantRequestDTO(
         String name,
 
         @NotBlank(message = "Documento é obrigatório")
-        @Size(max = 30, message = "Documento deve ter no máximo 30 caracteres")
         @ValidCnpj
         String document
 ) {

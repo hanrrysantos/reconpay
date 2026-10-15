@@ -125,6 +125,15 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldStoreTheDigitsOfAValidCnpjPaddedBeyondThirtyCharacters() throws Exception {
+        String digits = TestCnpj.random();
+
+        mockMvc.perform(createRequest("  " + formatted(digits) + " ".repeat(20)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.document").value(digits));
+    }
+
+    @Test
     void shouldRejectCnpjWhoseDigitsMatchALegacyFormattedDocument() throws Exception {
         String digits = TestCnpj.random();
         MerchantEntity legacy = new MerchantEntity();
@@ -157,7 +166,8 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1234567800019", "12345678000199", "11111111111111", "00000000000000", "12A45678000195"})
+    @ValueSource(strings = {"1234567800019", "12345678000199", "11111111111111", "00000000000000", "12A45678000195",
+            "1234567800019599999999999999999", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"})
     void shouldRejectInvalidCnpj(String document) throws Exception {
         mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)
