@@ -68,10 +68,7 @@ export function useLatestRun(merchantId: string | null, window: Window) {
   const { token } = useAuth()
   return useQuery({
     queryKey: queryKeys.latestRun(merchantId ?? '', window),
-    queryFn: async () => {
-      const page = await getRuns(token!, merchantId!, { size: RUNS_SCAN_SIZE })
-      return page.content.find(run => run.fromDate === window.fromDate && run.toDate === window.toDate) ?? null
-    },
+    queryFn: async () => (await getRuns(token!, merchantId!, { size: 1, window })).content[0] ?? null,
     enabled: Boolean(token && merchantId),
     refetchInterval: query => inFlight(query.state.data) ? RUN_POLL_MS : false,
   })

@@ -87,13 +87,17 @@ describe('useLatestRun', () => {
     expect(api.getRuns).toHaveBeenCalledTimes(3)
   })
 
-  it('devolve o run mais recente da janela exata e null quando a janela não tem run', async () => {
-    vi.mocked(api.getRuns).mockResolvedValue(runsPage(run('RUNNING', august), run('COMPLETED', september)))
+  it('pede à API só o run mais recente da janela exata e devolve null quando a janela não tem run', async () => {
+    const july = { fromDate: '2026-07-01', toDate: '2026-07-31' }
+    vi.mocked(api.getRuns).mockImplementation(async (_token, _merchantId, options) =>
+      options?.window?.fromDate === september.fromDate ? runsPage(run('COMPLETED', september)) : runsPage())
     const { result, rerender } = renderHook(({ window }) => useLatestRun('m-1', window), { wrapper, initialProps: { window: september } })
     await waitFor(() => expect(result.current.data).toMatchObject({ status: 'COMPLETED', fromDate: '2026-09-01' }))
+    expect(api.getRuns).toHaveBeenLastCalledWith('jwt', 'm-1', { size: 1, window: september })
 
-    rerender({ window: { fromDate: '2026-07-01', toDate: '2026-07-31' } })
+    rerender({ window: july })
     await waitFor(() => expect(result.current.data).toBeNull())
+    expect(api.getRuns).toHaveBeenLastCalledWith('jwt', 'm-1', { size: 1, window: july })
   })
 })
 

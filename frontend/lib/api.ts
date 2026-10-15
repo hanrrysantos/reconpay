@@ -259,16 +259,14 @@ const runPath = (merchantId: string, runId: string) => `${merchantPath(merchantI
 const windowQuery = ({ fromDate, toDate }: Window) => `fromDate=${encodeURIComponent(fromDate)}&toDate=${encodeURIComponent(toDate)}`
 const windowBody = ({ fromDate, toDate }: Window) => JSON.stringify({ fromDate, toDate })
 
+/** Runs newest first; with `window`, only the runs of that exact window. */
 export function getRuns(
   token: string,
   merchantId: string,
-  { page = 0, size = 20, direction = 'desc' }: { page?: number; size?: number; direction?: 'asc' | 'desc' } = {},
+  { page = 0, size = 20, direction = 'desc', window }: { page?: number; size?: number; direction?: 'asc' | 'desc'; window?: Window } = {},
 ): Promise<Page<Run>> {
-  return request(`${merchantPath(merchantId)}/reconciliations?page=${page}&size=${size}&sort=createdAt%2C${direction}`, {}, token)
-}
-
-export function getRun(token: string, merchantId: string, runId: string): Promise<Run> {
-  return request(runPath(merchantId, runId), {}, token)
+  const windowFilter = window ? `&${windowQuery(window)}` : ''
+  return request(`${merchantPath(merchantId)}/reconciliations?page=${page}&size=${size}&sort=createdAt%2C${direction}${windowFilter}`, {}, token)
 }
 
 export function runReconciliation(token: string, merchantId: string, window: Window): Promise<Run> {

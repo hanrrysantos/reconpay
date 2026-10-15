@@ -43,7 +43,13 @@ function route(method: string, path: string, search: URLSearchParams, body: unkn
   if (path === '/api/me/merchants') return json({ content: server.merchants, totalPages: 1 })
   const [, , , merchantId, ...rest] = path.split('/')
   const tail = rest.join('/')
-  if (tail === 'reconciliations' && method === 'GET') return json(page(server.runs[merchantId] ?? []))
+  if (tail === 'reconciliations' && method === 'GET') {
+    // Same contract as the API: fromDate and toDate together keep only the runs of that exact window.
+    const runs = server.runs[merchantId] ?? []
+    const fromDate = search.get('fromDate')
+    const toDate = search.get('toDate')
+    return json(page(fromDate && toDate ? runs.filter(run => run.fromDate === fromDate && run.toDate === toDate) : runs))
+  }
   if (tail === 'reconciliations' && method === 'POST') return resolve(server.postRun())
   if (tail === 'periods') return resolve(server.period(merchantId, search))
   if (tail === 'periods/summary') return resolve(server.summary())
