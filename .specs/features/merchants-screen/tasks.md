@@ -209,7 +209,7 @@ T9 → T10 → T11 → T12
 
 ---
 
-### T6: Funções de API de merchant
+### T6: Funções de API de merchant ✅
 
 **What**: Tipo `MerchantRecord` e `getMerchantPage`, `createMerchant`, `renameMerchant`, `deactivateMerchant` em `lib/api.ts`.
 **Where**: `frontend/lib/api.ts`
@@ -224,9 +224,9 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Testes de URL, método, corpo e `Authorization` de cada função (`page=<n>&size=20&sort=name%2Casc`; `POST` com `{name, document}`; `PUT` com `{name}`; `DELETE` sem corpo)
-- [ ] Erro `409` vira `ApiError` com a mensagem do `StandardError`
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] Testes de URL, método, corpo e `Authorization` de cada função (`page=<n>&size=20&sort=name%2Casc`; `POST` com `{name, document}`; `PUT` com `{name}`; `DELETE` sem corpo)
+- [x] Erro `409` vira `ApiError` com a mensagem do `StandardError`
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: quick

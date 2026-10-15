@@ -17,6 +17,12 @@ export type Merchant = {
   document: string
 }
 
+/** A merchant as `/api/merchants` returns it; `document` keeps any punctuation stored before CNPJ normalization. */
+export type MerchantRecord = Merchant & {
+  active: boolean
+  createdAt: string
+}
+
 export type PaymentMethod = 'CREDIT_CARD' | 'DEBIT_CARD' | 'PIX' | 'BOLETO'
 export type TransactionStatus = 'APPROVED' | 'CANCELLED' | 'REFUNDED' | 'CHARGEBACK'
 
@@ -243,6 +249,22 @@ export async function getMerchants(token: string): Promise<Merchant[]> {
     page++
   } while (page < totalPages)
   return merchants
+}
+
+export function getMerchantPage(token: string, page: number): Promise<Page<MerchantRecord>> {
+  return request(`/api/merchants?page=${page}&size=20&sort=name%2Casc`, {}, token)
+}
+
+export function createMerchant(token: string, input: { name: string; document: string }): Promise<MerchantRecord> {
+  return request('/api/merchants', { method: 'POST', body: JSON.stringify(input) }, token)
+}
+
+export function renameMerchant(token: string, merchantId: string, name: string): Promise<MerchantRecord> {
+  return request(merchantPath(merchantId), { method: 'PUT', body: JSON.stringify({ name }) }, token)
+}
+
+export async function deactivateMerchant(token: string, merchantId: string): Promise<void> {
+  await request(merchantPath(merchantId), { method: 'DELETE' }, token)
 }
 
 export async function getTransactions(token: string, merchantId: string): Promise<Transaction[]> {

@@ -177,7 +177,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | --- | --- | --- | --- |
 | MCAD-01 | P1: Cadastrar empresa | Design | Pending |
 | MCAD-02 | P1: Cadastrar empresa | Execute | Implementing |
-| MCAD-03 | P1: Cadastrar empresa | Design | Pending |
+| MCAD-03 | P1: Cadastrar empresa | Execute | Implementing |
 | MCAD-04 | P1: Cadastrar empresa | Design | Pending |
 | MCAD-05 | P1: Cadastrar empresa | Design | Pending |
 | MCAD-06 | P1: Cadastrar empresa | Execute | Implementing |
@@ -190,7 +190,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MDOC-03 | P1: CNPJ no backend | Execute | Implementing |
 | MDOC-04 | P1: CNPJ no backend | Execute | Implementing |
 | MDOC-05 | P1: CNPJ no backend | Execute | Implementing |
-| MLIST-01 | P1: Listar empresas | Design | Pending |
+| MLIST-01 | P1: Listar empresas | Execute | Implementing |
 | MLIST-02 | P1: Listar empresas | Design | Pending |
 | MLIST-03 | P1: Listar empresas | Design | Pending |
 | MLIST-04 | P1: Listar empresas | Design | Pending |
@@ -199,13 +199,13 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MLIST-07 | P1: Listar empresas | Design | Pending |
 | MLIST-08 | P1: Listar empresas | Execute | Implementing |
 | MEDIT-01 | P2: Renomear empresa | Design | Pending |
-| MEDIT-02 | P2: Renomear empresa | Design | Pending |
+| MEDIT-02 | P2: Renomear empresa | Execute | Implementing |
 | MEDIT-03 | P2: Renomear empresa | Design | Pending |
 | MEDIT-04 | P2: Renomear empresa | Design | Pending |
 | MEDIT-05 | P2: Renomear empresa | Design | Pending |
 | MEDIT-06 | P2: Renomear empresa | Design | Pending |
 | MDES-01 | P2: Desativar empresa | Design | Pending |
-| MDES-02 | P2: Desativar empresa | Design | Pending |
+| MDES-02 | P2: Desativar empresa | Execute | Implementing |
 | MDES-03 | P2: Desativar empresa | Design | Pending |
 | MDES-04 | P2: Desativar empresa | Design | Pending |
 | MDES-05 | P2: Desativar empresa | Design | Pending |
