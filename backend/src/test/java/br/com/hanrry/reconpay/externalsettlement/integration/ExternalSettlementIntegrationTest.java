@@ -3,6 +3,7 @@ package br.com.hanrry.reconpay.externalsettlement.integration;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.externalsettlement.repository.IExternalSettlementRepository;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import br.com.hanrry.reconpay.util.TestCnpj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
@@ -57,7 +58,7 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
         adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
         operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
 
-        String uniqueDocument = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String uniqueDocument = TestCnpj.random();
 
         String merchantResponse = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)
@@ -575,7 +576,7 @@ class ExternalSettlementIntegrationTest extends AbstractIntegrationTest {
     }
 
     private String createMerchant(String name) throws Exception {
-        String uniqueDocument = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String uniqueDocument = TestCnpj.random();
 
         String merchantResponse = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)

@@ -2,14 +2,13 @@ package br.com.hanrry.reconpay.merchant.integration;
 
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import br.com.hanrry.reconpay.util.TestCnpj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -35,15 +34,16 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateListUpdateAndDeleteMerchant() throws Exception {
+        String document = TestCnpj.random();
         String createResponse = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
                                   "name": "Loja Exemplo",
-                                  "document": "12345678000199"
+                                  "document": "%s"
                                 }
-                                """))
+                                """.formatted(document)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Loja Exemplo"))
                 .andReturn()
@@ -59,7 +59,7 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
                         .param("page", "0")
                         .param("size", "500"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[?(@.document=='12345678000199')]").exists());
+                .andExpect(jsonPath("$.content[?(@.document=='" + document + "')]").exists());
 
         mockMvc.perform(put("/api/merchants/{id}", merchantId)
                         .header("Authorization", "Bearer " + adminToken)
@@ -105,7 +105,7 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void operatorShouldCreateMerchantAndSeeItInScopedList() throws Exception {
-        String document = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String document = TestCnpj.random();
         String createResponse = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + operatorToken)
                         .contentType(MediaType.APPLICATION_JSON)

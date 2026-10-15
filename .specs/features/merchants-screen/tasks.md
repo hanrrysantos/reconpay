@@ -72,7 +72,7 @@ T9 → T10 → T11 → T12
 
 ## Task Breakdown
 
-### T1: Gerador de CNPJ válido para os testes
+### T1: Gerador de CNPJ válido para os testes ✅
 
 **What**: Criar `TestCnpj.random()` (CNPJ de 14 dígitos com dígitos verificadores válidos) e trocar por ele o documento hex aleatório ou o fixo `12345678000199` nos 14 testes de integração que fazem `POST /api/merchants`, sem mudar nenhuma asserção.
 **Where**: `backend/src/test/java/br/com/hanrry/reconpay/util/TestCnpj.java`
@@ -87,10 +87,10 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] `TestCnpj.random()` gera CNPJ cujo dígito verificador confere (teste unitário do gerador com 1000 amostras)
-- [ ] Nenhum teste de integração envia documento hex ou `12345678000199` em `POST /api/merchants`
-- [ ] Gate check passes: `cd backend && ./mvnw verify`
-- [ ] Test count: 497 + testes do gerador passam (sem remoções)
+- [x] `TestCnpj.random()` gera CNPJ cujo dígito verificador confere (teste unitário do gerador com 1000 amostras)
+- [x] Nenhum teste de integração envia documento hex ou `12345678000199` em `POST /api/merchants`
+- [x] Gate check passes: `cd backend && ./mvnw verify`
+- [x] Test count: 497 + testes do gerador passam (sem remoções)
 
 **Tests**: unit
 **Gate**: full
