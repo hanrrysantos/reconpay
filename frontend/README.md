@@ -54,7 +54,20 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
   - "Alterar status" aparece só nas transações aprovadas e pede Cancelada, Estornada ou Chargeback num diálogo que avisa que a mudança não pode ser desfeita;
   - erros da API mantêm a gaveta ou o diálogo aberto com a mensagem; sem regra de taxa ativa, a gaveta mostra o link "Cadastrar regra de taxa" para `/taxas?cadastrar=1`; um erro na mudança de status também recarrega a lista;
   - trocar de empresa fecha gaveta e diálogo, remove o aviso, mantém os filtros e volta para a página 1; estados de carregamento, sem transações ("Nenhuma transação encontrada para os filtros escolhidos."), sem empresa e erro ("Tentar novamente").
-- `/conciliacoes`, `/divergencias` e `/fechamento` mostram a barra e "em construção", sem chamar a API.
+- Conciliações em `/conciliacoes`, pelo item "Conciliações" da barra superior:
+  - histórico de runs da empresa selecionada, 20 por página, do mais recente ao mais antigo, com Janela ("Outubro de 2026" ou "01/10/2026 – 15/10/2026"), Status (Na fila, Em andamento, Concluída, Falhou), Itens, Conciliados, Divergentes, Criado em e "Ver itens";
+  - em andamento, Itens mostra "<processados> de <total>"; run substituído leva o selo "Substituído"; run com falha mostra a mensagem do run; a lista recarrega a cada 3 s enquanto algum run da página estiver na fila ou em andamento;
+  - filtro "Janela" com "Todas" e os 12 meses mais recentes; um mês envia `fromDate`/`toDate` exatos e volta para a página 1;
+  - "Nova conciliação" abre uma gaveta com "Mês" (no mês atual) ou "Personalizado" e os campos De e Até; datas vazias, intervalo invertido e janela acima de 366 dias são checados antes de chamar a API; no aceite a gaveta fecha, o filtro volta para "Todas" e o run novo aparece no topo como "Na fila"; `409` e `400` mantêm a gaveta aberta com a mensagem;
+  - trocar de empresa fecha a gaveta, mantém o filtro e volta para a página 1; estados de carregamento, sem runs ("Nenhuma conciliação encontrada."), sem empresa e erro ("Tentar novamente").
+- Detalhe de um run em `/conciliacoes/[runId]`, pelo "Ver itens" da lista:
+  - cabeçalho com janela, status, criado em, Itens, Conciliados, Divergentes, o selo "Substituído" e "Voltar para conciliações"; run inexistente ou de outra empresa mostra "Conciliação não encontrada.";
+  - itens do run, 20 por página, da maior diferença absoluta para a menor, com Referência, Data da venda, Método, Líquido esperado, Líquido liquidado, Diferença, Resultado (Bateu, Divergente) e Divergências ("<tipo> · <status>"); o lado ausente aparece como "—";
+  - filtros "Resultado" (Todos, Bateram, Divergentes) e "Tipo de divergência"; qualquer mudança volta para a página 1; sem itens, "Nenhum item encontrado para os filtros escolhidos.";
+  - run na fila ou em andamento recarrega o run e os itens a cada 3 s;
+  - "Exportar CSV" aparece só em run concluído e baixa `reconciliation-<runId>.csv`; o erro aparece junto do botão;
+  - trocar de empresa volta para `/conciliacoes`.
+- `/divergencias` e `/fechamento` mostram a barra e "em construção", sem chamar a API.
 
 ## Dependências
 

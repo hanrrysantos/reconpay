@@ -349,9 +349,9 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Os READMEs descrevem histórico, disparo, detalhe, filtros e export; `/conciliacoes` sai da lista "em construção"
-- [ ] O README raiz cita o `404` do export para run inexistente
-- [ ] Gate build passa
+- [x] Os READMEs descrevem histórico, disparo, detalhe, filtros e export; `/conciliacoes` sai da lista "em construção"
+- [x] O README raiz cita o `404` do export para run inexistente
+- [x] Gate build passa
 
 **Tests**: none
 **Gate**: build
