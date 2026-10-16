@@ -141,10 +141,10 @@ T7 → T8
 
 **Done when**:
 
-- [ ] `useImportBatches('m-1', 'settlements', 2)` consulta a página 2 da liquidação da empresa `m-1`
-- [ ] Após `useImportCsv` aceito, `['importBatches', 'm-1', kind]` e `['imports', 'm-1']` são recarregados antes de a mutação resolver
-- [ ] Após recusa, nada é invalidado
-- [ ] Testes em `frontend/lib/queries.imports.test.tsx`; gate quick passa
+- [x] `useImportBatches('m-1', 'settlements', 2)` consulta a página 2 da liquidação da empresa `m-1`
+- [x] Após `useImportCsv` aceito, `['importBatches', 'm-1', kind]` e `['imports', 'm-1']` são recarregados antes de a mutação resolver
+- [x] Após recusa, nada é invalidado
+- [x] Testes em `frontend/lib/queries.imports.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick

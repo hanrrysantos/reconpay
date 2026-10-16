@@ -4,9 +4,9 @@ import { MutationCache, QueryCache, QueryClient, useMutation, useQuery, useQuery
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import {
   ApiError, createFeeRule, createMerchant, deactivateFeeRule, deactivateMerchant, exportRunCsv, getDiscrepancy, getFeeRules,
-  getLatestBankStatementImportTime, getLatestSettlementImport, getMerchantPage, getOpenDiscrepancies, getPeriod,
+  getImportBatches, getLatestBankStatementImportTime, getLatestSettlementImport, getMerchantPage, importCsv, getOpenDiscrepancies, getPeriod,
   getPeriodSummary, getRuns, lockPeriod, renameMerchant, runReconciliation, unlockPeriod, updateDiscrepancy, updateFeeRuleFees,
-  type DiscrepancyType, type DiscrepancyUpdate, type FeeRuleFees, type FeeRuleInput, type Run,
+  type DiscrepancyType, type DiscrepancyUpdate, type FeeRuleFees, type FeeRuleInput, type ImportKind, type Run,
 } from './api'
 import { useAuth } from './auth'
 import type { Window } from './period'
@@ -47,6 +47,9 @@ export const queryKeys = {
   /** Prefix of the top menu list, `['merchants', userId]`, owned by `SelectedMerchantProvider`. */
   merchants: ['merchants'] as const,
   feeRules: (merchantId: string) => ['feeRules', merchantId] as const,
+  /** Accepted imports listed on `/importacoes`; apart from `imports`, the dashboard's latest import times. */
+  importBatches: (merchantId: string, kind: ImportKind, page?: number) =>
+    (page === undefined ? ['importBatches', merchantId, kind] : ['importBatches', merchantId, kind, page]) as readonly unknown[],
 }
 
 const inFlight = (run: Run | null | undefined) => run?.status === 'PENDING' || run?.status === 'RUNNING'
@@ -264,4 +267,27 @@ export function useDeactivateFeeRule(merchantId: string) {
   const { token } = useAuth()
   const invalidate = useInvalidateFeeRules(merchantId)
   return useMutation({ mutationFn: (ruleId: string) => deactivateFeeRule(token!, merchantId, ruleId), onSuccess: invalidate })
+}
+
+/** One page of the accepted imports of a kind, newest first. */
+export function useImportBatches(merchantId: string, kind: ImportKind, page: number) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: queryKeys.importBatches(merchantId, kind, page),
+    queryFn: () => getImportBatches(token!, merchantId, kind, page),
+    enabled: Boolean(token),
+  })
+}
+
+/** Resolves only after the kind's batch list and the dashboard's latest imports have reloaded; a refused file reloads nothing. */
+export function useImportCsv(merchantId: string, kind: ImportKind) {
+  const { token } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (file: File) => importCsv(token!, merchantId, kind, file),
+    onSuccess: () => Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.importBatches(merchantId, kind) }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.imports(merchantId) }),
+    ]),
+  })
 }
