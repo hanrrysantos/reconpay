@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 32,
+  "next_id": 35,
   "lessons": [
     {
       "id": "L-001",
@@ -563,6 +563,60 @@
       ],
       "created": "2026-10-16T13:21:12Z",
       "last_seen": "2026-10-16T13:21:12Z"
+    },
+    {
+      "id": "L-032",
+      "key": "surviving_mutant::assert the 403 for a user without access on every merchant scoped route because the access guard is matched by parameter name and a renamed parameter skips it",
+      "text": "Assert the 403 for a user without access on every merchant-scoped route, because the access guard is matched by parameter name and a renamed parameter skips it",
+      "signal": "surviving_mutant",
+      "scope": "routes",
+      "status": "candidate",
+      "features": [
+        "transaction-csv-import"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "W7 TransactionController.java:99 (routes)"
+      ],
+      "created": "2026-10-16T13:49:42Z",
+      "last_seen": "2026-10-16T13:49:42Z"
+    },
+    {
+      "id": "L-033",
+      "key": "surviving_mutant::when the spec requires an exact header test the right column names in a different order",
+      "text": "When the spec requires an exact header, test the right column names in a different order",
+      "signal": "surviving_mutant",
+      "scope": "parsers",
+      "status": "candidate",
+      "features": [
+        "transaction-csv-import"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "W4 TransactionCsvParser.java:95 (parsers)"
+      ],
+      "created": "2026-10-16T13:49:42Z",
+      "last_seen": "2026-10-16T13:49:42Z"
+    },
+    {
+      "id": "L-034",
+      "key": "surviving_mutant::test every enumerated column with a lower case value not only one of them",
+      "text": "Test every enumerated column with a lower-case value, not only one of them",
+      "signal": "surviving_mutant",
+      "scope": "parsers",
+      "status": "candidate",
+      "features": [
+        "transaction-csv-import"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "W8 TransactionCsvParser.java:193 (parsers)"
+      ],
+      "created": "2026-10-16T13:49:43Z",
+      "last_seen": "2026-10-16T13:49:43Z"
     }
   ]
 }

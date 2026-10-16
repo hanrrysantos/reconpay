@@ -200,6 +200,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md V7 TransactionImportService.java:136 (imports)
 - last seen: 2026-10-16T13:21:12Z
 
+### L-032 - Assert the 403 for a user without access on every merchant-scoped route, because the access guard is matched by parameter name and a renamed parameter skips it
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: transaction-csv-import
+- evidence: W7 TransactionController.java:99 (routes)
+- last seen: 2026-10-16T13:49:42Z
+
+### L-033 - When the spec requires an exact header, test the right column names in a different order
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `parsers` · harmful: 0
+- features: transaction-csv-import
+- evidence: W4 TransactionCsvParser.java:95 (parsers)
+- last seen: 2026-10-16T13:49:42Z
+
+### L-034 - Test every enumerated column with a lower-case value, not only one of them
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `parsers` · harmful: 0
+- features: transaction-csv-import
+- evidence: W8 TransactionCsvParser.java:193 (parsers)
+- last seen: 2026-10-16T13:49:43Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
