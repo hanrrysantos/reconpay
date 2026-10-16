@@ -168,11 +168,11 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Linhas com nome do arquivo, total e data no formato `dd/mm/aaaa hh:mm`
-- [ ] "Anterior"/"Próxima" só com mais de uma página; desabilitados na primeira/última; o clique chama `onPageChange` com a página vizinha
-- [ ] Vazio mostra "Nenhuma importação de liquidação ainda." (e o texto de cada tipo)
-- [ ] Erro mostra a mensagem e "Tentar novamente" refaz a consulta
-- [ ] Testes em `frontend/components/imports/ImportBatches.test.tsx`; gate quick passa
+- [x] Linhas com nome do arquivo, total e data no formato `dd/mm/aaaa hh:mm`
+- [x] "Anterior"/"Próxima" só com mais de uma página; desabilitados na primeira/última; o clique chama `onPageChange` com a página vizinha
+- [x] Vazio mostra "Nenhuma importação de liquidação ainda." (e o texto de cada tipo)
+- [x] Erro mostra a mensagem e "Tentar novamente" refaz a consulta
+- [x] Testes em `frontend/components/imports/ImportBatches.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
