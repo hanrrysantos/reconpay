@@ -61,6 +61,7 @@ public class GlobalExceptionHandler {
             TransactionNotFoundException.class,
             ExternalSettlementNotFoundException.class,
             SettlementImportNotFoundException.class,
+            TransactionImportNotFoundException.class,
             ReconciliationNotFoundException.class,
             DiscrepancyNotFoundException.class,
             PeriodNotFoundException.class
@@ -178,6 +179,20 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(DuplicateTransactionReferenceException.class)
+    public ResponseEntity<StandardError> handleDuplicateTransactionReference(
+            DuplicateTransactionReferenceException ex,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.CONFLICT,
+                ApiErrorCode.CONFLICT,
+                ex.getMessage(),
+                request,
+                Map.of("conflictingReferences", ex.getConflictingReferences())
+        );
+    }
+
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<StandardError> handleMaxUploadSizeExceeded(
             MaxUploadSizeExceededException ex,
@@ -216,6 +231,7 @@ public class GlobalExceptionHandler {
             InvalidTransactionAmountException.class,
             InvalidInstallmentsForPaymentMethodException.class,
             InvalidSettlementImportException.class,
+            InvalidTransactionImportException.class,
             InvalidReconciliationWindowException.class
     })
     public ResponseEntity<StandardError> handleBusinessValidation(
@@ -228,6 +244,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SettlementImportValidationException.class)
     public ResponseEntity<StandardError> handleSettlementImportValidation(
             SettlementImportValidationException ex,
+            HttpServletRequest request
+    ) {
+        return buildError(
+                HttpStatus.BAD_REQUEST,
+                ApiErrorCode.VALIDATION_ERROR,
+                ex.getMessage(),
+                request,
+                Map.of("rowErrors", ex.getRowErrors())
+        );
+    }
+
+    @ExceptionHandler(TransactionImportValidationException.class)
+    public ResponseEntity<StandardError> handleTransactionImportValidation(
+            TransactionImportValidationException ex,
             HttpServletRequest request
     ) {
         return buildError(

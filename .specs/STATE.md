@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: fee-rules-screen (tela de Regras de taxa) — **Verified** (`validation.md` iteração 5: PASS, 34/34; iterações 4 e 5 autorizadas pelo usuário além do limite de 3)
-- **Phase / Task**: T1–T10 concluídas; correções de teste `fb9bfef`, `65040f5`, `b944fe1`, `0d58242`, `094330d`, `0add611` e o reforço do teste de referência
-- **Completed**: API recusa regra parcelada de Pix/Boleto/Débito (criar e alterar); casca comum `ui/SideDrawer` e `ui/ConfirmDialog` (Empresas migrada sem mudar testes); `/taxas` com lista, cadastro, alteração de taxas e desativação, aberta por "Regras de taxa da <empresa>" no menu de empresa; `lib/fee.ts` coberto por teste de referência com BigInt só no teste. Backend 547 testes, frontend 491.
+- **Feature**: transaction-csv-import (import CSV de transações, backend) — **Verified** (`validation.md` iteração 5: PASS, 18/18 e 16/16 textos; iterações 4 e 5 autorizadas pelo usuário além do limite de 3)
+- **Phase / Task**: T1–T6 concluídas; correções de teste das iterações 1–4 em `f248e0d`, `7ab6276`, `4bc5ebe`, `f1e3ac4`, `10b9679`
+- **Completed**: `POST /transactions/import` tudo ou nada (erros por linha em `details.rowErrors`, `409` com `conflictingReferences`, período travado), lote em `transaction_imports` (`V24`) com `GET /transactions/imports` e `/imports/{importId}`; `ExpectedNetAmountCalculator` compartilhado com o cadastro unitário; `MerchantRouteAccessIntegrationTest` exige o guard de empresa em todas as rotas `/api/merchants/{merchantId}` (31 estáticas, 20 GET com `403`). Backend 630 testes.
 - **In-progress** (file:line): none
-- **Next step**: conferência visual em `/taxas`; push de `feat/fee-rules-screen` e PR (pelo usuário). Depois: import CSV de transações no backend (AD-011). Pendências: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: push de `feat/transaction-csv-import` e PR (pelo usuário). Depois: tela de Importações (transações, liquidação e extrato, com lotes e erros por linha) e tela de Transações (lista, formulário e status), conforme AD-011. Pendências: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404`; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: feat/fee-rules-screen (local, sem push)
+- **Branch**: feat/transaction-csv-import (local, sem push)

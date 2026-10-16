@@ -158,6 +158,66 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md sensor N1b, N2 (frontend/lib/fee.reference.test.ts:10-11) (frontend-validation)
 - last seen: 2026-10-16T02:06:03Z
 
+### L-025 - Test the largest value an inclusive bound accepts, not only the first value past it
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `parsers` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md M1 TransactionCsvParser.java:152 (TIMP-10 #6) (parsers)
+- last seen: 2026-10-16T12:47:11Z
+
+### L-026 - Test an input that fails two checks on the same field, so an error dropped when another already fired is caught
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `parsers` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md M6 TransactionCsvParser.java:119 (TIMP-09/TIMP-10 #3-#4) (parsers)
+- last seen: 2026-10-16T12:47:11Z
+
+### L-027 - Assert the default page size of a paginated endpoint when the spec states one
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md N19 TransactionController.java:93 (TLOTE-02 / Assumptions 'Listagem de lotes') (routes) (routes)
+- last seen: 2026-10-16T13:01:22Z
+
+### L-028 - Give sort-order fixtures values in every other sortable column that order the opposite way, so a wrong sort key cannot produce the expected order by chance
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md V15 TransactionController.java:93 (routes)
+- last seen: 2026-10-16T13:21:12Z
+
+### L-029 - When the spec says only active records apply, test with a deactivated record that would otherwise match
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `imports` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md V11 IFeeRuleRepository.java:17 (imports)
+- last seen: 2026-10-16T13:21:12Z
+
+### L-030 - When the spec requires an exact text match, test a variant that differs only in letter case
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `parsers` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md V16 TransactionCsvParser.java:95 (parsers)
+- last seen: 2026-10-16T13:21:12Z
+
+### L-031 - Test a file extension check with a name that ends in the extension letters without the dot
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `imports` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md V7 TransactionImportService.java:136 (imports)
+- last seen: 2026-10-16T13:21:12Z
+
+### L-032 - Assert the 403 for a user without access on every merchant-scoped route, because the access guard is matched by parameter name and a renamed parameter skips it
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: transaction-csv-import
+- evidence: W7 TransactionController.java:99 (routes)
+- last seen: 2026-10-16T13:49:42Z
+
+### L-033 - When the spec requires an exact header, test the right column names in a different order
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `parsers` · harmful: 0
+- features: transaction-csv-import
+- evidence: W4 TransactionCsvParser.java:95 (parsers)
+- last seen: 2026-10-16T13:49:42Z
+
+### L-034 - Test every enumerated column with a lower-case value, not only one of them
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `parsers` · harmful: 0
+- features: transaction-csv-import
+- evidence: W8 TransactionCsvParser.java:193 (parsers)
+- last seen: 2026-10-16T13:49:43Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

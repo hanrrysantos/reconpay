@@ -6,12 +6,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface IFeeRuleRepository extends JpaRepository<FeeRuleEntity, UUID> {
 
     Page<FeeRuleEntity> findAllByMerchant_IdAndActiveTrue(UUID merchantId, Pageable pageable);
+
+    List<FeeRuleEntity> findAllByMerchant_IdAndActiveTrue(UUID merchantId);
 
     Optional<FeeRuleEntity> findByIdAndActiveTrue(UUID id);
 

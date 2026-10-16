@@ -2,13 +2,13 @@ package br.com.hanrry.reconpay.transaction.service;
 
 import br.com.hanrry.reconpay.exception.DuplicateExternalReferenceException;
 import br.com.hanrry.reconpay.exception.InvalidInstallmentsForPaymentMethodException;
-import br.com.hanrry.reconpay.exception.InvalidTransactionAmountException;
 import br.com.hanrry.reconpay.exception.InvalidTransactionStatusTransitionException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.exception.MissingActiveFeeRuleException;
 import br.com.hanrry.reconpay.exception.TransactionNotFoundException;
 import br.com.hanrry.reconpay.feerule.entity.FeeRuleEntity;
 import br.com.hanrry.reconpay.feerule.repository.IFeeRuleRepository;
+import br.com.hanrry.reconpay.feerule.service.ExpectedNetAmountCalculator;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.observability.AuditLogger;
@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
@@ -79,7 +78,7 @@ public class TransactionService {
         entity.setMerchant(merchant);
         entity.setExternalReference(externalReference);
         entity.setAmount(request.amount());
-        entity.setExpectedNetAmount(calculateExpectedNetAmount(request.amount(), feeRule));
+        entity.setExpectedNetAmount(ExpectedNetAmountCalculator.calculate(request.amount(), feeRule));
         entity.setPaymentMethod(request.paymentMethod());
         entity.setInstallments(request.installments());
         entity.setStatus(TransactionStatus.APPROVED);
@@ -169,19 +168,4 @@ public class TransactionService {
         }
     }
 
-    private BigDecimal calculateExpectedNetAmount(BigDecimal amount, FeeRuleEntity feeRule) {
-        BigDecimal percentageFee = amount
-                .multiply(feeRule.getFeePercentage())
-                .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
-
-        BigDecimal net = amount
-                .subtract(percentageFee)
-                .subtract(feeRule.getFixedFee())
-                .setScale(2, RoundingMode.HALF_UP);
-        if (net.signum() <= 0) {
-            throw new InvalidTransactionAmountException(
-                    "Valor líquido esperado deve ser maior que zero");
-        }
-        return net;
-    }
 }
