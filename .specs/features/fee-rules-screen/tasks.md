@@ -87,12 +87,12 @@ T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] `POST` de `PIX`, `BOLETO` e `DEBIT_CARD` com 2 parcelas responde `400` `VALIDATION_ERROR` "Método de pagamento <MÉTODO> não permite parcelamento"
-- [ ] `PUT` mudando uma regra `CREDIT_CARD` 3x para `PIX` (mantendo 3 parcelas) responde `400` com a mesma mensagem e um `GET` posterior mostra a regra inalterada
-- [ ] `PUT` mudando uma regra `PIX` 1x para 2 parcelas responde `400`
-- [ ] `POST` de `CREDIT_CARD` 12x e de `PIX` 1x respondem `201`
-- [ ] `FeeRuleServiceTest` cobre os ramos novos sem chamar `save` no caso inválido
-- [ ] Gate check passes: `cd backend && ./mvnw verify`
+- [x] `POST` de `PIX`, `BOLETO` e `DEBIT_CARD` com 2 parcelas responde `400` `VALIDATION_ERROR` "Método de pagamento <MÉTODO> não permite parcelamento"
+- [x] `PUT` mudando uma regra `CREDIT_CARD` 3x para `PIX` (mantendo 3 parcelas) responde `400` com a mesma mensagem e um `GET` posterior mostra a regra inalterada
+- [x] `PUT` mudando uma regra `PIX` 1x para 2 parcelas responde `400`
+- [x] `POST` de `CREDIT_CARD` 12x e de `PIX` 1x respondem `201`
+- [x] `FeeRuleServiceTest` cobre os ramos novos sem chamar `save` no caso inválido
+- [x] Gate check passes: `cd backend && ./mvnw verify`
 
 **Tests**: integration
 **Gate**: full

@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.feerule.service;
 
 import br.com.hanrry.reconpay.exception.FeeRuleAlreadyExistsException;
 import br.com.hanrry.reconpay.exception.FeeRuleNotFoundException;
+import br.com.hanrry.reconpay.exception.InvalidInstallmentsForPaymentMethodException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.feerule.dto.FeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feerule.dto.FeeRuleResponseDTO;
@@ -12,6 +13,7 @@ import br.com.hanrry.reconpay.feerule.mapper.IFeeRuleMapper;
 import br.com.hanrry.reconpay.feerule.repository.IFeeRuleRepository;
 import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
+import br.com.hanrry.reconpay.shared.PaymentMethodRules;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +49,7 @@ public class FeeRuleService {
                 .orElseThrow(() -> new MerchantNotFoundException(
                         "Comerciante não encontrado com id: " + merchantId));
 
+        ensureInstallmentsAllowed(request.paymentMethod(), request.installments());
         ensureUniqueFeeRule(merchantId, request.paymentMethod(), request.installments());
 
         FeeRuleEntity entity = new FeeRuleEntity();
@@ -72,6 +75,8 @@ public class FeeRuleService {
             Integer installments = request.installments() != null
                     ? request.installments()
                     : feeRule.getInstallments();
+
+            ensureInstallmentsAllowed(paymentMethod, installments);
 
             boolean sameRule = feeRule.getPaymentMethod().equals(paymentMethod)
                     && feeRule.getInstallments().equals(installments);
@@ -120,6 +125,13 @@ public class FeeRuleService {
         merchantRepository.findByIdAndActiveTrue(merchantId)
                 .orElseThrow(() -> new MerchantNotFoundException(
                         "Comerciante não encontrado com id: " + merchantId));
+    }
+
+    private void ensureInstallmentsAllowed(PaymentMethod paymentMethod, Integer installments) {
+        if (!PaymentMethodRules.allowsInstallments(paymentMethod, installments)) {
+            throw new InvalidInstallmentsForPaymentMethodException(
+                    "Método de pagamento " + paymentMethod + " não permite parcelamento");
+        }
     }
 
     private void ensureUniqueFeeRule(UUID merchantId, PaymentMethod paymentMethod, Integer installments) {
