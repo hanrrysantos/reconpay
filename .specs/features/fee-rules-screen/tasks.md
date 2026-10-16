@@ -142,11 +142,11 @@ T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] `parseFeePercent`: `"2,99"`→`"2.99"`, `"0"`→`"0"`, `"100"`→`"100"`, `"2,9999"`→`"2.9999"`; `null` para `""`, `"abc"`, `"-1"`, `"100,01"`, `"2,99999"`
-- [ ] `parseFixedFee`: `"0,30"`→`"0.30"`, `"0"`→`"0"`; `null` para `""`, `"-0,01"`, `"0,301"`, `"x"`
-- [ ] `formatPercent`: `"2.9900"`→`"2,99%"`, `"0.0000"`→`"0%"`, `"100.0000"`→`"100%"`, `"1.5000"`→`"1,5%"`
-- [ ] `toInputDecimal("2.9900")`→`"2,99"`, `toInputDecimal("0.30")`→`"0,30"`
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] `parseFeePercent`: `"2,99"`→`"2.99"`, `"0"`→`"0"`, `"100"`→`"100"`, `"2,9999"`→`"2.9999"`; `null` para `""`, `"abc"`, `"-1"`, `"100,01"`, `"2,99999"`
+- [x] `parseFixedFee`: `"0,30"`→`"0.30"`, `"0"`→`"0"`; `null` para `""`, `"-0,01"`, `"0,301"`, `"x"`
+- [x] `formatPercent`: `"2.9900"`→`"2,99%"`, `"0.0000"`→`"0%"`, `"100.0000"`→`"100%"`, `"1.5000"`→`"1,5%"`
+- [x] `toInputDecimal("2.9900")`→`"2,99"`, `toInputDecimal("0.30")`→`"0,30"`
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: quick

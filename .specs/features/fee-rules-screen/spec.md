@@ -179,7 +179,7 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 | FREG-03 | P1: Método sem parcelamento na API | Execute | Implementing |
 | FLIST-01 | P1: Listar regras | Design | Pending |
 | FLIST-02 | P1: Listar regras | Design | Pending |
-| FLIST-03 | P1: Listar regras | Design | Pending |
+| FLIST-03 | P1: Listar regras | Execute | Implementing |
 | FLIST-04 | P1: Listar regras | Design | Pending |
 | FLIST-05 | P1: Listar regras | Design | Pending |
 | FLIST-06 | P1: Listar regras | Design | Pending |
@@ -188,12 +188,12 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 | FCAD-01 | P1: Cadastrar regra | Design | Pending |
 | FCAD-02 | P1: Cadastrar regra | Design | Pending |
 | FCAD-03 | P1: Cadastrar regra | Design | Pending |
-| FCAD-04 | P1: Cadastrar regra | Design | Pending |
+| FCAD-04 | P1: Cadastrar regra | Execute | Implementing |
 | FCAD-05 | P1: Cadastrar regra | Design | Pending |
 | FCAD-06 | P1: Cadastrar regra | Design | Pending |
 | FCAD-07 | P1: Cadastrar regra | Design | Pending |
-| FCAD-08 | P1: Cadastrar regra | Design | Pending |
-| FCAD-09 | P1: Cadastrar regra | Design | Pending |
+| FCAD-08 | P1: Cadastrar regra | Execute | Implementing |
+| FCAD-09 | P1: Cadastrar regra | Execute | Implementing |
 | FCAD-10 | P1: Cadastrar regra | Design | Pending |
 | FCAD-11 | P1: Cadastrar regra | Design | Pending |
 | FCAD-12 | P1: Cadastrar regra | Execute | Implementing |
