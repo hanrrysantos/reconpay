@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 21,
+  "next_id": 24,
   "lessons": [
     {
       "id": "L-001",
@@ -365,6 +365,60 @@
       ],
       "created": "2026-10-16T01:40:23Z",
       "last_seen": "2026-10-16T01:40:23Z"
+    },
+    {
+      "id": "L-021",
+      "key": "surviving_mutant::test an edit form prefill with a stored value that uses every stored decimal place so a prefill that drops precision is caught",
+      "text": "Test an edit-form prefill with a stored value that uses every stored decimal place, so a prefill that drops precision is caught",
+      "signal": "surviving_mutant",
+      "scope": "frontend-validation",
+      "status": "candidate",
+      "features": [
+        "fee-rules-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md V1 (fee.ts:44 toInputDecimal, FEDIT-01) (frontend-validation)"
+      ],
+      "created": "2026-10-16T01:51:44Z",
+      "last_seen": "2026-10-16T01:51:44Z"
+    },
+    {
+      "id": "L-022",
+      "key": "surviving_mutant::test a trailing zero stripping formatter with a value that has an inner zero so stripping every zero is caught",
+      "text": "Test a trailing-zero-stripping formatter with a value that has an inner zero, so stripping every zero is caught",
+      "signal": "surviving_mutant",
+      "scope": "frontend-format",
+      "status": "candidate",
+      "features": [
+        "fee-rules-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md V2 (fee.ts:36 formatPercent, FLIST-03) (frontend-format)"
+      ],
+      "created": "2026-10-16T01:51:44Z",
+      "last_seen": "2026-10-16T01:51:44Z"
+    },
+    {
+      "id": "L-023",
+      "key": "surviving_mutant::when a bound check scans decimal digits as text test above bound fractions with the nonzero digit in each position and with high digit values",
+      "text": "When a bound check scans decimal digits as text, test above-bound fractions with the nonzero digit in each position and with high digit values",
+      "signal": "surviving_mutant",
+      "scope": "frontend-validation",
+      "status": "candidate",
+      "features": [
+        "fee-rules-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md V3, V4 (fee.ts:23 parseFeePercent, FCAD-08) (frontend-validation)"
+      ],
+      "created": "2026-10-16T01:51:44Z",
+      "last_seen": "2026-10-16T01:51:44Z"
     }
   ]
 }

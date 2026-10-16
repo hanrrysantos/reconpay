@@ -134,6 +134,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: S6 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)
 - last seen: 2026-10-16T01:40:23Z
 
+### L-021 - Test an edit-form prefill with a stored value that uses every stored decimal place, so a prefill that drops precision is caught
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: validation.md V1 (fee.ts:44 toInputDecimal, FEDIT-01) (frontend-validation)
+- last seen: 2026-10-16T01:51:44Z
+
+### L-022 - Test a trailing-zero-stripping formatter with a value that has an inner zero, so stripping every zero is caught
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-format` · harmful: 0
+- features: fee-rules-screen
+- evidence: validation.md V2 (fee.ts:36 formatPercent, FLIST-03) (frontend-format)
+- last seen: 2026-10-16T01:51:44Z
+
+### L-023 - When a bound check scans decimal digits as text, test above-bound fractions with the nonzero digit in each position and with high digit values
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: validation.md V3, V4 (fee.ts:23 parseFeePercent, FCAD-08) (frontend-validation)
+- last seen: 2026-10-16T01:51:44Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
