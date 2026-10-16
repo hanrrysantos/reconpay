@@ -2,10 +2,88 @@
 
 **Date**: 2026-10-16
 **Spec**: `.specs/features/transactions-screen/spec.md`
-**Diff range**: `330d2a9^..ac10fb2` (12 commits), branch `feat/transactions-screen`. Spec `330d2a9`; design/tasks `b5b065a`; código `8e81f1a`, `fba9af8`, `cc653a8`, `bc757b9`, `4cdcd2e`, `ce09f38`, `544864b`, `d056d6e`, `52ace80`; docs `ac10fb2`.
-**Verifier**: sub-agente independente (author ≠ verifier), iteração 1.
+**Diff range**: `330d2a9^..1f00b32` (13 commits), branch `feat/transactions-screen`. Iteração 1 cobriu `330d2a9^..ac10fb2`; o relatório dela entrou em `543c091`; a fix de teste é `1f00b32`.
+**Verifier**: sub-agente independente (author ≠ verifier), iteração 2 de 3.
 
-## Validation: transactions-screen - FAIL ❌
+## Validation: transactions-screen - PASS ✅
+
+Os dois gaps da iteração 1 estão fechados. M25 e M31 agora morrem. Os 7 mutantes novos também morrem. O gate passa: 656 testes, typecheck e build. O código não mudou desde a iteração 1, então as outras 23 ACs e os 30 mutantes mortos seguem valendo.
+
+Abreviações: as mesmas da iteração 1 (abaixo). `TPT` = `frontend/components/transactions/TransactionsPage.test.tsx`.
+
+---
+
+## Iteração 2
+
+### Fix `1f00b32`
+
+- Toca só `frontend/components/transactions/TransactionsPage.test.tsx` (+15/−4). Nenhum código de produção mudou.
+- Nada foi enfraquecido. A linha `getByRole('heading', {level:1, name:'Transações'})` saiu, mas o mesmo `getByRole` roda dentro de `pageHeader()` (`TPT:113`) e lança erro se o título faltar. `getAllByText(...).length > 0` virou `within(pageHeader()).getByText(...)`, mais forte. `toMatchObject` na consulta de `m-2` virou `toEqual` com todos os parâmetros, mais forte.
+- O teste de troca acrescenta `TPT:265` (aviso ainda visível antes da troca). Isso mantém a prova de que a troca remove o aviso.
+
+### ACs re-checadas
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| TXN-01 AC1 nome da empresa no cabeçalho | O cabeçalho da página mostra o nome da empresa selecionada | `TPT:113` `pageHeader = () => getByRole('heading',{level:1,name:'Transações'}).parentElement!`; `TPT:124` `within(pageHeader()).getByText('Alfa Pagamentos')).toBeInTheDocument()`; `TPT:281` `within(pageHeader()).getByText('Beta Comércio')` depois da troca. O bloco é o `div` de `TransactionsPage.tsx:75-78`, que não contém o `MerchantSwitcher`. M25 e F2 morrem | ✅ PASS |
+| TXN-11 AC1 mantém período e filtros na troca | Período, status e método continuam; página 1 da nova empresa | `TPT:260-264` muda período para Setembro de 2026, status para Aprovada e método para Crédito antes da troca, e confirma `{fromDate:'2026-09-01',status:'APPROVED',paymentMethod:'CREDIT_CARD'}`; `TPT:275-277` consulta de `m-2` `toEqual({fromDate:'2026-09-01',toDate:'2026-09-30',status:'APPROVED',paymentMethod:'CREDIT_CARD',page:'0',size:'20',sort:'transactionDate,desc'})`; `TPT:278` botão `/Setembro de 2026/`; `TPT:279` Status `'APPROVED'`; `TPT:280` Método `'CREDIT_CARD'`. M31, M31a e M31b morrem | ✅ PASS |
+
+**Status**: ✅ 25/25 ACs com evidência que discrimina (23 da iteração 1 sem mudança de código ou teste fora de `TPT`, mais as 2 re-checadas).
+
+### Discrimination Sensor (iteração 2)
+
+Scratch: `git worktree add --detach` em `scratchpad/sensor2` a partir de `1f00b32`, com `frontend/node_modules` por symlink. Cada mutante passou por `tsc --noEmit` (todos compilam) e rodou `vitest run` sobre os mesmos arquivos em escopo (107 testes). Revertido com `git checkout` no scratch.
+
+| # | File | Mutação | Killed? | Testes que falharam |
+| - | ---- | ------- | ------- | ------------------- |
+| M25 | `TransactionsPage.tsx:76` | remove `{merchant?.name}` do cabeçalho | ✅ Killed | `TPT` TXN-01, `TPT` troca (TXN-11) |
+| M31 | `TransactionsPage.tsx:54` | na troca, `setPeriod(monthWindow(new Date()))` e `setMethod('')` | ✅ Killed | `TPT` troca |
+| M31a | `TransactionsPage.tsx:54` | na troca, só `setPeriod(monthWindow(new Date()))` | ✅ Killed | `TPT` troca |
+| M31b | `TransactionsPage.tsx:54` | na troca, só `setMethod('')` | ✅ Killed | `TPT` troca |
+| F1 | `TransactionsPage.tsx:58` | `filters` sem `paymentMethod` | ✅ Killed | `TPT` método, `TPT` troca |
+| F2 | `TransactionsPage.tsx:76` | cabeçalho mostra `merchantId` em vez do nome | ✅ Killed | `TPT` TXN-01, `TPT` troca |
+| F3 | `TransactionsPage.tsx:107` | `onChangeStatus` vira no-op (ação não abre o diálogo) | ✅ Killed | `TPT` TXN-09, `TPT` troca |
+| F4 | `TransactionsPage.tsx:68` | `onCreated` não fecha a gaveta | ✅ Killed | `TPT` TXN-07, `TPT` troca |
+| F5 | `TransactionsPage.tsx:102` | filtro de método sem `setPage(0)` | ✅ Killed | `TPT` método |
+
+**Sensor depth**: ampliado (2 re-execuções + 2 variantes de M31 + 5 novos).
+**Result**: 9/9 killed - PASS ✅
+
+**Isolamento**: `git status --porcelain` antes = vazio; depois da remoção do scratch = vazio (igual ao baseline). Scratch removido com `git worktree remove --force` + `git worktree prune`; `git worktree list` não lista mais o scratch. Nenhum `git stash`.
+
+### Gate Check (iteração 2)
+
+- **Gate command**: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- **Result**: 50 arquivos, 656 passed, 0 failed, 0 skipped. Typecheck exit 0. Build exit 0, `/transacoes` estática.
+- **Test count**: 656, igual à iteração 1 (a fix só mudou asserções em testes existentes).
+
+### Lessons
+
+L-035 e L-036 seguem como candidatas. `lessons.md` só promove por recorrência em outra feature; a fix não dispara promoção. Nenhuma lição nova: a iteração 2 é PASS limpo.
+
+### Requirement Traceability Update
+
+| Requirement | Previous Status | New Status |
+| --- | --- | --- |
+| TXN-01 | ❌ Needs Fix | ✅ Verified |
+| TXN-02 .. TXN-10 | ✅ Verified | ✅ Verified |
+| TXN-11 | ❌ Needs Fix | ✅ Verified |
+
+**Docs desatualizados (reportados, não editados)**: `spec.md:169-181` ainda marca TXN-01..TXN-11 como "Design | Pending" e diz "0 mapped to tasks". `tasks.md:12` está com Status "In Progress". O orquestrador deve marcar TXN-01..TXN-11 como Verified e o Status como Done.
+
+### Summary
+
+**Overall**: ✅ Ready
+
+**Spec-anchored check**: 25/25 ACs e 5/5 edge cases com o valor da spec
+**Sensor**: 9/9 killed na iteração 2 (30/32 na iteração 1; os 2 sobreviventes agora morrem)
+**Gate**: 656 passed, typecheck e build OK
+
+---
+
+# Histórico: iteração 1
+
+### Veredito da iteração 1: reprovada
 
 O gate passa: 656 testes, typecheck e build. 30 dos 32 mutantes morreram. Dois sobreviveram, e os dois apontam para partes de AC sem teste que discrimine:
 
@@ -29,7 +107,7 @@ Abreviações:
 
 ---
 
-## Task Completion
+### Task Completion
 
 | Task | Status | Notes |
 | ---- | ------ | ----- |
@@ -52,7 +130,7 @@ Abreviações:
 
 ---
 
-## Spec-Anchored Acceptance Criteria
+### Spec-Anchored Acceptance Criteria
 
 ### P1: Ver as transações da empresa (TXN-01..TXN-04)
 
@@ -110,7 +188,7 @@ Abreviações:
 
 ---
 
-## Edge Cases
+### Edge Cases
 
 - [x] 17 dígitos e 2 casas aceitos; 18 dígitos ou 3 casas recusados: `TT:29` `'12345678901234567.89'`; `TT:33-35` `toBeNull()`; `TDT:125-126` mensagem de Valor; `TDT:145-155` `'9'×17 + ',99'` enviado como `'…99.99'`.
 - [x] Hoje aceito, amanhã recusado: `TT:68` `null`; `TT:73` `'Data da transação não pode ser futura'`; `TDT:131`; `TDT:145-154` hoje enviado.
@@ -120,7 +198,7 @@ Abreviações:
 
 ---
 
-## Notas do autor (conferidas)
+### Notas do autor (conferidas)
 
 | Nota | Conferência |
 | --- | --- |
@@ -134,7 +212,7 @@ Abreviações:
 
 ---
 
-## Discrimination Sensor
+### Discrimination Sensor
 
 Scratch: `git worktree add --detach` em `scratchpad/sensor` a partir de `ac10fb2`, com `frontend/node_modules` por symlink. Cada mutante rodou `vitest run` sobre os 10 arquivos em escopo (107 testes) e foi revertido com `git checkout` no scratch.
 
@@ -174,13 +252,13 @@ Scratch: `git worktree add --detach` em `scratchpad/sensor` a partir de `ac10fb2
 | M32 | `TransactionDrawer.tsx:113` | link da regra em qualquer erro | ✅ Killed | `TDT` ×3 |
 
 **Sensor depth**: ampliado (≥ 8 pedidos; 32 aplicados).
-**Result**: 30/32 killed - FAIL ❌
+**Resultado da iteração 1**: 30/32 killed, reprovado
 
 **Isolamento**: `git status --porcelain` antes = vazio; depois = só `.specs/features/transactions-screen/validation.md`. Scratch removido com `git worktree remove --force` + `git worktree prune`; `git worktree list` não lista mais o scratch. Nenhum `git stash`.
 
 ---
 
-## Code Quality
+### Code Quality
 
 | Principle | Status |
 | --- | --- |
@@ -195,7 +273,7 @@ Scratch: `git worktree add --detach` em `scratchpad/sensor` a partir de `ac10fb2
 
 ---
 
-## Gate Check
+### Gate Check
 
 - **Gate command**: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 - **Result**: 656 passed, 0 failed, 0 skipped. Typecheck exit 0. Build exit 0, `/transacoes` estática.
@@ -207,7 +285,7 @@ Scratch: `git worktree add --detach` em `scratchpad/sensor` a partir de `ac10fb2
 
 ---
 
-## Fix Plans
+### Fix Plans
 
 ### Fix 1: nome da empresa no cabeçalho sem teste que discrimine (TXN-01 AC1)
 
@@ -225,7 +303,7 @@ Scratch: `git worktree add --detach` em `scratchpad/sensor` a partir de `ac10fb2
 
 ---
 
-## Observações (não bloqueantes)
+### Observações (não bloqueantes)
 
 1. A spec escreve `sort=transactionDate,desc`; o cliente envia `sort=transactionDate%2Cdesc` (`ATT:35`). É o mesmo valor depois de decodificado (`TPT:128`) e segue o padrão de Importações.
 2. O `409` de versão do `PATCH` não tem caso próprio em `SDT`. Ele segue o mesmo `catch` dos casos `400` e `409` de período (`StatusDialog.tsx:28-31`), então o comportamento é o mesmo.
@@ -234,7 +312,7 @@ Scratch: `git worktree add --detach` em `scratchpad/sensor` a partir de `ac10fb2
 
 ---
 
-## Requirement Traceability Update
+### Requirement Traceability Update
 
 | Requirement | Previous Status | New Status |
 | --- | --- | --- |
@@ -244,7 +322,7 @@ Scratch: `git worktree add --detach` em `scratchpad/sensor` a partir de `ac10fb2
 
 ---
 
-## Summary
+### Summary
 
 **Overall**: ❌ Not Ready
 

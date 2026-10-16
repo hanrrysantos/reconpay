@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: transactions-screen (tela `/transacoes`: lista, formulário e status, frontend) — **Specify**
-- **Phase / Task**: Specify; decisões do usuário: filtros período (seletor de mês do dashboard) + status + método; formulário em gaveta lateral; mudança de status por ação na linha com confirmação
-- **Completed**: imports-screen mergeada no `main` (PR #48, 2026-10-16), Verifier PASS e teste manual aprovado; CI do merge verde (só o job Frontend), sem deploy
+- **Feature**: transactions-screen (tela `/transacoes`, frontend) — **Verified** (`validation.md` iteração 2: PASS, 25/25 ACs e 5/5 edge cases, sensor 9/9; a iteração 1 deu FAIL com 2 testes que não discriminavam, corrigidos em `1f00b32`)
+- **Phase / Task**: T1–T10 concluídas (`8e81f1a`..`ac10fb2`), executadas por dois sub-agentes em lote
+- **Completed**: lista por período (menu do dashboard, 12 meses), status e método, 20 por página; gaveta "Nova transação" com validação no cliente e link "Cadastrar regra de taxa" na falta de regra; mudança de status (Cancelada/Estornada/Chargeback) com confirmação; troca de empresa mantém filtros. `PeriodMenu`, `ConfirmDialog` e `SideDrawer` ganharam props opcionais. Frontend 656 testes.
 - **In-progress** (file:line): none
-- **Next step**: escrever `.specs/features/transactions-screen/spec.md` e confirmar com o usuário. Pendências antigas: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404`; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: teste manual pelo usuário e, com o aval dele, push e PR de `feat/transactions-screen`. Lições candidatas L-035 e L-036 registradas. Pendências antigas: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404`; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/transactions-screen`, criada a partir do `main` em `9819e7c`.
+- **Branch**: `feat/transactions-screen`, local, sem push.

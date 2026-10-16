@@ -166,19 +166,19 @@ As transações internas entram por import CSV (tela de Importações) ou pelo `
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| TXN-01 | P1 Lista: busca inicial do mês atual e colunas (AC 1, 2) | Design | Pending |
-| TXN-02 | P1 Lista: período por mês ou intervalo, validação do intervalo (AC 3, 4) | Design | Pending |
-| TXN-03 | P1 Lista: filtros de status e método (AC 5, 6) | Design | Pending |
-| TXN-04 | P1 Lista: paginação, vazio e erro (AC 7, 8, 9) | Design | Pending |
-| TXN-05 | P1 Cadastro: gaveta, campos e parcelas fixas (AC 1, 2) | Design | Pending |
-| TXN-06 | P1 Cadastro: validação no cliente e edge cases (AC 3) | Design | Pending |
-| TXN-07 | P1 Cadastro: envio, sucesso e erro da API (AC 4, 5, 6, 7) | Design | Pending |
-| TXN-08 | P1 Status: ação só em aprovada e diálogo (AC 1, 2, 3) | Design | Pending |
-| TXN-09 | P1 Status: envio, sucesso e erro da API (AC 4, 5, 6, 7) | Design | Pending |
-| TXN-10 | P2 Atalho para regra de taxa (AC 1, 2) | Design | Pending |
-| TXN-11 | P2 Isolamento por empresa e sem empresa (AC 1, 2) | Design | Pending |
+| TXN-01 | P1 Lista: busca inicial do mês atual e colunas (AC 1, 2) | Execute | Verified |
+| TXN-02 | P1 Lista: período por mês ou intervalo, validação do intervalo (AC 3, 4) | Execute | Verified |
+| TXN-03 | P1 Lista: filtros de status e método (AC 5, 6) | Execute | Verified |
+| TXN-04 | P1 Lista: paginação, vazio e erro (AC 7, 8, 9) | Execute | Verified |
+| TXN-05 | P1 Cadastro: gaveta, campos e parcelas fixas (AC 1, 2) | Execute | Verified |
+| TXN-06 | P1 Cadastro: validação no cliente e edge cases (AC 3) | Execute | Verified |
+| TXN-07 | P1 Cadastro: envio, sucesso e erro da API (AC 4, 5, 6, 7) | Execute | Verified |
+| TXN-08 | P1 Status: ação só em aprovada e diálogo (AC 1, 2, 3) | Execute | Verified |
+| TXN-09 | P1 Status: envio, sucesso e erro da API (AC 4, 5, 6, 7) | Execute | Verified |
+| TXN-10 | P2 Atalho para regra de taxa (AC 1, 2) | Execute | Verified |
+| TXN-11 | P2 Isolamento por empresa e sem empresa (AC 1, 2) | Execute | Verified |
 
-**Coverage:** 11 total, 0 mapped to tasks, 11 unmapped ⚠️
+**Coverage:** 11 total, 11 mapped to tasks, 0 unmapped
 
 ---
 
