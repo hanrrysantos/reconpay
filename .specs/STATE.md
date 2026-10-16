@@ -105,7 +105,7 @@
 - **Phase / Task**: T1–T6 concluídas; correções de teste das iterações 1–4 em `f248e0d`, `7ab6276`, `4bc5ebe`, `f1e3ac4`, `10b9679`
 - **Completed**: `POST /transactions/import` tudo ou nada (erros por linha em `details.rowErrors`, `409` com `conflictingReferences`, período travado), lote em `transaction_imports` (`V24`) com `GET /transactions/imports` e `/imports/{importId}`; `ExpectedNetAmountCalculator` compartilhado com o cadastro unitário; `MerchantRouteAccessIntegrationTest` exige o guard de empresa em todas as rotas `/api/merchants/{merchantId}` (31 estáticas, 20 GET com `403`). Backend 630 testes.
 - **In-progress** (file:line): none
-- **Next step**: push de `feat/transaction-csv-import` e PR (pelo usuário). Depois: tela de Importações (transações, liquidação e extrato, com lotes e erros por linha) e tela de Transações (lista, formulário e status), conforme AD-011. Pendências: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404`; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: tela de Importações (transações, liquidação e extrato, com lotes e erros por linha) e tela de Transações (lista, formulário e status), conforme AD-011. Pendências: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404`; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: feat/transaction-csv-import (local, sem push)
+- **Branch**: feat/transaction-csv-import mergeada no `main` (PR #47, 2026-10-16); CI e deploy de produção verdes, migration `V24` aplicada. Próxima feature começa em `feat/imports-screen`, criada a partir desse `main`.
