@@ -116,9 +116,9 @@ T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] `components/merchants/MerchantsPage.test.tsx` passa sem nenhuma alteração no arquivo
-- [ ] Testes próprios de `SideDrawer` (`Esc`, clique fora, `Tab` preso, submit desabilitado em `pending`, erro com `role="alert"`) e de `ConfirmDialog` (`Esc`, confirmar, desabilitado em `pending`, erro)
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] `components/merchants/MerchantsPage.test.tsx` passa sem nenhuma alteração no arquivo
+- [x] Testes próprios de `SideDrawer` (`Esc`, clique fora, `Tab` preso, submit desabilitado em `pending`, erro com `role="alert"`) e de `ConfirmDialog` (`Esc`, confirmar, desabilitado em `pending`, erro)
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: unit
 **Gate**: build
