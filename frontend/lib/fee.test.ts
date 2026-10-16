@@ -28,10 +28,41 @@ describe('parseFeePercent', () => {
   })
 })
 
+describe('parseFeePercent: tabela de limites (FCAD-08)', () => {
+  // Every form of a value at, below and above the bound: whole, 1 to 4 zero decimals, leading zeros, each digit count.
+  it.each([
+    ['0', '0'], ['00', '0'], ['0,0', '0.0'], ['0,0000', '0.0000'],
+    ['1', '1'], ['9,5', '9.5'], ['99', '99'], ['99,9999', '99.9999'],
+    ['100', '100'], ['100,0', '100.0'], ['100,00', '100.00'], ['100,000', '100.000'], ['100,0000', '100.0000'],
+    ['100.00', '100.00'], ['100.0000', '100.0000'], ['0100', '100'], ['00100,00', '100.00'], ['  100,00  ', '100.00'],
+  ])('aceita "%s" como %s', (input, expected) => {
+    expect(parseFeePercent(input)).toBe(expected)
+  })
+
+  it.each([
+    ['100,0001'], ['100,1'], ['100,01'], ['100.5'],
+    ['101'], ['101,00'], ['199'], ['200'], ['999,99'], ['0101'], ['00101'],
+    ['1000'], ['1000,00'], ['10000'], ['12345'], ['99999999'],
+    ['-0'], ['-1'], ['-100'], [''], [' '], ['abc'], ['1,'], [',5'], ['1,00000'], ['1.2.3'], ['1 000'], ['1e2'],
+  ])('recusa "%s"', input => {
+    expect(parseFeePercent(input)).toBeNull()
+  })
+})
+
 describe('parseFixedFee', () => {
   it('aceita vírgula e zero, devolvendo o valor exato com ponto (FCAD-04)', () => {
     expect(parseFixedFee('0,30')).toBe('0.30')
     expect(parseFixedFee('0')).toBe('0')
+  })
+
+  it.each([
+    ['0', '0'], ['0,0', '0.0'], ['0,00', '0.00'], ['0,3', '0.3'], ['00,30', '0.30'], ['1.5', '1.5'], ['1234567,89', '1234567.89'],
+  ])('aceita "%s" como %s (FCAD-09)', (input, expected) => {
+    expect(parseFixedFee(input)).toBe(expected)
+  })
+
+  it.each([['-0'], ['-1'], ['0,001'], ['1,'], [',3'], ['1.2.3'], ['1e2'], [' ']])('recusa "%s" (FCAD-09)', input => {
+    expect(parseFixedFee(input)).toBeNull()
   })
 
   it('recusa vazio, negativo, mais de 2 casas e texto (FCAD-09)', () => {

@@ -418,6 +418,7 @@ describe('cadastro de regra', () => {
     ['0 e 0 (regra sem taxa)', '0', '0', '"feePercentage":0,"fixedFee":0'],
     ['percentual com 4 casas', '2,9999', '0,30', '"feePercentage":2.9999,"fixedFee":0.30'],
     ['percentual 100', '100', '0,30', '"feePercentage":100,"fixedFee":0.30'],
+    ['percentual 100 com casas zeradas', '100,00', '0,30', '"feePercentage":100.00,"fixedFee":0.30'],
   ])('aceita %s', async (_case, percent, fixedFee, decimals) => {
     const user = await openDrawer()
     await fill(user, { method: 'Crédito', installments: '6', percent, fixedFee })
