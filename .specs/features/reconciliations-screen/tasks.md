@@ -206,11 +206,11 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Linha concluída com "Outubro de 2026", "Concluída", 3, 2, 1, data e hora, link para `/conciliacoes/<id>`
-- [ ] `RUNNING` mostra "3 de 10"; `PENDING` "—"; substituído com selo; `FAILED` com a `errorMessage`
-- [ ] A lista recarrega sozinha enquanto há run em andamento e para depois (tempo controlado no teste)
-- [ ] Paginação, vazio "Nenhuma conciliação encontrada." e erro com "Tentar novamente"
-- [ ] Testes em `frontend/components/reconciliations/RunList.test.tsx`; gate quick passa
+- [x] Linha concluída com "Outubro de 2026", "Concluída", 3, 2, 1, data e hora, link para `/conciliacoes/<id>`
+- [x] `RUNNING` mostra "3 de 10"; `PENDING` "—"; substituído com selo; `FAILED` com a `errorMessage`
+- [x] A lista recarrega sozinha enquanto há run em andamento e para depois (tempo controlado no teste)
+- [x] Paginação, vazio "Nenhuma conciliação encontrada." e erro com "Tentar novamente"
+- [x] Testes em `frontend/components/reconciliations/RunList.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
