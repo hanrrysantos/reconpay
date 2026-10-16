@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/transactions-screen/design.md`
-**Status**: Approved
+**Status**: In Progress
 
 ---
 
@@ -97,10 +97,10 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Com `months`, o menu lista exatamente esses meses na ordem recebida
-- [ ] Sem `runs`, nenhum item mostra "Aberto", "Sem run" ou "Travado", e o texto "Liquidações lidas até" / "O lado da liquidação" não aparece
-- [ ] `onApply` rejeitado continua mostrando a mensagem no menu
-- [ ] Testes atuais do dashboard e do `PeriodMenu` inalterados e verdes; testes novos em `frontend/components/dashboard/PeriodMenu.test.tsx`; gate quick passa
+- [x] Com `months`, o menu lista exatamente esses meses na ordem recebida
+- [x] Sem `runs`, nenhum item mostra "Aberto", "Sem run" ou "Travado", e o texto "Liquidações lidas até" / "O lado da liquidação" não aparece
+- [x] `onApply` rejeitado continua mostrando a mensagem no menu
+- [x] Testes atuais do dashboard e do `PeriodMenu` inalterados e verdes; testes novos em `frontend/components/dashboard/PeriodMenu.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick

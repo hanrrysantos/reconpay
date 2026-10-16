@@ -12,17 +12,20 @@ const brDate = (iso: string) => new Date(iso).toLocaleDateString('pt-BR')
 
 export type PeriodMenuProps = {
   window: Window
-  /** Runs of the merchant: the oldest sets how far back the menu goes; a run with the exact window marks it "Aberto". */
-  runs: Run[]
+  /** Months to list, newest first; when absent, the menu derives them from `runs`. */
+  months?: Window[]
+  /** Runs of the merchant: the oldest sets how far back the menu goes; a run with the exact window marks it "Aberto".
+   *  Without runs, the months carry no run or lock marks and the settlement note is hidden. */
+  runs?: Run[]
   /** Lock state of known windows, keyed by `windowKey`. */
-  locks: Record<string, boolean>
+  locks?: Record<string, boolean>
   /** Rejects with the API error when the window is invalid; the menu then shows its message under the fields. */
   onApply: (window: Window) => void | Promise<void>
   settlementImportedAt?: string | null
   today?: Date
 }
 
-export function PeriodMenu({ window, runs, locks, onApply, settlementImportedAt = null, today = new Date() }: PeriodMenuProps) {
+export function PeriodMenu({ window, months: givenMonths, runs, locks = {}, onApply, settlementImportedAt = null, today = new Date() }: PeriodMenuProps) {
   const [open, setOpen] = useState(false)
   const [from, setFrom] = useState(window.fromDate)
   const [to, setTo] = useState(window.toDate)
@@ -30,9 +33,9 @@ export function PeriodMenu({ window, runs, locks, onApply, settlementImportedAt 
   const root = useRef<HTMLDivElement>(null)
   const fromInput = useRef<HTMLInputElement>(null)
 
-  const oldest = runs.reduce<string | null>((min, run) => (min === null || run.fromDate < min ? run.fromDate : min), null)
-  const months = monthsBack(today, oldest)
-  const withRun = new Set(runs.map(windowKey))
+  const oldest = (runs ?? []).reduce<string | null>((min, run) => (min === null || run.fromDate < min ? run.fromDate : min), null)
+  const months = givenMonths ?? monthsBack(today, oldest)
+  const withRun = new Set((runs ?? []).map(windowKey))
 
   useEffect(() => {
     if (!open) return
@@ -92,11 +95,11 @@ export function PeriodMenu({ window, runs, locks, onApply, settlementImportedAt 
                       className={cn('flex w-full items-center justify-between gap-2 rounded-[12px] px-3 py-2 text-left text-[14px] hover:bg-subtle', current && 'bg-surface font-semibold hover:bg-surface')}
                     >
                       {formatWindow(month)}
-                      {locks[key]
+                      {runs && (locks[key]
                         ? <Lock aria-label="Travado" className="size-3.5 text-success" />
                         : withRun.has(key)
                           ? <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold">Aberto</span>
-                          : <span className="text-[12px] text-muted">Sem run</span>}
+                          : <span className="text-[12px] text-muted">Sem run</span>)}
                     </button>
                   </li>
                 )
@@ -119,10 +122,12 @@ export function PeriodMenu({ window, runs, locks, onApply, settlementImportedAt 
               </label>
             </div>
             {error && <p role="alert" className="text-[12px] text-danger-strong">{error}</p>}
-            <p className="rounded-[12px] bg-surface p-3 text-[12px] text-muted">
-              {settlementImportedAt && <><strong className="font-semibold text-foreground">Liquidações lidas até {brDate(settlementImportedAt)}</strong> — </>}
-              A janela usa a data da venda. O lado da liquidação estende alguns dias além do fim da janela para pegar repasses atrasados.
-            </p>
+            {runs && (
+              <p className="rounded-[12px] bg-surface p-3 text-[12px] text-muted">
+                {settlementImportedAt && <><strong className="font-semibold text-foreground">Liquidações lidas até {brDate(settlementImportedAt)}</strong> — </>}
+                A janela usa a data da venda. O lado da liquidação estende alguns dias além do fim da janela para pegar repasses atrasados.
+              </p>
+            )}
             <div className="mt-auto flex justify-end gap-2">
               <button type="button" onClick={() => setOpen(false)} className="h-9 rounded-full bg-surface px-4 text-[13px] font-semibold">Cancelar</button>
               <button type="submit" className="h-9 rounded-full bg-foreground px-4 text-[13px] font-semibold text-white">Aplicar</button>
