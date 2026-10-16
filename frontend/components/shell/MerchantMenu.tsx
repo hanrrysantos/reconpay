@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { Check, ChevronDown, Plus, Search } from 'lucide-react'
+import { Building2, Check, ChevronDown, Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { getMerchants, type Merchant } from '@/lib/api'
@@ -149,14 +149,24 @@ export function MerchantMenu({ merchants, selectedId, onSelect }: {
           </ul>
           {visible.length === 0 && <p className="p-3 text-[13px] text-muted">Nenhuma empresa encontrada</p>}
 
-          <Link
-            href={CREATE_MERCHANT_HREF}
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2 rounded-[14px] border-t border-border p-3 text-[14px] font-semibold hover:bg-subtle"
-          >
-            <Plus aria-hidden="true" className="size-4" />
-            Cadastrar empresa
-          </Link>
+          <div className="flex flex-col border-t border-border pt-1">
+            <Link
+              href="/empresas"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 rounded-[14px] p-3 text-[14px] font-semibold hover:bg-subtle"
+            >
+              <Building2 aria-hidden="true" className="size-4" />
+              Gerenciar empresas
+            </Link>
+            <Link
+              href={CREATE_MERCHANT_HREF}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 rounded-[14px] p-3 text-[14px] font-semibold hover:bg-subtle"
+            >
+              <Plus aria-hidden="true" className="size-4" />
+              Cadastrar empresa
+            </Link>
+          </div>
         </div>
       )}
     </div>

@@ -104,6 +104,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 6. WHILE a lista carrega the system SHALL mostrar o estado de carregamento no lugar da tabela.
 7. IF a busca falha THEN the system SHALL mostrar a mensagem do erro com "Tentar de novo", que refaz a busca.
 8. IF um documento gravado não tem 14 dígitos THEN the system SHALL exibi-lo como está, sem máscara.
+9. WHEN o usuário escolhe "Gerenciar empresas" no menu de empresa THEN the system SHALL fechar o menu e abrir `/empresas`.
 
 **Independent Test**: Com o ADMIN do seed e três empresas cadastradas, abrir `/empresas` e ver as três em ordem alfabética, com a selecionada marcada.
 
@@ -200,6 +201,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MLIST-06 | P1: Listar empresas | Execute | Verified |
 | MLIST-07 | P1: Listar empresas | Execute | Verified |
 | MLIST-08 | P1: Listar empresas | Execute | Verified |
+| MLIST-09 | P1: Listar empresas | Execute | Verified |
 | MEDIT-01 | P2: Renomear empresa | Execute | Verified |
 | MEDIT-02 | P2: Renomear empresa | Execute | Verified |
 | MEDIT-03 | P2: Renomear empresa | Execute | Verified |
@@ -215,7 +217,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 
 **ID format:** `M<STORY>-<NN>` (`MCAD`, `MDOC`, `MLIST`, `MEDIT`, `MDES`); o número é a posição do critério na story.
 
-**Coverage:** 36 total, 36 mapped to tasks, 0 unmapped (MCAD-11 adicionado após a conferência visual)
+**Coverage:** 37 total, 37 mapped to tasks, 0 unmapped (MCAD-11 e MLIST-09 adicionados após a conferência visual)
 
 ---
 
