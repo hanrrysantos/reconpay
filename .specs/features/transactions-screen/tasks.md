@@ -178,14 +178,14 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `parseAmount`: `"1234,5"` → `"1234.5"`; 17 dígitos inteiros + 2 casas aceito; 18 dígitos ou 3 casas, `"0"`, `"0,00"`, vazio, negativo e texto → `null`
-- [ ] `parseReference`: espaços das extremidades removidos; vazio → "Informe a referência externa"; 100 caracteres aceito; 101 → "Use até 100 caracteres"
-- [ ] `dateError`: hoje aceito; amanhã → "Data da transação não pode ser futura"; vazio → "Informe a data da transação"
-- [ ] `recentMonths(16/10/2026)` devolve outubro de 2026 até novembro de 2025 (12 meses, mais recente primeiro)
-- [ ] `invalidWindowError`: intervalo igual ou crescente → `null`; invertido → "A data inicial deve ser igual ou anterior à final"
-- [ ] `isMissingFeeRule` verdadeiro só para `ApiError` com a mensagem exata da spec
-- [ ] Rótulos Aprovada/Cancelada/Estornada/Chargeback; `formatTransactionDate('2026-10-03')` → `03/10/2026`
-- [ ] Testes em `frontend/lib/transactions.test.ts`; gate quick passa
+- [x] `parseAmount`: `"1234,5"` → `"1234.5"`; 17 dígitos inteiros + 2 casas aceito; 18 dígitos ou 3 casas, `"0"`, `"0,00"`, vazio, negativo e texto → `null`
+- [x] `parseReference`: espaços das extremidades removidos; vazio → "Informe a referência externa"; 100 caracteres aceito; 101 → "Use até 100 caracteres"
+- [x] `dateError`: hoje aceito; amanhã → "Data da transação não pode ser futura"; vazio → "Informe a data da transação"
+- [x] `recentMonths(16/10/2026)` devolve outubro de 2026 até novembro de 2025 (12 meses, mais recente primeiro)
+- [x] `invalidWindowError`: intervalo igual ou crescente → `null`; invertido → "A data inicial deve ser igual ou anterior à final"
+- [x] `isMissingFeeRule` verdadeiro só para `ApiError` com a mensagem exata da spec
+- [x] Rótulos Aprovada/Cancelada/Estornada/Chargeback; `formatTransactionDate('2026-10-03')` → `03/10/2026`
+- [x] Testes em `frontend/lib/transactions.test.ts`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
