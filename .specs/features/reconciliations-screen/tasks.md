@@ -150,12 +150,12 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Rótulos Na fila / Em andamento / Concluída / Falhou; Bateu / Divergente e Bateram / Divergentes
-- [ ] `newRunWindowError`: vazio → "Informe as duas datas"; invertido → mensagem de intervalo; 366 dias aceito (inclusive um ano bissexto); 367 → "Janela de conciliação excede o máximo de 366 dias"; um dia aceito
-- [ ] `itemsProgress`: `RUNNING` com `processedItems` nulo → "0 de N"; `RUNNING` 3 de 10 → "3 de 10"; `PENDING` → "—"; `COMPLETED` → total
-- [ ] `discrepancyBadge` → "Taxa divergente · Aberta"
-- [ ] `anyInFlight` verdadeiro com `PENDING` ou `RUNNING`, falso com `COMPLETED`/`FAILED`
-- [ ] Testes em `frontend/lib/reconciliations.test.ts`; gate quick passa
+- [x] Rótulos Na fila / Em andamento / Concluída / Falhou; Bateu / Divergente e Bateram / Divergentes
+- [x] `newRunWindowError`: vazio → "Informe as duas datas"; invertido → mensagem de intervalo; 366 dias aceito (inclusive um ano bissexto); 367 → "Janela de conciliação excede o máximo de 366 dias"; um dia aceito
+- [x] `itemsProgress`: `RUNNING` com `processedItems` nulo → "0 de N"; `RUNNING` 3 de 10 → "3 de 10"; `PENDING` → "—"; `COMPLETED` → total
+- [x] `discrepancyBadge` → "Taxa divergente · Aberta"
+- [x] `anyInFlight` verdadeiro com `PENDING` ou `RUNNING`, falso com `COMPLETED`/`FAILED`
+- [x] Testes em `frontend/lib/reconciliations.test.ts`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
