@@ -324,8 +324,8 @@ T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Os dois READMEs descrevem o comportamento entregue
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Os dois READMEs descrevem o comportamento entregue
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: none
 **Gate**: build
