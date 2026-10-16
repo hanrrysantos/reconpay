@@ -122,11 +122,11 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `getRun` faz `GET .../reconciliations/<runId>`
-- [ ] `getRunItems` monta `?page=N&size=20&sort=absDifference%2Cdesc` e inclui `result` e `discrepancyType` só quando informados, em ordem fixa
-- [ ] `getRuns` com `window` e sem `window` gera as URLs da lista (teste novo cobre a lista da tela; testes atuais inalterados)
-- [ ] Decimais dos itens continuam texto
-- [ ] Testes em `frontend/lib/api.reconciliations.test.ts`; gate quick passa
+- [x] `getRun` faz `GET .../reconciliations/<runId>`
+- [x] `getRunItems` monta `?page=N&size=20&sort=absDifference%2Cdesc` e inclui `result` e `discrepancyType` só quando informados, em ordem fixa
+- [x] `getRuns` com `window` e sem `window` gera as URLs da lista (teste novo cobre a lista da tela; testes atuais inalterados)
+- [x] Decimais dos itens continuam texto
+- [x] Testes em `frontend/lib/api.reconciliations.test.ts`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
