@@ -262,12 +262,12 @@ T9 → T10
 
 **Done when**:
 
-- [ ] A rota busca a página 1 sem janela e mostra o nome da empresa dentro do cabeçalho da página (L-035)
-- [ ] Filtro "Janela" com um mês envia `fromDate`/`toDate` e volta para a página 1; "Todas" remove os dois
-- [ ] Disparo aceito fecha a gaveta, volta o filtro para "Todas" e a página para 1, e o run novo aparece no topo como "Na fila"
-- [ ] Troca de empresa fecha a gaveta, mantém um filtro de mês já escolhido (L-036) e busca a página 1 da nova empresa
-- [ ] Sem empresa: `NoMerchant`, sem filtro, sem lista e sem "Nova conciliação"
-- [ ] Testes em `frontend/components/reconciliations/ReconciliationsPage.test.tsx` renderizando a rota; gate build passa
+- [x] A rota busca a página 1 sem janela e mostra o nome da empresa dentro do cabeçalho da página (L-035)
+- [x] Filtro "Janela" com um mês envia `fromDate`/`toDate` e volta para a página 1; "Todas" remove os dois
+- [x] Disparo aceito fecha a gaveta, volta o filtro para "Todas" e a página para 1, e o run novo aparece no topo como "Na fila"
+- [x] Troca de empresa fecha a gaveta, mantém um filtro de mês já escolhido (L-036) e busca a página 1 da nova empresa
+- [x] Sem empresa: `NoMerchant`, sem filtro, sem lista e sem "Nova conciliação"
+- [x] Testes em `frontend/components/reconciliations/ReconciliationsPage.test.tsx` renderizando a rota; gate build passa
 
 **Tests**: unit
 **Gate**: build
