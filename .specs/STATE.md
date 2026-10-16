@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: transaction-csv-import (import CSV de transações, backend) — **Verified** (`validation.md` iteração 5: PASS, 18/18 e 16/16 textos; iterações 4 e 5 autorizadas pelo usuário além do limite de 3)
-- **Phase / Task**: T1–T6 concluídas; correções de teste das iterações 1–4 em `f248e0d`, `7ab6276`, `4bc5ebe`, `f1e3ac4`, `10b9679`
-- **Completed**: `POST /transactions/import` tudo ou nada (erros por linha em `details.rowErrors`, `409` com `conflictingReferences`, período travado), lote em `transaction_imports` (`V24`) com `GET /transactions/imports` e `/imports/{importId}`; `ExpectedNetAmountCalculator` compartilhado com o cadastro unitário; `MerchantRouteAccessIntegrationTest` exige o guard de empresa em todas as rotas `/api/merchants/{merchantId}` (31 estáticas, 20 GET com `403`). Backend 630 testes.
+- **Feature**: imports-screen (tela `/importacoes`, frontend) — **Verified** (`validation.md` iteração 1: PASS, 22/22 ACs e 3/3 edge cases, sensor 16/16 mutantes mortos)
+- **Phase / Task**: T1–T8 concluídas (`3476a45`..`f78905f`)
+- **Completed**: abas Transações/Liquidação/Extrato em `?tipo=`, upload multipart por tipo (liquidação sempre `RECONPAY`), limite de 5 MB no cliente, recusa com `rowErrors`/`conflictingReferences`/mensagem, lotes paginados (20, mais recente primeiro) e invalidação dos últimos imports do dashboard; `ApiError.details` e `send` sem `Content-Type` JSON para `FormData`. Frontend 570 testes.
 - **In-progress** (file:line): none
-- **Next step**: tela de Importações (transações, liquidação e extrato, com lotes e erros por linha) e tela de Transações (lista, formulário e status), conforme AD-011. Pendências: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404`; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: usuário decide push/PR de `feat/imports-screen`; depois, tela de Transações (lista, formulário e status), conforme AD-011. Pendências antigas: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404`; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
-- **Uncommitted files**: none
-- **Branch**: feat/transaction-csv-import mergeada no `main` (PR #47, 2026-10-16); CI e deploy de produção verdes, migration `V24` aplicada. Próxima feature começa em `feat/imports-screen`, criada a partir desse `main`.
+- **Uncommitted files**: `frontend/AGENTS.md` (gerado pelo `next dev`; o usuário ainda não decidiu se entra no repo)
+- **Branch**: `feat/imports-screen`, local, sem push.

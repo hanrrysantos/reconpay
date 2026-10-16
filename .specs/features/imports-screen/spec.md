@@ -140,21 +140,21 @@ A API já importa três arquivos CSV por empresa: transações internas (`POST /
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| IMP-01 | P1 Enviar: abas e `?tipo=` (AC 1, 2) | Design | Pending |
-| IMP-02 | P1 Enviar: colunas esperadas (AC 3) | Design | Pending |
-| IMP-03 | P1 Enviar: envio multipart por tipo, sem `layout` (AC 4, 5, 6, 7) | Design | Pending |
-| IMP-04 | P1 Enviar: mensagem de sucesso e limpeza (AC 8) | Design | Pending |
-| IMP-05 | P1 Enviar: limite de 5 MB no cliente (AC 9, edge 5 MB exato) | Design | Pending |
-| IMP-06 | P1 Recusa: tabela de `rowErrors` (AC 1) | Design | Pending |
-| IMP-07 | P1 Recusa: `conflictingReferences` (AC 2) | Design | Pending |
-| IMP-08 | P1 Recusa: demais erros e falha de rede (AC 3, 4, edge não JSON) | Design | Pending |
-| IMP-09 | P1 Recusa: novo envio limpa o resultado; arquivo mantido (AC 5, 6) | Design | Pending |
-| IMP-10 | P1 Lotes: lista paginada e formato (AC 1, 2, 3) | Design | Pending |
-| IMP-11 | P1 Lotes: vazio e erro com nova tentativa (AC 4, 5) | Design | Pending |
-| IMP-12 | P1 Lotes: atualização após import aceito (AC 6, 7) | Design | Pending |
-| IMP-13 | P2 Isolamento: troca de empresa/aba e sem empresa (AC 1, 2, 3) | Design | Pending |
+| IMP-01 | P1 Enviar: abas e `?tipo=` (AC 1, 2) | Execute | Verified |
+| IMP-02 | P1 Enviar: colunas esperadas (AC 3) | Execute | Verified |
+| IMP-03 | P1 Enviar: envio multipart por tipo, sem `layout` (AC 4, 5, 6, 7) | Execute | Verified |
+| IMP-04 | P1 Enviar: mensagem de sucesso e limpeza (AC 8) | Execute | Verified |
+| IMP-05 | P1 Enviar: limite de 5 MB no cliente (AC 9, edge 5 MB exato) | Execute | Verified |
+| IMP-06 | P1 Recusa: tabela de `rowErrors` (AC 1) | Execute | Verified |
+| IMP-07 | P1 Recusa: `conflictingReferences` (AC 2) | Execute | Verified |
+| IMP-08 | P1 Recusa: demais erros e falha de rede (AC 3, 4, edge não JSON) | Execute | Verified |
+| IMP-09 | P1 Recusa: novo envio limpa o resultado; arquivo mantido (AC 5, 6) | Execute | Verified |
+| IMP-10 | P1 Lotes: lista paginada e formato (AC 1, 2, 3) | Execute | Verified |
+| IMP-11 | P1 Lotes: vazio e erro com nova tentativa (AC 4, 5) | Execute | Verified |
+| IMP-12 | P1 Lotes: atualização após import aceito (AC 6, 7) | Execute | Verified |
+| IMP-13 | P2 Isolamento: troca de empresa/aba e sem empresa (AC 1, 2, 3) | Execute | Verified |
 
-**Coverage:** 13 total, 0 mapped to tasks, 13 unmapped ⚠️
+**Coverage:** 13 total, 13 mapped to tasks, 0 unmapped
 
 ---
 
