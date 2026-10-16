@@ -263,14 +263,14 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Gaveta abre com Data = hoje, Parcelas = 1, Método em "Escolha o método"
-- [ ] Pix, Boleto e Débito fixam Parcelas em 1 e desabilitam o campo; trocar Crédito 3x → Pix → Crédito deixa 1
-- [ ] Cada regra de validação mostra a mensagem do campo e nenhuma requisição sai; os limites dos edge cases são cobertos
-- [ ] Envio com referência sem espaços e valor como número exato; botão "Cadastrando…" desabilitado durante o envio
-- [ ] Sucesso chama `onCreated` com a transação
-- [ ] `400`, `409` de referência repetida e `409` de período travado mantêm a gaveta aberta com a mensagem e os campos
-- [ ] Erro de regra ausente mostra o link para `/taxas?cadastrar=1`; outros erros não mostram
-- [ ] Testes em `frontend/components/transactions/TransactionDrawer.test.tsx`; gate quick passa
+- [x] Gaveta abre com Data = hoje, Parcelas = 1, Método em "Escolha o método"
+- [x] Pix, Boleto e Débito fixam Parcelas em 1 e desabilitam o campo; trocar Crédito 3x → Pix → Crédito deixa 1
+- [x] Cada regra de validação mostra a mensagem do campo e nenhuma requisição sai; os limites dos edge cases são cobertos
+- [x] Envio com referência sem espaços e valor como número exato; botão "Cadastrando…" desabilitado durante o envio
+- [x] Sucesso chama `onCreated` com a transação
+- [x] `400`, `409` de referência repetida e `409` de período travado mantêm a gaveta aberta com a mensagem e os campos
+- [x] Erro de regra ausente mostra o link para `/taxas?cadastrar=1`; outros erros não mostram
+- [x] Testes em `frontend/components/transactions/TransactionDrawer.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
