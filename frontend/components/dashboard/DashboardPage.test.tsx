@@ -128,7 +128,7 @@ describe('DashboardPage', () => {
     server.merchants = []
     renderPage()
     expect(await screen.findByRole('heading', { name: 'Nenhuma empresa no seu acesso' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Cadastrar empresa' })).toHaveAttribute('href', '/empresas')
+    expect(screen.getByRole('link', { name: 'Cadastrar empresa' })).toHaveAttribute('href', '/empresas?cadastrar=1')
     expect(screen.queryByText(/R\$/)).not.toBeInTheDocument()
   })
 

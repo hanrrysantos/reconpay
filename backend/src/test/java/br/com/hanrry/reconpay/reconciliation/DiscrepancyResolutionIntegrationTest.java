@@ -6,6 +6,7 @@ import br.com.hanrry.reconpay.reconciliation.entity.ReconciliationDiscrepancyEnt
 import br.com.hanrry.reconpay.reconciliation.repository.IReconciliationDiscrepancyRepository;
 import br.com.hanrry.reconpay.reconciliation.repository.IReconciliationItemRepository;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import br.com.hanrry.reconpay.util.TestCnpj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -359,7 +360,7 @@ class DiscrepancyResolutionIntegrationTest extends AbstractIntegrationTest {
     }
 
     private String createMerchant(String name) throws Exception {
-        String document = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String document = TestCnpj.random();
         String response = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)

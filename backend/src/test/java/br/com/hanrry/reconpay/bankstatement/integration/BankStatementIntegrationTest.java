@@ -3,6 +3,7 @@ package br.com.hanrry.reconpay.bankstatement.integration;
 import br.com.hanrry.reconpay.bankstatement.repository.IBankStatementLineRepository;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import br.com.hanrry.reconpay.util.TestCnpj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
@@ -465,7 +466,7 @@ class BankStatementIntegrationTest extends AbstractIntegrationTest {
     }
 
     private String createMerchant(String name) throws Exception {
-        String uniqueDocument = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String uniqueDocument = TestCnpj.random();
 
         String merchantResponse = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)

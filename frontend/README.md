@@ -29,7 +29,13 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
   - "Conciliar período" acompanha o run a cada 3 s e recarrega os blocos ao concluir; run com falha mostra a mensagem, o id e "Rodar de novo";
   - travar, destravar e "Exportar relatório" (CSV do run);
   - estados de carregamento, sem empresa, sem acesso, erro de um bloco e erro de rede ("Tentar de novo").
-- `/conciliacoes`, `/divergencias`, `/transacoes`, `/importacoes`, `/fechamento` e `/empresas` mostram a barra e "em construção", sem chamar a API.
+- Empresas em `/empresas`:
+  - lista paginada (20 por página, por nome) com nome, CNPJ formatado e data de cadastro; a empresa selecionada aparece marcada e clicar no nome a seleciona no menu do topo;
+  - "Cadastrar empresa" abre uma gaveta com Nome e CNPJ com máscara; nome de 1 a 150 caracteres e "CNPJ inválido" são checados antes de chamar a API; a nova empresa passa a ser a selecionada;
+  - "Editar" renomeia (o CNPJ fica somente leitura); "Desativar" pede confirmação e avisa que o CNPJ não poderá ser cadastrado de novo; se a desativada era a selecionada, o menu passa para a primeira restante;
+  - erros da API mantêm a gaveta ou o diálogo aberto com a mensagem; `403`/`404` também recarregam a lista; `Esc` fecha;
+  - estados de carregamento, sem empresa ("Nenhuma empresa no seu acesso") e erro ("Tentar de novo").
+- `/conciliacoes`, `/divergencias`, `/transacoes`, `/importacoes` e `/fechamento` mostram a barra e "em construção", sem chamar a API.
 
 ## Dependências
 

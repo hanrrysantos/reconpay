@@ -1,5 +1,7 @@
-import { UnderConstruction } from '@/components/shell/UnderConstruction'
+import { Suspense } from 'react'
+import { MerchantsPage } from '@/components/merchants/MerchantsPage'
 
 export default function EmpresasPage() {
-  return <UnderConstruction title="Empresas" />
+  // useSearchParams needs a Suspense boundary for the static build.
+  return <Suspense><MerchantsPage /></Suspense>
 }

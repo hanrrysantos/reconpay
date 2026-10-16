@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.feerule.integration;
 
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import br.com.hanrry.reconpay.util.TestCnpj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ class FeeRuleIntegrationTest extends AbstractIntegrationTest {
         adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
         operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
 
-        String uniqueDocument = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String uniqueDocument = TestCnpj.random();
 
         String merchantResponse = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)

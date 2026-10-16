@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.reconciliation;
 
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import br.com.hanrry.reconpay.util.TestCnpj;
 import com.jayway.jsonpath.JsonPath;
 import com.opencsv.CSVReader;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
         adminToken = IntegrationTestUtils.obtainAdminToken(mockMvc);
         operatorToken = IntegrationTestUtils.obtainOperatorToken(mockMvc);
 
-        String uniqueDocument = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String uniqueDocument = TestCnpj.random();
 
         String merchantResponse = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)
@@ -544,7 +545,7 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
     }
 
     private String createMerchant(String name) throws Exception {
-        String document = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String document = TestCnpj.random();
         String response = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)

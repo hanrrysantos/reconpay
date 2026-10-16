@@ -82,13 +82,30 @@
 - **Date**: 2026-10-14 (revisado duas vezes no dia: sem aritmética local de dinheiro; escopo limitado a dinheiro)
 - **Status**: active
 
+### AD-011
+- **Decision**: Transações internas entram por dois caminhos que convivem: formulário (uma transação, sobre o `POST /transactions` existente) e import CSV em lote, com validação por linha e lote rastreável, no mesmo padrão do import de liquidação.
+- **Reason**: No domínio, as transações vêm em lote do sistema do lojista; o formulário cobre a transação avulsa, a correção e o caso de teste isolado.
+- **Trade-off**: O import CSV é uma feature nova de backend (endpoint, parser, lote, OpenAPI, testes); cada linha exige regra de taxa ativa e vira erro por linha quando não há.
+- **Scope**: Módulo `transaction`, tela de Transações (formulário e status) e tela de Importações (três arquivos: transações, liquidação, extrato).
+- **Date**: 2026-10-15
+- **Status**: active
+
+### AD-012
+- **Decision**: Regras de taxa ficam em rota própria (`/taxas`), sempre da empresa selecionada, acessada pelo menu de empresa ("Regras de taxa da <empresa>"), não pela barra superior nem como aba de `/empresas/[id]`.
+- **Reason**: A barra superior é do fluxo operacional diário; regra de taxa é configuração da empresa, alterada raramente. Rota própria não depende da página de detalhe de Empresas, então as duas telas podem ser feitas em paralelo.
+- **Trade-off**: A tela fica a um clique a mais; outros pontos de entrada (link na lista de `/empresas`, aviso no `409` por falta de regra ativa) entram depois.
+- **Scope**: Frontend: `/taxas`, `MerchantMenu`.
+- **Note** (2026-10-15): o mesmo princípio vale para Empresas: `/empresas` fica fora da barra superior e é aberta por "Gerenciar empresas" e "Cadastrar empresa" no menu de empresa.
+- **Date**: 2026-10-15
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: dashboard-redesign (direção Lima) — **Verified** (`validation.md` iteração 2: PASS)
-- **Phase / Task**: T1–T47 concluídas; Verifier PASS em `63f4df6..f62d60c`
-- **Completed**: backend `GET /periods/summary` (totais, série diária, falta por dia, percentuais, `resolvedCount`), `netDifference` e filtro/ordem dos items, progresso do run, listagem de imports de extrato; frontend com tema Lima, TanStack Query, blocos em SVG, gaveta de resolução, estados e rotas vazias. Backend 489 testes, frontend 239.
+- **Feature**: merchants-screen (tela de Empresas) — **Verified** (`validation.md` iteração 2: PASS)
+- **Phase / Task**: T1–T12 concluídas; correções da iteração 1 em `91310bf`, `f0c30e4`, `df2066c`
+- **Completed**: backend normaliza e valida CNPJ (`CnpjRules`, `@ValidCnpj`, duplicidade por dígitos inclusive desativadas e legado formatado); frontend `/empresas` com lista paginada, gaveta de cadastro/edição, desativação com confirmação e seleção no menu do topo. Backend 532 testes, frontend 322.
 - **In-progress** (file:line): none
-- **Next step**: conferência visual no navegador; push de `feat/dashboard-redesign` e PR (pelo usuário). Opcional: teste para DASH-01 AC1 (tokens do tema) e as notas cosméticas do `validation.md` (sparkline do bruto usa líquido; célula de diferença sempre vermelha).
+- **Next step**: conferência visual em `/empresas`; push de `feat/merchants-screen` e PR (pelo usuário). Depois: (2) tela de Regras de taxa (`/taxas`, AD-012); (3) import CSV de transações no backend (AD-011). Follow-ups: exemplo inválido `12345678000199` em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: feat/dashboard-redesign
+- **Branch**: feat/merchants-screen (local, sem push)

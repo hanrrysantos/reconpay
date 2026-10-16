@@ -15,6 +15,7 @@ import br.com.hanrry.reconpay.observability.AuditLogger;
 import br.com.hanrry.reconpay.security.AuthenticatedUserAccessor;
 import br.com.hanrry.reconpay.security.CustomUserDetails;
 import br.com.hanrry.reconpay.security.MerchantAccessGuard;
+import br.com.hanrry.reconpay.shared.CnpjRules;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,12 +39,14 @@ public class MerchantService {
 
     @Transactional
     public MerchantResponseDTO create(MerchantRequestDTO request) {
-        if (merchantRepository.existsByDocument(request.document())) {
+        String document = CnpjRules.digits(request.document());
+        if (merchantRepository.existsByDocumentDigits(document)) {
             throw new MerchantAlreadyExistsException(
-                    "Comerciante já cadastrado com documento: " + request.document());
+                    "Comerciante já cadastrado com documento: " + document);
         }
 
         MerchantEntity entity = merchantMapper.toEntity(request);
+        entity.setDocument(document);
         MerchantEntity savedMerchant = merchantRepository.save(entity);
 
         CustomUserDetails creator = authenticatedUserAccessor.requirePrincipal();

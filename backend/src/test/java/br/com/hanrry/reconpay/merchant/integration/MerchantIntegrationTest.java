@@ -1,15 +1,19 @@
 package br.com.hanrry.reconpay.merchant.integration;
 
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
+import br.com.hanrry.reconpay.merchant.entity.MerchantEntity;
+import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import br.com.hanrry.reconpay.util.TestCnpj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.UUID;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,6 +28,9 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private IMerchantRepository merchantRepository;
+
     private String adminToken;
     private String operatorToken;
 
@@ -35,15 +42,16 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void shouldCreateListUpdateAndDeleteMerchant() throws Exception {
+        String document = TestCnpj.random();
         String createResponse = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
                                   "name": "Loja Exemplo",
-                                  "document": "12345678000199"
+                                  "document": "%s"
                                 }
-                                """))
+                                """.formatted(document)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Loja Exemplo"))
                 .andReturn()
@@ -59,7 +67,7 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
                         .param("page", "0")
                         .param("size", "500"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[?(@.document=='12345678000199')]").exists());
+                .andExpect(jsonPath("$.content[?(@.document=='" + document + "')]").exists());
 
         mockMvc.perform(put("/api/merchants/{id}", merchantId)
                         .header("Authorization", "Bearer " + adminToken)
@@ -104,8 +112,96 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void shouldStoreOnlyTheDigitsOfAFormattedCnpj() throws Exception {
+        String digits = TestCnpj.random();
+
+        mockMvc.perform(createRequest(formatted(digits)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.document").value(digits));
+
+        mockMvc.perform(createRequest(digits))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("CONFLICT"));
+    }
+
+    @Test
+    void shouldStoreTheDigitsOfAValidCnpjPaddedBeyondThirtyCharacters() throws Exception {
+        String digits = TestCnpj.random();
+
+        mockMvc.perform(createRequest("  " + formatted(digits) + " ".repeat(20)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.document").value(digits));
+    }
+
+    @Test
+    void shouldRejectCnpjWhoseDigitsMatchALegacyFormattedDocument() throws Exception {
+        String digits = TestCnpj.random();
+        MerchantEntity legacy = new MerchantEntity();
+        legacy.setName("Loja Legada");
+        legacy.setDocument(formatted(digits));
+        merchantRepository.saveAndFlush(legacy);
+
+        mockMvc.perform(createRequest(digits))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("CONFLICT"));
+    }
+
+    @Test
+    void shouldRejectCnpjOfADeactivatedMerchant() throws Exception {
+        String digits = TestCnpj.random();
+        String createResponse = mockMvc.perform(createRequest(digits))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String merchantId = com.jayway.jsonpath.JsonPath.read(createResponse, "$.id");
+
+        mockMvc.perform(delete("/api/merchants/{id}", merchantId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(createRequest(digits))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("CONFLICT"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"1234567800019", "12345678000199", "11111111111111", "00000000000000", "12A45678000195",
+            "1234567800019599999999999999999", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"})
+    void shouldRejectInvalidCnpj(String document) throws Exception {
+        mockMvc.perform(post("/api/merchants")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Loja Inválida",
+                                  "document": "%s"
+                                }
+                                """.formatted(document)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("CNPJ inválido"));
+    }
+
+    @Test
+    void shouldReportOnlyRequiredMessageForBlankDocument() throws Exception {
+        mockMvc.perform(post("/api/merchants")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Loja Sem Documento",
+                                  "document": ""
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Documento é obrigatório"));
+    }
+
+    @Test
     void operatorShouldCreateMerchantAndSeeItInScopedList() throws Exception {
-        String document = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String document = TestCnpj.random();
         String createResponse = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + operatorToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -139,5 +235,21 @@ class MerchantIntegrationTest extends AbstractIntegrationTest {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Loja Operator Atualizada"));
+    }
+
+    private MockHttpServletRequestBuilder createRequest(String document) {
+        return post("/api/merchants")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                          "name": "Loja CNPJ",
+                          "document": "%s"
+                        }
+                        """.formatted(document));
+    }
+
+    private static String formatted(String digits) {
+        return digits.replaceFirst("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})", "$1.$2.$3/$4-$5");
     }
 }

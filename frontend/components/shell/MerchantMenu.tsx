@@ -1,10 +1,11 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { Check, ChevronDown, Plus, Search } from 'lucide-react'
+import { Building2, Check, ChevronDown, Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { getMerchants, type Merchant } from '@/lib/api'
+import { cnpjDigits, formatCnpj } from '@/lib/cnpj'
 import { useAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
@@ -18,6 +19,9 @@ type SelectedMerchantValue = {
 }
 
 const SelectedMerchantContext = createContext<SelectedMerchantValue | null>(null)
+
+/** Opens `/empresas` with the create drawer already open. */
+export const CREATE_MERCHANT_HREF = '/empresas?cadastrar=1'
 
 /** Loads every page of `/api/me/merchants` and keeps the selected one; the first merchant is the default. */
 export function SelectedMerchantProvider({ children }: { children: ReactNode }) {
@@ -51,21 +55,13 @@ export function useSelectedMerchant(): SelectedMerchantValue {
   return context
 }
 
-const digits = (value: string) => value.replace(/\D/g, '')
 const fold = (value: string) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
-
-export function formatCnpj(document: string): string {
-  const value = digits(document)
-  return value.length === 14
-    ? `${value.slice(0, 2)}.${value.slice(2, 5)}.${value.slice(5, 8)}/${value.slice(8, 12)}-${value.slice(12)}`
-    : document
-}
 
 /** A query made only of digits and CNPJ punctuation searches the CNPJ; any other text searches the name. */
 function matches(merchant: Merchant, query: string): boolean {
   const text = query.trim()
   if (!text) return true
-  if (/^[\d.\-/\s]+$/.test(text)) return digits(merchant.document).includes(digits(text))
+  if (/^[\d.\-/\s]+$/.test(text)) return cnpjDigits(merchant.document).includes(cnpjDigits(text))
   return fold(merchant.name).includes(fold(text))
 }
 
@@ -153,14 +149,24 @@ export function MerchantMenu({ merchants, selectedId, onSelect }: {
           </ul>
           {visible.length === 0 && <p className="p-3 text-[13px] text-muted">Nenhuma empresa encontrada</p>}
 
-          <Link
-            href="/empresas"
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2 rounded-[14px] border-t border-border p-3 text-[14px] font-semibold hover:bg-subtle"
-          >
-            <Plus aria-hidden="true" className="size-4" />
-            Cadastrar empresa
-          </Link>
+          <div className="flex flex-col border-t border-border pt-1">
+            <Link
+              href="/empresas"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 rounded-[14px] p-3 text-[14px] font-semibold hover:bg-subtle"
+            >
+              <Building2 aria-hidden="true" className="size-4" />
+              Gerenciar empresas
+            </Link>
+            <Link
+              href={CREATE_MERCHANT_HREF}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 rounded-[14px] p-3 text-[14px] font-semibold hover:bg-subtle"
+            >
+              <Plus aria-hidden="true" className="size-4" />
+              Cadastrar empresa
+            </Link>
+          </div>
         </div>
       )}
     </div>

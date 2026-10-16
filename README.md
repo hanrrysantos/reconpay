@@ -51,7 +51,10 @@ API em produção: [https://reconpay.hanrry.top](https://reconpay.hanrry.top) ·
 - Auto-cadastro cria `OPERATOR` inativo até a verificação de e-mail (link GET no e-mail, ou `POST /api/auth/verify-email` para clientes programáticos).
 
 ### Merchants
-- Documento único; soft delete; consultas retornam apenas merchants ativos.
+- O documento é um CNPJ de 14 dígitos com dígitos verificadores válidos; CNPJ com os 14 dígitos iguais é inválido. Inválido responde `400` `VALIDATION_ERROR` "CNPJ inválido".
+- A pontuação de CNPJ (`.`, `/`, `-` e espaços) é aceita e removida: só os dígitos são gravados. Qualquer outro caractere torna o documento inválido.
+- A duplicidade compara só os dígitos, contra todos os merchants gravados, inclusive desativados e documentos antigos gravados com pontuação; duplicado responde `409`.
+- Soft delete; o CNPJ de um merchant desativado continua reservado. Consultas retornam apenas merchants ativos.
 
 ### Fee rules
 - Uma regra ativa por combinação `(merchant, paymentMethod, installments)`.
@@ -247,7 +250,7 @@ CORS em `dev` libera origens em `reconpay.cors.allowed-origins` (incluindo `http
 
 ## Frontend
 
-O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. O dashboard em `/` lê o fechamento da janela, resolve divergências, roda a conciliação, trava e exporta, sempre com dados da API.
+O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. O dashboard em `/` lê o fechamento da janela, resolve divergências, roda a conciliação, trava e exporta, sempre com dados da API. Em `/empresas` o usuário lista, cadastra, renomeia e desativa merchants.
 
 ---
 

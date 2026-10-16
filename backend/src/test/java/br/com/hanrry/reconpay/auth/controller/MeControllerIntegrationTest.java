@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.auth.controller;
 
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import br.com.hanrry.reconpay.util.TestCnpj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ class MeControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void operatorShouldSeeOnlyGrantedMerchants() throws Exception {
-        String document = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String document = TestCnpj.random();
         String merchantResponse = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)

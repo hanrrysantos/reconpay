@@ -4,6 +4,7 @@ import { Check, Copy, Lock, Plus, RefreshCw, TriangleAlert, WifiOff } from 'luci
 import Link from 'next/link'
 import { useState, type ReactNode } from 'react'
 import type { Run } from '@/lib/api'
+import { CREATE_MERCHANT_HREF } from '@/components/shell/MerchantMenu'
 import { cn } from '@/lib/utils'
 
 const Placeholder = ({ className }: { className?: string }) => <div className={cn('rounded-sm bg-[#EBEDE6]', className)} />
@@ -37,15 +38,17 @@ export function DashboardSkeleton() {
   )
 }
 
-export function NoMerchant() {
+/** Without `onCreate`, "Cadastrar empresa" links to `/empresas` with the form open; on that page it opens the form directly. */
+export function NoMerchant({ onCreate }: { onCreate?: () => void } = {}) {
+  const action = 'flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-[14px] font-semibold text-foreground'
+  const label = <><Plus aria-hidden="true" className="size-4" />Cadastrar empresa</>
   return (
     <section className="flex flex-col items-start gap-5 rounded-lg bg-foreground p-7 text-white lg:w-[420px]">
       <h2 className="font-display text-[30px] leading-tight font-extrabold tracking-[-0.03em]">Nenhuma empresa no seu acesso</h2>
       <p className="text-[13px] text-white/75">Peça acesso a um administrador ou cadastre uma empresa.</p>
-      <Link href="/empresas" className="flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-[14px] font-semibold text-foreground">
-        <Plus aria-hidden="true" className="size-4" />
-        Cadastrar empresa
-      </Link>
+      {onCreate
+        ? <button type="button" onClick={onCreate} className={action}>{label}</button>
+        : <Link href={CREATE_MERCHANT_HREF} className={action}>{label}</Link>}
     </section>
   )
 }

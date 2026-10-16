@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.security.integration;
 
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
+import br.com.hanrry.reconpay.util.TestCnpj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,7 +115,7 @@ class MerchantIsolationIntegrationTest extends AbstractIntegrationTest {
     }
 
     private UUID createMerchant(String name) throws Exception {
-        String document = UUID.randomUUID().toString().replace("-", "").substring(0, 14);
+        String document = TestCnpj.random();
 
         String response = mockMvc.perform(post("/api/merchants")
                         .header("Authorization", "Bearer " + adminToken)

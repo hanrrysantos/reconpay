@@ -48,7 +48,7 @@ public interface MerchantControllerApi {
             {
               "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
               "name": "Loja Centro",
-              "document": "12345678000199",
+              "document": "12345678000195",
               "active": true,
               "createdAt": "2026-08-10T12:00:00Z"
             }
@@ -85,7 +85,7 @@ public interface MerchantControllerApi {
                                     value = """
                                             {
                                               "name": "Loja Centro",
-                                              "document": "12345678000199"
+                                              "document": "12345678000195"
                                             }
                                             """
                             )
@@ -112,7 +112,7 @@ public interface MerchantControllerApi {
                                         {
                                           "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                                           "name": "Loja Centro",
-                                          "document": "12345678000199",
+                                          "document": "12345678000195",
                                           "active": true,
                                           "createdAt": "2026-08-10T12:00:00Z"
                                         }

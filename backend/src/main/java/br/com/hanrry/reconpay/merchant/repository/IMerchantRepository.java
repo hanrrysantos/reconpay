@@ -16,7 +16,13 @@ import java.util.UUID;
 
 public interface IMerchantRepository extends JpaRepository<MerchantEntity, UUID> {
 
-    boolean existsByDocument(String document);
+    /** Compares digits only, active or not, so a document stored with punctuation before normalization still counts. */
+    @Query("""
+            select count(merchant) > 0
+            from MerchantEntity merchant
+            where function('regexp_replace', merchant.document, '[^0-9]', '', 'g') = :digits
+            """)
+    boolean existsByDocumentDigits(@Param("digits") String digits);
 
     Page<MerchantEntity> findAllByActiveTrue(Pageable pageable);
 

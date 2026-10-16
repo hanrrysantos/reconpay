@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 15,
+  "next_id": 17,
   "lessons": [
     {
       "id": "L-001",
@@ -257,6 +257,42 @@
       ],
       "created": "2026-10-14T10:44:01Z",
       "last_seen": "2026-10-14T10:44:01Z"
+    },
+    {
+      "id": "L-015",
+      "key": "ac_gap::when a request field carries several bean validation constraints make sure only one can fail for a given input or give them the same message because the 400 handler reports the first violation in unspecified order",
+      "text": "When a request field carries several Bean Validation constraints, make sure only one can fail for a given input or give them the same message, because the 400 handler reports the first violation in unspecified order",
+      "signal": "ac_gap",
+      "scope": "backend-validation",
+      "status": "candidate",
+      "features": [
+        "merchants-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "MDOC-02/MDOC-03 - backend/src/main/java/br/com/hanrry/reconpay/merchant/dto/MerchantRequestDTO.java:14 (backend-validation)"
+      ],
+      "created": "2026-10-15T19:48:05Z",
+      "last_seen": "2026-10-15T19:48:05Z"
+    },
+    {
+      "id": "L-016",
+      "key": "spec_precision_gap::state the exact text of each field validation message in the acceptance criterion instead of referring to the field message",
+      "text": "State the exact text of each field validation message in the acceptance criterion instead of referring to the field message",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "merchants-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "MCAD-05 (spec)"
+      ],
+      "created": "2026-10-15T19:48:05Z",
+      "last_seen": "2026-10-15T19:48:05Z"
     }
   ]
 }
