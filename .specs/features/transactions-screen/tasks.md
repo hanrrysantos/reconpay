@@ -209,9 +209,9 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `useTransactionPage` consulta a empresa, os filtros e a página pedidos
-- [ ] Após cadastro e após mudança de status aceitos, a lista da empresa já foi recarregada quando a mutação resolve
-- [ ] Testes em `frontend/lib/queries.transactions.test.tsx`; gate quick passa
+- [x] `useTransactionPage` consulta a empresa, os filtros e a página pedidos
+- [x] Após cadastro e após mudança de status aceitos, a lista da empresa já foi recarregada quando a mutação resolve
+- [x] Testes em `frontend/lib/queries.transactions.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick

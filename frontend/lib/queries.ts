@@ -3,10 +3,11 @@
 import { MutationCache, QueryCache, QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import {
-  ApiError, createFeeRule, createMerchant, deactivateFeeRule, deactivateMerchant, exportRunCsv, getDiscrepancy, getFeeRules,
+  ApiError, createFeeRule, createMerchant, createTransaction, deactivateFeeRule, deactivateMerchant, exportRunCsv, getDiscrepancy, getFeeRules,
   getImportBatches, getLatestBankStatementImportTime, getLatestSettlementImport, getMerchantPage, importCsv, getOpenDiscrepancies, getPeriod,
-  getPeriodSummary, getRuns, lockPeriod, renameMerchant, runReconciliation, unlockPeriod, updateDiscrepancy, updateFeeRuleFees,
-  type DiscrepancyType, type DiscrepancyUpdate, type FeeRuleFees, type FeeRuleInput, type ImportKind, type Run,
+  getPeriodSummary, getRuns, getTransactionPage, lockPeriod, renameMerchant, runReconciliation, unlockPeriod, updateDiscrepancy,
+  updateFeeRuleFees, updateTransactionStatus, type DiscrepancyType, type DiscrepancyUpdate, type FeeRuleFees, type FeeRuleInput,
+  type ImportKind, type Run, type TransactionFilters, type TransactionInput, type TransactionStatus,
 } from './api'
 import { useAuth } from './auth'
 import type { Window } from './period'
@@ -50,6 +51,12 @@ export const queryKeys = {
   /** Accepted imports listed on `/importacoes`; apart from `imports`, the dashboard's latest import times. */
   importBatches: (merchantId: string, kind: ImportKind, page?: number) =>
     (page === undefined ? ['importBatches', merchantId, kind] : ['importBatches', merchantId, kind, page]) as readonly unknown[],
+  /** Without filters, the prefix of every transaction page of the merchant. */
+  transactions: (merchantId: string, filters?: TransactionFilters, page?: number) =>
+    (filters === undefined
+      ? ['transactions', merchantId]
+      : ['transactions', merchantId, filters.window.fromDate, filters.window.toDate, filters.status ?? 'ALL', filters.paymentMethod ?? 'ALL', page ?? 0]
+    ) as readonly unknown[],
 }
 
 const inFlight = (run: Run | null | undefined) => run?.status === 'PENDING' || run?.status === 'RUNNING'
@@ -289,5 +296,37 @@ export function useImportCsv(merchantId: string, kind: ImportKind) {
       queryClient.invalidateQueries({ queryKey: queryKeys.importBatches(merchantId, kind) }),
       queryClient.invalidateQueries({ queryKey: queryKeys.imports(merchantId) }),
     ]),
+  })
+}
+
+/** One page of the merchant's transactions for the filters, newest transaction date first. */
+export function useTransactionPage(merchantId: string, filters: TransactionFilters, page: number) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: queryKeys.transactions(merchantId, filters, page),
+    queryFn: () => getTransactionPage(token!, merchantId, filters, page),
+    enabled: Boolean(token),
+  })
+}
+
+/** Resolves only after every transaction page of the merchant has reloaded. */
+export function useInvalidateTransactions(merchantId: string) {
+  const queryClient = useQueryClient()
+  return () => queryClient.invalidateQueries({ queryKey: queryKeys.transactions(merchantId) })
+}
+
+export function useCreateTransaction(merchantId: string) {
+  const { token } = useAuth()
+  const invalidate = useInvalidateTransactions(merchantId)
+  return useMutation({ mutationFn: (input: TransactionInput) => createTransaction(token!, merchantId, input), onSuccess: invalidate })
+}
+
+export function useUpdateTransactionStatus(merchantId: string) {
+  const { token } = useAuth()
+  const invalidate = useInvalidateTransactions(merchantId)
+  return useMutation({
+    mutationFn: ({ transactionId, status }: { transactionId: string; status: TransactionStatus }) =>
+      updateTransactionStatus(token!, merchantId, transactionId, status),
+    onSuccess: invalidate,
   })
 }
