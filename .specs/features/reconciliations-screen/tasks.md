@@ -320,12 +320,12 @@ T9 → T10
 
 **Done when**:
 
-- [ ] A rota lê `runId` da URL e mostra janela, status, criado em, totais, selo "Substituído" e "Voltar para conciliações"
-- [ ] `404` mostra "Conciliação não encontrada." com o link de volta
-- [ ] "Exportar CSV" só em `COMPLETED`; baixa `reconciliation-<runId>.csv`; "Exportando…" durante o envio; erro exibido junto do botão
-- [ ] Run em andamento recarrega até concluir e então mostra "Exportar CSV"
-- [ ] Trocar de empresa chama `router.replace('/conciliacoes')`
-- [ ] Testes em `frontend/components/reconciliations/RunDetailPage.test.tsx` renderizando a rota; gate build passa
+- [x] A rota lê `runId` da URL e mostra janela, status, criado em, totais, selo "Substituído" e "Voltar para conciliações"
+- [x] `404` mostra "Conciliação não encontrada." com o link de volta
+- [x] "Exportar CSV" só em `COMPLETED`; baixa `reconciliation-<runId>.csv`; "Exportando…" durante o envio; erro exibido junto do botão
+- [x] Run em andamento recarrega até concluir e então mostra "Exportar CSV"
+- [x] Trocar de empresa chama `router.replace('/conciliacoes')`
+- [x] Testes em `frontend/components/reconciliations/RunDetailPage.test.tsx` renderizando a rota; gate build passa
 
 **Tests**: unit
 **Gate**: build
