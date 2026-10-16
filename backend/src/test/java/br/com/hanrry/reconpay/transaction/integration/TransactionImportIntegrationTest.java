@@ -236,7 +236,8 @@ class TransactionImportIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[*].id").value(contains(second, first)))
                 .andExpect(jsonPath("$.content[*].fileName").value(contains("segundo.csv", "primeiro.csv")))
-                .andExpect(jsonPath("$.content[*].totalRows").value(contains(2, 1)));
+                .andExpect(jsonPath("$.content[*].totalRows").value(contains(2, 1)))
+                .andExpect(jsonPath("$.size").value(20));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions/imports/{importId}", merchantId, first)
                         .header("Authorization", "Bearer " + adminToken))
