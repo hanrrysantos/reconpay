@@ -165,7 +165,7 @@ class FeeRuleIntegrationTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"CREDIT_CARD, 12", "PIX, 1"})
+    @CsvSource({"CREDIT_CARD, 1", "CREDIT_CARD, 12", "PIX, 1", "BOLETO, 1", "DEBIT_CARD, 1"})
     void shouldCreateFeeRuleForAllowedInstallments(String paymentMethod, int installments) throws Exception {
         mockMvc.perform(post("/api/merchants/{merchantId}/fee-rules", merchantId)
                         .header("Authorization", "Bearer " + adminToken)
