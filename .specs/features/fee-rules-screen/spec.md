@@ -177,14 +177,14 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 | FREG-01 | P1: Método sem parcelamento na API | Execute | Implementing |
 | FREG-02 | P1: Método sem parcelamento na API | Execute | Implementing |
 | FREG-03 | P1: Método sem parcelamento na API | Execute | Implementing |
-| FLIST-01 | P1: Listar regras | Design | Pending |
+| FLIST-01 | P1: Listar regras | Execute | Implementing |
 | FLIST-02 | P1: Listar regras | Execute | Implementing |
 | FLIST-03 | P1: Listar regras | Execute | Implementing |
 | FLIST-04 | P1: Listar regras | Execute | Implementing |
-| FLIST-05 | P1: Listar regras | Design | Pending |
-| FLIST-06 | P1: Listar regras | Design | Pending |
-| FLIST-07 | P1: Listar regras | Design | Pending |
-| FLIST-08 | P1: Listar regras | Design | Pending |
+| FLIST-05 | P1: Listar regras | Execute | Implementing |
+| FLIST-06 | P1: Listar regras | Execute | Implementing |
+| FLIST-07 | P1: Listar regras | Execute | Implementing |
+| FLIST-08 | P1: Listar regras | Execute | Implementing |
 | FCAD-01 | P1: Cadastrar regra | Design | Pending |
 | FCAD-02 | P1: Cadastrar regra | Design | Pending |
 | FCAD-03 | P1: Cadastrar regra | Design | Pending |

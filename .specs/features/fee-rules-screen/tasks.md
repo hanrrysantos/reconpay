@@ -224,8 +224,8 @@ T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Um teste por AC FLIST-01..08 (fetch falso no estilo de `MerchantsPage.test.tsx`), incluindo troca de empresa no menu
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] Um teste por AC FLIST-01..08 (fetch falso no estilo de `MerchantsPage.test.tsx`), incluindo troca de empresa no menu
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: quick
