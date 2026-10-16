@@ -194,7 +194,8 @@ class TransactionIntegrationTest extends AbstractIntegrationTest {
                                 }
                                 """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Método de pagamento PIX não permite parcelamento"));
     }
 
     @Test

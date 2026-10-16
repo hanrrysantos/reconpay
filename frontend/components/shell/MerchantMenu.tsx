@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { Building2, Check, ChevronDown, Plus, Search } from 'lucide-react'
+import { Building2, Check, ChevronDown, Percent, Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { getMerchants, type Merchant } from '@/lib/api'
@@ -158,6 +158,16 @@ export function MerchantMenu({ merchants, selectedId, onSelect }: {
               <Building2 aria-hidden="true" className="size-4" />
               Gerenciar empresas
             </Link>
+            {selected && (
+              <Link
+                href="/taxas"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-[14px] p-3 text-[14px] font-semibold hover:bg-subtle"
+              >
+                <Percent aria-hidden="true" className="size-4 shrink-0" />
+                <span className="truncate">Regras de taxa da {selected.name}</span>
+              </Link>
+            )}
             <Link
               href={CREATE_MERCHANT_HREF}
               onClick={() => setOpen(false)}

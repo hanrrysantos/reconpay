@@ -82,6 +82,26 @@ describe('MerchantMenu', () => {
 
     expect(screen.getByRole('link', { name: 'Cadastrar empresa' })).toHaveAttribute('href', '/empresas?cadastrar=1')
   })
+
+  it('com empresa selecionada, tem no rodapé "Regras de taxa da <empresa>" entre os dois itens, para /taxas, e fecha o menu (FLIST-01)', async () => {
+    const { user } = open('m-2')
+    await user.click(screen.getByRole('button', { name: /Beta Comércio/ }))
+    const rules = screen.getByRole('link', { name: 'Regras de taxa da Beta Comércio' })
+
+    expect(rules).toHaveAttribute('href', '/taxas')
+    const footer = within(rules.parentElement!).getAllByRole('link').map(link => link.textContent)
+    expect(footer).toEqual(['Gerenciar empresas', 'Regras de taxa da Beta Comércio', 'Cadastrar empresa'])
+    await user.click(rules)
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+  })
+
+  it('sem empresa selecionada, não mostra o item de regras de taxa (FLIST-01)', async () => {
+    render(<MerchantMenu merchants={[]} selectedId={null} onSelect={vi.fn()} />)
+    await userEvent.setup().click(screen.getByRole('button', { name: /Nenhuma empresa/ }))
+
+    expect(screen.getByRole('link', { name: 'Gerenciar empresas' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Regras de taxa/ })).not.toBeInTheDocument()
+  })
 })
 
 describe('SelectedMerchantProvider', () => {

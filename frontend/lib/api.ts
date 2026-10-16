@@ -161,6 +161,23 @@ export type DiscrepancyDetail = {
 
 export type DiscrepancyUpdate = { status: DiscrepancyStatus; note?: string; correctionAmount?: string }
 
+/** An active fee rule; `feePercentage` and `fixedFee` stay as the API text (BigDecimal). */
+export type FeeRule = {
+  id: string
+  merchantId: string
+  merchantName: string
+  paymentMethod: PaymentMethod
+  installments: number
+  feePercentage: string
+  fixedFee: string
+  active: boolean
+  createdAt: string
+}
+
+/** Decimal fields hold the exact typed text with a dot separator, e.g. `"2.99"`. */
+export type FeeRuleFees = { feePercentage: string; fixedFee: string }
+export type FeeRuleInput = FeeRuleFees & { paymentMethod: PaymentMethod; installments: number }
+
 export type SettlementImport = { id: string; merchantId: string; fileName: string; totalRows: number; createdAt: string }
 
 /** Fields the API serializes as BigDecimal; an integral value (e.g. `0`) is still kept as text. */
@@ -168,7 +185,7 @@ const DECIMAL_FIELDS = new Set([
   'amount', 'transactionAmount', 'expectedNetAmount', 'settlementAmount', 'settlementNetAmount', 'settledNetAmount',
   'matchRate', 'openAmount', 'grossAmount', 'feeAmount', 'feeAboveContractAmount', 'bankReceivedAmount',
   'previousRunMatchRate', 'previousWindowGrossAmount', 'bankShortfallAmount', 'feePercent',
-  'previousWindowGrossChangePercent', 'netDifference',
+  'previousWindowGrossChangePercent', 'netDifference', 'feePercentage', 'fixedFee',
 ])
 
 export class ApiError extends Error {
@@ -274,6 +291,34 @@ export async function getTransactions(token: string, merchantId: string): Promis
     token,
   )
   return result.content
+}
+
+const feeRulesPath = (merchantId: string) => `${merchantPath(merchantId)}/fee-rules`
+// Sent as JSON number literals built from the text, so the values never pass through a float.
+const feesBody = ({ feePercentage, fixedFee }: FeeRuleFees) => ({ feePercentage: new LosslessNumber(feePercentage), fixedFee: new LosslessNumber(fixedFee) })
+
+/** The merchant's active rules (one page of up to 100), by payment method and then installments. */
+export async function getFeeRules(token: string, merchantId: string): Promise<FeeRule[]> {
+  const result = await request<Page<FeeRule>>(
+    `${feeRulesPath(merchantId)}?page=0&size=100&sort=paymentMethod%2Casc&sort=installments%2Casc`,
+    {},
+    token,
+  )
+  return result.content
+}
+
+export function createFeeRule(token: string, merchantId: string, { paymentMethod, installments, ...fees }: FeeRuleInput): Promise<FeeRule> {
+  const body = stringify({ paymentMethod, installments, ...feesBody(fees) })
+  return request(feeRulesPath(merchantId), { method: 'POST', body }, token)
+}
+
+/** Changes only the rates; payment method and installments are not sent. */
+export function updateFeeRuleFees(token: string, merchantId: string, ruleId: string, fees: FeeRuleFees): Promise<FeeRule> {
+  return request(`${feeRulesPath(merchantId)}/${encodeURIComponent(ruleId)}`, { method: 'PUT', body: stringify(feesBody(fees)) }, token)
+}
+
+export async function deactivateFeeRule(token: string, merchantId: string, ruleId: string): Promise<void> {
+  await request(`${feeRulesPath(merchantId)}/${encodeURIComponent(ruleId)}`, { method: 'DELETE' }, token)
 }
 
 const merchantPath = (merchantId: string) => `/api/merchants/${encodeURIComponent(merchantId)}`

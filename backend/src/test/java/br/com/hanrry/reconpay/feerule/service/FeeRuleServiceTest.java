@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.feerule.service;
 
 import br.com.hanrry.reconpay.exception.FeeRuleAlreadyExistsException;
 import br.com.hanrry.reconpay.exception.FeeRuleNotFoundException;
+import br.com.hanrry.reconpay.exception.InvalidInstallmentsForPaymentMethodException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.feerule.dto.FeeRuleRequestDTO;
 import br.com.hanrry.reconpay.feerule.dto.FeeRuleResponseDTO;
@@ -14,6 +15,8 @@ import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -234,6 +237,84 @@ class FeeRuleServiceTest {
                 .isInstanceOf(FeeRuleAlreadyExistsException.class);
 
         verify(feeRuleRepository, never()).save(any());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PaymentMethod.class, names = {"PIX", "BOLETO", "DEBIT_CARD"})
+    void createShouldRejectInstallmentsForSinglePaymentMethods(PaymentMethod paymentMethod) {
+        UUID merchantId = UUID.randomUUID();
+        FeeRuleRequestDTO request = new FeeRuleRequestDTO(
+                paymentMethod,
+                2,
+                new BigDecimal("1.0000"),
+                BigDecimal.ZERO
+        );
+
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(buildMerchant(merchantId)));
+
+        assertThatThrownBy(() -> feeRuleService.create(merchantId, request))
+                .isInstanceOf(InvalidInstallmentsForPaymentMethodException.class)
+                .hasMessage("Método de pagamento " + paymentMethod + " não permite parcelamento");
+
+        verify(feeRuleRepository, never()).save(any());
+    }
+
+    @Test
+    void updateShouldRejectSinglePaymentMethodKeepingCurrentInstallmentsWithoutChangingRule() {
+        UUID merchantId = UUID.randomUUID();
+        UUID feeRuleId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        FeeRuleEntity feeRule = buildFeeRule(
+                feeRuleId,
+                merchant,
+                PaymentMethod.CREDIT_CARD,
+                3,
+                new BigDecimal("3.0000"),
+                new BigDecimal("0.50")
+        );
+
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(feeRuleRepository.findByIdAndActiveTrue(feeRuleId)).thenReturn(Optional.of(feeRule));
+
+        assertThatThrownBy(() -> feeRuleService.update(
+                merchantId,
+                feeRuleId,
+                new UpdateFeeRuleRequestDTO(PaymentMethod.PIX, null, new BigDecimal("1.0000"), null)))
+                .isInstanceOf(InvalidInstallmentsForPaymentMethodException.class)
+                .hasMessage("Método de pagamento PIX não permite parcelamento");
+
+        verify(feeRuleRepository, never()).save(any());
+        assertThat(feeRule.getPaymentMethod()).isEqualTo(PaymentMethod.CREDIT_CARD);
+        assertThat(feeRule.getInstallments()).isEqualTo(3);
+        assertThat(feeRule.getFeePercentage()).isEqualByComparingTo("3.0000");
+    }
+
+    @Test
+    void updateShouldRejectInstallmentsForCurrentSinglePaymentMethod() {
+        UUID merchantId = UUID.randomUUID();
+        UUID feeRuleId = UUID.randomUUID();
+        MerchantEntity merchant = buildMerchant(merchantId);
+        FeeRuleEntity feeRule = buildFeeRule(
+                feeRuleId,
+                merchant,
+                PaymentMethod.PIX,
+                1,
+                new BigDecimal("1.0000"),
+                BigDecimal.ZERO
+        );
+
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(feeRuleRepository.findByIdAndActiveTrue(feeRuleId)).thenReturn(Optional.of(feeRule));
+
+        assertThatThrownBy(() -> feeRuleService.update(
+                merchantId,
+                feeRuleId,
+                new UpdateFeeRuleRequestDTO(null, 2, null, null)))
+                .isInstanceOf(InvalidInstallmentsForPaymentMethodException.class)
+                .hasMessage("Método de pagamento PIX não permite parcelamento");
+
+        verify(feeRuleRepository, never()).save(any());
+        assertThat(feeRule.getInstallments()).isEqualTo(1);
     }
 
     @Test

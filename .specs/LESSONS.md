@@ -110,6 +110,54 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: MCAD-05 (spec)
 - last seen: 2026-10-15T19:48:05Z
 
+### L-017 - Test a numeric upper bound with a whole number above it as well as a fraction above it, so every branch of the bound check is pinned
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: M3 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)
+- last seen: 2026-10-16T01:28:09Z
+
+### L-018 - When an acceptance criterion lists several allowed values, exercise each listed value at least once in the tests
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: fee-rules-screen
+- evidence: FREG-03 - backend/src/test/java/br/com/hanrry/reconpay/feerule/integration/FeeRuleIntegrationTest.java:168 (tests)
+- last seen: 2026-10-16T01:28:09Z
+
+### L-019 - When a bound check branches on digit count, test an input of each digit count past the bound, not only the shortest one
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: S4 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)
+- last seen: 2026-10-16T01:34:24Z
+
+### L-020 - Test that an inclusive bound value is accepted when written with trailing zero decimals, not only as a whole number
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: S6 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)
+- last seen: 2026-10-16T01:40:23Z
+
+### L-021 - Test an edit-form prefill with a stored value that uses every stored decimal place, so a prefill that drops precision is caught
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: validation.md V1 (fee.ts:44 toInputDecimal, FEDIT-01) (frontend-validation)
+- last seen: 2026-10-16T01:51:44Z
+
+### L-022 - Test a trailing-zero-stripping formatter with a value that has an inner zero, so stripping every zero is caught
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-format` · harmful: 0
+- features: fee-rules-screen
+- evidence: validation.md V2 (fee.ts:36 formatPercent, FLIST-03) (frontend-format)
+- last seen: 2026-10-16T01:51:44Z
+
+### L-023 - When a bound check scans decimal digits as text, test above-bound fractions with the nonzero digit in each position and with high digit values
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: validation.md V3, V4 (fee.ts:23 parseFeePercent, FCAD-08) (frontend-validation)
+- last seen: 2026-10-16T01:51:44Z
+
+### L-024 - Build generated test inputs from every digit value and every leading digit past the bound, not a hand-picked digit sample
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: validation.md sensor N1b, N2 (frontend/lib/fee.reference.test.ts:10-11) (frontend-validation)
+- last seen: 2026-10-16T02:06:03Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -60,6 +60,7 @@ API em produção: [https://reconpay.hanrry.top](https://reconpay.hanrry.top) ·
 - Uma regra ativa por combinação `(merchant, paymentMethod, installments)`.
 - Índice único parcial no banco permite histórico de regras inativas.
 - Taxa percentual entre 0 e 100, com até quatro casas decimais; taxa fixa não negativa.
+- PIX, boleto e débito só aceitam regra com 1 parcela; criação e alteração com mais parcelas respondem `400` ("Método de pagamento <MÉTODO> não permite parcelamento").
 
 ### Transações internas
 - Referência externa única por merchant, com espaços nas extremidades removidos e maiúsculas/minúsculas preservadas.

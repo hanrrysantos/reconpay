@@ -19,7 +19,7 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
 
 - Cadastro e login; após o cadastro, a verificação de email abre o link servido pela API.
 - Sessão JWT apenas em memória: atualizar a página pede novo login. Qualquer `401` encerra a sessão e volta ao login. "Sair" fica na barra superior.
-- Barra superior com Visão geral, Conciliações, Divergências, Transações, Importações e Fechamento, e o menu de empresa (busca por nome ou CNPJ, "Cadastrar empresa").
+- Barra superior com Visão geral, Conciliações, Divergências, Transações, Importações e Fechamento, e o menu de empresa (busca por nome ou CNPJ, "Regras de taxa da <empresa>" com uma empresa selecionada, "Cadastrar empresa").
 - Dashboard em `/`:
   - abre na janela do run mais recente da empresa; sem run, no mês atual com os três passos (liquidação, extrato, conciliar);
   - menu de período com meses ("Sem run", "Aberto", travado) e intervalo personalizado; janela inválida mostra a mensagem da API e mantém a anterior;
@@ -35,6 +35,12 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
   - "Editar" renomeia (o CNPJ fica somente leitura); "Desativar" pede confirmação e avisa que o CNPJ não poderá ser cadastrado de novo; se a desativada era a selecionada, o menu passa para a primeira restante;
   - erros da API mantêm a gaveta ou o diálogo aberto com a mensagem; `403`/`404` também recarregam a lista; `Esc` fecha;
   - estados de carregamento, sem empresa ("Nenhuma empresa no seu acesso") e erro ("Tentar de novo").
+- Regras de taxa em `/taxas`, aberta pelo item "Regras de taxa da <empresa>" do menu de empresa:
+  - lista as regras ativas da empresa selecionada (até 100, por método e parcelas) com método, parcelas (`3x`), percentual (`2,99%`) e taxa fixa (`R$ 0,30`); trocar a empresa no menu mostra as regras da nova e fecha gaveta ou diálogo abertos;
+  - "Cadastrar regra" abre uma gaveta com Método, Parcelas, Percentual e Taxa fixa; Pix, Boleto e Débito ficam com 1 parcela; parcelas inteiras a partir de 1, percentual de 0 a 100 com até 4 casas e taxa fixa a partir de 0 com até 2 casas são checados antes de chamar a API; vírgula ou ponto como separador, enviados como número JSON exato;
+  - "Editar" altera só o percentual e a taxa fixa (método e parcelas ficam somente leitura); "Desativar" pede confirmação e avisa que novas transações dessa combinação serão recusadas até existir outra regra;
+  - erros da API (como `409` de regra duplicada) mantêm a gaveta ou o diálogo aberto com a mensagem; `403`/`404` também recarregam a lista; `Esc` fecha;
+  - estados de carregamento, sem regras ("Nenhuma regra de taxa"), sem empresa e erro ("Tentar de novo").
 - `/conciliacoes`, `/divergencias`, `/transacoes`, `/importacoes` e `/fechamento` mostram a barra e "em construção", sem chamar a API.
 
 ## Dependências
