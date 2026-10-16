@@ -33,7 +33,8 @@ As transações internas entram por import CSV (tela de Importações) ou pelo `
 | Meses listados no menu | Do mês atual até 11 meses atrás, sem marcas de run ou de travamento | Na tela de Transações não há run vigente; 12 meses cobrem o ciclo de fechamento | n |
 | Intervalo personalizado inválido | Data inicial depois da final mostra "A data inicial deve ser igual ou anterior à final" no menu, sem consultar a API | A listagem da API aceita qualquer intervalo e devolveria lista vazia sem explicar | n |
 | Formulário | Gaveta lateral (`SideDrawer`), aberta por "Nova transação" | Escolha do usuário; mesmo padrão de Empresas e Regras de taxa | y |
-| Mudança de status | Ação "Alterar status" na linha, só em transação aprovada, com diálogo (Cancelar, Estornar, Chargeback) e aviso de que não pode ser desfeita | Escolha do usuário | y |
+| Mudança de status | Ação "Alterar status" na linha, só em transação aprovada, com diálogo e aviso de que não pode ser desfeita | Escolha do usuário | y |
+| Opções do diálogo de status | Radios com o status final: Cancelada, Estornada, Chargeback | O diálogo já tem o botão "Cancelar" que fecha; uma opção "Cancelar" seria ambígua | n |
 | Rótulos de status | Aprovada, Cancelada, Estornada, Chargeback (`APPROVED`, `CANCELLED`, `REFUNDED`, `CHARGEBACK`) | Termos usados pelo operador | n |
 | Rótulos de método | Os do dashboard (`METHOD_LABELS`: Crédito, Débito, Pix, Boleto) | Consistência entre telas | n |
 | Colunas da lista | Data, Referência, Método, Parcelas, Bruto, Líquido esperado, Status, ação | Todos os campos de negócio que a API devolve | n |
@@ -42,8 +43,8 @@ As transações internas entram por import CSV (tela de Importações) ou pelo `
 | Filtros e página | Mudar período, status ou método volta para a página 1 | A página antiga pode não existir no novo resultado | n |
 | Filtros na URL | Não; ficam no estado da tela e voltam ao padrão ao recarregar | A tela não tem link compartilhável pedido; menos superfície | n |
 | Campos do formulário | Referência externa, Valor, Método, Parcelas, Data da transação; Data começa com hoje | Mesmo corpo do `POST /transactions`; venda avulsa é quase sempre do dia | n |
-| Validação no cliente | Referência obrigatória após remover espaços, até 100 caracteres; Valor maior que zero, até 17 dígitos inteiros e 2 casas, vírgula ou ponto; Parcelas inteiro a partir de 1; Pix, Boleto e Débito fixam 1 parcela; Data obrigatória e não futura | As mesmas regras da API, para o erro aparecer antes do envio | n |
-| Mensagens de validação | Referência: "Informe a referência externa" / "Use até 100 caracteres"; Valor: "Informe um valor maior que zero com até 2 casas decimais"; Parcelas: "Informe um número inteiro de parcelas a partir de 1"; Data: "Informe a data da transação" / "Data da transação não pode ser futura" | Uma mensagem por campo; a de data futura é o texto da API | n |
+| Validação no cliente | Referência obrigatória após remover espaços, até 100 caracteres; Método obrigatório; Valor maior que zero, até 17 dígitos inteiros e 2 casas, vírgula ou ponto; Parcelas inteiro a partir de 1; Pix, Boleto e Débito fixam 1 parcela; Data obrigatória e não futura | As mesmas regras da API, para o erro aparecer antes do envio | n |
+| Mensagens de validação | Referência: "Informe a referência externa" / "Use até 100 caracteres"; Método: "Escolha o método de pagamento" (mesmo texto de Regras de taxa); Valor: "Informe um valor maior que zero com até 2 casas decimais"; Parcelas: "Informe um número inteiro de parcelas a partir de 1"; Data: "Informe a data da transação" / "Data da transação não pode ser futura" | Uma mensagem por campo; a de data futura é o texto da API | n |
 | Envio do valor | Número JSON montado a partir do texto digitado (`LosslessNumber`), sem passar por `float` | Mesmo cuidado das regras de taxa | n |
 | Erros da API no cadastro e no status | A gaveta ou o diálogo continuam abertos com a `message` da API e os campos preenchidos | Mesmo padrão de Empresas e Regras de taxa | n |
 | Falta de regra de taxa | Além da mensagem, o erro de cadastro sem regra ativa mostra o link "Cadastrar regra de taxa" para `/taxas?cadastrar=1` | AD-012 previa esse ponto de entrada depois; é o erro mais provável do formulário | n |
@@ -89,7 +90,7 @@ As transações internas entram por import CSV (tela de Importações) ou pelo `
 
 **Acceptance Criteria**:
 
-1. WHEN o operador clica em "Nova transação" THEN the system SHALL abrir a gaveta com Referência externa, Valor, Método, Parcelas e Data da transação, com Data preenchida com hoje e Parcelas com 1.
+1. WHEN o operador clica em "Nova transação" THEN the system SHALL abrir a gaveta com Referência externa, Valor, Método, Parcelas e Data da transação, com Data preenchida com hoje, Parcelas com 1 e Método em "Escolha o método".
 2. WHILE o método escolhido for Pix, Boleto ou Débito the system SHALL fixar Parcelas em 1 e manter o campo desabilitado.
 3. IF algum campo viola as regras de validação das Assumptions THEN the system SHALL mostrar a mensagem daquele campo e não chamar a API.
 4. WHEN o formulário é válido e o operador clica em "Cadastrar" THEN the system SHALL enviar `POST /transactions` com `externalReference` sem espaços nas extremidades, `amount` como número JSON igual ao texto digitado (vírgula convertida em ponto), `paymentMethod`, `installments` e `transactionDate` (`aaaa-mm-dd`).
@@ -110,14 +111,14 @@ As transações internas entram por import CSV (tela de Importações) ou pelo `
 **Acceptance Criteria**:
 
 1. The system SHALL mostrar a ação "Alterar status" apenas nas linhas com status Aprovada.
-2. WHEN o operador clica em "Alterar status" THEN the system SHALL abrir um diálogo com a referência da transação, as opções Cancelar, Estornar e Chargeback e o aviso "A mudança não pode ser desfeita."
+2. WHEN o operador clica em "Alterar status" THEN the system SHALL abrir um diálogo com a referência da transação, as opções Cancelada, Estornada e Chargeback e o aviso "A mudança não pode ser desfeita."
 3. WHILE nenhuma opção estiver escolhida the system SHALL manter o botão "Confirmar" desabilitado.
-4. WHEN o operador confirma THEN the system SHALL enviar `PATCH /transactions/{id}/status` com `status` `CANCELLED`, `REFUNDED` ou `CHARGEBACK`, conforme a opção.
+4. WHEN o operador confirma THEN the system SHALL enviar `PATCH /transactions/{id}/status` com `status` `CANCELLED` (Cancelada), `REFUNDED` (Estornada) ou `CHARGEBACK` (Chargeback), conforme a opção.
 5. WHILE a mudança estiver em andamento the system SHALL desabilitar o botão com o texto "Confirmando…".
 6. WHEN a API aceita THEN the system SHALL fechar o diálogo e recarregar a lista, mostrando a linha com o novo status e sem a ação.
-7. IF a API recusa (`409` de transição inválida, de período travado ou de versão) THEN the system SHALL manter o diálogo aberto com a `message` da API e recarregar a lista.
+7. IF a API recusa (`400` de transição inválida, `409` de período travado ou de versão) THEN the system SHALL manter o diálogo aberto com a `message` da API e recarregar a lista.
 
-**Independent Test**: Numa transação aprovada, escolher Estornar e confirmar; a linha passa a mostrar "Estornada" sem o botão.
+**Independent Test**: Numa transação aprovada, escolher Estornada e confirmar; a linha passa a mostrar "Estornada" sem o botão.
 
 ---
 
