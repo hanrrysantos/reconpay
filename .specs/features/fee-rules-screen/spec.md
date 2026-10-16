@@ -178,7 +178,7 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 | FREG-02 | P1: Método sem parcelamento na API | Execute | Implementing |
 | FREG-03 | P1: Método sem parcelamento na API | Execute | Implementing |
 | FLIST-01 | P1: Listar regras | Design | Pending |
-| FLIST-02 | P1: Listar regras | Design | Pending |
+| FLIST-02 | P1: Listar regras | Execute | Implementing |
 | FLIST-03 | P1: Listar regras | Execute | Implementing |
 | FLIST-04 | P1: Listar regras | Design | Pending |
 | FLIST-05 | P1: Listar regras | Design | Pending |
@@ -198,13 +198,13 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 | FCAD-11 | P1: Cadastrar regra | Design | Pending |
 | FCAD-12 | P1: Cadastrar regra | Execute | Implementing |
 | FEDIT-01 | P2: Alterar taxas | Design | Pending |
-| FEDIT-02 | P2: Alterar taxas | Design | Pending |
+| FEDIT-02 | P2: Alterar taxas | Execute | Implementing |
 | FEDIT-03 | P2: Alterar taxas | Design | Pending |
 | FEDIT-04 | P2: Alterar taxas | Design | Pending |
 | FEDIT-05 | P2: Alterar taxas | Design | Pending |
 | FEDIT-06 | P2: Alterar taxas | Design | Pending |
 | FDES-01 | P2: Desativar regra | Design | Pending |
-| FDES-02 | P2: Desativar regra | Design | Pending |
+| FDES-02 | P2: Desativar regra | Execute | Implementing |
 | FDES-03 | P2: Desativar regra | Design | Pending |
 | FDES-04 | P2: Desativar regra | Execute | Implementing |
 | FDES-05 | P2: Desativar regra | Design | Pending |

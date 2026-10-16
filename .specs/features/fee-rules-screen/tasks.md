@@ -170,11 +170,11 @@ T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] URL exata de listagem (`size=100&sort=paymentMethod%2Casc&sort=installments%2Casc`)
-- [ ] `POST` com corpo `{"paymentMethod":"CREDIT_CARD","installments":3,"feePercentage":2.99,"fixedFee":0.30}` literal (decimais sem passar por `float`)
-- [ ] `PUT` só com `feePercentage` e `fixedFee`; `DELETE` sem corpo
-- [ ] `feePercentage` `2.9900` recebido continua texto `"2.9900"`
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] URL exata de listagem (`size=100&sort=paymentMethod%2Casc&sort=installments%2Casc`)
+- [x] `POST` com corpo `{"paymentMethod":"CREDIT_CARD","installments":3,"feePercentage":2.99,"fixedFee":0.30}` literal (decimais sem passar por `float`)
+- [x] `PUT` só com `feePercentage` e `fixedFee`; `DELETE` sem corpo
+- [x] `feePercentage` `2.9900` recebido continua texto `"2.9900"`
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: quick
