@@ -208,8 +208,8 @@ T3 → T4 → T5 → T6
 
 **Done when**:
 
-- [ ] README descreve o comportamento entregue
-- [ ] Gate check passes: `cd backend && ./mvnw verify`
+- [x] README descreve o comportamento entregue
+- [x] Gate check passes: `cd backend && ./mvnw verify`
 
 **Tests**: none
 **Gate**: build

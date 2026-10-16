@@ -69,6 +69,8 @@ API em produção: [https://reconpay.hanrry.top](https://reconpay.hanrry.top) ·
 - PIX, boleto e débito não permitem parcelamento.
 - Status inicial `APPROVED`; transições para `CANCELLED`, `REFUNDED` ou `CHARGEBACK` (sem reversão).
 - Atualizações concorrentes usam versão otimista: uma alteração obsoleta recebe `409` e deve consultar o estado atual.
+- Importação em lote via CSV (`POST /transactions/import`, máx. 5 MB), colunas `externalReference`, `amount`, `paymentMethod`, `installments`, `status`, `transactionDate`. O status vem do arquivo (`APPROVED`, `CANCELLED`, `REFUNDED` ou `CHARGEBACK`) e o líquido esperado é calculado como no cadastro unitário.
+- O import é tudo ou nada: qualquer linha com erro (formato ou sem regra de taxa ativa) recusa o arquivo e todos os erros voltam em `details.rowErrors`; referências já cadastradas respondem `409` com `details.conflictingReferences`; datas em período travado respondem `409`. Cada import aceito gera um lote, listado em `GET /transactions/imports`.
 
 ### Liquidações externas
 - Importação via CSV (máx. 5 MB) com validação linha a linha.
