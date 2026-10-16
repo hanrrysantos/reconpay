@@ -232,6 +232,9 @@ class TransactionImportServiceTest {
         assertThatThrownBy(() -> service.importCsv(MERCHANT_ID, csv("vendas.txt", HEADER, "A,10.00,PIX,1,APPROVED,2026-07-10")))
                 .isInstanceOf(InvalidTransactionImportException.class)
                 .hasMessage("Arquivo deve ser um CSV (.csv)");
+        assertThatThrownBy(() -> service.importCsv(MERCHANT_ID, csv("vendascsv", HEADER, "A,10.00,PIX,1,APPROVED,2026-07-10")))
+                .isInstanceOf(InvalidTransactionImportException.class)
+                .hasMessage("Arquivo deve ser um CSV (.csv)");
         assertNothingSaved();
 
         when(transactionImportRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));

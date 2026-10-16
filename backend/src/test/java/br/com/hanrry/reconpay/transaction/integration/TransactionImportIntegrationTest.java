@@ -222,21 +222,27 @@ class TransactionImportIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void listsTheBatchesNewestFirstAndFindsOneById() throws Exception {
-        String first = JsonPath.read(importCsv(merchantId, "primeiro.csv", HEADER, "A-1,10.00,PIX,1,APPROVED,2026-07-10")
-                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.id");
-        var created = importCsv(merchantId, "segundo.csv", HEADER,
+        // Created b.csv (2 rows), c.csv (3 rows), a.csv (1 row): newest first is a, c, b, an order that
+        // no sort by file name or row count (either direction) nor oldest first would produce.
+        String first = JsonPath.read(importCsv(merchantId, "b.csv", HEADER,
                         "B-1,10.00,PIX,1,APPROVED,2026-07-10", "B-2,10.00,PIX,1,APPROVED,2026-07-10")
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.id");
+        String second = JsonPath.read(importCsv(merchantId, "c.csv", HEADER,
+                        "C-1,10.00,PIX,1,APPROVED,2026-07-10", "C-2,10.00,PIX,1,APPROVED,2026-07-10",
+                        "C-3,10.00,PIX,1,APPROVED,2026-07-10")
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.id");
+        var created = importCsv(merchantId, "a.csv", HEADER, "A-1,10.00,PIX,1,APPROVED,2026-07-10")
                 .andExpect(status().isCreated())
                 .andReturn().getResponse();
-        String second = JsonPath.read(created.getContentAsString(), "$.id");
-        assertThat(created.getHeader("Location")).endsWith("/api/merchants/" + merchantId + "/transactions/imports/" + second);
+        String third = JsonPath.read(created.getContentAsString(), "$.id");
+        assertThat(created.getHeader("Location")).endsWith("/api/merchants/" + merchantId + "/transactions/imports/" + third);
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions/imports", merchantId)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[*].id").value(contains(second, first)))
-                .andExpect(jsonPath("$.content[*].fileName").value(contains("segundo.csv", "primeiro.csv")))
-                .andExpect(jsonPath("$.content[*].totalRows").value(contains(2, 1)))
+                .andExpect(jsonPath("$.content[*].id").value(contains(third, second, first)))
+                .andExpect(jsonPath("$.content[*].fileName").value(contains("a.csv", "c.csv", "b.csv")))
+                .andExpect(jsonPath("$.content[*].totalRows").value(contains(1, 3, 2)))
                 .andExpect(jsonPath("$.size").value(20));
 
         mockMvc.perform(get("/api/merchants/{merchantId}/transactions/imports/{importId}", merchantId, first)
@@ -244,9 +250,29 @@ class TransactionImportIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(first))
                 .andExpect(jsonPath("$.merchantId").value(merchantId))
-                .andExpect(jsonPath("$.fileName").value("primeiro.csv"))
-                .andExpect(jsonPath("$.totalRows").value(1))
+                .andExpect(jsonPath("$.fileName").value("b.csv"))
+                .andExpect(jsonPath("$.totalRows").value(2))
                 .andExpect(jsonPath("$.createdAt").exists());
+    }
+
+    @Test
+    void aDeactivatedFeeRuleDoesNotPriceTheImport() throws Exception {
+        String rules = mockMvc.perform(get("/api/merchants/{merchantId}/fee-rules", merchantId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        List<String> pixRule = JsonPath.read(rules, "$.content[?(@.paymentMethod == 'PIX')].id");
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/merchants/{merchantId}/fee-rules/{id}", merchantId, pixRule.get(0))
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+
+        importCsv(merchantId, "v.csv", HEADER, "PED-1,10.00,PIX,1,APPROVED,2026-07-10")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.rowErrors[*].row").value(contains(2)))
+                .andExpect(jsonPath("$.details.rowErrors[*].message").value(contains(
+                        "Regra de taxa ativa não encontrada para PIX em 1x")));
+
+        assertNothingSaved(merchantId);
     }
 
     @Test

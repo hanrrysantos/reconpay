@@ -101,6 +101,9 @@ class TransactionCsvParserTest {
         assertThatThrownBy(() -> parse("externalReference,valor,paymentMethod,installments,status,transactionDate", "x"))
                 .isInstanceOf(InvalidTransactionImportException.class)
                 .hasMessage("Cabeçalho CSV inválido. Esperado: " + HEADER);
+        assertThatThrownBy(() -> parse("ExternalReference,Amount,PaymentMethod,Installments,Status,TransactionDate", "x"))
+                .isInstanceOf(InvalidTransactionImportException.class)
+                .hasMessage("Cabeçalho CSV inválido. Esperado: " + HEADER);
         assertThatThrownBy(() -> parse(HEADER + ",observacao", "x"))
                 .isInstanceOf(InvalidTransactionImportException.class)
                 .hasMessage("Cabeçalho CSV inválido. Esperado: " + HEADER);
