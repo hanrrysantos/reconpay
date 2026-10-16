@@ -253,7 +253,7 @@ CORS em `dev` libera origens em `reconpay.cors.allowed-origins` (incluindo `http
 
 ## Frontend
 
-O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. O dashboard em `/` lê o fechamento da janela, resolve divergências, roda a conciliação, trava e exporta, sempre com dados da API. Em `/empresas` o usuário lista, cadastra, renomeia e desativa merchants.
+O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. O dashboard em `/` lê o fechamento da janela, resolve divergências, roda a conciliação, trava e exporta, sempre com dados da API. Em `/empresas` o usuário lista, cadastra, renomeia e desativa merchants. Em `/importacoes` envia os CSVs de transações, liquidação (layout `RECONPAY`) e extrato da empresa selecionada, vê todos os erros por linha de um arquivo recusado e os lotes já importados.
 
 ---
 

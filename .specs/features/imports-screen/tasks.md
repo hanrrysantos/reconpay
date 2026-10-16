@@ -271,7 +271,7 @@ T7 → T8
 
 ### T8: README da tela de importações
 
-**What**: Descrever a tela `/importacoes` no README: abas, colunas, limite de 5 MB, erros por linha e lotes.
+**What**: Descrever a tela `/importacoes` no README (e trocar a linha "em construção" de `frontend/README.md` pela descrição da tela): abas, colunas, limite de 5 MB, erros por linha e lotes.
 **Where**: `README.md`
 **Depends on**: T7
 **Reuses**: seções existentes de frontend no README
@@ -284,8 +284,8 @@ T7 → T8
 
 **Done when**:
 
-- [ ] README cita a tela, os três tipos e o layout `RECONPAY` fixo na tela
-- [ ] Gate build passa
+- [x] README cita a tela, os três tipos e o layout `RECONPAY` fixo na tela
+- [x] Gate build passa
 
 **Tests**: none
 **Gate**: build

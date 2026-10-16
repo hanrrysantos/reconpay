@@ -41,7 +41,13 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
   - "Editar" altera só o percentual e a taxa fixa (método e parcelas ficam somente leitura); "Desativar" pede confirmação e avisa que novas transações dessa combinação serão recusadas até existir outra regra;
   - erros da API (como `409` de regra duplicada) mantêm a gaveta ou o diálogo aberto com a mensagem; `403`/`404` também recarregam a lista; `Esc` fecha;
   - estados de carregamento, sem regras ("Nenhuma regra de taxa"), sem empresa e erro ("Tentar de novo").
-- `/conciliacoes`, `/divergencias`, `/transacoes`, `/importacoes` e `/fechamento` mostram a barra e "em construção", sem chamar a API.
+- Importações em `/importacoes`, pelo item "Importações" da barra superior:
+  - abas Transações, Liquidação e Extrato da empresa selecionada; a aba fica em `?tipo=transacoes|liquidacao|extrato` (sem valor ou valor desconhecido abre Transações);
+  - cada aba mostra as colunas esperadas do CSV e envia o arquivo escolhido ao import do tipo; a liquidação vai sempre no layout `RECONPAY`; arquivo acima de 5 MB é recusado antes do envio;
+  - o import é tudo ou nada: no aceite aparece "<arquivo> importado: N linha(s)"; na recusa aparecem a mensagem da API, a tabela Linha/Erro de `rowErrors` e as referências de `conflictingReferences`, e o arquivo fica escolhido para reenviar;
+  - lotes aceitos do tipo, 20 por página, do mais recente ao mais antigo (arquivo, linhas, data e hora); após um aceite a lista volta à primeira página e o dashboard atualiza a hora do último import;
+  - trocar de aba ou de empresa descarta o arquivo e o resultado; estados de carregamento, sem lotes, sem empresa e erro ("Tentar novamente").
+- `/conciliacoes`, `/divergencias`, `/transacoes` e `/fechamento` mostram a barra e "em construção", sem chamar a API.
 
 ## Dependências
 
