@@ -224,14 +224,14 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Colunas esperadas exibidas por tipo
-- [ ] "Importar" desabilitado sem arquivo e durante o envio, com "Importando…"
-- [ ] Envio vai para o endpoint do tipo com o arquivo escolhido; liquidação sem `layout`
-- [ ] Arquivo de 5.242.881 bytes mostra "Arquivo CSV excede o tamanho máximo permitido de 5MB" e nenhuma requisição sai; 5.242.880 bytes é enviado
-- [ ] Sucesso limpa o arquivo (botão volta a desabilitado) e a lista volta à página 1 com o novo lote no topo
-- [ ] Recusa mantém o arquivo; novo envio remove o resultado anterior antes da resposta
-- [ ] Falha de rede mostra "Não foi possível conectar à API. Tente novamente."
-- [ ] Testes em `frontend/components/imports/ImportPanel.test.tsx`; gate quick passa
+- [x] Colunas esperadas exibidas por tipo
+- [x] "Importar" desabilitado sem arquivo e durante o envio, com "Importando…"
+- [x] Envio vai para o endpoint do tipo com o arquivo escolhido; liquidação sem `layout`
+- [x] Arquivo de 5.242.881 bytes mostra "Arquivo CSV excede o tamanho máximo permitido de 5MB" e nenhuma requisição sai; 5.242.880 bytes é enviado
+- [x] Sucesso limpa o arquivo (botão volta a desabilitado) e a lista volta à página 1 com o novo lote no topo
+- [x] Recusa mantém o arquivo; novo envio remove o resultado anterior antes da resposta
+- [x] Falha de rede mostra "Não foi possível conectar à API. Tente novamente."
+- [x] Testes em `frontend/components/imports/ImportPanel.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
