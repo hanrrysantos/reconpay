@@ -3,12 +3,15 @@ package br.com.hanrry.reconpay.transaction.openapi;
 import br.com.hanrry.reconpay.exception.standardexceptionerror.StandardError;
 import br.com.hanrry.reconpay.openapi.ApiForbiddenResponse;
 import br.com.hanrry.reconpay.openapi.ApiNotFoundResponse;
+import br.com.hanrry.reconpay.openapi.ApiPayloadTooLargeResponse;
+import br.com.hanrry.reconpay.openapi.CsvFilePart;
 import br.com.hanrry.reconpay.openapi.ApiUnauthenticatedResponse;
 import br.com.hanrry.reconpay.openapi.ApiValidationErrorResponse;
 import br.com.hanrry.reconpay.openapi.OpenApiSecuritySchemes;
 import br.com.hanrry.reconpay.openapi.OpenApiTags;
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.dto.CreateTransactionRequestDTO;
+import br.com.hanrry.reconpay.transaction.dto.TransactionImportResponseDTO;
 import br.com.hanrry.reconpay.transaction.dto.TransactionResponseDTO;
 import br.com.hanrry.reconpay.transaction.dto.UpdateTransactionStatusRequestDTO;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -48,6 +52,69 @@ public interface TransactionControllerApi {
     String ID_EXAMPLE = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
 
     String ID_DESCRIPTION = "Identificador. O id vem da resposta de criação ou da listagem.";
+
+    String MINIMAL_CSV = """
+            externalReference,amount,paymentMethod,installments,status,transactionDate
+            PED-1001,100.00,CREDIT_CARD,3,APPROVED,2026-08-10""";
+
+    String IMPORT_JSON = """
+            {
+              "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              "merchantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              "fileName": "vendas.csv",
+              "totalRows": 1,
+              "createdAt": "2026-08-10T12:00:00Z"
+            }
+            """;
+
+    String IMPORT_PAGE_JSON = """
+            {
+              "content": [
+                {
+                  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                  "merchantId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                  "fileName": "vendas.csv",
+                  "totalRows": 1,
+                  "createdAt": "2026-08-10T12:00:00Z"
+                }
+              ],
+              "totalElements": 1,
+              "totalPages": 1,
+              "size": 20,
+              "number": 0
+            }
+            """;
+
+    String ROW_ERRORS_JSON = """
+            {
+              "timestamp": "2026-08-10T15:30:00Z",
+              "status": 400,
+              "error": "VALIDATION_ERROR",
+              "message": "Erro na importação do CSV",
+              "path": "/api/merchants/3fa85f64-5717-4562-b3fc-2c963f66afa6/transactions/import",
+              "details": {
+                "rowErrors": [
+                  {
+                    "row": 2,
+                    "message": "Regra de taxa ativa não encontrada para CREDIT_CARD em 3x"
+                  }
+                ]
+              }
+            }
+            """;
+
+    String CONFLICTING_REFERENCES_JSON = """
+            {
+              "timestamp": "2026-08-10T15:30:00Z",
+              "status": 409,
+              "error": "CONFLICT",
+              "message": "Referências externas já cadastradas para este comerciante: PED-1001",
+              "path": "/api/merchants/3fa85f64-5717-4562-b3fc-2c963f66afa6/transactions/import",
+              "details": {
+                "conflictingReferences": ["PED-1001"]
+              }
+            }
+            """;
 
     String TRANSACTION_JSON = """
             {
@@ -256,4 +323,112 @@ public interface TransactionControllerApi {
                     )
             )
             @Valid @RequestBody UpdateTransactionStatusRequestDTO request);
+
+    @Operation(
+            summary = "Importação do arquivo de transações",
+            description = """
+                    Envia um CSV na parte file. O id do merchant vem da resposta de criação ou da listagem. \
+                    Tudo ou nada: qualquer linha com erro (formato ou sem regra de taxa ativa) recusa o arquivo \
+                    e todos os erros voltam em details.rowErrors; referências já cadastradas voltam em \
+                    details.conflictingReferences. O líquido esperado é calculado como no cadastro unitário. \
+                    O Try it out não pré-carrega arquivo, então salve este CSV mínimo e selecione-o.
+                    """ + MINIMAL_CSV
+    )
+    @ApiResponse(
+            responseCode = "201",
+            description = "Arquivo de transações importado",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = TransactionImportResponseDTO.class),
+                    examples = @ExampleObject(name = "import", value = IMPORT_JSON)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "CSV inválido: cada linha com erro vem em details.rowErrors",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = StandardError.class),
+                    examples = @ExampleObject(name = "row-errors", value = ROW_ERRORS_JSON)
+            )
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "Conflito: referências já cadastradas vêm em details.conflictingReferences; também período travado",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = StandardError.class),
+                    examples = @ExampleObject(name = "conflicting-references", value = CONFLICTING_REFERENCES_JSON)
+            )
+    )
+    @ApiUnauthenticatedResponse
+    @ApiForbiddenResponse
+    @ApiNotFoundResponse
+    @ApiPayloadTooLargeResponse
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true,
+            description = "Parte file com o CSV de transações",
+            content = @Content(
+                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                    schema = @Schema(implementation = CsvFilePart.class)
+            )
+    )
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    ResponseEntity<TransactionImportResponseDTO> importCsv(
+            @Parameter(description = ID_DESCRIPTION, example = ID_EXAMPLE)
+            @PathVariable UUID merchantId,
+            @Parameter(hidden = true)
+            @RequestParam("file") MultipartFile file);
+
+    @Operation(
+            summary = "Página de importações de transações",
+            description = """
+                    Lista paginada das importações de transações do merchant, mais recente primeiro. \
+                    O id vem da resposta de criação ou da listagem. \
+                    Responde 404 quando o merchant não existe."""
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Página de importações",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    examples = @ExampleObject(name = "imports", value = IMPORT_PAGE_JSON)
+            )
+    )
+    @ApiValidationErrorResponse
+    @ApiUnauthenticatedResponse
+    @ApiForbiddenResponse
+    @ApiNotFoundResponse
+    @GetMapping("/imports")
+    ResponseEntity<Page<TransactionImportResponseDTO>> findAllImports(
+            @Parameter(description = ID_DESCRIPTION, example = ID_EXAMPLE)
+            @PathVariable UUID merchantId,
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable);
+
+    @Operation(
+            summary = "Consulta da importação de transações",
+            description = """
+                    Devolve uma importação de transações. \
+                    O id vem da resposta de criação ou da listagem. \
+                    Responde 404 quando o merchant ou a importação não existe."""
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Importação encontrada",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = TransactionImportResponseDTO.class),
+                    examples = @ExampleObject(name = "import", value = IMPORT_JSON)
+            )
+    )
+    @ApiValidationErrorResponse
+    @ApiUnauthenticatedResponse
+    @ApiForbiddenResponse
+    @ApiNotFoundResponse
+    @GetMapping("/imports/{importId}")
+    ResponseEntity<TransactionImportResponseDTO> findImportById(
+            @Parameter(description = ID_DESCRIPTION, example = ID_EXAMPLE)
+            @PathVariable UUID merchantId,
+            @Parameter(description = ID_DESCRIPTION, example = ID_EXAMPLE)
+            @PathVariable UUID importId);
 }

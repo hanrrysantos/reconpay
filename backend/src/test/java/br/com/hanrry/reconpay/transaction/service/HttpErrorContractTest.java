@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class HttpErrorContractTest {
     private org.springframework.test.web.servlet.MockMvc mvc() {
-        return MockMvcBuilders.standaloneSetup(new TransactionController(mock(TransactionService.class)),
+        return MockMvcBuilders.standaloneSetup(new TransactionController(mock(TransactionService.class), mock(TransactionImportService.class)),
                         new br.com.hanrry.reconpay.externalsettlement.controller.ExternalSettlementController(mock(br.com.hanrry.reconpay.externalsettlement.service.ExternalSettlementService.class)))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setCustomArgumentResolvers(new org.springframework.data.web.PageableHandlerMethodArgumentResolver()).build();
@@ -42,7 +42,7 @@ class HttpErrorContractTest {
     @Test void staleStatusUpdateReturnsStandardConflict() throws Exception {
         var service = mock(TransactionService.class);
         when(service.updateStatus(any(), any(), any())).thenThrow(new OptimisticLockingFailureException("SQL details"));
-        var mvc = MockMvcBuilders.standaloneSetup(new TransactionController(service)).setControllerAdvice(new GlobalExceptionHandler()).build();
+        var mvc = MockMvcBuilders.standaloneSetup(new TransactionController(service, mock(TransactionImportService.class))).setControllerAdvice(new GlobalExceptionHandler()).build();
         mvc.perform(patch("/api/merchants/00000000-0000-0000-0000-000000000001/transactions/00000000-0000-0000-0000-000000000002/status")
                         .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"REFUNDED\"}"))
                 .andExpect(status().isConflict()).andExpect(jsonPath("$.error").value("CONFLICT"));

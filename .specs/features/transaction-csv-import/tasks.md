@@ -179,12 +179,12 @@ T3 → T4 → T5 → T6
 
 **Done when**:
 
-- [ ] Integração: `201` com o lote; `GET /transactions` mostra as linhas com o líquido igual ao de um `POST /transactions` com os mesmos dados
-- [ ] Integração: `400` com `rowErrors` exatos num arquivo com erros de formato e de regra em linhas diferentes; nenhum lote nem transação gravados
-- [ ] Integração: reenviar o mesmo arquivo → `409` com `conflictingReferences`; período travado → `409` "Janela travada de …"; arquivo > 5 MB → `413`; sem campo `file` → `400` "Requisição inválida. Verifique os campos e parâmetros enviados."
-- [ ] Integração: mesma referência em outra empresa aceita (TIMP-13); lotes listados do mais novo para o mais antigo; lote de outra empresa → `404`; OPERATOR sem acesso → `403`
-- [ ] `ApiDocsIntegrationTest` passa com os endpoints novos documentados
-- [ ] Gate check passes: `cd backend && ./mvnw verify`
+- [x] Integração: `201` com o lote; `GET /transactions` mostra as linhas com o líquido igual ao de um `POST /transactions` com os mesmos dados
+- [x] Integração: `400` com `rowErrors` exatos num arquivo com erros de formato e de regra em linhas diferentes; nenhum lote nem transação gravados
+- [x] Integração: reenviar o mesmo arquivo → `409` com `conflictingReferences`; período travado → `409` "Janela travada de …"; arquivo > 5 MB → `413`; sem campo `file` → `400` "Requisição inválida. Verifique os campos e parâmetros enviados."
+- [x] Integração: mesma referência em outra empresa aceita (TIMP-13); lotes listados do mais novo para o mais antigo; lote de outra empresa → `404`; OPERATOR sem acesso → `403`
+- [x] `ApiDocsIntegrationTest` passa com os endpoints novos documentados
+- [x] Gate check passes: `cd backend && ./mvnw verify`
 
 **Tests**: integration
 **Gate**: full

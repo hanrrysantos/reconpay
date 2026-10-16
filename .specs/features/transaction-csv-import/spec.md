@@ -145,12 +145,12 @@ Transações internas só entram no ReconPay uma a uma, por `POST /api/merchants
 | TIMP-05 | P1: Importar transações | Execute | Implementing |
 | TIMP-06 | P1: Importar transações | Execute | Implementing |
 | TIMP-07 | P1: Importar transações | Execute | Implementing |
-| TIMP-08 | P1: Importar transações | Design | Pending |
+| TIMP-08 | P1: Importar transações | Execute | Implementing |
 | TIMP-09 | P1: Importar transações | Execute | Implementing |
 | TIMP-10 | P1: Importar transações | Execute | Implementing |
 | TIMP-11 | P1: Importar transações | Execute | Implementing |
 | TIMP-12 | P1: Importar transações | Execute | Implementing |
-| TIMP-13 | P1: Importar transações | Design | Pending |
+| TIMP-13 | P1: Importar transações | Execute | Implementing |
 | TLOTE-01 | P1: Lote rastreável | Execute | Implementing |
 | TLOTE-02 | P1: Lote rastreável | Execute | Implementing |
 | TLOTE-03 | P1: Lote rastreável | Execute | Implementing |

@@ -2,10 +2,12 @@ package br.com.hanrry.reconpay.transaction.controller;
 
 import br.com.hanrry.reconpay.shared.enums.PaymentMethod;
 import br.com.hanrry.reconpay.transaction.dto.CreateTransactionRequestDTO;
+import br.com.hanrry.reconpay.transaction.dto.TransactionImportResponseDTO;
 import br.com.hanrry.reconpay.transaction.dto.TransactionResponseDTO;
 import br.com.hanrry.reconpay.transaction.dto.UpdateTransactionStatusRequestDTO;
 import br.com.hanrry.reconpay.transaction.enums.TransactionStatus;
 import br.com.hanrry.reconpay.transaction.openapi.TransactionControllerApi;
+import br.com.hanrry.reconpay.transaction.service.TransactionImportService;
 import br.com.hanrry.reconpay.transaction.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -31,6 +34,7 @@ import java.util.UUID;
 public class TransactionController implements TransactionControllerApi {
 
     private final TransactionService transactionService;
+    private final TransactionImportService transactionImportService;
 
     @Override
     public ResponseEntity<Page<TransactionResponseDTO>> findAll(
@@ -69,5 +73,31 @@ public class TransactionController implements TransactionControllerApi {
             @PathVariable UUID id,
             @Valid @RequestBody UpdateTransactionStatusRequestDTO request) {
         return ResponseEntity.ok(transactionService.updateStatus(merchantId, id, request));
+    }
+
+    @Override
+    public ResponseEntity<TransactionImportResponseDTO> importCsv(
+            @PathVariable UUID merchantId,
+            @RequestParam("file") MultipartFile file) {
+        TransactionImportResponseDTO importBatch = transactionImportService.importCsv(merchantId, file);
+        URI uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/merchants/{merchantId}/transactions/imports/{importId}")
+                .buildAndExpand(merchantId, importBatch.id())
+                .toUri();
+        return ResponseEntity.created(uri).body(importBatch);
+    }
+
+    @Override
+    public ResponseEntity<Page<TransactionImportResponseDTO>> findAllImports(
+            @PathVariable UUID merchantId,
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(transactionImportService.findAllImports(merchantId, pageable));
+    }
+
+    @Override
+    public ResponseEntity<TransactionImportResponseDTO> findImportById(
+            @PathVariable UUID merchantId,
+            @PathVariable UUID importId) {
+        return ResponseEntity.ok(transactionImportService.findImportById(merchantId, importId));
     }
 }
