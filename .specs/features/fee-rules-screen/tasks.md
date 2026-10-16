@@ -198,9 +198,9 @@ T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Após cada mutação, a lista da empresa é refeita antes de a mutação resolver
-- [ ] Trocar o `merchantId` busca a lista da nova empresa e não devolve dados da anterior
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Após cada mutação, a lista da empresa é refeita antes de a mutação resolver
+- [x] Trocar o `merchantId` busca a lista da nova empresa e não devolve dados da anterior
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: unit
 **Gate**: build

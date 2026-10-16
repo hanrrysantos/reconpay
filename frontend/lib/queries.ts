@@ -3,10 +3,10 @@
 import { MutationCache, QueryCache, QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import {
-  ApiError, createMerchant, deactivateMerchant, exportRunCsv, getDiscrepancy, getLatestBankStatementImportTime,
-  getLatestSettlementImport, getMerchantPage, getOpenDiscrepancies, getPeriod, getPeriodSummary, getRuns, lockPeriod,
-  renameMerchant, runReconciliation, unlockPeriod, updateDiscrepancy,
-  type DiscrepancyType, type DiscrepancyUpdate, type Run,
+  ApiError, createFeeRule, createMerchant, deactivateFeeRule, deactivateMerchant, exportRunCsv, getDiscrepancy, getFeeRules,
+  getLatestBankStatementImportTime, getLatestSettlementImport, getMerchantPage, getOpenDiscrepancies, getPeriod,
+  getPeriodSummary, getRuns, lockPeriod, renameMerchant, runReconciliation, unlockPeriod, updateDiscrepancy, updateFeeRuleFees,
+  type DiscrepancyType, type DiscrepancyUpdate, type FeeRuleFees, type FeeRuleInput, type Run,
 } from './api'
 import { useAuth } from './auth'
 import type { Window } from './period'
@@ -46,6 +46,7 @@ export const queryKeys = {
   merchantPage: (page?: number) => (page === undefined ? ['merchantPage'] : ['merchantPage', page]) as readonly unknown[],
   /** Prefix of the top menu list, `['merchants', userId]`, owned by `SelectedMerchantProvider`. */
   merchants: ['merchants'] as const,
+  feeRules: (merchantId: string) => ['feeRules', merchantId] as const,
 }
 
 const inFlight = (run: Run | null | undefined) => run?.status === 'PENDING' || run?.status === 'RUNNING'
@@ -226,4 +227,41 @@ export function useDeactivateMerchant() {
     mutationFn: (merchantId: string) => deactivateMerchant(token!, merchantId),
     onSuccess: invalidate,
   })
+}
+
+/** Active fee rules of one merchant; a different merchant starts empty, never with the previous one's rules. */
+export function useFeeRules(merchantId: string | null) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: queryKeys.feeRules(merchantId ?? ''),
+    queryFn: () => getFeeRules(token!, merchantId!),
+    enabled: Boolean(token && merchantId),
+  })
+}
+
+/** Each fee rule mutation resolves only after the merchant's rule list has reloaded. */
+function useInvalidateFeeRules(merchantId: string) {
+  const queryClient = useQueryClient()
+  return () => queryClient.invalidateQueries({ queryKey: queryKeys.feeRules(merchantId) })
+}
+
+export function useCreateFeeRule(merchantId: string) {
+  const { token } = useAuth()
+  const invalidate = useInvalidateFeeRules(merchantId)
+  return useMutation({ mutationFn: (input: FeeRuleInput) => createFeeRule(token!, merchantId, input), onSuccess: invalidate })
+}
+
+export function useUpdateFeeRuleFees(merchantId: string) {
+  const { token } = useAuth()
+  const invalidate = useInvalidateFeeRules(merchantId)
+  return useMutation({
+    mutationFn: ({ ruleId, fees }: { ruleId: string; fees: FeeRuleFees }) => updateFeeRuleFees(token!, merchantId, ruleId, fees),
+    onSuccess: invalidate,
+  })
+}
+
+export function useDeactivateFeeRule(merchantId: string) {
+  const { token } = useAuth()
+  const invalidate = useInvalidateFeeRules(merchantId)
+  return useMutation({ mutationFn: (ruleId: string) => deactivateFeeRule(token!, merchantId, ruleId), onSuccess: invalidate })
 }
