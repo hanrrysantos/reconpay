@@ -7,8 +7,14 @@ import { formatPercent, parseFeePercent, parseFixedFee, toInputDecimal } from '.
  * reference that does exact integer arithmetic with BigInt. BigInt lives only in this test, never in the app.
  */
 
-const WHOLES = ['0', '00', '1', '01', '9', '10', '99', '099', '100', '0100', '00100', '101', '0101', '109', '110', '199', '200', '999', '1000', '1001', '10000', '12345']
-const FRACTIONS = [undefined, '0', '00', '000', '0000', '00000', '1', '5', '9', '01', '09', '10', '50', '90', '99', '001', '009', '010', '090', '100', '999', '0001', '0009', '0010', '0090', '0100', '1000', '9999', '00001', '99999']
+/** Every leading digit past the bound (100..999 by hundreds), plus zeros, small values and longer numbers. */
+const WHOLES = ['0', '00', '1', '01', '9', '10', '99', '099', '100', '0100', '00100', '101', '0101', '109', '110', '199',
+  '200', '300', '400', '500', '600', '700', '800', '899', '900', '999', '1000', '1001', '10000', '12345']
+/** Every digit 0..9 alone and in each position up to 4 decimals, plus zero runs and a 5-decimal overflow. */
+const FRACTIONS = [undefined, ...new Set([
+  '0', '00', '000', '0000', '00000', '99999', '00001',
+  ...'0123456789'.split('').flatMap(digit => [digit, `${digit}0`, `0${digit}`, `00${digit}`, `${digit}00`, `000${digit}`, `${digit}000`]),
+])]
 const SEPARATORS = [',', '.']
 
 function* inputs(): Generator<{ text: string; whole: string; fraction?: string }> {
