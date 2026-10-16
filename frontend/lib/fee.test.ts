@@ -11,6 +11,7 @@ describe('parseFeePercent', () => {
     expect(parseFeePercent('0')).toBe('0')
     expect(parseFeePercent('100')).toBe('100')
     expect(parseFeePercent('2,9999')).toBe('2.9999')
+    expect(parseFeePercent('0100')).toBe('100')
   })
 
   it('recusa vazio, texto, negativo, acima de 100 e mais de 4 casas (FCAD-08)', () => {
@@ -20,6 +21,9 @@ describe('parseFeePercent', () => {
     expect(parseFeePercent('100,01')).toBeNull()
     expect(parseFeePercent('101')).toBeNull()
     expect(parseFeePercent('999')).toBeNull()
+    expect(parseFeePercent('1000')).toBeNull()
+    expect(parseFeePercent('12345')).toBeNull()
+    expect(parseFeePercent('0101')).toBeNull()
     expect(parseFeePercent('2,99999')).toBeNull()
   })
 })

@@ -339,7 +339,7 @@ describe('cadastro de regra', () => {
     expect(createRequests()).toHaveLength(0)
   })
 
-  it.each([[''], ['abc'], ['-1'], ['100,01'], ['101'], ['2,99999']])('Percentual "%s" bloqueia o envio com a mensagem (FCAD-08)', async percent => {
+  it.each([[''], ['abc'], ['-1'], ['100,01'], ['101'], ['1000'], ['2,99999']])('Percentual "%s" bloqueia o envio com a mensagem (FCAD-08)', async percent => {
     const user = await openDrawer()
     await fill(user, { method: 'Pix', percent, fixedFee: '0,30' })
     await user.click(within(drawer()).getByRole('button', { name: 'Cadastrar' }))
