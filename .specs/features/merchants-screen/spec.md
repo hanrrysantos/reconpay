@@ -65,6 +65,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 9. WHILE o cadastro está em envio the system SHALL desabilitar o botão de enviar, de modo que cliques repetidos gerem um único `POST`.
 10. WHEN o usuário pressiona `Esc` ou "Cancelar" THEN the system SHALL fechar a gaveta sem chamar a API.
 11. WHEN o usuário clica em "Cadastrar empresa" no menu de empresa ou no estado "Nenhuma empresa no seu acesso" do dashboard THEN the system SHALL abrir `/empresas` já com a gaveta de cadastro aberta, sem exigir um segundo clique.
+12. WHEN a API responde `201` ao cadastro THEN the system SHALL mostrar em `/empresas` o aviso "<nome> cadastrada. O próximo passo são as regras de taxa." com o link "Cadastrar regras de taxa" para `/taxas?cadastrar=1` e o botão "Fechar aviso"; renomear não mostra o aviso.
 
 **Independent Test**: Com um OPERATOR sem empresas, abrir `/empresas`, cadastrar "Loja Teste" com um CNPJ válido e ver a empresa listada e selecionada no menu do topo.
 
@@ -105,6 +106,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 7. IF a busca falha THEN the system SHALL mostrar a mensagem do erro com "Tentar de novo", que refaz a busca.
 8. IF um documento gravado não tem 14 dígitos THEN the system SHALL exibi-lo como está, sem máscara.
 9. WHEN o usuário escolhe "Gerenciar empresas" no menu de empresa THEN the system SHALL fechar o menu e abrir `/empresas`.
+10. WHEN o usuário clica em "Taxas" na linha de uma empresa THEN the system SHALL torná-la a empresa selecionada no menu do topo e abrir `/taxas`.
 
 **Independent Test**: Com o ADMIN do seed e três empresas cadastradas, abrir `/empresas` e ver as três em ordem alfabética, com a selecionada marcada.
 
@@ -188,6 +190,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MCAD-09 | P1: Cadastrar empresa | Execute | Verified |
 | MCAD-10 | P1: Cadastrar empresa | Execute | Verified |
 | MCAD-11 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-12 | P1: Cadastrar empresa | Execute | Verified (autoverificado: teste + falha injetada, sem Verifier) |
 | MDOC-01 | P1: CNPJ no backend | Execute | Verified |
 | MDOC-02 | P1: CNPJ no backend | Execute | Verified |
 | MDOC-03 | P1: CNPJ no backend | Execute | Verified |
@@ -202,6 +205,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MLIST-07 | P1: Listar empresas | Execute | Verified |
 | MLIST-08 | P1: Listar empresas | Execute | Verified |
 | MLIST-09 | P1: Listar empresas | Execute | Verified |
+| MLIST-10 | P1: Listar empresas | Execute | Verified (autoverificado: teste + falha injetada, sem Verifier) |
 | MEDIT-01 | P2: Renomear empresa | Execute | Verified |
 | MEDIT-02 | P2: Renomear empresa | Execute | Verified |
 | MEDIT-03 | P2: Renomear empresa | Execute | Verified |
@@ -217,7 +221,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 
 **ID format:** `M<STORY>-<NN>` (`MCAD`, `MDOC`, `MLIST`, `MEDIT`, `MDES`); o número é a posição do critério na story.
 
-**Coverage:** 37 total, 37 mapped to tasks, 0 unmapped (MCAD-11 e MLIST-09 adicionados após a conferência visual)
+**Coverage:** 39 total, 39 mapped to tasks, 0 unmapped (MCAD-11, MCAD-12, MLIST-09 e MLIST-10 adicionados após a conferência visual)
 
 ---
 

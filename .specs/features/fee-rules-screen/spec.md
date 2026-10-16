@@ -102,6 +102,7 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 10. IF a API responde `409` (já existe regra ativa para o método e as parcelas) ou outro erro, ou a rede falha, THEN the system SHALL manter a gaveta aberta com os valores digitados e mostrar a mensagem do erro.
 11. WHILE o cadastro está em envio the system SHALL desabilitar o botão "Cadastrar", de modo que cliques repetidos gerem um único `POST`.
 12. WHEN o usuário pressiona `Esc` ou "Cancelar" THEN the system SHALL fechar a gaveta sem chamar a API.
+13. WHEN o usuário chega a `/taxas?cadastrar=1` (aviso pós-cadastro de empresa) THEN the system SHALL abrir a gaveta "Cadastrar regra de taxa" assim que houver empresa selecionada e tirar o parâmetro da URL.
 
 **Independent Test**: Cadastrar Crédito 3x com `2,99` e `0,30`, ver a linha `Crédito · 3x · 2,99% · R$ 0,30`; tentar de novo a mesma combinação e ver a mensagem do `409` com a gaveta aberta.
 
@@ -197,6 +198,7 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 | FCAD-10 | P1: Cadastrar regra | Execute | Verified |
 | FCAD-11 | P1: Cadastrar regra | Execute | Verified |
 | FCAD-12 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-13 | P1: Cadastrar regra | Execute | Verified (autoverificado: teste + falha injetada, sem Verifier) |
 | FEDIT-01 | P2: Alterar taxas | Execute | Verified |
 | FEDIT-02 | P2: Alterar taxas | Execute | Verified |
 | FEDIT-03 | P2: Alterar taxas | Execute | Verified |
@@ -211,7 +213,7 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 
 **ID format:** `F<STORY>-<NN>` (`FREG`, `FLIST`, `FCAD`, `FEDIT`, `FDES`); o número é a posição do critério na story.
 
-**Coverage:** 34 total, 34 mapped to tasks, 0 unmapped; 34 verified
+**Coverage:** 35 total, 35 mapped to tasks, 0 unmapped; 34 verified pelo Verifier, FCAD-13 adicionado após a conferência visual
 
 ---
 

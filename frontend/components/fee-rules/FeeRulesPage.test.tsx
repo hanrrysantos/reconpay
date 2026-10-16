@@ -7,6 +7,8 @@ import type { FeeRule, Merchant } from '@/lib/api'
 import { createQueryClient } from '@/lib/queries'
 import { MerchantSwitcher, SelectedMerchantProvider } from '@/components/shell/MerchantMenu'
 
+const navigation = vi.hoisted(() => ({ search: new URLSearchParams(), replace: vi.fn() }))
+vi.mock('next/navigation', () => ({ useSearchParams: () => navigation.search, useRouter: () => ({ replace: navigation.replace }) }))
 vi.mock('@/lib/auth', () => ({ useAuth: () => ({ token: 'jwt', user: { id: 'u-1', name: 'Ana Souza' }, signOut: vi.fn() }) }))
 
 type Reply = Response | Error | (() => Response | Promise<Response>)
@@ -106,7 +108,11 @@ beforeEach(() => {
     return route(method, url.pathname, body)
   }))
 })
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  navigation.search = new URLSearchParams()
+  navigation.replace.mockReset()
+})
 
 function renderPage() {
   render(
@@ -254,6 +260,13 @@ describe('cadastro de regra', () => {
     if (percent) await user.type(percentField(), percent)
     if (fixedFee) await user.type(fixedFeeField(), fixedFee)
   }
+
+  it('chegando com ?cadastrar=1 a gaveta de cadastro já abre e o parâmetro sai da URL (FCAD-13)', async () => {
+    navigation.search = new URLSearchParams('cadastrar=1')
+    renderPage()
+    expect(await screen.findByRole('dialog', { name: 'Cadastrar regra de taxa' })).toBeInTheDocument()
+    expect(navigation.replace).toHaveBeenCalledWith('/taxas')
+  })
 
   it('"Cadastrar regra" abre a gaveta com Método, Parcelas, Percentual e Taxa fixa, sem método e com 1 parcela (FCAD-01)', async () => {
     await openDrawer()
