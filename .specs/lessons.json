@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 27,
+  "next_id": 28,
   "lessons": [
     {
       "id": "L-001",
@@ -473,6 +473,24 @@
       ],
       "created": "2026-10-16T12:47:11Z",
       "last_seen": "2026-10-16T12:47:11Z"
+    },
+    {
+      "id": "L-027",
+      "key": "surviving_mutant::assert the default page size of a paginated endpoint when the spec states one",
+      "text": "Assert the default page size of a paginated endpoint when the spec states one",
+      "signal": "surviving_mutant",
+      "scope": "routes",
+      "status": "candidate",
+      "features": [
+        "transaction-csv-import"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md N19 TransactionController.java:93 (TLOTE-02 / Assumptions 'Listagem de lotes') (routes) (routes)"
+      ],
+      "created": "2026-10-16T13:01:22Z",
+      "last_seen": "2026-10-16T13:01:22Z"
     }
   ]
 }

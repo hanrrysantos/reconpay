@@ -170,6 +170,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md M6 TransactionCsvParser.java:119 (TIMP-09/TIMP-10 #3-#4) (parsers)
 - last seen: 2026-10-16T12:47:11Z
 
+### L-027 - Assert the default page size of a paginated endpoint when the spec states one
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md N19 TransactionController.java:93 (TLOTE-02 / Assumptions 'Listagem de lotes') (routes) (routes)
+- last seen: 2026-10-16T13:01:22Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
