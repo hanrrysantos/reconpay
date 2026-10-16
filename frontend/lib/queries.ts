@@ -240,7 +240,7 @@ export function useFeeRules(merchantId: string | null) {
 }
 
 /** Each fee rule mutation resolves only after the merchant's rule list has reloaded. */
-function useInvalidateFeeRules(merchantId: string) {
+export function useInvalidateFeeRules(merchantId: string) {
   const queryClient = useQueryClient()
   return () => queryClient.invalidateQueries({ queryKey: queryKeys.feeRules(merchantId) })
 }

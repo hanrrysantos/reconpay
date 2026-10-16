@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { METHOD_LABELS } from '@/components/dashboard/format'
+import { isGone } from '@/components/merchants/MerchantDrawer'
 import { SideDrawer } from '@/components/ui/SideDrawer'
-import type { PaymentMethod } from '@/lib/api'
-import { SINGLE_INSTALLMENT_METHODS, parseFeePercent, parseFixedFee } from '@/lib/fee'
-import { useCreateFeeRule } from '@/lib/queries'
+import type { FeeRule, PaymentMethod } from '@/lib/api'
+import { SINGLE_INSTALLMENT_METHODS, parseFeePercent, parseFixedFee, toInputDecimal } from '@/lib/fee'
+import { useCreateFeeRule, useInvalidateFeeRules, useUpdateFeeRuleFees } from '@/lib/queries'
 import { cn } from '@/lib/utils'
 
 export const METHOD_REQUIRED_MESSAGE = 'Escolha o método de pagamento'
@@ -39,23 +40,28 @@ const invalidProps = (id: string, error?: string | null) => ({
 })
 
 /**
- * Side drawer that registers one fee rule of `merchantId`, checked here before the API is called.
- * Pix, Boleto and Débito keep 1 installment; percent and fixed fee are sent as the exact typed text (AD-010).
+ * Side drawer checked here before the API is called. Without `rule` it registers one fee rule of `merchantId`;
+ * Pix, Boleto and Débito keep 1 installment. With `rule` it changes only its rates, and method and installments
+ * are read-only. Percent and fixed fee are sent as the exact typed text (AD-010).
  */
-export function FeeRuleDrawer({ merchantId, onClose }: { merchantId: string; onClose: () => void }) {
+export function FeeRuleDrawer({ merchantId, rule, onClose }: { merchantId: string; rule?: FeeRule; onClose: () => void }) {
+  const editing = rule !== undefined
   const create = useCreateFeeRule(merchantId)
+  const update = useUpdateFeeRuleFees(merchantId)
+  const reloadList = useInvalidateFeeRules(merchantId)
   const methodInput = useRef<HTMLSelectElement>(null)
+  const percentInput = useRef<HTMLInputElement>(null)
   const sending = useRef(false)
-  const [method, setMethod] = useState<PaymentMethod | ''>('')
-  const [installments, setInstallments] = useState('1')
-  const [percent, setPercent] = useState('')
-  const [fixedFee, setFixedFee] = useState('')
+  const [method, setMethod] = useState<PaymentMethod | ''>(rule?.paymentMethod ?? '')
+  const [installments, setInstallments] = useState(String(rule?.installments ?? 1))
+  const [percent, setPercent] = useState(rule ? toInputDecimal(rule.feePercentage) : '')
+  const [fixedFee, setFixedFee] = useState(rule ? toInputDecimal(rule.fixedFee) : '')
   const [errors, setErrors] = useState<Errors>({})
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const locked = singleInstallment(method)
 
-  useEffect(() => { methodInput.current?.focus() }, [])
+  useEffect(() => { (editing ? percentInput : methodInput).current?.focus() }, [editing])
 
   function chooseMethod(value: PaymentMethod | '') {
     setMethod(value)
@@ -81,10 +87,13 @@ export function FeeRuleDrawer({ merchantId, onClose }: { merchantId: string; onC
     setPending(true)
     setError(null)
     try {
-      await create.mutateAsync({ paymentMethod: method, installments: count, feePercentage, fixedFee: fee })
+      if (editing) await update.mutateAsync({ ruleId: rule.id, fees: { feePercentage, fixedFee: fee } })
+      else await create.mutateAsync({ paymentMethod: method, installments: count, feePercentage, fixedFee: fee })
       onClose()
     } catch (failure) {
       setError(messageOf(failure))
+      // 404: the rule was deactivated elsewhere (403: the merchant left the user's access), so the list is stale.
+      if (isGone(failure)) await reloadList()
     } finally {
       sending.current = false
       setPending(false)
@@ -93,43 +102,49 @@ export function FeeRuleDrawer({ merchantId, onClose }: { merchantId: string; onC
 
   return (
     <SideDrawer
-      title="Cadastrar regra de taxa"
-      description="Uma regra para cada método e número de parcelas."
+      title={editing ? 'Editar regra de taxa' : 'Cadastrar regra de taxa'}
+      description={editing ? 'Só o percentual e a taxa fixa podem mudar.' : 'Uma regra para cada método e número de parcelas.'}
       formId="fee-rule-form"
-      submitLabel="Cadastrar"
+      submitLabel={editing ? 'Salvar' : 'Cadastrar'}
       pending={pending}
       error={error}
       onSubmit={event => void submit(event)}
       onClose={onClose}
     >
       <Field id="fee-rule-method" label="Método" error={errors.method}>
-        <select
-          ref={methodInput}
-          id="fee-rule-method"
-          value={method}
-          onChange={event => chooseMethod(event.target.value as PaymentMethod | '')}
-          {...invalidProps('fee-rule-method', errors.method)}
-          className={cn(field, method === '' && 'text-muted')}
-        >
-          <option value="">Escolha o método</option>
-          {METHODS.map(item => <option key={item} value={item}>{METHOD_LABELS[item].label}</option>)}
-        </select>
+        {editing ? (
+          <input id="fee-rule-method" readOnly value={METHOD_LABELS[rule.paymentMethod]?.label ?? rule.paymentMethod} className={cn(field, 'text-muted')} />
+        ) : (
+          <select
+            ref={methodInput}
+            id="fee-rule-method"
+            value={method}
+            onChange={event => chooseMethod(event.target.value as PaymentMethod | '')}
+            {...invalidProps('fee-rule-method', errors.method)}
+            className={cn(field, method === '' && 'text-muted')}
+          >
+            <option value="">Escolha o método</option>
+            {METHODS.map(item => <option key={item} value={item}>{METHOD_LABELS[item].label}</option>)}
+          </select>
+        )}
       </Field>
 
       <Field id="fee-rule-installments" label="Parcelas" error={errors.installments}>
         <input
           id="fee-rule-installments"
           inputMode="numeric"
-          disabled={locked}
+          readOnly={editing}
+          disabled={!editing && locked}
           value={installments}
           onChange={event => setInstallments(event.target.value)}
           {...invalidProps('fee-rule-installments', errors.installments)}
-          className={cn(field, 'font-mono', locked && 'text-muted')}
+          className={cn(field, 'font-mono', (editing || locked) && 'text-muted')}
         />
       </Field>
 
       <Field id="fee-rule-percent" label="Percentual" error={errors.percent}>
         <input
+          ref={percentInput}
           id="fee-rule-percent"
           inputMode="decimal"
           placeholder="0,00"

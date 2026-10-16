@@ -197,12 +197,12 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 | FCAD-10 | P1: Cadastrar regra | Execute | Implementing |
 | FCAD-11 | P1: Cadastrar regra | Execute | Implementing |
 | FCAD-12 | P1: Cadastrar regra | Execute | Implementing |
-| FEDIT-01 | P2: Alterar taxas | Design | Pending |
+| FEDIT-01 | P2: Alterar taxas | Execute | Implementing |
 | FEDIT-02 | P2: Alterar taxas | Execute | Implementing |
 | FEDIT-03 | P2: Alterar taxas | Execute | Implementing |
-| FEDIT-04 | P2: Alterar taxas | Design | Pending |
-| FEDIT-05 | P2: Alterar taxas | Design | Pending |
-| FEDIT-06 | P2: Alterar taxas | Design | Pending |
+| FEDIT-04 | P2: Alterar taxas | Execute | Implementing |
+| FEDIT-05 | P2: Alterar taxas | Execute | Implementing |
+| FEDIT-06 | P2: Alterar taxas | Execute | Implementing |
 | FDES-01 | P2: Desativar regra | Design | Pending |
 | FDES-02 | P2: Desativar regra | Execute | Implementing |
 | FDES-03 | P2: Desativar regra | Execute | Implementing |

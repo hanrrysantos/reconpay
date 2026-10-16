@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { METHOD_LABELS } from '@/components/dashboard/format'
 import { BlockError, NoMerchant } from '@/components/dashboard/states'
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
+import type { FeeRule } from '@/lib/api'
 import { formatPercent } from '@/lib/fee'
 import { formatMoney } from '@/lib/money'
 import { useFeeRules } from '@/lib/queries'
@@ -39,14 +40,15 @@ function NoRules({ onCreate }: { onCreate: () => void }) {
 export function FeeRulesPage() {
   const { merchant, merchantId, isLoading: merchantsLoading, error: merchantsError } = useSelectedMerchant()
   const list = useFeeRules(merchantId)
-  const [creating, setCreating] = useState(false)
+  /** null: closed; 'create': new rule; a rule: change its rates. */
+  const [drawer, setDrawer] = useState<'create' | FeeRule | null>(null)
   // Switching merchants in the menu closes the drawer before it can render for the new merchant.
   const [shownMerchantId, setShownMerchantId] = useState(merchantId)
   if (shownMerchantId !== merchantId) {
     setShownMerchantId(merchantId)
-    setCreating(false)
+    setDrawer(null)
   }
-  const openDrawer = () => setCreating(true)
+  const openDrawer = () => setDrawer('create')
   const rules = list.data ?? []
   const empty = list.data !== undefined && rules.length === 0
   // While the top menu has not loaded (or failed), the page keeps the loading state, as the dashboard does.
@@ -82,6 +84,7 @@ export function FeeRulesPage() {
                   <th scope="col" className="w-[120px] px-3 font-normal">Parcelas</th>
                   <th scope="col" className="w-[140px] px-3 font-normal">Percentual</th>
                   <th scope="col" className="w-[140px] px-3 font-normal">Taxa fixa</th>
+                  <th scope="col" className="w-[200px] px-3"><span className="sr-only">Ações</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -90,7 +93,12 @@ export function FeeRulesPage() {
                     <td className="rounded-l-[14px] px-3 py-2 text-[14px] font-semibold group-hover:bg-subtle">{METHOD_LABELS[rule.paymentMethod]?.label ?? rule.paymentMethod}</td>
                     <td className="px-3 py-2 font-mono text-[13px] group-hover:bg-subtle">{rule.installments}x</td>
                     <td className="px-3 py-2 font-mono text-[13px] group-hover:bg-subtle">{formatPercent(rule.feePercentage)}</td>
-                    <td className="rounded-r-[14px] px-3 py-2 font-mono text-[13px] group-hover:bg-subtle">{formatMoney(rule.fixedFee)}</td>
+                    <td className="px-3 py-2 font-mono text-[13px] group-hover:bg-subtle">{formatMoney(rule.fixedFee)}</td>
+                    <td className="rounded-r-[14px] px-3 py-2 group-hover:bg-subtle">
+                      <div className="flex justify-end gap-1">
+                        <button type="button" onClick={() => setDrawer(rule)} className="h-8 rounded-full bg-white px-3 text-[13px] font-semibold shadow-[inset_0_0_0_1px_var(--color-border)]">Editar</button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -99,7 +107,9 @@ export function FeeRulesPage() {
         </section>
       )}
 
-      {creating && merchantId !== null && <FeeRuleDrawer merchantId={merchantId} onClose={() => setCreating(false)} />}
+      {drawer !== null && merchantId !== null && (
+        <FeeRuleDrawer merchantId={merchantId} rule={drawer === 'create' ? undefined : drawer} onClose={() => setDrawer(null)} />
+      )}
     </>
   )
 }

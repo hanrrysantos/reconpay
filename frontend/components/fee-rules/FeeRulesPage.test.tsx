@@ -26,15 +26,17 @@ const betaDebit = stored('r-4', beta, 'DEBIT_CARD', 1, '1.0000', '0.00')
 
 /**
  * In-memory API: `merchants` answers the top menu; `rules` holds every merchant's active rules, listed by
- * payment method and installments like the API's sort. `list` and `create` override the answers of
- * `GET` and `POST .../fee-rules`. Without an override, `POST` stores the rule (201), or answers 409 when the
- * merchant already has an active rule for the method and installments.
+ * payment method and installments like the API's sort. `list`, `create` and `update` override the answers of
+ * `GET`, `POST .../fee-rules` and `PUT .../fee-rules/{id}`. Without an override, `POST` stores the rule (201), or
+ * answers 409 when the merchant already has an active rule for the method and installments; `PUT` stores the new
+ * rates (200).
  */
 let server: {
   merchants: Merchant[]
   rules: FeeRule[]
   list: ((merchantId: string) => Reply) | null
   create: ((merchantId: string, body: string) => Reply) | null
+  update: ((ruleId: string, body: string) => Reply) | null
 }
 let calls: Call[]
 
@@ -68,6 +70,12 @@ function store(merchantId: string, body: string): Response {
   return new Response(ruleJson(created), { status: 201, headers: { 'Content-Type': 'application/json' } })
 }
 
+function storeFees(ruleId: string, body: string): Response {
+  const changed = { ...server.rules.find(rule => rule.id === ruleId)!, feePercentage: literal(body, 'feePercentage'), fixedFee: literal(body, 'fixedFee') }
+  server.rules = server.rules.map(rule => rule.id === ruleId ? changed : rule)
+  return new Response(ruleJson(changed), { headers: { 'Content-Type': 'application/json' } })
+}
+
 async function route(method: string, path: string, body: string | undefined): Promise<Response> {
   if (path === '/api/me/merchants') return json(page(server.merchants))
   const merchantId = path.match(/^\/api\/merchants\/([^/]+)\/fee-rules$/)?.[1]
@@ -75,12 +83,14 @@ async function route(method: string, path: string, body: string | undefined): Pr
     return answer(server.list?.(merchantId) ?? rulesPage(sorted(server.rules.filter(rule => rule.merchantId === merchantId))))
   }
   if (merchantId && method === 'POST') return answer(server.create?.(merchantId, body!) ?? store(merchantId, body!))
+  const ruleId = path.match(/^\/api\/merchants\/[^/]+\/fee-rules\/([^/]+)$/)?.[1]
+  if (ruleId && method === 'PUT') return answer(server.update?.(ruleId, body!) ?? storeFees(ruleId, body!))
   throw new Error(`rota sem resposta no teste: ${method} ${path}`)
 }
 
 beforeEach(() => {
   calls = []
-  server = { merchants: [alfa, beta], rules: [alfaPix, alfaCredit, betaBoleto, betaDebit], list: null, create: null }
+  server = { merchants: [alfa, beta], rules: [alfaPix, alfaCredit, betaBoleto, betaDebit], list: null, create: null, update: null }
   vi.stubGlobal('fetch', vi.fn(async (input: string, init: RequestInit = {}) => {
     const url = new URL(input)
     const method = init.method ?? 'GET'
@@ -105,8 +115,10 @@ function renderPage() {
 
 const createRequests = () => calls.filter(call => call.method === 'POST' && call.path.endsWith('/fee-rules'))
 const listRequests = () => calls.filter(call => call.method === 'GET' && call.path.endsWith('/fee-rules'))
+/** Método, Parcelas, Percentual and Taxa fixa of each row; the last cell holds the row's action buttons. */
 const rowTexts = () => within(screen.getByRole('table', { name: 'Regras de taxa' })).getAllByRole('row').slice(1)
-  .map(row => within(row).getAllByRole('cell').map(cell => cell.textContent))
+  .map(row => within(row).getAllByRole('cell').slice(0, 4).map(cell => cell.textContent))
+const ruleRow = (label: string) => screen.getByRole('row', { name: new RegExp(`^${label} `) })
 /** The top menu trigger is the only button with `aria-expanded`. */
 const menuButton = () => screen.getByRole('button', { expanded: false })
 
@@ -420,5 +432,131 @@ describe('cadastro de regra', () => {
     await user.click(screen.getByRole('button', { expanded: false }))
     await user.click(screen.getByRole('option', { name: /Alfa Pagamentos/ }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+})
+
+describe('alterar taxas', () => {
+  const puts = () => calls.filter(call => call.method === 'PUT')
+  const drawer = () => screen.getByRole('dialog', { name: 'Editar regra de taxa' })
+  const field = (label: string) => within(drawer()).getByLabelText(label)
+  const saveButton = () => within(drawer()).getByRole('button', { name: 'Salvar' })
+
+  /** Opens "Editar" on Alfa's Crédito 3x (2.9900 and 0.30). */
+  async function openEdit() {
+    const user = renderPage()
+    await screen.findByRole('table', { name: 'Regras de taxa' })
+    await user.click(within(ruleRow('Crédito')).getByRole('button', { name: 'Editar' }))
+    return user
+  }
+
+  async function change(user: ReturnType<typeof userEvent.setup>, percent: string, fixedFee: string) {
+    await user.clear(field('Percentual'))
+    if (percent) await user.type(field('Percentual'), percent)
+    await user.clear(field('Taxa fixa'))
+    if (fixedFee) await user.type(field('Taxa fixa'), fixedFee)
+    await user.click(saveButton())
+  }
+
+  it('"Editar" abre a gaveta com Método e Parcelas somente leitura e as taxas atuais com vírgula (FEDIT-01)', async () => {
+    await openEdit()
+
+    expect(field('Método')).toHaveValue('Crédito')
+    expect(field('Método')).toHaveAttribute('readonly')
+    expect(field('Parcelas')).toHaveValue('3')
+    expect(field('Parcelas')).toHaveAttribute('readonly')
+    expect(field('Percentual')).toHaveValue('2,99')
+    expect(field('Percentual')).not.toHaveAttribute('readonly')
+    expect(field('Taxa fixa')).toHaveValue('0,30')
+    expect(field('Taxa fixa')).not.toHaveAttribute('readonly')
+  })
+
+  it('salvar chama PUT /api/merchants/{id}/fee-rules/{ruleId} só com feePercentage e fixedFee como números JSON digitados (FEDIT-02)', async () => {
+    const user = await openEdit()
+    await change(user, '3,49', '0,35')
+
+    await waitFor(() => expect(puts()).toHaveLength(1))
+    expect(puts()[0].path).toBe('/api/merchants/m-1/fee-rules/r-2')
+    expect(puts()[0].body).toBe('{"feePercentage":3.49,"fixedFee":0.35}')
+  })
+
+  it('200 fecha a gaveta e mostra os novos valores na lista (FEDIT-03)', async () => {
+    const user = await openEdit()
+    await change(user, '3,49', '0,35')
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    await waitFor(() => expect(rowTexts()).toEqual([
+      ['Crédito', '3x', '3,49%', 'R$ 0,35'],
+      ['Pix', '1x', '0%', 'R$ 0,00'],
+    ]))
+  })
+
+  it.each([
+    ['Percentual "100,01"', '100,01', '0,30', 'Percentual', 'Informe um percentual de 0 a 100 com até 4 casas decimais'],
+    ['Percentual vazio', '', '0,30', 'Percentual', 'Informe um percentual de 0 a 100 com até 4 casas decimais'],
+    ['Taxa fixa "0,301"', '2,99', '0,301', 'Taxa fixa', 'Informe uma taxa fixa a partir de 0 com até 2 casas decimais'],
+    ['Taxa fixa negativa', '2,99', '-1', 'Taxa fixa', 'Informe uma taxa fixa a partir de 0 com até 2 casas decimais'],
+  ])('%s bloqueia o envio sem chamar a API, com a mensagem do cadastro (FEDIT-04)', async (_case, percent, fixedFee, label, message) => {
+    const user = await openEdit()
+    await change(user, percent, fixedFee)
+
+    expect(within(drawer()).getByText(message)).toBeInTheDocument()
+    expect(field(label)).toHaveAttribute('aria-invalid', 'true')
+    expect(puts()).toHaveLength(0)
+  })
+
+  it.each([
+    ['erro da API', () => fail(500, 'Erro interno ao alterar'), 'Erro interno ao alterar'],
+    ['falha de rede', () => new TypeError('Failed to fetch'), 'Não foi possível conectar à API. Tente novamente.'],
+  ] as const)('com %s mantém a gaveta aberta com os valores digitados e mostra a mensagem (FEDIT-05)', async (_case, reply, message) => {
+    server.update = () => { const result = reply(); if (result instanceof Error) throw result; return result }
+    const user = await openEdit()
+    await change(user, '3,49', '0,35')
+
+    expect(await within(drawer()).findByRole('alert')).toHaveTextContent(message)
+    expect(field('Percentual')).toHaveValue('3,49')
+    expect(field('Taxa fixa')).toHaveValue('0,35')
+  })
+
+  it('durante o envio desabilita "Salvar" e gera um único PUT (FEDIT-06)', async () => {
+    let release: () => void = () => {}
+    server.update = (ruleId, body) => () => new Promise<Response>(resolve => { release = () => resolve(storeFees(ruleId, body)) })
+    const user = await openEdit()
+    await change(user, '3,49', '0,35')
+
+    expect(saveButton()).toBeDisabled()
+    await user.click(saveButton())
+    expect(puts()).toHaveLength(1)
+    release()
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(puts()).toHaveLength(1)
+  })
+
+  it('404 ao editar mostra a mensagem e recarrega a lista (edge case)', async () => {
+    server.update = ruleId => {
+      server.rules = server.rules.filter(rule => rule.id !== ruleId)
+      return fail(404, `Regra de taxa não encontrada com id: ${ruleId}`)
+    }
+    const user = await openEdit()
+    const before = listRequests().length
+    await change(user, '3,49', '0,35')
+
+    expect(await within(drawer()).findByRole('alert')).toHaveTextContent('Regra de taxa não encontrada com id: r-2')
+    await waitFor(() => expect(rowTexts()).toEqual([['Pix', '1x', '0%', 'R$ 0,00']]))
+    expect(listRequests().length).toBeGreaterThan(before)
+  })
+
+  it('trocar de empresa no menu com a gaveta de edição aberta fecha a gaveta sem chamar a API (edge case)', async () => {
+    const user = await openEdit()
+    await user.clear(field('Percentual'))
+    await user.type(field('Percentual'), '3,49')
+    await user.click(menuButton())
+    await user.click(screen.getByRole('option', { name: /Beta Comércio/ }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(puts()).toHaveLength(0)
+    await waitFor(() => expect(rowTexts()).toEqual([
+      ['Boleto', '1x', '1,5%', 'R$ 3,50'],
+      ['Débito', '1x', '1%', 'R$ 0,00'],
+    ]))
   })
 })

@@ -274,8 +274,8 @@ T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Um teste por AC FEDIT-01..06, o edge case `404` e o edge case de troca de empresa com a gaveta aberta
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
+- [x] Um teste por AC FEDIT-01..06, o edge case `404` e o edge case de troca de empresa com a gaveta aberta
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck`
 
 **Tests**: unit
 **Gate**: quick
