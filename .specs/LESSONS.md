@@ -218,6 +218,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: W8 TransactionCsvParser.java:193 (parsers)
 - last seen: 2026-10-16T13:49:43Z
 
+### L-035 - Assert page text inside the page's own region when the app shell renders the same text elsewhere
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: transactions-screen
+- evidence: validation.md M25; TransactionsPage.test.tsx:123 (frontend)
+- last seen: 2026-10-16T18:09:53Z
+
+### L-036 - To test that state survives a reset, set every kept value away from its default before triggering the reset
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: transactions-screen
+- evidence: validation.md M31; TransactionsPage.test.tsx:248-272 (frontend)
+- last seen: 2026-10-16T18:09:53Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

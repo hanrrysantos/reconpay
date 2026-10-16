@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { SideDrawer } from './SideDrawer'
@@ -77,5 +77,28 @@ describe('SideDrawer', () => {
   it('mostra o erro com role="alert"', () => {
     renderDrawer({ error: 'Regra de taxa já existe' })
     expect(screen.getByRole('alert')).toHaveTextContent('Regra de taxa já existe')
+  })
+})
+
+describe('SideDrawer com ação no erro (TXN-10)', () => {
+  function renderWithAction(error: string | null) {
+    render(
+      <SideDrawer title="Nova transação" description="Venda avulsa." formId="action-form" submitLabel="Cadastrar" pending={false} error={error} errorAction={<a href="/taxas?cadastrar=1">Cadastrar regra de taxa</a>} onSubmit={vi.fn()} onClose={vi.fn()}>
+        <input aria-label="Campo" />
+      </SideDrawer>,
+    )
+  }
+
+  it('renderiza errorAction dentro da caixa de erro', () => {
+    renderWithAction('Regra de taxa ativa não encontrada para este comerciante, método de pagamento e parcelas')
+    const alert = screen.getByRole('alert')
+    expect(alert).toHaveTextContent('Regra de taxa ativa não encontrada para este comerciante, método de pagamento e parcelas')
+    expect(within(alert).getByRole('link', { name: 'Cadastrar regra de taxa' })).toHaveAttribute('href', '/taxas?cadastrar=1')
+  })
+
+  it('sem erro, errorAction não aparece', () => {
+    renderWithAction(null)
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Cadastrar regra de taxa' })).not.toBeInTheDocument()
   })
 })
