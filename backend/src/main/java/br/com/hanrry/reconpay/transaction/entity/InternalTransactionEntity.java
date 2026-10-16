@@ -47,6 +47,11 @@ public class InternalTransactionEntity {
     @JoinColumn(name = "merchant_id", nullable = false)
     private MerchantEntity merchant;
 
+    /** The CSV import that created this transaction; null when it was created one by one. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "import_id")
+    private TransactionImportEntity importBatch;
+
     @Column(name = "external_reference", nullable = false, length = 100)
     private String externalReference;
 

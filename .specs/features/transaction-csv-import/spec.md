@@ -151,11 +151,11 @@ Transações internas só entram no ReconPay uma a uma, por `POST /api/merchants
 | TIMP-11 | P1: Importar transações | Design | Pending |
 | TIMP-12 | P1: Importar transações | Design | Pending |
 | TIMP-13 | P1: Importar transações | Design | Pending |
-| TLOTE-01 | P1: Lote rastreável | Design | Pending |
+| TLOTE-01 | P1: Lote rastreável | Execute | Implementing |
 | TLOTE-02 | P1: Lote rastreável | Design | Pending |
 | TLOTE-03 | P1: Lote rastreável | Design | Pending |
 | TLOTE-04 | P1: Lote rastreável | Design | Pending |
-| TLOTE-05 | P1: Lote rastreável | Design | Pending |
+| TLOTE-05 | P1: Lote rastreável | Execute | Implementing |
 
 **ID format:** `TIMP-NN` (import) e `TLOTE-NN` (lote); o número é a posição do critério na story.
 

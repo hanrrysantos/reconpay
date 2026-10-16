@@ -97,9 +97,9 @@ T3 → T4 → T5 → T6
 
 **Done when**:
 
-- [ ] Teste de integração do repositório: salvar lote e transação ligada a ele; `findAllByMerchant_Id` e `findByIdAndMerchant_Id` filtram pela empresa
-- [ ] Transação criada por `POST /transactions` continua com `import_id` nulo (TLOTE-05)
-- [ ] Gate check passes: `cd backend && ./mvnw verify`
+- [x] Teste de integração do repositório: salvar lote e transação ligada a ele; `findAllByMerchant_Id` e `findByIdAndMerchant_Id` filtram pela empresa
+- [x] Transação criada por `POST /transactions` continua com `import_id` nulo (TLOTE-05)
+- [x] Gate check passes: `cd backend && ./mvnw verify`
 
 **Tests**: integration
 **Gate**: full
