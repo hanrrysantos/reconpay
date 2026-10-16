@@ -111,13 +111,13 @@ T7 → T8
 
 **Done when**:
 
-- [ ] `IMPORT_KINDS` na ordem Transações, Liquidação, Extrato, com slugs `transacoes`, `liquidacao` e `extrato` e as colunas exatas da spec
-- [ ] `kindFromSlug` devolve o tipo de cada slug, e `transactions` para `null`, `''` e `xyz`
-- [ ] `isTooLarge` é `false` em 5.242.880 bytes e `true` em 5.242.881
-- [ ] `importFailure` lê `rowErrors` e `conflictingReferences` de um `ApiError`; ignora `details` malformado (não lista, item sem `row` numérico, referência não string); para `Error` comum devolve só a mensagem
-- [ ] `importedRowsMessage` devolve "extrato.csv importado: 3 linha(s)"
-- [ ] `formatImportedAt('2026-10-16T13:05:00Z', 'America/Sao_Paulo')` devolve `16/10/2026 10:05`
-- [ ] Testes em `frontend/lib/imports.test.ts`; gate quick passa
+- [x] `IMPORT_KINDS` na ordem Transações, Liquidação, Extrato, com slugs `transacoes`, `liquidacao` e `extrato` e as colunas exatas da spec
+- [x] `kindFromSlug` devolve o tipo de cada slug, e `transactions` para `null`, `''` e `xyz`
+- [x] `isTooLarge` é `false` em 5.242.880 bytes e `true` em 5.242.881
+- [x] `importFailure` lê `rowErrors` e `conflictingReferences` de um `ApiError`; ignora `details` malformado (não lista, item sem `row` numérico, referência não string); para `Error` comum devolve só a mensagem
+- [x] `importedRowsMessage` devolve "extrato.csv importado: 3 linha(s)"
+- [x] `formatImportedAt('2026-10-16T13:05:00Z', 'America/Sao_Paulo')` devolve `16/10/2026 10:05`
+- [x] Testes em `frontend/lib/imports.test.ts`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
