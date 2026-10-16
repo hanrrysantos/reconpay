@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: imports-screen (tela `/importacoes`, frontend) — **Verified** (`validation.md` iteração 1: PASS, 22/22 ACs e 3/3 edge cases, sensor 16/16 mutantes mortos)
-- **Phase / Task**: T1–T8 concluídas (`3476a45`..`f78905f`)
-- **Completed**: abas Transações/Liquidação/Extrato em `?tipo=`, upload multipart por tipo (liquidação sempre `RECONPAY`), limite de 5 MB no cliente, recusa com `rowErrors`/`conflictingReferences`/mensagem, lotes paginados (20, mais recente primeiro) e invalidação dos últimos imports do dashboard; `ApiError.details` e `send` sem `Content-Type` JSON para `FormData`. Frontend 570 testes.
+- **Feature**: transactions-screen (tela `/transacoes`: lista, formulário e status, frontend) — **Specify**
+- **Phase / Task**: Specify; decisões do usuário: filtros período (seletor de mês do dashboard) + status + método; formulário em gaveta lateral; mudança de status por ação na linha com confirmação
+- **Completed**: imports-screen mergeada no `main` (PR #48, 2026-10-16), Verifier PASS e teste manual aprovado; CI do merge verde (só o job Frontend), sem deploy
 - **In-progress** (file:line): none
-- **Next step**: usuário decide push/PR de `feat/imports-screen`; depois, tela de Transações (lista, formulário e status), conforme AD-011. Pendências antigas: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404`; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: escrever `.specs/features/transactions-screen/spec.md` e confirmar com o usuário. Pendências antigas: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404`; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
-- **Uncommitted files**: `frontend/AGENTS.md` (gerado pelo `next dev`; o usuário ainda não decidiu se entra no repo)
-- **Branch**: `feat/imports-screen`, local, sem push.
+- **Uncommitted files**: none
+- **Branch**: `feat/transactions-screen`, criada a partir do `main` em `9819e7c`.
