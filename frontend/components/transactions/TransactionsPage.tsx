@@ -95,7 +95,7 @@ export function TransactionsPage() {
           )}
 
           <div className="flex flex-wrap items-center gap-3">
-            <PeriodMenu window={period} months={months} onApply={applyPeriod} />
+            <PeriodMenu window={period} months={months} onApply={applyPeriod} align="start" />
             <Filter id="transaction-status-filter" label="Status" value={status} onChange={value => { setStatus(value as TransactionStatus | ''); setPage(0) }}>
               {STATUSES.map(item => <option key={item} value={item}>{TRANSACTION_STATUS_LABELS[item]}</option>)}
             </Filter>

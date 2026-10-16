@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { ApiError, type Run } from '@/lib/api'
@@ -100,6 +100,19 @@ describe('PeriodMenu sem runs (TXN-02)', () => {
     render(<PeriodMenu window={october} months={[october, september, november2025]} today={new Date(2026, 9, 16)} onApply={onApply} />)
     return { user: userEvent.setup(), onApply }
   }
+
+  it('abre o painel alinhado à direita do botão por padrão e à esquerda com align="start"', async () => {
+    const { user } = renderPlain()
+    await user.click(screen.getByRole('button', { name: /Outubro de 2026/ }))
+    expect(screen.getByRole('dialog', { name: 'Período' })).toHaveClass('right-0')
+    expect(screen.getByRole('dialog', { name: 'Período' })).not.toHaveClass('left-0')
+    cleanup()
+
+    render(<PeriodMenu window={october} months={[october]} onApply={vi.fn()} align="start" />)
+    await userEvent.setup().click(screen.getByRole('button', { name: /Outubro de 2026/ }))
+    expect(screen.getByRole('dialog', { name: 'Período' })).toHaveClass('left-0')
+    expect(screen.getByRole('dialog', { name: 'Período' })).not.toHaveClass('right-0')
+  })
 
   it('com months, lista exatamente esses meses na ordem recebida', async () => {
     const { user } = renderPlain()

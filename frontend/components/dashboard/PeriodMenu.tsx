@@ -23,9 +23,11 @@ export type PeriodMenuProps = {
   onApply: (window: Window) => void | Promise<void>
   settlementImportedAt?: string | null
   today?: Date
+  /** Edge of the trigger the panel lines up with; `start` when the trigger sits on the left of the page. */
+  align?: 'start' | 'end'
 }
 
-export function PeriodMenu({ window, months: givenMonths, runs, locks = {}, onApply, settlementImportedAt = null, today = new Date() }: PeriodMenuProps) {
+export function PeriodMenu({ window, months: givenMonths, runs, locks = {}, onApply, settlementImportedAt = null, today = new Date(), align = 'end' }: PeriodMenuProps) {
   const [open, setOpen] = useState(false)
   const [from, setFrom] = useState(window.fromDate)
   const [to, setTo] = useState(window.toDate)
@@ -81,7 +83,7 @@ export function PeriodMenu({ window, months: givenMonths, runs, locks = {}, onAp
       </button>
 
       {open && (
-        <div role="dialog" aria-label="Período" className="absolute top-13 right-0 z-30 flex w-[520px] max-w-[calc(100vw-32px)] gap-2 rounded-[20px] bg-white p-2 shadow-[0_0_0_1px_var(--color-border),0_20px_48px_rgba(11,13,10,0.14)]">
+        <div role="dialog" aria-label="Período" className={cn('absolute top-13 z-30 flex', align === 'start' ? 'left-0' : 'right-0', 'w-[520px] max-w-[calc(100vw-32px)] gap-2 rounded-[20px] bg-white p-2 shadow-[0_0_0_1px_var(--color-border),0_20px_48px_rgba(11,13,10,0.14)]')}>
           <div className="flex w-[200px] shrink-0 flex-col gap-0.5">
             <ul aria-label="Meses" className="flex max-h-72 flex-col gap-0.5 overflow-y-auto">
               {months.map(month => {

@@ -136,6 +136,8 @@ describe('TransactionsPage', () => {
     await nextPage(user)
 
     await user.click(screen.getByRole('button', { name: /Outubro de 2026/ }))
+    // The trigger sits on the left of the page, so the panel opens to the right of it, inside the viewport.
+    expect(screen.getByRole('dialog', { name: 'Período' })).toHaveClass('left-0')
     const months = within(screen.getByRole('list', { name: 'Meses' })).getAllByRole('button')
     expect(months).toHaveLength(12)
     expect(months[0]).toHaveTextContent('Outubro de 2026')
