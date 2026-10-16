@@ -123,11 +123,11 @@ T3 → T4 → T5 → T6
 
 **Done when**:
 
-- [ ] Um teste por erro de formato de TIMP-10 com o texto exato e o número da linha (cabeçalho = 1)
-- [ ] Cabeçalho errado e só cabeçalho com as mensagens de TIMP-04 e TIMP-07
-- [ ] Cada método (`CREDIT_CARD` 1x e 12x, `DEBIT_CARD`, `PIX`, `BOLETO` 1x) e cada status aceitos; data de hoje aceita; espaços nas pontas removidos; linhas em branco puladas com numeração real
-- [ ] Duplicidade no arquivo marcada da segunda ocorrência em diante, mesmo com erro na primeira
-- [ ] Gate check passes: `cd backend && ./mvnw verify`
+- [x] Um teste por erro de formato de TIMP-10 com o texto exato e o número da linha (cabeçalho = 1)
+- [x] Cabeçalho errado e só cabeçalho com as mensagens de TIMP-04 e TIMP-07
+- [x] Cada método (`CREDIT_CARD` 1x e 12x, `DEBIT_CARD`, `PIX`, `BOLETO` 1x) e cada status aceitos; data de hoje aceita; espaços nas pontas removidos; linhas em branco puladas com numeração real
+- [x] Duplicidade no arquivo marcada da segunda ocorrência em diante, mesmo com erro na primeira
+- [x] Gate check passes: `cd backend && ./mvnw verify`
 
 **Tests**: unit
 **Gate**: full
