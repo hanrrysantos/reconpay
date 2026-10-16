@@ -18,6 +18,8 @@ describe('parseFeePercent', () => {
     expect(parseFeePercent('abc')).toBeNull()
     expect(parseFeePercent('-1')).toBeNull()
     expect(parseFeePercent('100,01')).toBeNull()
+    expect(parseFeePercent('101')).toBeNull()
+    expect(parseFeePercent('999')).toBeNull()
     expect(parseFeePercent('2,99999')).toBeNull()
   })
 })
