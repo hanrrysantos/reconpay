@@ -40,7 +40,7 @@ describe('parseFeePercent: tabela de limites (FCAD-08)', () => {
   })
 
   it.each([
-    ['100,0001'], ['100,1'], ['100,01'], ['100.5'],
+    ['100,0001'], ['100,1'], ['100,01'], ['100.5'], ['100,10'], ['100,50'], ['100,9'], ['100,06'], ['100,0090'],
     ['101'], ['101,00'], ['199'], ['200'], ['999,99'], ['0101'], ['00101'],
     ['1000'], ['1000,00'], ['10000'], ['12345'], ['99999999'],
     ['-0'], ['-1'], ['-100'], [''], [' '], ['abc'], ['1,'], [',5'], ['1,00000'], ['1.2.3'], ['1 000'], ['1e2'],
@@ -79,6 +79,9 @@ describe('formatPercent', () => {
     expect(formatPercent('0.0000')).toBe('0%')
     expect(formatPercent('100.0000')).toBe('100%')
     expect(formatPercent('1.5000')).toBe('1,5%')
+    expect(formatPercent('2.0500')).toBe('2,05%')
+    expect(formatPercent('10.0000')).toBe('10%')
+    expect(formatPercent('0.0500')).toBe('0,05%')
   })
 })
 
@@ -86,6 +89,10 @@ describe('toInputDecimal', () => {
   it('troca o ponto por vírgula para preencher a edição', () => {
     expect(toInputDecimal('2.9900')).toBe('2,99')
     expect(toInputDecimal('0.30')).toBe('0,30')
+    expect(toInputDecimal('2.9999')).toBe('2,9999')
+    expect(toInputDecimal('2.9990')).toBe('2,999')
+    expect(toInputDecimal('2.0500')).toBe('2,05')
+    expect(toInputDecimal('100.0000')).toBe('100,00')
   })
 })
 

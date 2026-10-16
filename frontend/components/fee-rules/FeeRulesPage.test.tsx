@@ -487,6 +487,16 @@ describe('alterar taxas', () => {
     expect(puts()[0].body).toBe('{"feePercentage":3.49,"fixedFee":0.35}')
   })
 
+  it('regra com 4 casas abre com todas elas e salvar sem mudar envia o mesmo valor (FEDIT-01, FEDIT-02)', async () => {
+    server.rules = [alfaPix, stored('r-2', alfa, 'CREDIT_CARD', 3, '2.9999', '0.30'), betaBoleto, betaDebit]
+    const user = await openEdit()
+
+    expect(field('Percentual')).toHaveValue('2,9999')
+    await user.click(saveButton())
+    await waitFor(() => expect(puts()).toHaveLength(1))
+    expect(puts()[0].body).toBe('{"feePercentage":2.9999,"fixedFee":0.30}')
+  })
+
   it('200 fecha a gaveta e mostra os novos valores na lista (FEDIT-03)', async () => {
     const user = await openEdit()
     await change(user, '3,49', '0,35')
