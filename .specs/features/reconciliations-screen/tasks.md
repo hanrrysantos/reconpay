@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/reconciliations-screen/design.md`
-**Status**: Approved
+**Status**: In Progress
 
 ---
 
@@ -95,10 +95,10 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Run inexistente: `404`, `Content-Type` `application/json`, `error` `NOT_FOUND`, `message` "Conciliação não encontrada com id: <runId>"
-- [ ] Run de outra empresa: o mesmo `404`
-- [ ] Os testes atuais de export (CSV, cabeçalho, prefixo `'`) continuam verdes sem alteração
-- [ ] Gate full passa (`./mvnw verify`, cobertura dentro do limite)
+- [x] Run inexistente: `404`, `Content-Type` `application/json`, `error` `NOT_FOUND`, `message` "Conciliação não encontrada com id: <runId>"
+- [x] Run de outra empresa: o mesmo `404`
+- [x] Os testes atuais de export (CSV, cabeçalho, prefixo `'`) continuam verdes sem alteração
+- [x] Gate full passa (`./mvnw verify`, cobertura dentro do limite)
 
 **Tests**: integration
 **Gate**: full
