@@ -291,12 +291,12 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Item com os dois lados mostra valores, `Diferença` do servidor e "Bateu"/"Divergente"; liquidação ausente mostra "—" no lado ausente; item sem divergência deixa a coluna vazia
-- [ ] Duas divergências no mesmo item aparecem como dois selos com tipo e status
-- [ ] "Bateram"/"Divergentes" e um tipo enviam `result`/`discrepancyType` e voltam para a página 1; "Todos" remove
-- [ ] Vazio "Nenhum item encontrado para os filtros escolhidos."; erro com "Tentar novamente"
-- [ ] Com `polling`, os itens recarregam a cada `RUN_POLL_MS`
-- [ ] Testes em `frontend/components/reconciliations/RunItems.test.tsx`; gate quick passa
+- [x] Item com os dois lados mostra valores, `Diferença` do servidor e "Bateu"/"Divergente"; liquidação ausente mostra "—" no lado ausente; item sem divergência deixa a coluna vazia
+- [x] Duas divergências no mesmo item aparecem como dois selos com tipo e status
+- [x] "Bateram"/"Divergentes" e um tipo enviam `result`/`discrepancyType` e voltam para a página 1; "Todos" remove
+- [x] Vazio "Nenhum item encontrado para os filtros escolhidos."; erro com "Tentar novamente"
+- [x] Com `polling`, os itens recarregam a cada `RUN_POLL_MS`
+- [x] Testes em `frontend/components/reconciliations/RunItems.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
