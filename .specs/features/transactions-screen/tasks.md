@@ -294,12 +294,12 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Diálogo cita a referência e mostra "A mudança não pode ser desfeita."
-- [ ] "Confirmar" desabilitado sem opção escolhida
-- [ ] Cada opção envia o status certo (`CANCELLED`, `REFUNDED`, `CHARGEBACK`); "Confirmando…" desabilitado durante o envio
-- [ ] Sucesso fecha o diálogo
-- [ ] `400` de transição inválida e `409` de período travado mantêm o diálogo aberto com a mensagem e recarregam a lista
-- [ ] Testes em `frontend/components/transactions/StatusDialog.test.tsx`; gate quick passa
+- [x] Diálogo cita a referência e mostra "A mudança não pode ser desfeita."
+- [x] "Confirmar" desabilitado sem opção escolhida
+- [x] Cada opção envia o status certo (`CANCELLED`, `REFUNDED`, `CHARGEBACK`); "Confirmando…" desabilitado durante o envio
+- [x] Sucesso fecha o diálogo
+- [x] `400` de transição inválida e `409` de período travado mantêm o diálogo aberto com a mensagem e recarregam a lista
+- [x] Testes em `frontend/components/transactions/StatusDialog.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
