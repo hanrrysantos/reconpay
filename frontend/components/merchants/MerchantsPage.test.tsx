@@ -164,6 +164,17 @@ describe('MerchantsPage', () => {
     expect(row('Beta Comércio')).toHaveAttribute('aria-current', 'true')
   })
 
+  it('"Taxas" na linha seleciona a empresa no menu e aponta para /taxas (MLIST-10)', async () => {
+    const user = renderPage()
+    await screen.findByRole('row', { name: /Beta Comércio/ })
+    await waitFor(() => expect(menuButton()).toHaveTextContent('Alfa Pagamentos'))
+
+    const shortcut = within(row('Beta Comércio')).getByRole('link', { name: 'Taxas' })
+    expect(shortcut).toHaveAttribute('href', '/taxas')
+    await user.click(shortcut)
+    expect(menuButton()).toHaveTextContent('Beta Comércio')
+  })
+
   it('lista vazia mostra "Nenhuma empresa no seu acesso" com "Cadastrar empresa" (MLIST-05)', async () => {
     server.merchants = []
     renderPage()
@@ -301,6 +312,31 @@ describe('Cadastrar empresa', () => {
     expect(menuButton()).toHaveTextContent('Loja Teste')
     await user.click(menuButton())
     expect(screen.getByRole('option', { name: /Loja Teste/ })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('depois de cadastrar mostra o aviso com "Cadastrar regras de taxa" para /taxas com a gaveta aberta (MCAD-12)', async () => {
+    const user = await openDrawer()
+    await fill(user, 'Loja Teste', '11444777000161')
+    await user.click(submitButton())
+
+    const notice = await screen.findByRole('status')
+    expect(notice).toHaveTextContent('Loja Teste cadastrada. O próximo passo são as regras de taxa.')
+    expect(within(notice).getByRole('link', { name: 'Cadastrar regras de taxa' })).toHaveAttribute('href', '/taxas?cadastrar=1')
+    await user.click(within(notice).getByRole('button', { name: 'Fechar aviso' }))
+    expect(screen.queryByText(/O próximo passo são as regras de taxa/)).not.toBeInTheDocument()
+  })
+
+  it('renomear não mostra o aviso de próximo passo (MCAD-12)', async () => {
+    const user = renderPage()
+    await screen.findByRole('row', { name: /Alfa Pagamentos/ })
+    await user.click(within(row('Alfa Pagamentos')).getByRole('button', { name: 'Editar' }))
+    const name = within(screen.getByRole('dialog', { name: 'Editar empresa' })).getByLabelText('Nome')
+    await user.clear(name)
+    await user.type(name, 'Alfa Matriz')
+    await user.click(within(screen.getByRole('dialog', { name: 'Editar empresa' })).getByRole('button', { name: 'Salvar' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(screen.queryByText(/O próximo passo são as regras de taxa/)).not.toBeInTheDocument()
   })
 
   it('nome vazio após remover espaços bloqueia o envio e mostra a mensagem do campo (MCAD-05)', async () => {

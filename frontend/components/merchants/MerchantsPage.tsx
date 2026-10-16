@@ -1,6 +1,7 @@
 'use client'
 
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, Plus, X } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import type { MerchantRecord } from '@/lib/api'
@@ -11,6 +12,7 @@ import { useMerchantPage } from '@/lib/queries'
 import { cn } from '@/lib/utils'
 import { DeactivateDialog } from './DeactivateDialog'
 import { MerchantDrawer } from './MerchantDrawer'
+import { CREATE_FEE_RULE_HREF } from '@/components/fee-rules/FeeRulesPage'
 
 const messageOf = (error: unknown) => error instanceof Error ? error.message : 'Não foi possível carregar as empresas.'
 const createdOn = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -30,6 +32,8 @@ export function MerchantsPage() {
   /** null: closed; 'create': new merchant; a merchant: rename it. */
   const [drawer, setDrawer] = useState<'create' | MerchantRecord | null>(null)
   const [deactivating, setDeactivating] = useState<MerchantRecord | null>(null)
+  /** The merchant just created: the notice points to its fee rules, the next step of the flow. */
+  const [created, setCreated] = useState<MerchantRecord | null>(null)
   const router = useRouter()
   const create = useSearchParams()?.has('cadastrar') ?? false
   // "Cadastrar empresa" outside this page lands here with ?cadastrar=1: open the form and drop the flag.
@@ -59,6 +63,19 @@ export function MerchantsPage() {
         )}
       </section>
 
+      {created && (
+        <section role="status" className="flex flex-wrap items-center gap-3 rounded-lg bg-primary-soft px-5 py-4 text-[14px]">
+          <span><strong className="font-semibold">{created.name}</strong> cadastrada. O próximo passo são as regras de taxa.</span>
+          <Link href={CREATE_FEE_RULE_HREF} className="ml-auto flex h-9 items-center gap-1.5 rounded-full bg-foreground px-4 text-[13px] font-semibold text-white">
+            Cadastrar regras de taxa
+            <ArrowRight aria-hidden="true" className="size-4" />
+          </Link>
+          <button type="button" aria-label="Fechar aviso" onClick={() => setCreated(null)} className="grid size-9 place-items-center rounded-full bg-white">
+            <X aria-hidden="true" className="size-4" />
+          </button>
+        </section>
+      )}
+
       {list.isPending && <TableSkeleton />}
       {list.isError && <BlockError message={messageOf(list.error)} action="Tentar de novo" onRetry={() => void list.refetch()} />}
       {empty && <NoMerchant onCreate={() => setDrawer('create')} />}
@@ -72,7 +89,7 @@ export function MerchantsPage() {
                   <th scope="col" className="px-3 font-normal">Nome</th>
                   <th scope="col" className="w-[200px] px-3 font-normal">CNPJ</th>
                   <th scope="col" className="w-[120px] px-3 font-normal">Cadastro</th>
-                  <th scope="col" className="w-[200px] px-3"><span className="sr-only">Ações</span></th>
+                  <th scope="col" className="w-[260px] px-3"><span className="sr-only">Ações</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -92,6 +109,8 @@ export function MerchantsPage() {
                       <td className={cn('px-3 py-2 font-mono text-[13px] text-muted group-hover:bg-subtle', selected && 'bg-surface group-hover:bg-surface')}>{createdOn(merchant.createdAt)}</td>
                       <td className={cn('rounded-r-[14px] px-3 py-2 group-hover:bg-subtle', selected && 'bg-surface group-hover:bg-surface')}>
                         <div className="flex justify-end gap-1">
+                          {/* /taxas always shows the selected merchant, so the shortcut selects this row first. */}
+                          <Link href="/taxas" onClick={() => select(merchant.id)} className="h-8 rounded-full bg-white px-3 text-[13px] leading-8 font-semibold shadow-[inset_0_0_0_1px_var(--color-border)]">Taxas</Link>
                           <button type="button" onClick={() => setDrawer(merchant)} className="h-8 rounded-full bg-white px-3 text-[13px] font-semibold shadow-[inset_0_0_0_1px_var(--color-border)]">Editar</button>
                           <button type="button" onClick={() => setDeactivating(merchant)} className="h-8 rounded-full bg-white px-3 text-[13px] font-semibold text-danger-strong shadow-[inset_0_0_0_1px_var(--color-border)]">Desativar</button>
                         </div>
@@ -119,7 +138,7 @@ export function MerchantsPage() {
         </section>
       )}
 
-      {drawer !== null && <MerchantDrawer merchant={drawer === 'create' ? undefined : drawer} onClose={() => setDrawer(null)} />}
+      {drawer !== null && <MerchantDrawer merchant={drawer === 'create' ? undefined : drawer} onClose={() => setDrawer(null)} onCreated={setCreated} />}
       {deactivating !== null && <DeactivateDialog merchant={deactivating} onClose={() => setDeactivating(null)} />}
     </>
   )

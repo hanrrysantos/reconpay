@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { SideDrawer } from '@/components/ui/SideDrawer'
-import { ApiError, type Merchant } from '@/lib/api'
+import { ApiError, type Merchant, type MerchantRecord } from '@/lib/api'
 import { cnpjDigits, formatCnpj, isValidCnpj, maskCnpj } from '@/lib/cnpj'
 import { useCreateMerchant, useInvalidateMerchants, useRenameMerchant } from '@/lib/queries'
 import { cn } from '@/lib/utils'
@@ -28,7 +28,7 @@ const field = 'h-12 rounded-md bg-surface px-3 text-[14px] outline-none focus:sh
  * Side drawer checked here before the API is called. Without `merchant` it registers one (name and masked CNPJ);
  * with `merchant` it renames it, and the CNPJ is read-only.
  */
-export function MerchantDrawer({ merchant, onClose }: { merchant?: Merchant; onClose: () => void }) {
+export function MerchantDrawer({ merchant, onClose, onCreated }: { merchant?: Merchant; onClose: () => void; onCreated?: (merchant: MerchantRecord) => void }) {
   const editing = merchant !== undefined
   const create = useCreateMerchant()
   const rename = useRenameMerchant()
@@ -55,7 +55,7 @@ export function MerchantDrawer({ merchant, onClose }: { merchant?: Merchant; onC
     setError(null)
     try {
       if (editing) await rename.mutateAsync({ merchantId: merchant.id, name: name.trim() })
-      else await create.mutateAsync({ name: name.trim(), document: cnpjDigits(cnpj) })
+      else onCreated?.(await create.mutateAsync({ name: name.trim(), document: cnpjDigits(cnpj) }))
       onClose()
     } catch (failure) {
       setError(messageOf(failure))

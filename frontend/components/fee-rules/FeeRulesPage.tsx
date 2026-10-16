@@ -1,7 +1,8 @@
 'use client'
 
 import { Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { METHOD_LABELS } from '@/components/dashboard/format'
 import { BlockError, NoMerchant } from '@/components/dashboard/states'
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
@@ -11,6 +12,9 @@ import { formatMoney } from '@/lib/money'
 import { useFeeRules } from '@/lib/queries'
 import { DeactivateRuleDialog } from './DeactivateRuleDialog'
 import { FeeRuleDrawer } from './FeeRuleDrawer'
+
+/** Opens `/taxas` with the create drawer already open. */
+export const CREATE_FEE_RULE_HREF = '/taxas?cadastrar=1'
 
 const messageOf = (error: unknown) => error instanceof Error ? error.message : 'Não foi possível carregar as regras de taxa.'
 const createButton = 'flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-[14px] font-semibold text-foreground'
@@ -52,6 +56,14 @@ export function FeeRulesPage() {
     setDeactivating(null)
   }
   const openDrawer = () => setDrawer('create')
+  const router = useRouter()
+  const create = useSearchParams()?.has('cadastrar') ?? false
+  // Links that land here with ?cadastrar=1 open the form once a merchant is selected, then drop the flag.
+  useEffect(() => {
+    if (!create || merchantId === null) return
+    setDrawer('create')
+    router.replace('/taxas')
+  }, [create, merchantId, router])
   const rules = list.data ?? []
   const empty = list.data !== undefined && rules.length === 0
   // While the top menu has not loaded (or failed), the page keeps the loading state, as the dashboard does.
