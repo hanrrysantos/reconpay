@@ -138,23 +138,23 @@ Transações internas só entram no ReconPay uma a uma, por `POST /api/merchants
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| TIMP-01 | P1: Importar transações | Design | Pending |
-| TIMP-02 | P1: Importar transações | Design | Pending |
+| TIMP-01 | P1: Importar transações | Execute | Implementing |
+| TIMP-02 | P1: Importar transações | Execute | Implementing |
 | TIMP-03 | P1: Importar transações | Execute | Implementing |
 | TIMP-04 | P1: Importar transações | Execute | Implementing |
-| TIMP-05 | P1: Importar transações | Design | Pending |
-| TIMP-06 | P1: Importar transações | Design | Pending |
+| TIMP-05 | P1: Importar transações | Execute | Implementing |
+| TIMP-06 | P1: Importar transações | Execute | Implementing |
 | TIMP-07 | P1: Importar transações | Execute | Implementing |
 | TIMP-08 | P1: Importar transações | Design | Pending |
 | TIMP-09 | P1: Importar transações | Execute | Implementing |
 | TIMP-10 | P1: Importar transações | Execute | Implementing |
-| TIMP-11 | P1: Importar transações | Design | Pending |
-| TIMP-12 | P1: Importar transações | Design | Pending |
+| TIMP-11 | P1: Importar transações | Execute | Implementing |
+| TIMP-12 | P1: Importar transações | Execute | Implementing |
 | TIMP-13 | P1: Importar transações | Design | Pending |
 | TLOTE-01 | P1: Lote rastreável | Execute | Implementing |
-| TLOTE-02 | P1: Lote rastreável | Design | Pending |
-| TLOTE-03 | P1: Lote rastreável | Design | Pending |
-| TLOTE-04 | P1: Lote rastreável | Design | Pending |
+| TLOTE-02 | P1: Lote rastreável | Execute | Implementing |
+| TLOTE-03 | P1: Lote rastreável | Execute | Implementing |
+| TLOTE-04 | P1: Lote rastreável | Execute | Implementing |
 | TLOTE-05 | P1: Lote rastreável | Execute | Implementing |
 
 **ID format:** `TIMP-NN` (import) e `TLOTE-NN` (lote); o número é a posição do critério na story.

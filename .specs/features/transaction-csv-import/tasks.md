@@ -151,11 +151,11 @@ T3 → T4 → T5 → T6
 
 **Done when**:
 
-- [ ] Unit: erros do parser e de regra/líquido somados e ordenados por linha num único `400`; regra ausente com "Regra de taxa ativa não encontrada para <MÉTODO> em <N>x"; regras ativas carregadas numa só consulta
-- [ ] Unit: duplicadas → `409` com referências na ordem do arquivo; período travado → `PeriodConflictException`; nada salvo em nenhum erro (`save`/`saveAll` nunca chamados)
-- [ ] Unit: sucesso salva o lote com `fileName` e `totalRows`, as transações com os campos do arquivo, o líquido do calculador e o lote, e registra `TRANSACTIONS_IMPORTED`
-- [ ] Unit: arquivo vazio e não `.csv` com as mensagens exatas; lote de outra empresa → `TransactionImportNotFoundException`
-- [ ] Gate check passes: `cd backend && ./mvnw verify`
+- [x] Unit: erros do parser e de regra/líquido somados e ordenados por linha num único `400`; regra ausente com "Regra de taxa ativa não encontrada para <MÉTODO> em <N>x"; regras ativas carregadas numa só consulta
+- [x] Unit: duplicadas → `409` com referências na ordem do arquivo; período travado → `PeriodConflictException`; nada salvo em nenhum erro (`save`/`saveAll` nunca chamados)
+- [x] Unit: sucesso salva o lote com `fileName` e `totalRows`, as transações com os campos do arquivo, o líquido do calculador e o lote, e registra `TRANSACTIONS_IMPORTED`
+- [x] Unit: arquivo vazio e não `.csv` com as mensagens exatas; lote de outra empresa → `TransactionImportNotFoundException`
+- [x] Gate check passes: `cd backend && ./mvnw verify`
 
 **Tests**: unit
 **Gate**: full
