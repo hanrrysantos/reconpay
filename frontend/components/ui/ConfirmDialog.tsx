@@ -10,10 +10,14 @@ type ConfirmDialogProps = {
   error: string | null
   onConfirm: () => void
   onClose: () => void
+  /** Extra content between the warning and the error, such as the options the confirmation applies. */
+  children?: ReactNode
+  /** Keeps the confirm button disabled besides `pending`, such as while no option is chosen. */
+  confirmDisabled?: boolean
 }
 
 /** Confirmation shell (`alertdialog`): "Cancelar" gets the focus, `Esc` and an outside click close, and the error shows inside. */
-export function ConfirmDialog({ title, warning, confirmLabel, pending, error, onConfirm, onClose }: ConfirmDialogProps) {
+export function ConfirmDialog({ title, warning, confirmLabel, pending, error, onConfirm, onClose, children, confirmDisabled = false }: ConfirmDialogProps) {
   const cancel = useRef<HTMLButtonElement>(null)
   const titleId = useId()
   const warningId = useId()
@@ -37,10 +41,11 @@ export function ConfirmDialog({ title, warning, confirmLabel, pending, error, on
       >
         <h2 id={titleId} className="font-display text-[22px] font-extrabold tracking-[-0.03em]">{title}</h2>
         <p id={warningId} className="text-[13px] text-muted">{warning}</p>
+        {children}
         {error && <p role="alert" className="rounded-md bg-danger-soft px-4 py-3 text-[13px] text-danger-strong">{error}</p>}
         <div className="flex justify-end gap-2">
           <button ref={cancel} type="button" onClick={onClose} className="h-9 rounded-full bg-surface px-4 text-[13px] font-semibold">Cancelar</button>
-          <button type="button" disabled={pending} onClick={onConfirm} className="h-9 rounded-full bg-foreground px-4 text-[13px] font-semibold text-white disabled:bg-surface disabled:text-muted">
+          <button type="button" disabled={pending || confirmDisabled} onClick={onConfirm} className="h-9 rounded-full bg-foreground px-4 text-[13px] font-semibold text-white disabled:bg-surface disabled:text-muted">
             {confirmLabel}
           </button>
         </div>

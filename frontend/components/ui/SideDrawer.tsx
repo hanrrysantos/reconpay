@@ -13,13 +13,15 @@ type SideDrawerProps = {
   onSubmit: (event: FormEvent) => void
   onClose: () => void
   children: ReactNode
+  /** Shown inside the error box after the message, only while there is an error. */
+  errorAction?: ReactNode
 }
 
 /**
  * Side drawer shell: the overlay closes on an outside click, `Esc` closes, `Tab` stays inside the panel, and the
  * footer has "Cancelar" and the submit button, disabled while `pending`. The fields go in `children`.
  */
-export function SideDrawer({ title, description, formId, submitLabel, pending, error, onSubmit, onClose, children }: SideDrawerProps) {
+export function SideDrawer({ title, description, formId, submitLabel, pending, error, onSubmit, onClose, children, errorAction }: SideDrawerProps) {
   const panel = useRef<HTMLDivElement>(null)
 
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
@@ -57,7 +59,7 @@ export function SideDrawer({ title, description, formId, submitLabel, pending, e
 
         <form id={formId} onSubmit={onSubmit} noValidate className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 pb-6">
           {children}
-          {error && <p role="alert" className="rounded-md bg-danger-soft px-4 py-3 text-[13px] text-danger-strong">{error}</p>}
+          {error && <p role="alert" className="rounded-md bg-danger-soft px-4 py-3 text-[13px] text-danger-strong">{error}{errorAction && <> {errorAction}</>}</p>}
         </form>
 
         <footer className="flex items-center justify-end gap-2 border-t border-border px-6 py-4">

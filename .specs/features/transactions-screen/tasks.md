@@ -124,9 +124,9 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `ConfirmDialog` renderiza `children` entre o aviso e o erro; com `confirmDisabled`, o botão de confirmar fica desabilitado e o clique não chama `onConfirm`
-- [ ] `SideDrawer` renderiza `errorAction` dentro da caixa de erro, só quando há erro
-- [ ] Testes atuais de `ConfirmDialog`, `SideDrawer`, Empresas e Regras de taxa inalterados e verdes; testes novos nos `*.test.tsx` dos dois componentes; gate quick passa
+- [x] `ConfirmDialog` renderiza `children` entre o aviso e o erro; com `confirmDisabled`, o botão de confirmar fica desabilitado e o clique não chama `onConfirm`
+- [x] `SideDrawer` renderiza `errorAction` dentro da caixa de erro, só quando há erro
+- [x] Testes atuais de `ConfirmDialog`, `SideDrawer`, Empresas e Regras de taxa inalterados e verdes; testes novos nos `*.test.tsx` dos dois componentes; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
