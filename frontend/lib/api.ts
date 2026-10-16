@@ -392,6 +392,44 @@ export function updateDiscrepancy(
   )
 }
 
+export type TransactionFilters = { window: Window; status?: TransactionStatus; paymentMethod?: PaymentMethod }
+
+/** `amount` holds the exact typed text with a dot separator, e.g. `"1234.50"`; `transactionDate` is `yyyy-mm-dd`. */
+export type TransactionInput = {
+  externalReference: string
+  amount: string
+  paymentMethod: PaymentMethod
+  installments: number
+  transactionDate: string
+}
+
+const transactionsPath = (merchantId: string) => `${merchantPath(merchantId)}/transactions`
+
+/** Transactions of the window, 20 per page, newest transaction date first; status and method only when given. */
+export function getTransactionPage(token: string, merchantId: string, { window, status, paymentMethod }: TransactionFilters, page: number): Promise<Page<Transaction>> {
+  const statusFilter = status ? `&status=${status}` : ''
+  const methodFilter = paymentMethod ? `&paymentMethod=${paymentMethod}` : ''
+  return request(
+    `${transactionsPath(merchantId)}?${windowQuery(window)}${statusFilter}${methodFilter}&page=${page}&size=20&sort=transactionDate%2Cdesc`,
+    {},
+    token,
+  )
+}
+
+export function createTransaction(
+  token: string,
+  merchantId: string,
+  { externalReference, amount, paymentMethod, installments, transactionDate }: TransactionInput,
+): Promise<Transaction> {
+  // Sent as a JSON number literal built from the text, so the value never passes through a float.
+  const body = stringify({ externalReference, amount: new LosslessNumber(amount), paymentMethod, installments, transactionDate })
+  return request(transactionsPath(merchantId), { method: 'POST', body }, token)
+}
+
+export function updateTransactionStatus(token: string, merchantId: string, transactionId: string, status: TransactionStatus): Promise<Transaction> {
+  return request(`${transactionsPath(merchantId)}/${encodeURIComponent(transactionId)}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }, token)
+}
+
 const IMPORT_PATHS: Record<ImportKind, string> = {
   transactions: 'transactions',
   settlements: 'external-settlements',

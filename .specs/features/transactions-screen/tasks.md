@@ -150,11 +150,11 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `getTransactionPage` monta `?fromDate&toDate&page&size=20&sort=transactionDate%2Cdesc` e inclui `status`/`paymentMethod` só quando informados
-- [ ] `createTransaction` faz `POST` com `amount` como número JSON igual ao texto (`"1234.50"` → `1234.50`, `"0.10"` → `0.10`) e os demais campos
-- [ ] `updateTransactionStatus` faz `PATCH .../transactions/{id}/status` com `{"status":"REFUNDED"}`
-- [ ] Valores monetários da resposta continuam texto
-- [ ] Testes em `frontend/lib/api.transactions.test.ts`; gate quick passa
+- [x] `getTransactionPage` monta `?fromDate&toDate&page&size=20&sort=transactionDate%2Cdesc` e inclui `status`/`paymentMethod` só quando informados
+- [x] `createTransaction` faz `POST` com `amount` como número JSON igual ao texto (`"1234.50"` → `1234.50`, `"0.10"` → `0.10`) e os demais campos
+- [x] `updateTransactionStatus` faz `PATCH .../transactions/{id}/status` com `{"status":"REFUNDED"}`
+- [x] Valores monetários da resposta continuam texto
+- [x] Testes em `frontend/lib/api.transactions.test.ts`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
