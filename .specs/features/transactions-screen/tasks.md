@@ -235,11 +235,11 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Linhas com `03/10/2026`, referência, `Crédito`, `3x`, `R$ 300,00`, `R$ 290,73`, `Aprovada`
-- [ ] "Alterar status" só nas linhas aprovadas; o clique entrega a transação ao `onChangeStatus`
-- [ ] Paginação como em Importações
-- [ ] Vazio: "Nenhuma transação encontrada para os filtros escolhidos."; erro com "Tentar novamente"
-- [ ] Testes em `frontend/components/transactions/TransactionList.test.tsx`; gate quick passa
+- [x] Linhas com `03/10/2026`, referência, `Crédito`, `3x`, `R$ 300,00`, `R$ 290,73`, `Aprovada`
+- [x] "Alterar status" só nas linhas aprovadas; o clique entrega a transação ao `onChangeStatus`
+- [x] Paginação como em Importações
+- [x] Vazio: "Nenhuma transação encontrada para os filtros escolhidos."; erro com "Tentar novamente"
+- [x] Testes em `frontend/components/transactions/TransactionList.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
