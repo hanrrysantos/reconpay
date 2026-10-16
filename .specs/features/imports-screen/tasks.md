@@ -255,12 +255,12 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Abas "Transações", "Liquidação" e "Extrato"; `?tipo=extrato` abre Extrato; ausente ou `xyz` abre Transações
-- [ ] Clicar numa aba chama `router.replace('/importacoes?tipo=<slug>')`
-- [ ] Trocar de empresa no menu ou de aba remove arquivo e resultado e lista os lotes da empresa/aba atual
-- [ ] Sem empresa: estado `NoMerchant`, sem abas
-- [ ] A rota `/importacoes` renderiza a página (não mais `UnderConstruction`)
-- [ ] Testes em `frontend/components/imports/ImportsPage.test.tsx` renderizando a rota; gate build passa
+- [x] Abas "Transações", "Liquidação" e "Extrato"; `?tipo=extrato` abre Extrato; ausente ou `xyz` abre Transações
+- [x] Clicar numa aba chama `router.replace('/importacoes?tipo=<slug>')`
+- [x] Trocar de empresa no menu ou de aba remove arquivo e resultado e lista os lotes da empresa/aba atual
+- [x] Sem empresa: estado `NoMerchant`, sem abas
+- [x] A rota `/importacoes` renderiza a página (não mais `UnderConstruction`)
+- [x] Testes em `frontend/components/imports/ImportsPage.test.tsx` renderizando a rota; gate build passa
 
 **Tests**: unit
 **Gate**: build

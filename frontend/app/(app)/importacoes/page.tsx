@@ -1,5 +1,5 @@
-import { UnderConstruction } from '@/components/shell/UnderConstruction'
+import { ImportsPage } from '@/components/imports/ImportsPage'
 
 export default function ImportacoesPage() {
-  return <UnderConstruction title="Importações" />
+  return <ImportsPage />
 }
