@@ -1,7 +1,8 @@
 'use client'
 
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import type { MerchantRecord } from '@/lib/api'
 import { BlockError, NoMerchant } from '@/components/dashboard/states'
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
@@ -29,6 +30,14 @@ export function MerchantsPage() {
   /** null: closed; 'create': new merchant; a merchant: rename it. */
   const [drawer, setDrawer] = useState<'create' | MerchantRecord | null>(null)
   const [deactivating, setDeactivating] = useState<MerchantRecord | null>(null)
+  const router = useRouter()
+  const create = useSearchParams()?.has('cadastrar') ?? false
+  // "Cadastrar empresa" outside this page lands here with ?cadastrar=1: open the form and drop the flag.
+  useEffect(() => {
+    if (!create) return
+    setDrawer('create')
+    router.replace('/empresas')
+  }, [create, router])
   const list = useMerchantPage(page)
   const { merchantId, select } = useSelectedMerchant()
   const merchants = list.data?.content ?? []

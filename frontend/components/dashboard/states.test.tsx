@@ -18,7 +18,7 @@ describe('NoMerchant', () => {
   it('mostra "Nenhuma empresa no seu acesso" com "Cadastrar empresa" (DASH-06 AC2)', () => {
     render(<NoMerchant />)
     expect(screen.getByRole('heading', { name: 'Nenhuma empresa no seu acesso' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Cadastrar empresa' })).toHaveAttribute('href', '/empresas')
+    expect(screen.getByRole('link', { name: 'Cadastrar empresa' })).toHaveAttribute('href', '/empresas?cadastrar=1')
   })
 })
 

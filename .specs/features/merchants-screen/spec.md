@@ -64,6 +64,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 8. IF a API responde outro erro ou a rede falha THEN the system SHALL manter a gaveta aberta com os valores digitados e mostrar a mensagem do erro.
 9. WHILE o cadastro está em envio the system SHALL desabilitar o botão de enviar, de modo que cliques repetidos gerem um único `POST`.
 10. WHEN o usuário pressiona `Esc` ou "Cancelar" THEN the system SHALL fechar a gaveta sem chamar a API.
+11. WHEN o usuário clica em "Cadastrar empresa" no menu de empresa ou no estado "Nenhuma empresa no seu acesso" do dashboard THEN the system SHALL abrir `/empresas` já com a gaveta de cadastro aberta, sem exigir um segundo clique.
 
 **Independent Test**: Com um OPERATOR sem empresas, abrir `/empresas`, cadastrar "Loja Teste" com um CNPJ válido e ver a empresa listada e selecionada no menu do topo.
 
@@ -185,6 +186,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MCAD-08 | P1: Cadastrar empresa | Execute | Verified |
 | MCAD-09 | P1: Cadastrar empresa | Execute | Verified |
 | MCAD-10 | P1: Cadastrar empresa | Execute | Verified |
+| MCAD-11 | P1: Cadastrar empresa | Execute | Verified |
 | MDOC-01 | P1: CNPJ no backend | Execute | Verified |
 | MDOC-02 | P1: CNPJ no backend | Execute | Verified |
 | MDOC-03 | P1: CNPJ no backend | Execute | Verified |
@@ -213,7 +215,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 
 **ID format:** `M<STORY>-<NN>` (`MCAD`, `MDOC`, `MLIST`, `MEDIT`, `MDES`); o número é a posição do critério na story.
 
-**Coverage:** 35 total, 35 mapped to tasks, 0 unmapped
+**Coverage:** 36 total, 36 mapped to tasks, 0 unmapped (MCAD-11 adicionado após a conferência visual)
 
 ---
 

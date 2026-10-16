@@ -20,6 +20,9 @@ type SelectedMerchantValue = {
 
 const SelectedMerchantContext = createContext<SelectedMerchantValue | null>(null)
 
+/** Opens `/empresas` with the create drawer already open. */
+export const CREATE_MERCHANT_HREF = '/empresas?cadastrar=1'
+
 /** Loads every page of `/api/me/merchants` and keeps the selected one; the first merchant is the default. */
 export function SelectedMerchantProvider({ children }: { children: ReactNode }) {
   const { token, user } = useAuth()
@@ -147,7 +150,7 @@ export function MerchantMenu({ merchants, selectedId, onSelect }: {
           {visible.length === 0 && <p className="p-3 text-[13px] text-muted">Nenhuma empresa encontrada</p>}
 
           <Link
-            href="/empresas"
+            href={CREATE_MERCHANT_HREF}
             onClick={() => setOpen(false)}
             className="flex items-center gap-2 rounded-[14px] border-t border-border p-3 text-[14px] font-semibold hover:bg-subtle"
           >

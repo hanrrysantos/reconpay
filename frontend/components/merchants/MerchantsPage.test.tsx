@@ -7,6 +7,8 @@ import type { MerchantRecord } from '@/lib/api'
 import { createQueryClient } from '@/lib/queries'
 import { MerchantSwitcher, SelectedMerchantProvider } from '@/components/shell/MerchantMenu'
 
+const navigation = vi.hoisted(() => ({ search: new URLSearchParams(), replace: vi.fn() }))
+vi.mock('next/navigation', () => ({ useSearchParams: () => navigation.search, useRouter: () => ({ replace: navigation.replace }) }))
 vi.mock('@/lib/auth', () => ({ useAuth: () => ({ token: 'jwt', user: { id: 'u-1', name: 'Ana Souza' }, signOut: vi.fn() }) }))
 
 type Reply = Response | Error | (() => Response | Promise<Response>)
@@ -83,7 +85,11 @@ beforeEach(() => {
     return route(method, url.pathname, url.searchParams, body)
   }))
 })
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  navigation.search = new URLSearchParams()
+  navigation.replace.mockReset()
+})
 
 function renderPage() {
   render(
@@ -217,6 +223,13 @@ describe('MerchantsPage', () => {
 })
 
 describe('Cadastrar empresa', () => {
+  it('chegando com ?cadastrar=1 a gaveta já abre e o parâmetro sai da URL (MCAD-11)', async () => {
+    navigation.search = new URLSearchParams('cadastrar=1')
+    renderPage()
+    expect(await screen.findByRole('dialog', { name: 'Cadastrar empresa' })).toBeInTheDocument()
+    expect(navigation.replace).toHaveBeenCalledWith('/empresas')
+  })
+
   const posts = () => calls.filter(call => call.method === 'POST' && call.path === '/api/merchants')
   const drawer = () => screen.getByRole('dialog', { name: 'Cadastrar empresa' })
   const nameField = () => within(drawer()).getByLabelText('Nome')

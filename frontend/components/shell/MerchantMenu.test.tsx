@@ -66,11 +66,11 @@ describe('MerchantMenu', () => {
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   })
 
-  it('tem no rodapé "Cadastrar empresa" apontando para /empresas', async () => {
+  it('tem no rodapé "Cadastrar empresa" apontando para /empresas com a gaveta aberta (MCAD-11)', async () => {
     const { user } = open()
     await user.click(screen.getByRole('button', { name: /Alfa Pagamentos/ }))
 
-    expect(screen.getByRole('link', { name: 'Cadastrar empresa' })).toHaveAttribute('href', '/empresas')
+    expect(screen.getByRole('link', { name: 'Cadastrar empresa' })).toHaveAttribute('href', '/empresas?cadastrar=1')
   })
 })
 
