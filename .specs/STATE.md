@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: transactions-screen (tela `/transacoes`, frontend) — **Verified** (`validation.md` iteração 2: PASS, 25/25 ACs e 5/5 edge cases, sensor 9/9; a iteração 1 deu FAIL com 2 testes que não discriminavam, corrigidos em `1f00b32`)
-- **Phase / Task**: T1–T10 concluídas (`8e81f1a`..`ac10fb2`), executadas por dois sub-agentes em lote
-- **Completed**: lista por período (menu do dashboard, 12 meses), status e método, 20 por página; gaveta "Nova transação" com validação no cliente e link "Cadastrar regra de taxa" na falta de regra; mudança de status (Cancelada/Estornada/Chargeback) com confirmação; troca de empresa mantém filtros. `PeriodMenu`, `ConfirmDialog` e `SideDrawer` ganharam props opcionais. Frontend 656 testes.
+- **Feature**: reconciliations-screen (tela `/conciliacoes`, frontend) — **Specify**
+- **Phase / Task**: Specify. Ordem das telas restantes escolhida pelo usuário: Conciliações, depois Divergências e Fechamento, cada uma com spec e PR próprios
+- **Completed**: transactions-screen mergeada no `main` (PR #49, 2026-10-16), Verifier PASS (iteração 2) e teste manual aprovado (menu de período alinhado em `4b8ab10`); CI do merge verde (só o job Frontend), sem deploy
 - **In-progress** (file:line): none
-- **Next step**: teste manual pelo usuário e, com o aval dele, push e PR de `feat/transactions-screen`. Lições candidatas L-035 e L-036 registradas. Pendências antigas: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404`; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: levantar o contrato de `/reconciliations` e escrever `.specs/features/reconciliations-screen/spec.md`. Pendências antigas: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404` (candidata a entrar nesta feature); exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/transactions-screen`, local, sem push.
+- **Branch**: `feat/reconciliations-screen`, criada a partir do `main` em `cef8e97`.
