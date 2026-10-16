@@ -109,6 +109,8 @@ const nextPage = async (user: ReturnType<typeof userEvent.setup>) => {
 }
 /** The success notice, whose reference sits in its own element. */
 const notice = (text: string) => screen.findByText((_, element) => element?.getAttribute('role') === 'status' && element.textContent === text)
+/** The page's own title block; the top menu shows the merchant name too, so the name is looked up only here. */
+const pageHeader = () => screen.getByRole('heading', { level: 1, name: 'Transações' }).parentElement!
 const switchTo = async (user: ReturnType<typeof userEvent.setup>, name: RegExp) => {
   await user.click(screen.getByRole('button', { name: 'Alfa Pagamentos' }))
   await user.click(screen.getByRole('option', { name }))
@@ -119,8 +121,7 @@ describe('TransactionsPage', () => {
     renderPage()
 
     await table()
-    expect(screen.getByRole('heading', { level: 1, name: 'Transações' })).toBeInTheDocument()
-    expect(screen.getAllByText('Alfa Pagamentos').length).toBeGreaterThan(0)
+    expect(within(pageHeader()).getByText('Alfa Pagamentos')).toBeInTheDocument()
     expect(references()).toEqual(['VENDA-OUT-1', 'VENDA-OUT-2'])
     expect(listCalls()).toHaveLength(1)
     expect(lastList().path).toBe('/api/merchants/m-1/transactions')
@@ -255,8 +256,13 @@ describe('TransactionsPage', () => {
     await user.selectOptions(within(drawer).getByLabelText('Método'), 'PIX')
     await user.click(within(drawer).getByRole('button', { name: 'Cadastrar' }))
     expect(await notice('Transação AVULSA-2 cadastrada.')).toBeInTheDocument()
+    // Every kept filter moves away from its default, so a reset of any of them would show after the switch.
+    await user.click(screen.getByRole('button', { name: /Outubro de 2026/ }))
+    await user.click(screen.getByRole('button', { name: 'Setembro de 2026' }))
     await user.selectOptions(screen.getByLabelText('Status'), 'Aprovada')
-    await waitFor(() => expect(lastList().search.get('status')).toBe('APPROVED'))
+    await user.selectOptions(screen.getByLabelText('Método'), 'Crédito')
+    await waitFor(() => expect(query(lastList())).toMatchObject({ fromDate: '2026-09-01', status: 'APPROVED', paymentMethod: 'CREDIT_CARD' }))
+    expect(await notice('Transação AVULSA-2 cadastrada.')).toBeInTheDocument()
     await nextPage(user)
     await user.click(within(screen.getByRole('table', { name: 'Transações' })).getAllByRole('button', { name: 'Alterar status' })[0])
     expect(screen.getByRole('alertdialog', { name: 'Alterar status' })).toBeInTheDocument()
@@ -266,8 +272,13 @@ describe('TransactionsPage', () => {
     expect(screen.queryByRole('alertdialog')).toBeNull()
     expect(screen.queryByText((_, element) => element?.getAttribute('role') === 'status' && /cadastrada\.$/.test(element.textContent ?? ''))).toBeNull()
     await waitFor(() => expect(lastList().path).toBe('/api/merchants/m-2/transactions'))
-    expect(query(lastList())).toMatchObject({ fromDate: '2026-10-01', toDate: '2026-10-31', status: 'APPROVED', page: '0' })
+    expect(query(lastList())).toEqual({
+      fromDate: '2026-09-01', toDate: '2026-09-30', status: 'APPROVED', paymentMethod: 'CREDIT_CARD', page: '0', size: '20', sort: 'transactionDate,desc',
+    })
+    expect(screen.getByRole('button', { name: /Setembro de 2026/ })).toBeInTheDocument()
     expect(screen.getByLabelText('Status')).toHaveValue('APPROVED')
+    expect(screen.getByLabelText('Método')).toHaveValue('CREDIT_CARD')
+    expect(within(pageHeader()).getByText('Beta Comércio')).toBeInTheDocument()
     expect(await screen.findByText('Nenhuma transação encontrada para os filtros escolhidos.')).toBeInTheDocument()
   })
 
