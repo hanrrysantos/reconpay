@@ -110,6 +110,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: MCAD-05 (spec)
 - last seen: 2026-10-15T19:48:05Z
 
+### L-017 - Test a numeric upper bound with a whole number above it as well as a fraction above it, so every branch of the bound check is pinned
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: M3 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)
+- last seen: 2026-10-16T01:28:09Z
+
+### L-018 - When an acceptance criterion lists several allowed values, exercise each listed value at least once in the tests
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: fee-rules-screen
+- evidence: FREG-03 - backend/src/test/java/br/com/hanrry/reconpay/feerule/integration/FeeRuleIntegrationTest.java:168 (tests)
+- last seen: 2026-10-16T01:28:09Z
+
+### L-019 - When a bound check branches on digit count, test an input of each digit count past the bound, not only the shortest one
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: S4 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)
+- last seen: 2026-10-16T01:34:24Z
+
+### L-020 - Test that an inclusive bound value is accepted when written with trailing zero decimals, not only as a whole number
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: S6 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)
+- last seen: 2026-10-16T01:40:23Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 17,
+  "next_id": 21,
   "lessons": [
     {
       "id": "L-001",
@@ -293,6 +293,78 @@
       ],
       "created": "2026-10-15T19:48:05Z",
       "last_seen": "2026-10-15T19:48:05Z"
+    },
+    {
+      "id": "L-017",
+      "key": "surviving_mutant::test a numeric upper bound with a whole number above it as well as a fraction above it so every branch of the bound check is pinned",
+      "text": "Test a numeric upper bound with a whole number above it as well as a fraction above it, so every branch of the bound check is pinned",
+      "signal": "surviving_mutant",
+      "scope": "frontend-validation",
+      "status": "candidate",
+      "features": [
+        "fee-rules-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M3 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)"
+      ],
+      "created": "2026-10-16T01:28:09Z",
+      "last_seen": "2026-10-16T01:28:09Z"
+    },
+    {
+      "id": "L-018",
+      "key": "ac_gap::when an acceptance criterion lists several allowed values exercise each listed value at least once in the tests",
+      "text": "When an acceptance criterion lists several allowed values, exercise each listed value at least once in the tests",
+      "signal": "ac_gap",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "fee-rules-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FREG-03 - backend/src/test/java/br/com/hanrry/reconpay/feerule/integration/FeeRuleIntegrationTest.java:168 (tests)"
+      ],
+      "created": "2026-10-16T01:28:09Z",
+      "last_seen": "2026-10-16T01:28:09Z"
+    },
+    {
+      "id": "L-019",
+      "key": "surviving_mutant::when a bound check branches on digit count test an input of each digit count past the bound not only the shortest one",
+      "text": "When a bound check branches on digit count, test an input of each digit count past the bound, not only the shortest one",
+      "signal": "surviving_mutant",
+      "scope": "frontend-validation",
+      "status": "candidate",
+      "features": [
+        "fee-rules-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S4 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)"
+      ],
+      "created": "2026-10-16T01:34:24Z",
+      "last_seen": "2026-10-16T01:34:24Z"
+    },
+    {
+      "id": "L-020",
+      "key": "surviving_mutant::test that an inclusive bound value is accepted when written with trailing zero decimals not only as a whole number",
+      "text": "Test that an inclusive bound value is accepted when written with trailing zero decimals, not only as a whole number",
+      "signal": "surviving_mutant",
+      "scope": "frontend-validation",
+      "status": "candidate",
+      "features": [
+        "fee-rules-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S6 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)"
+      ],
+      "created": "2026-10-16T01:40:23Z",
+      "last_seen": "2026-10-16T01:40:23Z"
     }
   ]
 }

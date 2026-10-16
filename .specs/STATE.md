@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: merchants-screen (tela de Empresas) — **Verified** (`validation.md` iteração 2: PASS)
-- **Phase / Task**: T1–T12 concluídas; correções da iteração 1 em `91310bf`, `f0c30e4`, `df2066c`
-- **Completed**: backend normaliza e valida CNPJ (`CnpjRules`, `@ValidCnpj`, duplicidade por dígitos inclusive desativadas e legado formatado); frontend `/empresas` com lista paginada, gaveta de cadastro/edição, desativação com confirmação e seleção no menu do topo. Backend 532 testes, frontend 322.
+- **Feature**: fee-rules-screen (tela de Regras de taxa) — **Done com lacuna aceita** (`validation.md` iteração 3: FAIL só em FCAD-08; usuário aceitou sem nova correção)
+- **Phase / Task**: T1–T10 concluídas; correções de teste `fb9bfef`, `65040f5`, `b944fe1`, `0d58242`
+- **Completed**: API recusa regra parcelada de Pix/Boleto/Débito (criar e alterar); casca comum `ui/SideDrawer` e `ui/ConfirmDialog` (Empresas migrada sem mudar testes); `/taxas` com lista, cadastro, alteração de taxas e desativação, aberta por "Regras de taxa da <empresa>" no menu de empresa. Backend 547 testes, frontend 419.
 - **In-progress** (file:line): none
-- **Next step**: conferência visual em `/empresas`; push de `feat/merchants-screen` e PR (pelo usuário). Depois: (2) tela de Regras de taxa (`/taxas`, AD-012); (3) import CSV de transações no backend (AD-011). Follow-ups: exemplo inválido `12345678000199` em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: conferência visual em `/taxas`; push de `feat/fee-rules-screen` e PR (pelo usuário). Depois: import CSV de transações no backend (AD-011). Pendências: teste de `100,00`/`100.0000` aceitos em `frontend/lib/fee.test.ts` (FCAD-08, mutante S6) e nova verificação; exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: feat/merchants-screen (local, sem push)
+- **Branch**: feat/fee-rules-screen (local, sem push)

@@ -174,44 +174,44 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| FREG-01 | P1: Método sem parcelamento na API | Execute | Implementing |
-| FREG-02 | P1: Método sem parcelamento na API | Execute | Implementing |
-| FREG-03 | P1: Método sem parcelamento na API | Execute | Implementing |
-| FLIST-01 | P1: Listar regras | Execute | Implementing |
-| FLIST-02 | P1: Listar regras | Execute | Implementing |
-| FLIST-03 | P1: Listar regras | Execute | Implementing |
-| FLIST-04 | P1: Listar regras | Execute | Implementing |
-| FLIST-05 | P1: Listar regras | Execute | Implementing |
-| FLIST-06 | P1: Listar regras | Execute | Implementing |
-| FLIST-07 | P1: Listar regras | Execute | Implementing |
-| FLIST-08 | P1: Listar regras | Execute | Implementing |
-| FCAD-01 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-02 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-03 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-04 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-05 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-06 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-07 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-08 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-09 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-10 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-11 | P1: Cadastrar regra | Execute | Implementing |
-| FCAD-12 | P1: Cadastrar regra | Execute | Implementing |
-| FEDIT-01 | P2: Alterar taxas | Execute | Implementing |
-| FEDIT-02 | P2: Alterar taxas | Execute | Implementing |
-| FEDIT-03 | P2: Alterar taxas | Execute | Implementing |
-| FEDIT-04 | P2: Alterar taxas | Execute | Implementing |
-| FEDIT-05 | P2: Alterar taxas | Execute | Implementing |
-| FEDIT-06 | P2: Alterar taxas | Execute | Implementing |
-| FDES-01 | P2: Desativar regra | Execute | Implementing |
-| FDES-02 | P2: Desativar regra | Execute | Implementing |
-| FDES-03 | P2: Desativar regra | Execute | Implementing |
-| FDES-04 | P2: Desativar regra | Execute | Implementing |
-| FDES-05 | P2: Desativar regra | Execute | Implementing |
+| FREG-01 | P1: Método sem parcelamento na API | Execute | Verified |
+| FREG-02 | P1: Método sem parcelamento na API | Execute | Verified |
+| FREG-03 | P1: Método sem parcelamento na API | Execute | Verified |
+| FLIST-01 | P1: Listar regras | Execute | Verified |
+| FLIST-02 | P1: Listar regras | Execute | Verified |
+| FLIST-03 | P1: Listar regras | Execute | Verified |
+| FLIST-04 | P1: Listar regras | Execute | Verified |
+| FLIST-05 | P1: Listar regras | Execute | Verified |
+| FLIST-06 | P1: Listar regras | Execute | Verified |
+| FLIST-07 | P1: Listar regras | Execute | Verified |
+| FLIST-08 | P1: Listar regras | Execute | Verified |
+| FCAD-01 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-02 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-03 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-04 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-05 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-06 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-07 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-08 | P1: Cadastrar regra | Execute | Implementing (lacuna aceita: `100,00` sem teste, ver validation.md) |
+| FCAD-09 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-10 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-11 | P1: Cadastrar regra | Execute | Verified |
+| FCAD-12 | P1: Cadastrar regra | Execute | Verified |
+| FEDIT-01 | P2: Alterar taxas | Execute | Verified |
+| FEDIT-02 | P2: Alterar taxas | Execute | Verified |
+| FEDIT-03 | P2: Alterar taxas | Execute | Verified |
+| FEDIT-04 | P2: Alterar taxas | Execute | Verified |
+| FEDIT-05 | P2: Alterar taxas | Execute | Verified |
+| FEDIT-06 | P2: Alterar taxas | Execute | Verified |
+| FDES-01 | P2: Desativar regra | Execute | Verified |
+| FDES-02 | P2: Desativar regra | Execute | Verified |
+| FDES-03 | P2: Desativar regra | Execute | Verified |
+| FDES-04 | P2: Desativar regra | Execute | Verified |
+| FDES-05 | P2: Desativar regra | Execute | Verified |
 
 **ID format:** `F<STORY>-<NN>` (`FREG`, `FLIST`, `FCAD`, `FEDIT`, `FDES`); o número é a posição do critério na story.
 
-**Coverage:** 34 total, 0 mapped to tasks, 34 unmapped ⚠️ (tasks ainda não criadas)
+**Coverage:** 34 total, 34 mapped to tasks, 0 unmapped; 33 verified, 1 com lacuna aceita (FCAD-08)
 
 ---
 
