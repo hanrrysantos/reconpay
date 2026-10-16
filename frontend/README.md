@@ -47,7 +47,14 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
   - o import é tudo ou nada: no aceite aparece "<arquivo> importado: N linha(s)"; na recusa aparecem a mensagem da API, a tabela Linha/Erro de `rowErrors` e as referências de `conflictingReferences`, e o arquivo fica escolhido para reenviar;
   - lotes aceitos do tipo, 20 por página, do mais recente ao mais antigo (arquivo, linhas, data e hora); após um aceite a lista volta à primeira página e o dashboard atualiza a hora do último import;
   - trocar de aba ou de empresa descarta o arquivo e o resultado; estados de carregamento, sem lotes, sem empresa e erro ("Tentar novamente").
-- `/conciliacoes`, `/divergencias`, `/transacoes` e `/fechamento` mostram a barra e "em construção", sem chamar a API.
+- Transações em `/transacoes`, pelo item "Transações" da barra superior:
+  - lista as transações da empresa selecionada, 20 por página, da data mais recente para a mais antiga, com Data (`dd/mm/aaaa`), Referência, Método, Parcelas (`3x`), Bruto, Líquido esperado e Status (Aprovada, Cancelada, Estornada, Chargeback);
+  - filtros de período (o menu do dashboard com o mês atual e os 11 anteriores, ou um intervalo personalizado; data inicial depois da final mostra "A data inicial deve ser igual ou anterior à final" sem consultar a API), status e método, cada um com "Todos"; abre no mês atual, os filtros não vão para a URL e qualquer mudança volta para a página 1;
+  - "Nova transação" abre uma gaveta com Referência externa, Valor, Método, Parcelas e Data da transação (hoje por padrão); Pix, Boleto e Débito ficam com 1 parcela; referência até 100 caracteres, valor maior que zero com até 2 casas, parcelas a partir de 1 e data não futura são checados antes de chamar a API; o valor vai como número JSON exato; no aceite aparece "Transação <referência> cadastrada." e a lista recarrega;
+  - "Alterar status" aparece só nas transações aprovadas e pede Cancelada, Estornada ou Chargeback num diálogo que avisa que a mudança não pode ser desfeita;
+  - erros da API mantêm a gaveta ou o diálogo aberto com a mensagem; sem regra de taxa ativa, a gaveta mostra o link "Cadastrar regra de taxa" para `/taxas?cadastrar=1`; um erro na mudança de status também recarrega a lista;
+  - trocar de empresa fecha gaveta e diálogo, remove o aviso, mantém os filtros e volta para a página 1; estados de carregamento, sem transações ("Nenhuma transação encontrada para os filtros escolhidos."), sem empresa e erro ("Tentar novamente").
+- `/conciliacoes`, `/divergencias` e `/fechamento` mostram a barra e "em construção", sem chamar a API.
 
 ## Dependências
 

@@ -354,8 +354,8 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Os dois READMEs descrevem lista, filtros, cadastro e mudança de status; `/transacoes` sai da lista "em construção"
-- [ ] Gate build passa
+- [x] Os dois READMEs descrevem lista, filtros, cadastro e mudança de status; `/transacoes` sai da lista "em construção"
+- [x] Gate build passa
 
 **Tests**: none
 **Gate**: build
