@@ -176,6 +176,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md N19 TransactionController.java:93 (TLOTE-02 / Assumptions 'Listagem de lotes') (routes) (routes)
 - last seen: 2026-10-16T13:01:22Z
 
+### L-028 - Give sort-order fixtures values in every other sortable column that order the opposite way, so a wrong sort key cannot produce the expected order by chance
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md V15 TransactionController.java:93 (routes)
+- last seen: 2026-10-16T13:21:12Z
+
+### L-029 - When the spec says only active records apply, test with a deactivated record that would otherwise match
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `imports` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md V11 IFeeRuleRepository.java:17 (imports)
+- last seen: 2026-10-16T13:21:12Z
+
+### L-030 - When the spec requires an exact text match, test a variant that differs only in letter case
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `parsers` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md V16 TransactionCsvParser.java:95 (parsers)
+- last seen: 2026-10-16T13:21:12Z
+
+### L-031 - Test a file extension check with a name that ends in the extension letters without the dot
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `imports` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md V7 TransactionImportService.java:136 (imports)
+- last seen: 2026-10-16T13:21:12Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
