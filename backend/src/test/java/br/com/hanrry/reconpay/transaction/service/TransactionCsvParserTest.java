@@ -146,6 +146,28 @@ class TransactionCsvParserTest {
         assertThat(result.rows()).extracting(ParsedTransactionRow::externalReference).containsExactly("OK-1");
     }
 
+    @ParameterizedTest
+    @CsvSource({"12345678901234567.00", "12345678901234567", "0.01"})
+    void acceptsAnAmountAtTheSeventeenIntegerDigitBound(String amount) {
+        ParseResult result = parse(HEADER, row("PED-1", amount, "PIX", "1", "APPROVED", "2026-07-10"));
+
+        assertThat(result.errors()).isEmpty();
+        assertThat(result.rows()).extracting(ParsedTransactionRow::amount).containsExactly(new BigDecimal(amount));
+    }
+
+    @Test
+    void aRepeatedReferenceThatIsAlsoTooLongReportsBothErrors() {
+        String reference = "A".repeat(101);
+        ParseResult result = parse(HEADER,
+                row(reference, "10.00", "PIX", "1", "APPROVED", "2026-07-10"),
+                row(reference, "10.00", "PIX", "1", "APPROVED", "2026-07-10"));
+
+        assertThat(result.errors()).containsExactly(
+                new ImportRowErrorDTO(2, "Referência externa deve ter no máximo 100 caracteres"),
+                new ImportRowErrorDTO(3, "Referência externa deve ter no máximo 100 caracteres"),
+                new ImportRowErrorDTO(3, "Referência externa duplicada no arquivo: " + reference));
+    }
+
     @Test
     void rejectsAReferenceLongerThan100Characters() {
         ParseResult result = parse(HEADER, row("A".repeat(101), "10.00", "PIX", "1", "APPROVED", "2026-07-10"),
