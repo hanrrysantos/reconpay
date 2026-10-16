@@ -2,18 +2,14 @@
 
 **Date**: 2026-10-16
 **Spec**: `.specs/features/transaction-csv-import/spec.md`
-**Diff range**: `f808eb2..4bc5ebe` (spec/design `cbd5e1c`, `7c8a77b`; implementation `424b818..af2c5e1`; iteration-1 report `86821c0`; fix `f248e0d`; iteration-2 report `068fa3a`; fix `7ab6276`; iteration-3 report `dbcda41`; fix `4bc5ebe`), branch `feat/transaction-csv-import`
-**Verifier**: independent sub-agent (author ≠ verifier), iteration 4. The normal bound is 3. The user explicitly authorized this extra round after iteration 3 failed.
+**Diff range**: `f808eb2..10b9679` (spec/design `cbd5e1c`, `7c8a77b`; implementation `424b818..af2c5e1`; iteration reports `86821c0`, `068fa3a`, `dbcda41`, `6eeae68`; test-only fixes `f248e0d`, `7ab6276`, `4bc5ebe`, `f1e3ac4`, `10b9679`), branch `feat/transaction-csv-import`
+**Verifier**: independent sub-agent (author ≠ verifier), iteration 5. The normal bound is 3. The user explicitly authorized iterations 4 and 5.
 
-## Validation: transaction-csv-import - FAIL ❌
+## Validation: transaction-csv-import - PASS ✅
 
-The four iteration-3 gaps are closed. V15 (default sort `createdAt` → `fileName`) is killed in both directions, and so is the `totalRows` variant in both directions. V11 (fee rules not filtered by `active`), V16 (`equalsIgnoreCase` header) and V7 (`endsWith("csv")`) are killed by the tests added in `4bc5ebe`. The earlier survivors M1 (iteration 1) and N19 (iteration 2) are still killed. The gate passes: 627 tests, 0 failures, JaCoCo met.
+The three iteration-4 gaps are closed. W7 (renamed `merchantId` on `GET /transactions/imports/{importId}`) is killed by both parts of the new `MerchantRouteAccessIntegrationTest`. W4 (header columns in any order) and W8 (lower-case status) are killed by `10b9679`. The same rename applied to a route of another module (`ExternalSettlementController`, GET and POST) is killed too, so the route-access check covers the whole project, not just this feature. The earlier survivors M1 (iteration 1), N19 (iteration 2) and V11 (iteration 3) are still killed. I ran 11 new behavior-level mutants on paths not touched in iterations 1-4, and all 11 were killed. The gate passes: 630 tests, 0 failures, JaCoCo met.
 
-The verdict is still FAIL. I ran 12 new mutants on paths not touched in iterations 1-3. 3 of them survived the **full** suite. Each was confirmed as a real behavior change: in the scratch worktree, a probe integration test passes on the unmutated code and fails on the mutant.
-
-1. **W7 (gap, major, security): no access check on `GET /transactions/imports/{importId}`.** `TransactionController.java:99` `@PathVariable UUID merchantId` → `@PathVariable("merchantId") UUID ownerId`. `MerchantAccessAspect` finds the merchant by the parameter **name** `merchantId`. With the rename it skips `MerchantAccessGuard`, so an operator without access to the merchant gets `200` with its batch. The edge case "IF o usuário não tem acesso à empresa THEN the system SHALL responder `403`" applies. `IT:292-300` checks `403` only on the import and the list. Iterations 1-3 kept "403 on `GET /imports/{importId}` not tested" as a note because no mutant had shown it. This one does, so it is now a gap.
-2. **W4 (gap, minor): header columns accepted in any order.** `TransactionCsvParser.java:95` `HEADER[i].equals(cell)` → `Arrays.asList(HEADER).contains(cell)`. A permuted header (`amount,externalReference,...`) passes the header check, and the rows are then read by fixed position. TIMP-04 requires "o cabeçalho exato" and `400` "Cabeçalho CSV inválido...". The mutant answers row errors (or, with a header that repeats a column name, accepts it). `PT:97-110` tests missing, renamed, extra and letter-case headers, but no reordered one.
-3. **W8 (gap, minor): status accepted in lower case.** `TransactionCsvParser.java:193` `TransactionStatus.valueOf(raw)` → `valueOf(raw.toUpperCase())`. `approved` is saved as `APPROVED`. TIMP-10 #12 and the Assumptions table limit status to `APPROVED`, `CANCELLED`, `REFUNDED`, `CHARGEBACK` ("Status inválido" otherwise). The method column has this exact case (`PT:133` "método minúsculo"); the status column does not.
+Since iteration 4 no production code changed (`git diff 4bc5ebe 10b9679 -- backend/src/main` is empty). `f1e3ac4` adds `security/integration/MerchantRouteAccessIntegrationTest.java` (2 tests). `10b9679` adds 3 lines at `PT:107-109` and 1 case at `PT:144`. `IT`, `ST`, `RT` and `CT` are unchanged, so their citations from iteration 4 still hold. `PT` citations below were taken again from `10b9679` (old lines 107-140 moved +3, old lines 141 and after moved +4).
 
 File abbreviations (all under `backend/src/test/java/br/com/hanrry/reconpay/`):
 
@@ -22,8 +18,7 @@ File abbreviations (all under `backend/src/test/java/br/com/hanrry/reconpay/`):
 - `IT` = `transaction/integration/TransactionImportIntegrationTest.java`
 - `RT` = `transaction/integration/TransactionImportRepositoryIntegrationTest.java`
 - `CT` = `feerule/service/ExpectedNetAmountCalculatorTest.java`
-
-Since iteration 3, `4bc5ebe` changed `IT` (list test rewritten, new test `IT:258-276`; later lines moved +26), `PT` (+3 lines at `PT:104-106`; later lines moved +3) and `ST` (+3 lines at `ST:235-237`; later lines moved +3). Every citation below was taken again from `4bc5ebe`.
+- `MRA` = `security/integration/MerchantRouteAccessIntegrationTest.java`
 
 ---
 
@@ -37,8 +32,11 @@ Since iteration 3, `4bc5ebe` changed `IT` (list test rewritten, new test `IT:258
 | fix | `7ab6276` | Test only: `jsonPath("$.size").value(20)` | - |
 | 3 | `7ab6276` | G3 ✅ closed. New G4 (V15) sort key, G5 (V11) inactive rule, G6 (V16) header case, G7 (V7) extension dot | FAIL; iteration limit (3) reached, escalated |
 | user decision | - | The user authorized a 4th fix and re-verify round | - |
-| fix | `4bc5ebe` | Test only: three batches `b.csv`/`c.csv`/`a.csv` asserted `a, c, b`; deactivated PIX rule → `400` + nothing saved; header differing only in case refused; `vendascsv` refused | - |
-| 4 | `4bc5ebe` | G4 ✅, G5 ✅, G6 ✅, G7 ✅ closed (V15, V15asc, V15b, V15basc, V11, V16, V7 killed). M1, N19 still killed. **New G8 (W7)** no 403 on batch-by-id, **G9 (W4)** permuted header, **G10 (W8)** lower-case status | FAIL; beyond the authorized extra round → back to the user |
+| fix | `4bc5ebe` | Test only: three batches asserted `a, c, b`; deactivated PIX rule → `400`; header differing only in case refused; `vendascsv` refused | - |
+| 4 | `4bc5ebe` | G4 ✅, G5 ✅, G6 ✅, G7 ✅ closed. New G8 (W7) no 403 on batch-by-id, G9 (W4) permuted header, G10 (W8) lower-case status | FAIL; beyond the authorized extra round → back to the user |
+| user decision | - | The user authorized a 5th fix and re-verify round | - |
+| fix | `f1e3ac4`, `10b9679` | Test only: project-wide route-access test (static check of the `merchantId` parameter + `403` on every merchant GET route); reordered header refused; `approved` refused | - |
+| 5 | `10b9679` | G8 ✅, G9 ✅, G10 ✅ closed (W7, W4, W8 killed; W7-like renames R1, R2 in another module killed). M1, N19, V11 still killed. 11/11 new mutants killed. No new gap | **PASS** |
 
 ---
 
@@ -54,7 +52,8 @@ Since iteration 3, `4bc5ebe` changed `IT` (list test rewritten, new test `IT:258
 | T6 README | ✅ Done | `af2c5e1` |
 | Fix G1/G2 | ✅ Done | `f248e0d` (tests only) |
 | Fix G3 | ✅ Done | `7ab6276` (tests only) |
-| Fix G4-G7 | ✅ Done | `4bc5ebe` (tests only, no production code changed) |
+| Fix G4-G7 | ✅ Done | `4bc5ebe` (tests only) |
+| Fix G8-G10 | ✅ Done | `f1e3ac4`, `10b9679` (tests only, no production code changed) |
 
 ---
 
@@ -62,17 +61,36 @@ Since iteration 3, `4bc5ebe` changed `IT` (list test rewritten, new test `IT:258
 
 | Mutant | Re-applied at | Mutation | Killed by | Result |
 | --- | --- | --- | --- | --- |
-| V15 | `TransactionController.java:93` | `sort = "createdAt"` → `"fileName"`, `DESC` | `IT:243-245` `listsTheBatchesNewestFirstAndFindsOneById` `contains(third, second, first)` | ✅ Killed |
-| V15asc | `TransactionController.java:93` | `sort = "fileName"`, `ASC` | `IT:243` same | ✅ Killed |
-| V15b | `TransactionController.java:93` | `sort = "totalRows"`, `DESC` | `IT:243` same | ✅ Killed |
-| V15basc | `TransactionController.java:93` | `sort = "totalRows"`, `ASC` | `IT:243` same | ✅ Killed |
-| V11 | `IFeeRuleRepository.java:17` | `@Query("select f from FeeRuleEntity f where f.merchant.id = ?1")` (inactive rules used) | `IT:258-276` `aDeactivatedFeeRuleDoesNotPriceTheImport` | ✅ Killed |
-| V16 | `TransactionCsvParser.java:95` | header `equals` → `equalsIgnoreCase` | `PT:104-106` `rejectsAWrongHeader` | ✅ Killed |
-| V7 | `TransactionImportService.java:136` | `endsWith(".csv")` → `endsWith("csv")` | `ST:235-237` `rejectsAFileThatIsNotCsvAndAcceptsTheExtensionInAnyCase` | ✅ Killed |
-| M1 (iter. 1) | `TransactionCsvParser.java:152` | `precision - scale > 17` → `> 16` | `PT:153-159` `acceptsAnAmountAtTheSeventeenIntegerDigitBound` | ✅ Killed |
+| W7 (iter. 4) | `TransactionController.java:99` | `@PathVariable UUID merchantId` → `@PathVariable("merchantId") UUID ownerId` | `MRA` `everyMerchantScopedRouteHandsTheAspectAUuidParameterNamedMerchantId` **and** `everyGetRouteOfAMerchantAnswersForbiddenToAnOperatorWithoutAccess` | ✅ Killed (both parts) |
+| W4 (iter. 4) | `TransactionCsvParser.java:95` | header cell checked by `Arrays.asList(HEADER).contains` | `PT:107-109` `rejectsAWrongHeader` (`amount,externalReference,...` → `hasMessage("Cabeçalho CSV inválido. Esperado: " + HEADER)`) | ✅ Killed |
+| W8 (iter. 4) | `TransactionCsvParser.java:193` | `TransactionStatus.valueOf(raw.toUpperCase())` | `PT:144` `reportsEachRowErrorWithItsLineAndText` [status minúsculo] → `containsExactly(new ImportRowErrorDTO(3, "Status inválido"))` (`PT:152`) | ✅ Killed |
+| V11 (iter. 3) | `IFeeRuleRepository.java:17` | `@Query` without `active` filter | `IT:258-276` `aDeactivatedFeeRuleDoesNotPriceTheImport` | ✅ Killed |
 | N19 (iter. 2) | `TransactionController.java:93` | `size = 20` → `size = 10` | `IT:246` `jsonPath("$.size").value(20)` | ✅ Killed |
+| M1 (iter. 1) | `TransactionCsvParser.java:152` | `precision - scale > 17` → `> 16` | `PT:157-163` `acceptsAnAmountAtTheSeventeenIntegerDigitBound` | ✅ Killed |
 
-The list fixture (`IT:225-246`) creates `b.csv` (2 rows), `c.csv` (3 rows), `a.csv` (1 row). Newest first is `a, c, b`. Sorting by name gives `a,b,c` or `c,b,a`, and sorting by row count gives `a,b,c` or `c,b,a`, so none of them matches. The deactivation test uses the real `DELETE /fee-rules/{id}`, which is a soft delete (`FeeRuleService.java:107` `setActive(false)`). It asserts `400`, `rowErrors` `(2, "Regra de taxa ativa não encontrada para PIX em 1x")` and `assertNothingSaved`.
+---
+
+## Route-access test (`MRA`, `f1e3ac4`) - critical review
+
+**What it does.** It reads every handler from `RequestMappingHandlerMapping`. Part (a) is static: every route whose pattern starts with `/api/merchants/{merchantId}` must have a `UUID` parameter named `merchantId`, which is what `MerchantAccessAspect` (`security/MerchantAccessAspect.java`) keys on. Part (b) is dynamic: every GET route under `/api/merchants/{` is called by an operator without access to a fresh merchant, and any status other than `403` is collected and reported.
+
+**Is it non-vacuous?** Yes. A probe in the scratch worktree listed the routes the test sees on `10b9679`:
+
+- 55 routes in total. **Part (a) checks 31 routes** (19 GET, 12 POST/PUT/PATCH/DELETE). **Part (b) calls 20 GET routes** (the 19 scoped ones plus `GET /api/merchants/{id}`).
+- For each of the 20 GET routes the probe also called the route as an operator **with** access and as admin. Every one answered something other than `403` (`200` or `404`; the reconciliation `export` route throws, see notes). So the `403` that part (b) gets for the operator without access comes from the merchant access check, not from a role rule in the filter chain. Part (b) would see an aspect bypass on any of them.
+- Both parts also pin the inventory with `contains(...)` (`/transactions/imports/{importId}`, `/fee-rules/{id}`, `/reconciliations/{runId}/discrepancies/{discrepancyId}`, `/periods/summary`, `/bank-statements/import`, `/api/merchants/{id}`), so an empty enumeration cannot pass.
+
+**Could it pass wrongly?** Not on the paths checked:
+
+- A GET route that answers `400` or `404` before the aspect runs is **reported**, not hidden: the test fails on any status other than `403`. A route that does that would need a fix or an explicit exclusion, which shows in review.
+- If parameter names were missing (no `-parameters`), `getParameterNames` returns `null` and part (a) reports every route as unguarded, so this fails loudly too.
+- Mutation evidence: W7 (this feature) fails both parts. R1 (`ExternalSettlementController.findById`, a GET in another module, same rename) fails both parts. R2 (`ExternalSettlementController.importCsv`, a POST in another module) fails part (a). So the check covers the whole project, and part (a) covers routes part (b) does not call.
+
+**Residual limits (notes, not gaps; none is a spec-stated behavior of this feature):**
+
+- Part (a) matches the literal prefix `{merchantId}`. A new **non-GET** route written as `/api/merchants/{mid}/...` escapes both parts (part (b) would catch it only as a GET).
+- Part (a) checks the parameter name, not that the controller is inside the aspect pointcut `within(br.com.hanrry.reconpay..controller..*)`. A merchant route in a class outside a `controller` package would pass (a) without being guarded; part (b) catches that only for GET.
+- Part (a) does not check that the `merchantId` parameter is the one bound to the `{merchantId}` path variable (`@PathVariable("other") UUID merchantId` would pass). This is unlikely and not a real pattern in the code base.
 
 ---
 
@@ -82,102 +100,104 @@ The list fixture (`IT:225-246`) creates `b.csv` (2 rows), `c.csv` (3 rows), `a.c
 
 | AC | Spec-defined outcome | `file:line` + assertion | Result |
 | --- | --- | --- | --- |
-| TIMP-01 | `201` with `id`, `merchantId`, `fileName`, `totalRows` (= rows saved), `createdAt` | `IT:64-68` `status().isCreated()`, `$.merchantId`, `$.fileName` `"vendas-julho.csv"`, `$.totalRows` `2`, `$.createdAt` exists; `IT:70,85` `$.id` = every saved transaction's `importBatch.id` | ✅ PASS (W12 killed) |
-| TIMP-02 | Each row saved with trimmed `externalReference`, `amount`, `paymentMethod`, `installments`, `status`, `transactionDate` | `IT:63` `" PED-2 "`; `IT:76-82` `contains("PED-1","PED-2")`, `(100.00, 50.00)`, `("CREDIT_CARD","PIX")`, `(3, 1)`, `("APPROVED","CANCELLED")`, `("2026-07-10","2026-07-11")`; `ST:133-142` | ✅ PASS (W5, W10 killed) |
-| TIMP-03 | `expectedNetAmount` = `amount − amount×%÷100 − fixa`, 2 places, `HALF_UP`, same as the single create, with the **active** rule | `CT:18-23,29-30` `96.71`, `9.67`, `0.99`, `250.00`, `scale()` `2`; `IT:78` `contains(96.71, 49.50)`; `IT:89-102` import vs `POST` → `contains(119.46, 119.46)`; `IT:258-276` deactivated rule → row error | ✅ PASS (V11 killed) |
-| TIMP-04 | Exact header; otherwise `400 VALIDATION_ERROR` "Cabeçalho CSV inválido. Esperado: ..." | `IT:127-133` `isBadRequest()`, `$.error`, `$.message` exact; `PT:97-110` missing, renamed, letter case, extra column → `hasMessage(...)` | ⚠️ Message and case ✅ (V16 killed); column **order** not tested → **G9 (W4)** |
-| TIMP-05 | 0 bytes → `400` "Arquivo CSV é obrigatório"; no `file` → `400 VALIDATION_ERROR` "Requisição inválida. Verifique os campos e parâmetros enviados." | `IT:146-150`, `IT:156-160` message exact; `ST:222-228` | ✅ PASS |
-| TIMP-06 | Name not ending in `.csv` (any case) → `400` "Arquivo deve ser um CSV (.csv)" | `IT:152-154` `vendas.txt`; `ST:231-243` `vendas.txt` and `vendascsv` refused, `VENDAS.CSV` saved | ✅ PASS (V7, M11 killed) |
-| TIMP-07 | Header only, or header plus blank lines → `400` "CSV não contém registros" | `IT:137-141`; `PT:113-120` | ✅ PASS |
-| TIMP-08 | > 5 MB → `413 VALIDATION_ERROR` "Arquivo CSV excede o tamanho máximo permitido de 5MB" | `IT:174-178` `statusCode()==413`, `$.error`, message exact, `assertNothingSaved` | ✅ PASS |
-| TIMP-09 | `400 VALIDATION_ERROR` "Erro na importação do CSV", `rowErrors` with `row` (header = 1) and `message` for every error, nothing saved | `IT:113-123` `isBadRequest()`, `$.error`, `$.message`, `rowErrors[*].row` `contains(3,4,5,5)`, messages exact, `assertNothingSaved`; `ST:162-182`; `PT:199-212`; `PT:161-172` | ✅ PASS (W3 killed) |
-| TIMP-10 | 16 exact row-error texts | Table below: 16/16 texts | ✅ texts; ⚠️ #12 lower-case status accepted → **G10 (W8)** |
-| TIMP-11 | `409 CONFLICT` "Referências externas já cadastradas para este comerciante: <ref1>, <ref2>" + `conflictingReferences`, nothing saved, only when no row error | `IT:186-193` `isConflict()`, `$.error` `CONFLICT`, message exact, `conflictingReferences` `contains("PED-1","PED-2")`, batch count `1`; `ST:195-207` file order `containsExactly("A","C")`; `ST:180` `never().findExistingReferences` on row errors | ✅ PASS (W1, W3 killed) |
-| TIMP-12 | Only with no error and no conflict: `409 CONFLICT` "Janela travada de <de> a <até>", nothing saved | `IT:197-212` real lock, `isConflict()`, `$.error`, message exact, `assertNothingSaved`; `ST:210-220`; `ST:207` `verifyNoInteractions(periodGuard)` on a conflict | ✅ PASS (W2 killed) |
-| TIMP-13 | Same reference as another merchant's transaction is accepted | `IT:215-221` → `isCreated()` | ✅ PASS (W1 killed) |
+| TIMP-01 | `201` with `id`, `merchantId`, `fileName`, `totalRows` (= rows saved), `createdAt` | `IT:64-68` `status().isCreated()`, `$.merchantId`, `$.fileName` `"vendas-julho.csv"`, `$.totalRows` `2`, `$.createdAt` exists; `IT:70,85` `$.id` = every saved transaction's `importBatch.id` | ✅ PASS |
+| TIMP-02 | Each row saved with trimmed `externalReference`, `amount`, `paymentMethod`, `installments`, `status`, `transactionDate` | `IT:63` `" PED-2 "`; `IT:76-82` `contains("PED-1","PED-2")`, `(100.00, 50.00)`, `("CREDIT_CARD","PIX")`, `(3, 1)`, `("APPROVED","CANCELLED")`, `("2026-07-10","2026-07-11")`; `ST:133-142` | ✅ PASS |
+| TIMP-03 | `expectedNetAmount` = `amount − amount×%÷100 − fixa`, 2 places, `HALF_UP`, same as the single create, with the active rule | `CT:18-23,29-30` `96.71`, `9.67`, `0.99`, `250.00`, `scale()` `2`; `IT:78` `contains(96.71, 49.50)`; `IT:89-102` import vs `POST` → `contains(119.46, 119.46)`; `IT:258-276` deactivated rule → row error | ✅ PASS (Y10 killed) |
+| TIMP-04 | Exact header; otherwise `400 VALIDATION_ERROR` "Cabeçalho CSV inválido. Esperado: ..." | `IT:127-133` `isBadRequest()`, `$.error`, `$.message` exact; `PT:97-113` missing, renamed, letter case, **reordered** (`PT:107-109`), extra column → `hasMessage(...)` | ✅ PASS (W4, V16, Y8 killed) |
+| TIMP-05 | 0 bytes → `400` "Arquivo CSV é obrigatório"; no `file` → `400 VALIDATION_ERROR` "Requisição inválida. Verifique os campos e parâmetros enviados." | `IT:146-150`, `IT:156-160` message exact; `ST:222-228` | ✅ PASS (Y11 killed) |
+| TIMP-06 | Name not ending in `.csv` (any case) → `400` "Arquivo deve ser um CSV (.csv)" | `IT:152-154` `vendas.txt`; `ST:231-243` `vendas.txt`, `vendascsv` refused, `VENDAS.CSV` saved | ✅ PASS |
+| TIMP-07 | Header only, or header plus blank lines → `400` "CSV não contém registros" | `IT:137-141`; `PT:116-123` | ✅ PASS (Y5 killed) |
+| TIMP-08 | > 5 MB → `413 VALIDATION_ERROR` "Arquivo CSV excede o tamanho máximo permitido de 5MB" | `IT:174-178` `statusCode()==413`, `$.error`, message exact, `assertNothingSaved` | ✅ PASS (Y7 killed) |
+| TIMP-09 | `400 VALIDATION_ERROR` "Erro na importação do CSV", `rowErrors` with `row` (header = 1) and `message` for every error, nothing saved | `IT:113-123` `isBadRequest()`, `$.error`, `$.message`, `rowErrors[*].row` `contains(3,4,5,5)`, messages exact, `assertNothingSaved`; `ST:162-182`; `PT:203-216`; `PT:165-176` | ✅ PASS (Y6 killed) |
+| TIMP-10 | 16 exact row-error texts | Table below: 16/16 texts | ✅ PASS (W8 killed) |
+| TIMP-11 | `409 CONFLICT` "Referências externas já cadastradas para este comerciante: <ref1>, <ref2>" + `conflictingReferences`, nothing saved, only when no row error | `IT:186-193` `isConflict()`, `$.error` `CONFLICT`, message exact, `conflictingReferences` `contains("PED-1","PED-2")`, batch count `1`; `ST:195-207` file order `containsExactly("A","C")`; `ST:180` `never().findExistingReferences` on row errors | ✅ PASS |
+| TIMP-12 | Only with no error and no conflict: `409 CONFLICT` "Janela travada de <de> a <até>", nothing saved | `IT:197-212` real lock, `isConflict()`, `$.error`, message exact, `assertNothingSaved`; `ST:210-220`; `ST:207` `verifyNoInteractions(periodGuard)` on a conflict | ✅ PASS (Y2 killed) |
+| TIMP-13 | Same reference as another merchant's transaction is accepted | `IT:215-221` → `isCreated()` | ✅ PASS |
 
 #### TIMP-10 row-error texts (16/16)
 
-The parameterized cases assert `containsExactly(new ImportRowErrorDTO(3, message))` at `PT:148`, and that the valid row next to the bad one is kept (`PT:149`).
+The parameterized cases assert `containsExactly(new ImportRowErrorDTO(3, message))` at `PT:152`, and that the valid row next to the bad one is kept (`PT:153`).
 
 | # | Spec text | Evidence | Result |
 | --- | --- | --- | --- |
-| 1 | "Número de colunas inválido. Esperado: 6" | `PT:124` (5), `PT:125` (7) | ✅ |
-| 2 | "Referência externa é obrigatória" | `PT:126` | ✅ |
-| 3 | "Referência externa deve ter no máximo 100 caracteres" | `PT:175-182` 101 refused, 100 accepted; `PT:169-170` | ✅ |
-| 4 | "Referência externa duplicada no arquivo: <referência>" | `PT:193-194`; `PT:171` | ✅ |
-| 5 | "amount inválido" | `PT:127`; `PT:205` | ✅ |
-| 6 | "amount deve ter no máximo 17 dígitos inteiros e 2 casas decimais" | `PT:128-129` refused; `PT:153-159` accepted | ✅ (M1 killed) |
-| 7 | "amount deve ser maior que zero" | `PT:130` `0.00`, `PT:131` `-5.00`; `PT:192`; `IT:118` | ✅ |
-| 8 | "Método de pagamento inválido" | `PT:132` `CHEQUE`, `PT:133` `pix` | ✅ (W11 killed) |
-| 9 | "Número de parcelas inválido" | `PT:134-135` | ✅ |
-| 10 | "Número de parcelas deve ser no mínimo 1" | `PT:136`; `PT:207` | ✅ |
-| 11 | "Método de pagamento <MÉTODO> não permite parcelamento" | `PT:137-139`; `PT:210`; `IT:120` | ✅ |
-| 12 | "Status inválido" | `PT:140` `PAID`; `IT:121`; `PT:63-70` each listed status accepted | ⚠️ text ✅; `approved` accepted under W8 → **G10** |
-| 13 | "Data da transação inválida. Formato esperado: yyyy-MM-dd" | `PT:141` `10/07/2026`, `PT:142` `2026-02-30` | ✅ |
-| 14 | "Data da transação não pode ser futura" | `PT:143` today + 1 | ✅ |
-| 15 | "Regra de taxa ativa não encontrada para <MÉTODO> em <N>x" | `ST:173,175`; `ST:190`; `IT:119` (no rule); `IT:271-273` (deactivated rule) | ✅ (V11 killed) |
+| 1 | "Número de colunas inválido. Esperado: 6" | `PT:127` (5), `PT:128` (7) | ✅ |
+| 2 | "Referência externa é obrigatória" | `PT:129` | ✅ |
+| 3 | "Referência externa deve ter no máximo 100 caracteres" | `PT:179-186` 101 refused, 100 accepted; `PT:173-174` | ✅ |
+| 4 | "Referência externa duplicada no arquivo: <referência>" | `PT:197-198`; `PT:175` | ✅ |
+| 5 | "amount inválido" | `PT:130`; `PT:209` | ✅ |
+| 6 | "amount deve ter no máximo 17 dígitos inteiros e 2 casas decimais" | `PT:131-132` refused; `PT:157-163` accepted | ✅ (M1 killed) |
+| 7 | "amount deve ser maior que zero" | `PT:133` `0.00`, `PT:134` `-5.00`; `PT:196`; `IT:118` | ✅ |
+| 8 | "Método de pagamento inválido" | `PT:135` `CHEQUE`, `PT:136` `pix` | ✅ |
+| 9 | "Número de parcelas inválido" | `PT:137-138` | ✅ |
+| 10 | "Número de parcelas deve ser no mínimo 1" | `PT:139`; `PT:211` | ✅ |
+| 11 | "Método de pagamento <MÉTODO> não permite parcelamento" | `PT:140-142`; `PT:214`; `IT:120` | ✅ |
+| 12 | "Status inválido" | `PT:143` `PAID`, `PT:144` `approved`; `IT:121`; `PT:63-70` each listed status accepted | ✅ (W8 killed) |
+| 13 | "Data da transação inválida. Formato esperado: yyyy-MM-dd" | `PT:145` `10/07/2026`, `PT:146` `2026-02-30` | ✅ |
+| 14 | "Data da transação não pode ser futura" | `PT:147` today + 1 (fixed clock `PT:29`) | ✅ (Y4 killed) |
+| 15 | "Regra de taxa ativa não encontrada para <MÉTODO> em <N>x" | `ST:173,175`; `ST:190`; `IT:119`; `IT:271-273` | ✅ (Y10 killed) |
 | 16 | "Valor líquido esperado deve ser maior que zero" | `ST:176`; `CT:33-38` | ✅ |
 
 ### P1: Lote rastreável
 
 | AC | Spec-defined outcome | `file:line` + assertion | Result |
 | --- | --- | --- | --- |
-| TLOTE-01 | Batch saved with the original file name; each transaction linked to it | `IT:66` `$.fileName`; `IT:84-85` `getImportBatch().getId()` = `$.id`; `ST:127-128,145`; `RT:48-49` | ✅ PASS (W12 killed) |
-| TLOTE-02 | `200`, merchant page, newest first by default (`createdAt,desc`), 20 per page, items with `id`, `merchantId`, `fileName`, `totalRows`, `createdAt` | `IT:240-246` no params → `isOk()`, `$.content[*].id` `contains(third, second, first)`, `fileName` `("a.csv","c.csv","b.csv")`, `totalRows` `(1,3,2)`, `$.size` `20`; `RT:55-64` merchant scope | ✅ PASS (V15 ×4, N19, M18, W6 killed) |
+| TLOTE-01 | Batch saved with the original file name; each transaction linked to it | `IT:66` `$.fileName`; `IT:84-85` `getImportBatch().getId()` = `$.id`; `ST:127-128,145`; `RT:48-49` | ✅ PASS |
+| TLOTE-02 | `200`, merchant page, newest first by default (`createdAt,desc`), 20 per page, items with `id`, `merchantId`, `fileName`, `totalRows`, `createdAt` | `IT:240-246` no params → `isOk()`, `$.content[*].id` `contains(third, second, first)`, `fileName` `("a.csv","c.csv","b.csv")`, `totalRows` `(1,3,2)`, `$.size` `20`; `RT:55-64` merchant scope; `ST` `listsTheMerchantBatches` (pageable passed through) | ✅ PASS (Y3 killed) |
 | TLOTE-03 | `200` with the batch | `IT:248-255` `isOk()`, `id`, `merchantId`, `fileName` `"b.csv"`, `totalRows` `2`, `createdAt` exists | ✅ PASS |
 | TLOTE-04 | Missing or another merchant's batch → `404 NOT_FOUND` "Importação não encontrada com id: <importId>" | `IT:284-288` `isNotFound()`, `$.error`, message exact; `ST:278-280` | ✅ PASS |
 | TLOTE-05 | Transactions from `POST /transactions` have no batch | `RT:82-92` `getImportBatch()` `isNull()` | ✅ PASS |
 
-**Status**: every AC has a `file:line` citation and an assertion on the spec outcome. 0 spec-precision gaps. ❌ 2 ACs (TIMP-04, TIMP-10 #12) and 1 edge case (403) have a stated behavior that a surviving mutant breaks without any test failing.
+**Status**: ✅ 18/18 ACs covered with a `file:line` citation and an assertion on the spec outcome. 16/16 TIMP-10 texts. 0 spec-precision gaps. 0 gaps.
 
 ---
 
 ## Edge Cases
 
-- [x] Unknown or deactivated merchant → `404` "Comerciante não encontrado com id: <merchantId>": `IT:302-305` import (exact message), `IT:306-308` list; `ST:246-254`; `ST:284-290`.
-- [ ] **No access → `403`**: `IT:292-300` import and list only. `GET /imports/{importId}` is not tested, and the W7 mutant opens it → **G8**.
+- [x] Unknown or deactivated merchant → `404` "Comerciante não encontrado com id: <merchantId>": `IT:302-305` import (exact message), `IT:306-308` list; `ST:246-254` import; `ST:284-290` both batch queries (Y1, Y9 killed).
+- [x] No access → `403`: `IT:292-300` import and list; `MRA` every merchant GET route, including `GET /transactions/imports/{importId}`, and the static parameter check on all 31 merchant-scoped routes (W7, R1, R2 killed).
 - [x] No token → `401`: `IT:313-317` import.
-- [x] Blank lines skipped, real line numbers kept: `PT:87-94`.
-- [x] Padded fields accepted: `PT:77-85`; `IT:63`/`IT:76`.
-- [x] Duplicate whose first occurrence has another error → both reported: `PT:185-196`.
+- [x] Blank lines skipped, real line numbers kept: `PT:87-94` (Y5 killed).
+- [x] Padded fields accepted: `PT:77-85`; `IT:63`/`IT:76` (Y8 killed).
+- [x] Duplicate whose first occurrence has another error → both reported: `PT:189-200`.
 - [x] `transactionDate` today accepted: `PT:72-75`.
 
 ---
 
 ## Discrimination Sensor
 
-Scratch: `git worktree add --detach` at `/tmp/claude-1000/-home-hanrry-orca-workspaces-reconpay-alinhamento-backend-x-frontend/486a7ab6-2e48-4c98-bf3f-aceaa163f4d5/scratchpad/sensor` (HEAD `4bc5ebe`). A runner script kept outside the worktree applied each mutant by exact-string replacement (it checks the old text matches exactly once). It ran `./mvnw -q -Djacoco.skip=true test -Dtest=TransactionCsvParserTest,TransactionImportServiceTest,TransactionImportIntegrationTest,TransactionImportRepositoryIntegrationTest,ExpectedNetAmountCalculatorTest,TransactionServiceTest,HttpErrorContractTest`, then reverted with `git checkout -- backend/src/main`. Every survivor was run again against the **full** suite (`./mvnw -q -Djacoco.skip=true test`) and survived again. Each survivor was then checked with a probe test written only in the scratch (`ProbeIT`: operator without access on `GET /imports/{id}` → `403`; permuted header → header error; `approved` → "Status inválido"). The probes pass on the unmutated code and fail on each mutant, which shows each survivor is a real behavior change, not an equivalent mutant. The worktree was removed with `git worktree remove --force` plus `git worktree prune`. The real tree's `git status --porcelain` before and after is exactly `?? frontend/AGENTS.md` (`diff` empty).
+Scratch: `git worktree add --detach` at `/tmp/claude-1000/-home-hanrry-orca-workspaces-reconpay-alinhamento-backend-x-frontend/486a7ab6-2e48-4c98-bf3f-aceaa163f4d5/scratchpad/sensor5` (HEAD `10b9679`). A runner script kept outside the worktree applied each mutant by exact-string replacement (it checks the old text matches exactly once). It ran `./mvnw -q -Djacoco.skip=true test -Dtest=TransactionCsvParserTest,TransactionImportServiceTest,TransactionImportIntegrationTest,TransactionImportRepositoryIntegrationTest,ExpectedNetAmountCalculatorTest,TransactionServiceTest,HttpErrorContractTest,MerchantRouteAccessIntegrationTest`, then reverted with `git checkout -- backend/src/main`. A probe test written only in the scratch (`Probe5IT`) produced the route inventory above and checked four behaviors on the unmutated code: a file whose **first** row is in a locked window → `409`; `GET /imports?size=1` → `$.size` 1; a padded header → `201`; a deactivated merchant (`DELETE /api/merchants/{id}`) → `404` "Comerciante não encontrado...". All 5 probes passed. The worktree was removed with `git worktree remove --force` plus `git worktree prune`. The real tree's `git status --porcelain` before and after is exactly `?? frontend/AGENTS.md` (`diff` empty).
 
 ### Re-applied
 
-See "Re-check of earlier survivors" above: 9/9 killed (V15, V15asc, V15b, V15basc, V11, V16, V7, M1, N19).
+6/6 killed (W7, W4, W8, V11, N19, M1). See "Re-check of earlier survivors".
 
-### New mutants (paths not mutated in iterations 1-3)
+### Project-wide check of the W7 class
 
 | # | File:line | Mutation | Killed by | Result |
 | --- | --- | --- | --- | --- |
-| W1 | `IInternalTransactionRepository.java:23` | stored-reference query ignores the merchant (`merchant.id = :id OR merchant.id <> :id`) | `IT` sendingTheSameFileAgain..., theSameReferenceIsAcceptedForAnotherMerchant | ✅ Killed |
-| W2 | `TransactionImportService.java:94-97` | period lock checked before stored references | `ST` answersEveryReferenceAlreadyStored... (`ST:207`) | ✅ Killed |
-| W3 | `TransactionImportService.java:88` | stored-reference check runs before the row-error throw | `ST` joinsFormatAndFeeRuleErrors... (`ST:180`) | ✅ Killed |
-| W4 | `TransactionCsvParser.java:95` | header cell checked by membership (`Arrays.asList(HEADER).contains`), so column order is ignored | - (targeted and **full suite** pass; probe fails) | ❌ Survived (G9) |
-| W5 | `TransactionImportService.java:182` | status saved as constant `APPROVED` | `IT` importsTheFile...; `ST` savesTheBatch... | ✅ Killed |
-| W6 | `ITransactionImportRepository.java:13` | batch list ignores the merchant (`@Query ... merchant.id = ?1 or merchant.id <> ?1`) | `IT` listsTheBatches..., sendingTheSameFileAgain...; `RT` findsBatchesOnlyForTheirMerchant | ✅ Killed |
-| W7 | `TransactionController.java:99` | `@PathVariable UUID merchantId` → `@PathVariable("merchantId") UUID ownerId` (aspect skips the access guard) | - (targeted and **full suite** pass; probe fails) | ❌ Survived (G8) |
-| W8 | `TransactionCsvParser.java:193` | `TransactionStatus.valueOf(raw)` → `valueOf(raw.toUpperCase())` | - (targeted and **full suite** pass; probe fails) | ❌ Survived (G10) |
-| W9 | `TransactionImportService.java:109` | audit detail `rows=` uses the error count | `ST` savesTheBatch... (`ST:148-149`) | ✅ Killed |
-| W10 | `TransactionImportService.java:183` | `transactionDate` saved one day earlier | `IT` importsTheFile...; `ST` savesTheBatch... | ✅ Killed |
-| W11 | `TransactionCsvParser.java:170` | `PaymentMethod.valueOf(raw.toUpperCase())` | `PT` reportsEachRowError... [método minúsculo] | ✅ Killed |
-| W12 | `TransactionImportService.java:100` | `importBatch.setMerchant(merchant)` removed | `IT` 6 tests; `ST` savesTheBatch... | ✅ Killed |
+| R1 | `ExternalSettlementController.java:49` | `GET /external-settlements/{id}`: `@PathVariable UUID merchantId` → `@PathVariable("merchantId") UUID ownerId` | `MRA` both tests | ✅ Killed |
+| R2 | `ExternalSettlementController.java:56` | `POST /external-settlements/import`: same rename | `MRA` `everyMerchantScopedRouteHandsTheAspectAUuidParameterNamedMerchantId` | ✅ Killed |
 
-**Sensor depth**: expanded (P0-style, data-integrity and access path): 9 re-applied + 12 new across the parser, service, repositories (fee rule, transaction, batch), controller and access wiring
-**Result**: 18/21 killed - FAIL ❌ (W4, W7, W8 survived; all 3 change a spec-stated behavior, 0 classified as equivalent)
+### New mutants (paths not mutated in iterations 1-4)
 
-Classification of the survivors:
+| # | File:line | Mutation | Killed by | Result |
+| --- | --- | --- | --- | --- |
+| Y1 | `TransactionImportService.java:123` | `ensureMerchantExists` removed from `findImportById` (unknown merchant → batch 404 instead of merchant 404) | `ST` batchQueriesRejectAMissingMerchant | ✅ Killed |
+| Y2 | `TransactionImportService.java:97` | period lock checked only with the **last** row's date | `ST` savesTheBatchAndEveryRowWithTheExpectedNetOfItsRule | ✅ Killed |
+| Y3 | `TransactionImportService.java:117` | batch list ignores the client's `Pageable` (fixed `PageRequest.of(0, 20, createdAt DESC)`) | `ST` listsTheMerchantBatches | ✅ Killed |
+| Y4 | `TransactionCsvParser.java:203` | future check uses `LocalDate.now()` instead of the injected clock | `PT` reportsEachRowError... [data futura] | ✅ Killed |
+| Y5 | `TransactionCsvParser.java:65-74` | blank-row check moved after the column-count check | `PT` rejectsAFileWithOnlyTheHeader, skipsBlankLinesAndKeepsTheRealLineNumbers | ✅ Killed |
+| Y6 | `TransactionImportService.java:90` | row errors sorted by row **descending** | `IT` answersEveryRowErrorAtOnceAndSavesNothing | ✅ Killed |
+| Y7 | `GlobalExceptionHandler.java:202` | over-5MB handler `PAYLOAD_TOO_LARGE` → `BAD_REQUEST` | `IT` rejectsAFileLargerThanFiveMegabytes | ✅ Killed |
+| Y8 | `TransactionCsvParser.java:95` | header cells not trimmed | `PT` trimsEveryField (header error) | ✅ Killed |
+| Y9 | `TransactionImportService.java:63` | import loads the merchant with `findById` (deactivated merchant accepted) | `ST` 9 tests (incl. rejectsAnInactiveOrMissingMerchantBeforeReadingTheFile) | ✅ Killed |
+| Y10 | `TransactionImportService.java:74` | fee rule looked up by installments only (method ignored) | `IT` answersEveryRowErrorAtOnceAndSavesNothing; `ST` aFeeRuleErrorAloneAlsoRejectsTheWholeFile | ✅ Killed |
+| Y11 | `TransactionController.java:81` | `@RequestParam("file")` → `required = false` (missing field gives "Arquivo CSV é obrigatório") | `IT` rejectsAnEmptyFileAFileThatIsNotCsvAndARequestWithoutFile | ✅ Killed |
 
-- **W7 → gap (major).** The 403 edge case is stated in the spec without limiting it to some endpoints. The guard is applied by parameter name, so it is fragile, and the batch-by-id route is the one merchant-scoped route in this feature that has no 403 test. The mutant lets an operator read another merchant's batch.
-- **W4 → gap (minor).** TIMP-04 says "cabeçalho exato". A reordered header is not exact. The mutant answers row errors instead of the header error, and accepts a header that repeats a column name.
-- **W8 → gap (minor).** TIMP-10 #12 lists the four status values. `approved` is not one of them. The tests already have this case for the method column (`PT:133`) but not for status.
+**Sensor depth**: expanded (P0-style, data-integrity and access path): 6 re-applied + 2 project-wide renames + 11 new across the parser, service, controller, exception handler and access wiring
+**Result**: 19/19 killed - PASS ✅ (0 survivors, so no equivalence probes were needed)
+
+Kill-path notes: Y2, Y3 and Y9 are killed by mocked service tests (`ST` verifies the arguments passed to `periodGuard` and to the repository, and stubs only `findByIdAndActiveTrue`). The matching behaviors were also confirmed end to end by the scratch probes (first-row lock → `409`; `size=1` honored; deactivated merchant → `404`), but those probes are not in the suite.
 
 ---
 
@@ -186,59 +206,45 @@ Classification of the survivors:
 | Principle | Status |
 | --- | --- |
 | Minimum code | ✅ Mirrors `SettlementCsvParser` / `ExternalSettlementService` |
-| Surgical changes | ✅ Fix commits `f248e0d`, `7ab6276`, `4bc5ebe` change tests only |
-| No scope creep | ✅ |
-| Matches patterns | ✅ Same handlers, `details` keys and `@PageableDefault` as the settlement import |
+| Surgical changes | ✅ Fix commits `f248e0d`, `7ab6276`, `4bc5ebe`, `f1e3ac4`, `10b9679` change tests only |
+| No scope creep | ✅ `MRA` is outside the feature folder, but it closes the W7 class, which the user asked for project-wide |
+| Matches patterns | ✅ Same handlers, `details` keys and `@PageableDefault` as the settlement import; `MRA` extends `AbstractIntegrationTest` |
 | Spec-anchored outcome check | ✅ Exact texts, statuses, row numbers, order, page size |
-| Per-layer coverage expectation | ❌ Route: no 403 on `GET /imports/{importId}` (W7). Domain: header column order (W4), status letter case (W8) |
-| Every test maps to a requirement | ✅ |
-| No test weakened | ✅ `4bc5ebe` rewrites the list fixture with stronger assertions (3 batches, every column) and adds assertions; nothing removed |
+| Per-layer coverage expectation | ✅ Domain 1:1 with ACs; routes cover happy, edge and error paths, including `403` on every merchant GET route |
+| Every test maps to a requirement | ✅ `MRA` maps to the `403` edge case |
+| No test weakened | ✅ `10b9679` and `f1e3ac4` only add assertions and tests |
 | Documented guidelines followed | ✅ `AGENTS.md` (JUnit 5, AssertJ, MockMvc, Testcontainers via `AbstractIntegrationTest`, Flyway, Conventional Commits) |
 
 ### Notes (not gaps)
 
-- **Deactivated merchant via HTTP**: only covered through the mocked `findByIdAndActiveTrue` (`ST:246-254`).
-- **401 on `GET /imports` and `GET /imports/{importId}`**: no test (only the import, `IT:313-317`). Authentication is global (Spring Security filter chain), not per-handler, so no feature-code mutant can remove it.
-- **Header trimming**: `TransactionCsvParser.java:95` trims header cells, so a padded header is accepted (`PT:77-85`). This is a reading of "espaços nas pontas de cada campo são ignorados" and matches the settlement parser.
-- **Untested out-of-spec file errors**: "Arquivo CSV vazio" (`TransactionCsvParser.java:52`) and "Erro ao ler arquivo CSV" (`:88`, `TransactionImportService.java:145`) have no test. The spec defines neither.
+- **`MRA` residual limits**: literal `{merchantId}` prefix for the static part; no check that the controller is inside the aspect pointcut; no check of the `@PathVariable` binding name. Each only matters for a non-GET route written in an unusual way. See the review section.
+- **Reconciliation export with an unknown run** (outside this feature): in the probe, `GET /api/merchants/{merchantId}/reconciliations/{runId}/export` with an operator who has access, or with admin, and a random `runId` raised `ReconciliationNotFoundException` out of MockMvc as a `ServletException` instead of answering `404`. `MRA` is not affected (the operator without access gets `403` first). Worth a look in the reconciliation module.
+- **Deactivated merchant via HTTP**: covered by mocked `ST` tests (Y9 killed); the scratch probe confirms `404` end to end, but no suite test does it over HTTP.
+- **401 on `GET /imports` and `GET /imports/{importId}`**: no test (only the import, `IT:313-317`). Authentication is global (filter chain), so no feature-code mutant can remove it.
+- **Header trimming**: a padded header is accepted (`PT:77-85`, Y8 killed). It reads "espaços nas pontas de cada campo são ignorados" as applying to the header, like the settlement parser.
+- **Untested out-of-spec file errors**: "Arquivo CSV vazio" (`TransactionCsvParser.java:52`) and "Erro ao ler arquivo CSV" (`:88`, `TransactionImportService.java:145`). The spec defines neither.
+- **Scientific notation**: `new BigDecimal(raw)` accepts `1E+2`. The spec says "ponto decimal (100.50)" but does not list this as an error; same as the settlement parser.
 - **`createdAt` precision**: `Instant.now()` is not truncated to microseconds (candidate L-007). No AC requires the `201` body and a later GET to match.
 - **Concurrency untested**: two simultaneous imports of the same new reference rely on `uk_internal_transactions_merchant_external_reference` and the existing integrity handler (candidate L-002). It is a sweep claim, not an AC.
 - **`Location` header**: asserted (`IT:238`) though the spec does not state it.
-- **W6 kill path**: `IT`'s `assertNothingSaved` helper calls the mutated repository method itself, so part of the W6 kill comes from the helper. `IT:243` (`contains` exactly 3 ids) and `RT:55-64` also kill it on their own.
 
 ---
 
 ## Gate Check
 
 - **Gate command**: `cd backend && ./mvnw verify`
-- **Result**: exit 0, `Tests run: 627, Failures: 0, Errors: 0, Skipped: 0`, "All coverage checks have been met." (JaCoCo 85% line / 75% branch), BUILD SUCCESS
-- **Feature tests**: `TransactionCsvParserTest` 42, `TransactionImportServiceTest` 12, `TransactionImportIntegrationTest` 15, `TransactionImportRepositoryIntegrationTest` 3, `ExpectedNetAmountCalculatorTest` 8 (80 new)
-- **Test count before feature**: 547; after iteration 1: 622; after iteration 2: 626; after iteration 3: 626; now: 627 (`4bc5ebe` adds `aDeactivatedFeeRuleDoesNotPriceTheImport`)
+- **Result**: exit 0, `Tests run: 630, Failures: 0, Errors: 0, Skipped: 0`, "All coverage checks have been met." (JaCoCo 85% line / 75% branch), BUILD SUCCESS
+- **Feature tests**: `TransactionCsvParserTest` 43, `TransactionImportServiceTest` 12, `TransactionImportIntegrationTest` 15, `TransactionImportRepositoryIntegrationTest` 3, `ExpectedNetAmountCalculatorTest` 8, `MerchantRouteAccessIntegrationTest` 2 (83 new)
+- **Test count before feature**: 547; after iteration 1: 622; iteration 2: 626; iteration 3: 626; iteration 4: 627; now: 630 (`f1e3ac4` +2, `10b9679` +1 parameterized case)
 - **Skipped tests**: none
 - **Failures**: none
-- **validate_state.py**: `python3 -I <skill>/scripts/validate_state.py transaction-csv-import --root <repo>` → exit 1 ("verdict is FAIL"), expected for a FAIL verdict.
+- **validate_state.py**: see the end of this report.
 
 ---
 
-## Fix Plans (back to the user: beyond the authorized extra round)
+## Fix Plans
 
-All three are test-only, and they need no production change.
-
-### Fix 8: 403 on the batch-by-id route (W7) - Major
-
-- **Root cause**: `IT:292-300` checks the operator-without-access `403` on import and list only.
-- **Fix task**: in `anOperatorWithoutAccessIsForbiddenAndAnUnknownMerchantIsNotFound` (or a new test), import a batch as admin, then `GET /api/merchants/{merchantId}/transactions/imports/{importId}` with the operator token → `status().isForbidden()`.
-- **Verify**: W7 (`@PathVariable("merchantId") UUID ownerId` at `TransactionController.java:99`) must fail.
-
-### Fix 9: Header column order (W4) - Minor
-
-- **Fix task**: add to `PT` `rejectsAWrongHeader` a header with the 6 right names in another order (for example `amount,externalReference,paymentMethod,installments,status,transactionDate`) → `hasMessage("Cabeçalho CSV inválido. Esperado: " + HEADER)`.
-- **Verify**: W4 must fail.
-
-### Fix 10: Status letter case (W8) - Minor
-
-- **Fix task**: add a `PT` `reportsEachRowErrorWithItsLineAndText` case `"status minúsculo|PED-1,10.00,PIX,1,approved,2026-07-10|Status inválido"`.
-- **Verify**: W8 must fail.
+None. No gap is open.
 
 ---
 
@@ -246,32 +252,33 @@ All three are test-only, and they need no production change.
 
 | Requirement | Previous Status | New Status |
 | --- | --- | --- |
-| TIMP-01..TIMP-03, TIMP-05..TIMP-09, TIMP-11..TIMP-13 | Implementing | ✅ Verified |
-| TIMP-04 | Implementing | ❌ Needs Fix (column order, Fix 9) |
-| TIMP-10 | Implementing | ❌ Needs Fix (status case, Fix 10); 16/16 texts ✅ |
+| TIMP-01..TIMP-13 | Implementing | ✅ Verified |
 | TLOTE-01..TLOTE-05 | Implementing | ✅ Verified |
-| Edge case 403 | - | ❌ Needs Fix (batch-by-id, Fix 8) |
+| Edge case 403 | ❌ Needs Fix | ✅ Verified |
 
-(Not edited in `spec.md`; the orchestrator updates it after the user decides.)
+(Not edited in `spec.md`; the orchestrator updates it.)
 
 ---
 
 ## Lessons
 
-- **L-028, L-029, L-030, L-031** (iteration 3): followed by `4bc5ebe`; V15 (×4), V11, V16, V7 killed. No recurrence.
-- **L-025, L-027**: M1 and N19 still killed. No recurrence.
-- New candidates, one per survivor: L-032 (W7), L-033 (W4), L-034 (W8). See `.specs/LESSONS.md`.
+- **L-032, L-033, L-034** (iteration 4): followed by `f1e3ac4` and `10b9679`; W7, W4, W8 killed. No recurrence.
+- **L-025, L-027, L-029**: M1, N19, V11 still killed. No recurrence.
+- **L-032 class**: `MRA` closes it for every GET route under `/api/merchants/{...}` and for every route of any method under `/api/merchants/{merchantId}`. It does this project-wide (R1, R2 killed) and without listing routes by hand. It leaves the narrow cases in the notes.
+- No new candidates: this run has no surviving mutant, AC gap, spec-precision gap or `SPEC_DEVIATION`.
 
 ## Summary
 
-**Overall**: ❌ Not Ready (iteration 4, the user's extra round)
+**Overall**: ✅ Ready (iteration 5, the user's second extra round)
 
-**Spec-anchored check**: 18/18 ACs cited with spec-outcome assertions, 16/16 TIMP-10 texts, 0 spec-precision gaps; 3 stated behaviors untested (G8 edge case 403, G9 TIMP-04 order, G10 TIMP-10 #12 case)
-**Sensor**: 18/21 killed (all 9 re-applied killed; W4, W7, W8 survived)
-**Gate**: 627 passed, 0 failed, JaCoCo met
+**Spec-anchored check**: 18/18 ACs with spec-outcome assertions, 16/16 TIMP-10 texts, 0 spec-precision gaps, 0 gaps
+**Sensor**: 19/19 killed (6 re-applied, 2 project-wide renames, 11 new)
+**Gate**: 630 passed, 0 failed, JaCoCo met
 
-**What works**: everything from iterations 1-3, plus the default sort key, the active-rule filter, the exact header case and the `.csv` dot. 9 of the 12 new mutants were killed: merchant scope of the stored-reference and batch-list queries, check order (row errors → references → period), saved status and date, the batch's merchant, the audit detail and the method letter case.
+**What works**: everything from iterations 1-4, plus the merchant access check on every merchant route (static and live), exact header order and status letter case. The 11 new mutants cover these paths and all were killed: merchant 404 on batch-by-id, inactive merchant on import, period lock on every date, client paging, injected clock, blank-row order, error order, 413 status, header trim, fee-rule key, and the required `file` field.
 
-**Issues found**: the batch-by-id route has no access test (W7), and no test checks header column order (W4) or status letter case (W8).
+**Next steps**: the orchestrator updates `spec.md` traceability and `.specs/STATE.md`. Optional: look at the reconciliation export unknown-run behavior (outside this feature).
 
-**Next steps**: the user decides on Fixes 8-10 (all test-only, 3 small additions), or accepts them.
+---
+
+**validate_state.py**: `python3 -I /home/hanrry/.claude/skills/tlc-spec-driven/scripts/validate_state.py transaction-csv-import --root <repo>` → exit 0
