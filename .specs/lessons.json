@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 24,
+  "next_id": 25,
   "lessons": [
     {
       "id": "L-001",
@@ -419,6 +419,24 @@
       ],
       "created": "2026-10-16T01:51:44Z",
       "last_seen": "2026-10-16T01:51:44Z"
+    },
+    {
+      "id": "L-024",
+      "key": "surviving_mutant::build generated test inputs from every digit value and every leading digit past the bound not a hand picked digit sample",
+      "text": "Build generated test inputs from every digit value and every leading digit past the bound, not a hand-picked digit sample",
+      "signal": "surviving_mutant",
+      "scope": "frontend-validation",
+      "status": "candidate",
+      "features": [
+        "fee-rules-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md sensor N1b, N2 (frontend/lib/fee.reference.test.ts:10-11) (frontend-validation)"
+      ],
+      "created": "2026-10-16T02:06:03Z",
+      "last_seen": "2026-10-16T02:06:03Z"
     }
   ]
 }

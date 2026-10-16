@@ -152,6 +152,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md V3, V4 (fee.ts:23 parseFeePercent, FCAD-08) (frontend-validation)
 - last seen: 2026-10-16T01:51:44Z
 
+### L-024 - Build generated test inputs from every digit value and every leading digit past the bound, not a hand-picked digit sample
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
+- features: fee-rules-screen
+- evidence: validation.md sensor N1b, N2 (frontend/lib/fee.reference.test.ts:10-11) (frontend-validation)
+- last seen: 2026-10-16T02:06:03Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

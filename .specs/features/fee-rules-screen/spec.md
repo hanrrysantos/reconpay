@@ -192,7 +192,7 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 | FCAD-05 | P1: Cadastrar regra | Execute | Verified |
 | FCAD-06 | P1: Cadastrar regra | Execute | Verified |
 | FCAD-07 | P1: Cadastrar regra | Execute | Verified |
-| FCAD-08 | P1: Cadastrar regra | Execute | Implementing (lacuna aceita: `100,00` sem teste, ver validation.md) |
+| FCAD-08 | P1: Cadastrar regra | Execute | Verified |
 | FCAD-09 | P1: Cadastrar regra | Execute | Verified |
 | FCAD-10 | P1: Cadastrar regra | Execute | Verified |
 | FCAD-11 | P1: Cadastrar regra | Execute | Verified |
@@ -211,7 +211,7 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 
 **ID format:** `F<STORY>-<NN>` (`FREG`, `FLIST`, `FCAD`, `FEDIT`, `FDES`); o número é a posição do critério na story.
 
-**Coverage:** 34 total, 34 mapped to tasks, 0 unmapped; 33 verified, 1 com lacuna aceita (FCAD-08)
+**Coverage:** 34 total, 34 mapped to tasks, 0 unmapped; 34 verified
 
 ---
 

@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/fee-rules-screen/design.md`
-**Status**: Done (lacuna de teste aceita em FCAD-08, ver validation.md)
+**Status**: Done
 
 ---
 
