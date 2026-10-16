@@ -196,11 +196,11 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Sucesso: `role="status"` com "<fileName> importado: <totalRows> linha(s)"
-- [ ] `rowErrors`: `role="alert"` com a mensagem e a tabela "Linha"/"Erro" com todas as linhas na ordem recebida
-- [ ] `conflictingReferences`: mensagem e todas as referências listadas
-- [ ] Sem listas: só a mensagem
-- [ ] Testes em `frontend/components/imports/ImportResult.test.tsx`; gate quick passa
+- [x] Sucesso: `role="status"` com "<fileName> importado: <totalRows> linha(s)"
+- [x] `rowErrors`: `role="alert"` com a mensagem e a tabela "Linha"/"Erro" com todas as linhas na ordem recebida
+- [x] `conflictingReferences`: mensagem e todas as referências listadas
+- [x] Sem listas: só a mensagem
+- [x] Testes em `frontend/components/imports/ImportResult.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
