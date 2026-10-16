@@ -249,8 +249,8 @@ T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Um teste por AC FCAD-01..12 e pelos edge cases de limite (0 e 0; `2,9999`; `100`)
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Um teste por AC FCAD-01..12 e pelos edge cases de limite (0 e 0; `2,9999`; `100`)
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: unit
 **Gate**: build

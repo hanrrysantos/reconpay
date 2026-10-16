@@ -8,6 +8,7 @@ import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import { formatPercent } from '@/lib/fee'
 import { formatMoney } from '@/lib/money'
 import { useFeeRules } from '@/lib/queries'
+import { FeeRuleDrawer } from './FeeRuleDrawer'
 
 const messageOf = (error: unknown) => error instanceof Error ? error.message : 'Não foi possível carregar as regras de taxa.'
 const createButton = 'flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-[14px] font-semibold text-foreground'
@@ -38,8 +39,14 @@ function NoRules({ onCreate }: { onCreate: () => void }) {
 export function FeeRulesPage() {
   const { merchant, merchantId, isLoading: merchantsLoading, error: merchantsError } = useSelectedMerchant()
   const list = useFeeRules(merchantId)
-  /** null: closed; 'create': new rule. */
-  const [, setDrawer] = useState<'create' | null>(null)
+  const [creating, setCreating] = useState(false)
+  // Switching merchants in the menu closes the drawer before it can render for the new merchant.
+  const [shownMerchantId, setShownMerchantId] = useState(merchantId)
+  if (shownMerchantId !== merchantId) {
+    setShownMerchantId(merchantId)
+    setCreating(false)
+  }
+  const openDrawer = () => setCreating(true)
   const rules = list.data ?? []
   const empty = list.data !== undefined && rules.length === 0
   // While the top menu has not loaded (or failed), the page keeps the loading state, as the dashboard does.
@@ -53,7 +60,7 @@ export function FeeRulesPage() {
           <h1 className="font-display text-[44px] leading-none font-extrabold tracking-[-0.04em]">Regras de taxa</h1>
         </div>
         {list.data && !empty && (
-          <button type="button" onClick={() => setDrawer('create')} className={createButton}>
+          <button type="button" onClick={openDrawer} className={createButton}>
             <Plus aria-hidden="true" className="size-4" />
             Cadastrar regra
           </button>
@@ -63,7 +70,7 @@ export function FeeRulesPage() {
       {noMerchant && <NoMerchant />}
       {!noMerchant && list.isPending && <TableSkeleton />}
       {list.isError && <BlockError message={messageOf(list.error)} action="Tentar de novo" onRetry={() => void list.refetch()} />}
-      {empty && <NoRules onCreate={() => setDrawer('create')} />}
+      {empty && <NoRules onCreate={openDrawer} />}
 
       {list.data && !empty && (
         <section className="flex flex-col gap-2 rounded-lg bg-surface p-2">
@@ -91,6 +98,8 @@ export function FeeRulesPage() {
           </div>
         </section>
       )}
+
+      {creating && merchantId !== null && <FeeRuleDrawer merchantId={merchantId} onClose={() => setCreating(false)} />}
     </>
   )
 }
