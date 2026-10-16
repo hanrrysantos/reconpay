@@ -63,7 +63,7 @@ graph TD
 
 - **Purpose**: Calcular o líquido esperado de uma venda com uma regra de taxa.
 - **Location**: `backend/src/main/java/br/com/hanrry/reconpay/feerule/service/ExpectedNetAmountCalculator.java`
-- **Interfaces**: `BigDecimal calculate(BigDecimal amount, FeeRuleEntity feeRule)` — mesma fórmula e arredondamento de hoje; lança `InvalidTransactionAmountException("Valor líquido esperado deve ser maior que zero")` quando ≤ 0.
+- **Interfaces**: `static BigDecimal calculate(BigDecimal amount, FeeRuleEntity feeRule)` — utilitário estático, como `PaymentMethodRules`, para não mudar a montagem do `TransactionService` nos testes existentes (`@InjectMocks`); mesma fórmula e arredondamento de hoje; lança `InvalidTransactionAmountException("Valor líquido esperado deve ser maior que zero")` quando ≤ 0.
 - **Reuses**: corpo de `TransactionService.calculateExpectedNetAmount`, que passa a delegar.
 
 ### TransactionCsvParser

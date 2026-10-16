@@ -71,9 +71,9 @@ T3 → T4 → T5 → T6
 
 **Done when**:
 
-- [ ] Teste unitário: `100.00` com `2.9900`% e `0.30` → `96.71`; `10.00` com `3.3333`% e `0.00` → `9.67`; arredondamento `HALF_UP` num caso de meio (`.005`); líquido `0.00` e negativo lançam `InvalidTransactionAmountException` "Valor líquido esperado deve ser maior que zero"
-- [ ] Testes existentes de `TransactionService` e `TransactionIntegrationTest` passam sem alteração
-- [ ] Gate check passes: `cd backend && ./mvnw verify`
+- [x] Teste unitário: `100.00` com `2.9900`% e `0.30` → `96.71`; `10.00` com `3.3333`% e `0.00` → `9.67`; arredondamento `HALF_UP` num caso de meio (`.005`); líquido `0.00` e negativo lançam `InvalidTransactionAmountException` "Valor líquido esperado deve ser maior que zero"
+- [x] Testes existentes de `TransactionService` e `TransactionIntegrationTest` passam sem alteração
+- [x] Gate check passes: `cd backend && ./mvnw verify`
 
 **Tests**: unit
 **Gate**: full

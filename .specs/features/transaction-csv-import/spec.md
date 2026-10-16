@@ -140,7 +140,7 @@ Transações internas só entram no ReconPay uma a uma, por `POST /api/merchants
 | --- | --- | --- | --- |
 | TIMP-01 | P1: Importar transações | Design | Pending |
 | TIMP-02 | P1: Importar transações | Design | Pending |
-| TIMP-03 | P1: Importar transações | Design | Pending |
+| TIMP-03 | P1: Importar transações | Execute | Implementing |
 | TIMP-04 | P1: Importar transações | Design | Pending |
 | TIMP-05 | P1: Importar transações | Design | Pending |
 | TIMP-06 | P1: Importar transações | Design | Pending |
