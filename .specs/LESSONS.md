@@ -158,6 +158,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md sensor N1b, N2 (frontend/lib/fee.reference.test.ts:10-11) (frontend-validation)
 - last seen: 2026-10-16T02:06:03Z
 
+### L-025 - Test the largest value an inclusive bound accepts, not only the first value past it
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `parsers` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md M1 TransactionCsvParser.java:152 (TIMP-10 #6) (parsers)
+- last seen: 2026-10-16T12:47:11Z
+
+### L-026 - Test an input that fails two checks on the same field, so an error dropped when another already fired is caught
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `parsers` · harmful: 0
+- features: transaction-csv-import
+- evidence: validation.md M6 TransactionCsvParser.java:119 (TIMP-09/TIMP-10 #3-#4) (parsers)
+- last seen: 2026-10-16T12:47:11Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

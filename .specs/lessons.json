@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 25,
+  "next_id": 27,
   "lessons": [
     {
       "id": "L-001",
@@ -437,6 +437,42 @@
       ],
       "created": "2026-10-16T02:06:03Z",
       "last_seen": "2026-10-16T02:06:03Z"
+    },
+    {
+      "id": "L-025",
+      "key": "surviving_mutant::test the largest value an inclusive bound accepts not only the first value past it",
+      "text": "Test the largest value an inclusive bound accepts, not only the first value past it",
+      "signal": "surviving_mutant",
+      "scope": "parsers",
+      "status": "candidate",
+      "features": [
+        "transaction-csv-import"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M1 TransactionCsvParser.java:152 (TIMP-10 #6) (parsers)"
+      ],
+      "created": "2026-10-16T12:47:11Z",
+      "last_seen": "2026-10-16T12:47:11Z"
+    },
+    {
+      "id": "L-026",
+      "key": "surviving_mutant::test an input that fails two checks on the same field so an error dropped when another already fired is caught",
+      "text": "Test an input that fails two checks on the same field, so an error dropped when another already fired is caught",
+      "signal": "surviving_mutant",
+      "scope": "parsers",
+      "status": "candidate",
+      "features": [
+        "transaction-csv-import"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M6 TransactionCsvParser.java:119 (TIMP-09/TIMP-10 #3-#4) (parsers)"
+      ],
+      "created": "2026-10-16T12:47:11Z",
+      "last_seen": "2026-10-16T12:47:11Z"
     }
   ]
 }
