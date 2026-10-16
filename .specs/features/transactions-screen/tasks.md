@@ -323,14 +323,14 @@ T9 → T10
 
 **Done when**:
 
-- [ ] A rota busca o mês atual da empresa selecionada com o título e o nome da empresa
-- [ ] Mês, intervalo personalizado, status e método refazem a busca com os parâmetros certos e voltam para a página 1; "Todos" remove o parâmetro
-- [ ] Intervalo invertido mostra a mensagem no menu e não busca
-- [ ] Cadastro aceito fecha a gaveta, mostra "Transação <referência> cadastrada." e a lista recarrega
-- [ ] Mudança de status aceita mostra a linha com o novo status e sem a ação
-- [ ] Troca de empresa fecha gaveta e diálogo, remove o aviso, mantém filtros e busca a página 1 da nova empresa
-- [ ] Sem empresa: `NoMerchant`, sem filtros nem lista
-- [ ] Testes em `frontend/components/transactions/TransactionsPage.test.tsx` renderizando a rota; gate build passa
+- [x] A rota busca o mês atual da empresa selecionada com o título e o nome da empresa
+- [x] Mês, intervalo personalizado, status e método refazem a busca com os parâmetros certos e voltam para a página 1; "Todos" remove o parâmetro
+- [x] Intervalo invertido mostra a mensagem no menu e não busca
+- [x] Cadastro aceito fecha a gaveta, mostra "Transação <referência> cadastrada." e a lista recarrega
+- [x] Mudança de status aceita mostra a linha com o novo status e sem a ação
+- [x] Troca de empresa fecha gaveta e diálogo, remove o aviso, mantém filtros e busca a página 1 da nova empresa
+- [x] Sem empresa: `NoMerchant`, sem filtros nem lista
+- [x] Testes em `frontend/components/transactions/TransactionsPage.test.tsx` renderizando a rota; gate build passa
 
 **Tests**: unit
 **Gate**: build
