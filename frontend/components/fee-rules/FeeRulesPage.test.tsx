@@ -26,10 +26,10 @@ const betaDebit = stored('r-4', beta, 'DEBIT_CARD', 1, '1.0000', '0.00')
 
 /**
  * In-memory API: `merchants` answers the top menu; `rules` holds every merchant's active rules, listed by
- * payment method and installments like the API's sort. `list`, `create` and `update` override the answers of
- * `GET`, `POST .../fee-rules` and `PUT .../fee-rules/{id}`. Without an override, `POST` stores the rule (201), or
- * answers 409 when the merchant already has an active rule for the method and installments; `PUT` stores the new
- * rates (200).
+ * payment method and installments like the API's sort. `list`, `create`, `update` and `remove` override the
+ * answers of `GET`, `POST .../fee-rules`, `PUT` and `DELETE .../fee-rules/{id}`. Without an override, `POST` stores
+ * the rule (201), or answers 409 when the merchant already has an active rule for the method and installments;
+ * `PUT` stores the new rates (200); `DELETE` drops the rule from the active list (204).
  */
 let server: {
   merchants: Merchant[]
@@ -37,6 +37,7 @@ let server: {
   list: ((merchantId: string) => Reply) | null
   create: ((merchantId: string, body: string) => Reply) | null
   update: ((ruleId: string, body: string) => Reply) | null
+  remove: ((ruleId: string) => Reply) | null
 }
 let calls: Call[]
 
@@ -76,6 +77,11 @@ function storeFees(ruleId: string, body: string): Response {
   return new Response(ruleJson(changed), { headers: { 'Content-Type': 'application/json' } })
 }
 
+function drop(ruleId: string): Response {
+  server.rules = server.rules.filter(rule => rule.id !== ruleId)
+  return new Response(null, { status: 204 })
+}
+
 async function route(method: string, path: string, body: string | undefined): Promise<Response> {
   if (path === '/api/me/merchants') return json(page(server.merchants))
   const merchantId = path.match(/^\/api\/merchants\/([^/]+)\/fee-rules$/)?.[1]
@@ -85,12 +91,13 @@ async function route(method: string, path: string, body: string | undefined): Pr
   if (merchantId && method === 'POST') return answer(server.create?.(merchantId, body!) ?? store(merchantId, body!))
   const ruleId = path.match(/^\/api\/merchants\/[^/]+\/fee-rules\/([^/]+)$/)?.[1]
   if (ruleId && method === 'PUT') return answer(server.update?.(ruleId, body!) ?? storeFees(ruleId, body!))
+  if (ruleId && method === 'DELETE') return answer(server.remove?.(ruleId) ?? drop(ruleId))
   throw new Error(`rota sem resposta no teste: ${method} ${path}`)
 }
 
 beforeEach(() => {
   calls = []
-  server = { merchants: [alfa, beta], rules: [alfaPix, alfaCredit, betaBoleto, betaDebit], list: null, create: null, update: null }
+  server = { merchants: [alfa, beta], rules: [alfaPix, alfaCredit, betaBoleto, betaDebit], list: null, create: null, update: null, remove: null }
   vi.stubGlobal('fetch', vi.fn(async (input: string, init: RequestInit = {}) => {
     const url = new URL(input)
     const method = init.method ?? 'GET'
@@ -558,5 +565,97 @@ describe('alterar taxas', () => {
       ['Boleto', '1x', '1,5%', 'R$ 3,50'],
       ['Débito', '1x', '1%', 'R$ 0,00'],
     ]))
+  })
+})
+
+describe('desativar regra', () => {
+  const deletes = () => calls.filter(call => call.method === 'DELETE')
+  const dialog = () => screen.getByRole('alertdialog')
+  const confirmButton = () => within(dialog()).getByRole('button', { name: 'Desativar' })
+
+  /** Opens "Desativar" on one of Alfa's rules (Crédito 3x or Pix 1x). */
+  async function openDialog(label = 'Crédito') {
+    const user = renderPage()
+    await screen.findByRole('table', { name: 'Regras de taxa' })
+    await user.click(within(ruleRow(label)).getByRole('button', { name: 'Desativar' }))
+    return user
+  }
+
+  it.each([
+    ['Crédito', 'Desativar a regra Crédito 3x?'],
+    ['Pix', 'Desativar a regra Pix 1x?'],
+  ])('"Desativar" em %s abre a confirmação com método, parcelas e o aviso das transações recusadas (FDES-01)', async (label, title) => {
+    await openDialog(label)
+
+    expect(dialog()).toHaveAccessibleName(title)
+    expect(dialog()).toHaveAccessibleDescription('Novas transações dessa combinação serão recusadas até existir outra regra.')
+    expect(deletes()).toHaveLength(0)
+  })
+
+  it('confirmar chama DELETE /api/merchants/{id}/fee-rules/{ruleId} (FDES-02)', async () => {
+    const user = await openDialog()
+    await user.click(confirmButton())
+
+    await waitFor(() => expect(deletes()).toHaveLength(1))
+    expect(deletes()[0].path).toBe('/api/merchants/m-1/fee-rules/r-2')
+    expect(deletes()[0].body).toBeUndefined()
+  })
+
+  it('204 fecha o diálogo e tira a regra da lista (FDES-03)', async () => {
+    const user = await openDialog()
+    await user.click(confirmButton())
+
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument())
+    await waitFor(() => expect(rowTexts()).toEqual([['Pix', '1x', '0%', 'R$ 0,00']]))
+  })
+
+  it.each([
+    ['Cancelar', (user: ReturnType<typeof userEvent.setup>) => user.click(within(dialog()).getByRole('button', { name: 'Cancelar' }))],
+    ['Esc', (user: ReturnType<typeof userEvent.setup>) => user.keyboard('{Escape}')],
+  ])('%s fecha o diálogo sem chamar a API (FDES-04)', async (_case, close) => {
+    const user = await openDialog()
+    await close(user)
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(deletes()).toHaveLength(0)
+    expect(rowTexts()).toEqual([
+      ['Crédito', '3x', '2,99%', 'R$ 0,30'],
+      ['Pix', '1x', '0%', 'R$ 0,00'],
+    ])
+  })
+
+  it.each([
+    ['erro da API', () => fail(500, 'Erro interno ao desativar'), 'Erro interno ao desativar'],
+    ['falha de rede', () => new TypeError('Failed to fetch'), 'Não foi possível conectar à API. Tente novamente.'],
+  ] as const)('com %s mantém o diálogo aberto e mostra a mensagem (FDES-05)', async (_case, reply, message) => {
+    server.remove = () => { const result = reply(); if (result instanceof Error) throw result; return result }
+    const user = await openDialog()
+    await user.click(confirmButton())
+
+    expect(await within(dialog()).findByRole('alert')).toHaveTextContent(message)
+    expect(dialog()).toHaveAccessibleName('Desativar a regra Crédito 3x?')
+  })
+
+  it('404 ao desativar mostra a mensagem e recarrega a lista (edge case)', async () => {
+    server.remove = ruleId => {
+      server.rules = server.rules.filter(rule => rule.id !== ruleId)
+      return fail(404, `Regra de taxa não encontrada com id: ${ruleId}`)
+    }
+    const user = await openDialog()
+    const before = listRequests().length
+    await user.click(confirmButton())
+
+    expect(await within(dialog()).findByRole('alert')).toHaveTextContent('Regra de taxa não encontrada com id: r-2')
+    await waitFor(() => expect(rowTexts()).toEqual([['Pix', '1x', '0%', 'R$ 0,00']]))
+    expect(listRequests().length).toBeGreaterThan(before)
+  })
+
+  it('trocar de empresa no menu com o diálogo aberto fecha o diálogo sem chamar a API (edge case)', async () => {
+    const user = await openDialog()
+    await user.click(menuButton())
+    await user.click(screen.getByRole('option', { name: /Beta Comércio/ }))
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(deletes()).toHaveLength(0)
   })
 })

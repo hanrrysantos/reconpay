@@ -203,11 +203,11 @@ Uma transação só entra no ReconPay se a empresa tiver regra de taxa ativa par
 | FEDIT-04 | P2: Alterar taxas | Execute | Implementing |
 | FEDIT-05 | P2: Alterar taxas | Execute | Implementing |
 | FEDIT-06 | P2: Alterar taxas | Execute | Implementing |
-| FDES-01 | P2: Desativar regra | Design | Pending |
+| FDES-01 | P2: Desativar regra | Execute | Implementing |
 | FDES-02 | P2: Desativar regra | Execute | Implementing |
 | FDES-03 | P2: Desativar regra | Execute | Implementing |
 | FDES-04 | P2: Desativar regra | Execute | Implementing |
-| FDES-05 | P2: Desativar regra | Design | Pending |
+| FDES-05 | P2: Desativar regra | Execute | Implementing |
 
 **ID format:** `F<STORY>-<NN>` (`FREG`, `FLIST`, `FCAD`, `FEDIT`, `FDES`); o número é a posição do critério na story.
 

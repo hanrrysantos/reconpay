@@ -299,8 +299,8 @@ T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Um teste por AC FDES-01..05 e o edge case `404`
-- [ ] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] Um teste por AC FDES-01..05 e o edge case `404`
+- [x] Gate check passes: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: unit
 **Gate**: build

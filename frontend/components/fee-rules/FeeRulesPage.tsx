@@ -9,6 +9,7 @@ import type { FeeRule } from '@/lib/api'
 import { formatPercent } from '@/lib/fee'
 import { formatMoney } from '@/lib/money'
 import { useFeeRules } from '@/lib/queries'
+import { DeactivateRuleDialog } from './DeactivateRuleDialog'
 import { FeeRuleDrawer } from './FeeRuleDrawer'
 
 const messageOf = (error: unknown) => error instanceof Error ? error.message : 'Não foi possível carregar as regras de taxa.'
@@ -42,11 +43,13 @@ export function FeeRulesPage() {
   const list = useFeeRules(merchantId)
   /** null: closed; 'create': new rule; a rule: change its rates. */
   const [drawer, setDrawer] = useState<'create' | FeeRule | null>(null)
-  // Switching merchants in the menu closes the drawer before it can render for the new merchant.
+  const [deactivating, setDeactivating] = useState<FeeRule | null>(null)
+  // Switching merchants in the menu closes the drawer and the dialog before they can render for the new merchant.
   const [shownMerchantId, setShownMerchantId] = useState(merchantId)
   if (shownMerchantId !== merchantId) {
     setShownMerchantId(merchantId)
     setDrawer(null)
+    setDeactivating(null)
   }
   const openDrawer = () => setDrawer('create')
   const rules = list.data ?? []
@@ -97,6 +100,7 @@ export function FeeRulesPage() {
                     <td className="rounded-r-[14px] px-3 py-2 group-hover:bg-subtle">
                       <div className="flex justify-end gap-1">
                         <button type="button" onClick={() => setDrawer(rule)} className="h-8 rounded-full bg-white px-3 text-[13px] font-semibold shadow-[inset_0_0_0_1px_var(--color-border)]">Editar</button>
+                        <button type="button" onClick={() => setDeactivating(rule)} className="h-8 rounded-full bg-white px-3 text-[13px] font-semibold text-danger-strong shadow-[inset_0_0_0_1px_var(--color-border)]">Desativar</button>
                       </div>
                     </td>
                   </tr>
@@ -109,6 +113,9 @@ export function FeeRulesPage() {
 
       {drawer !== null && merchantId !== null && (
         <FeeRuleDrawer merchantId={merchantId} rule={drawer === 'create' ? undefined : drawer} onClose={() => setDrawer(null)} />
+      )}
+      {deactivating !== null && merchantId !== null && (
+        <DeactivateRuleDialog merchantId={merchantId} rule={deactivating} onClose={() => setDeactivating(null)} />
       )}
     </>
   )
