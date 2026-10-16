@@ -104,6 +104,9 @@ class TransactionCsvParserTest {
         assertThatThrownBy(() -> parse("ExternalReference,Amount,PaymentMethod,Installments,Status,TransactionDate", "x"))
                 .isInstanceOf(InvalidTransactionImportException.class)
                 .hasMessage("Cabeçalho CSV inválido. Esperado: " + HEADER);
+        assertThatThrownBy(() -> parse("amount,externalReference,paymentMethod,installments,status,transactionDate", "x"))
+                .isInstanceOf(InvalidTransactionImportException.class)
+                .hasMessage("Cabeçalho CSV inválido. Esperado: " + HEADER);
         assertThatThrownBy(() -> parse(HEADER + ",observacao", "x"))
                 .isInstanceOf(InvalidTransactionImportException.class)
                 .hasMessage("Cabeçalho CSV inválido. Esperado: " + HEADER);
@@ -138,6 +141,7 @@ class TransactionCsvParserTest {
             "boleto parcelado|PED-1,10.00,BOLETO,3,APPROVED,2026-07-10|Método de pagamento BOLETO não permite parcelamento",
             "débito parcelado|PED-1,10.00,DEBIT_CARD,2,APPROVED,2026-07-10|Método de pagamento DEBIT_CARD não permite parcelamento",
             "status desconhecido|PED-1,10.00,PIX,1,PAID,2026-07-10|Status inválido",
+            "status minúsculo|PED-1,10.00,PIX,1,approved,2026-07-10|Status inválido",
             "data formato|PED-1,10.00,PIX,1,APPROVED,10/07/2026|Data da transação inválida. Formato esperado: yyyy-MM-dd",
             "data inexistente|PED-1,10.00,PIX,1,APPROVED,2026-02-30|Data da transação inválida. Formato esperado: yyyy-MM-dd",
             "data futura|PED-1,10.00,PIX,1,APPROVED,2026-07-21|Data da transação não pode ser futura"
