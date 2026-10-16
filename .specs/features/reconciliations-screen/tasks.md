@@ -234,11 +234,11 @@ T9 → T10
 
 **Done when**:
 
-- [ ] Abre no mês atual com De/Até do mês; escolher outro mês preenche as datas; editar uma data muda para "Personalizado"
-- [ ] Vazio, invertido e 367 dias mostram a mensagem e não enviam; 366 dias e um dia são enviados
-- [ ] Envio com `{"fromDate","toDate"}`; "Conciliando…" desabilitado durante o envio; sucesso chama `onStarted`
-- [ ] `409` e `400` mantêm a gaveta aberta com a mensagem
-- [ ] Testes em `frontend/components/reconciliations/NewRunDrawer.test.tsx`; gate quick passa
+- [x] Abre no mês atual com De/Até do mês; escolher outro mês preenche as datas; editar uma data muda para "Personalizado"
+- [x] Vazio, invertido e 367 dias mostram a mensagem e não enviam; 366 dias e um dia são enviados
+- [x] Envio com `{"fromDate","toDate"}`; "Conciliando…" desabilitado durante o envio; sucesso chama `onStarted`
+- [x] `409` e `400` mantêm a gaveta aberta com a mensagem
+- [x] Testes em `frontend/components/reconciliations/NewRunDrawer.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
