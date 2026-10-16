@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 35,
+  "next_id": 37,
   "lessons": [
     {
       "id": "L-001",
@@ -617,6 +617,42 @@
       ],
       "created": "2026-10-16T13:49:43Z",
       "last_seen": "2026-10-16T13:49:43Z"
+    },
+    {
+      "id": "L-035",
+      "key": "surviving_mutant::assert page text inside the page s own region when the app shell renders the same text elsewhere",
+      "text": "Assert page text inside the page's own region when the app shell renders the same text elsewhere",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "transactions-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M25; TransactionsPage.test.tsx:123 (frontend)"
+      ],
+      "created": "2026-10-16T18:09:53Z",
+      "last_seen": "2026-10-16T18:09:53Z"
+    },
+    {
+      "id": "L-036",
+      "key": "surviving_mutant::to test that state survives a reset set every kept value away from its default before triggering the reset",
+      "text": "To test that state survives a reset, set every kept value away from its default before triggering the reset",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "transactions-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M31; TransactionsPage.test.tsx:248-272 (frontend)"
+      ],
+      "created": "2026-10-16T18:09:53Z",
+      "last_seen": "2026-10-16T18:09:53Z"
     }
   ]
 }
