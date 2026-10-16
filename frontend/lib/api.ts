@@ -178,7 +178,10 @@ export type FeeRule = {
 export type FeeRuleFees = { feePercentage: string; fixedFee: string }
 export type FeeRuleInput = FeeRuleFees & { paymentMethod: PaymentMethod; installments: number }
 
-export type SettlementImport = { id: string; merchantId: string; fileName: string; totalRows: number; createdAt: string }
+/** An accepted CSV import; transactions, settlements and bank statements share this shape. */
+export type ImportBatch = { id: string; merchantId: string; fileName: string; totalRows: number; createdAt: string }
+export type SettlementImport = ImportBatch
+export type ImportKind = 'transactions' | 'settlements' | 'bankStatements'
 
 /** Fields the API serializes as BigDecimal; an integral value (e.g. `0`) is still kept as text. */
 const DECIMAL_FIELDS = new Set([
@@ -191,8 +194,8 @@ const DECIMAL_FIELDS = new Set([
 export class ApiError extends Error {
   readonly #code: string | undefined
 
-  /** `code` is the StandardError `error` field (ApiErrorCode), e.g. `CONFLICT`. */
-  constructor(message: string, public status?: number, code?: string) {
+  /** `code` is the StandardError `error` field (ApiErrorCode), e.g. `CONFLICT`; `details` its `details` object, when present. */
+  constructor(message: string, public status?: number, code?: string, readonly details?: Record<string, unknown>) {
     super(message)
     this.name = 'ApiError'
     this.#code = code
@@ -211,7 +214,8 @@ async function send(path: string, init: RequestInit, token: string | undefined, 
       cache: 'no-store',
       headers: {
         Accept: accept,
-        ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+        // A FormData body gets its multipart Content-Type, with the boundary, from fetch itself.
+        ...(typeof init.body === 'string' ? { 'Content-Type': 'application/json' } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     })
@@ -223,12 +227,16 @@ async function send(path: string, init: RequestInit, token: string | undefined, 
   const body = await response.text()
   let message = `A API retornou erro ${response.status}.`
   let code: string | undefined
+  let details: Record<string, unknown> | undefined
   try {
-    const error = JSON.parse(body) as { message?: string; error?: string }
+    const error = JSON.parse(body) as { message?: string; error?: string; details?: unknown }
     if (error.message) message = error.message
     if (error.error) code = error.error
+    if (typeof error.details === 'object' && error.details !== null && !Array.isArray(error.details)) {
+      details = error.details as Record<string, unknown>
+    }
   } catch { /* A API também pode retornar uma resposta sem JSON. */ }
-  throw new ApiError(message, response.status, code)
+  throw new ApiError(message, response.status, code, details)
 }
 
 async function request<T>(path: string, init: RequestInit = {}, token?: string): Promise<T> {
@@ -382,6 +390,25 @@ export function updateDiscrepancy(
     { method: 'PATCH', body: stringify(body) },
     token,
   )
+}
+
+const IMPORT_PATHS: Record<ImportKind, string> = {
+  transactions: 'transactions',
+  settlements: 'external-settlements',
+  bankStatements: 'bank-statements',
+}
+const importPath = (merchantId: string, kind: ImportKind) => `${merchantPath(merchantId)}/${IMPORT_PATHS[kind]}`
+
+/** All or nothing: the API accepts every row or refuses the file with every error in `details`. Settlements use the default layout. */
+export function importCsv(token: string, merchantId: string, kind: ImportKind, file: File): Promise<ImportBatch> {
+  const body = new FormData()
+  body.append('file', file)
+  return request(`${importPath(merchantId, kind)}/import`, { method: 'POST', body }, token)
+}
+
+/** Accepted imports of one kind, 20 per page, newest first. */
+export function getImportBatches(token: string, merchantId: string, kind: ImportKind, page: number): Promise<Page<ImportBatch>> {
+  return request(`${importPath(merchantId, kind)}/imports?page=${page}&size=20&sort=createdAt%2Cdesc`, {}, token)
 }
 
 export async function getLatestSettlementImport(token: string, merchantId: string): Promise<SettlementImport | null> {

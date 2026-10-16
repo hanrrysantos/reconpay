@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/imports-screen/design.md`
-**Status**: Approved
+**Status**: In Progress
 
 ---
 
@@ -83,11 +83,11 @@ T7 → T8
 
 **Done when**:
 
-- [ ] `importCsv` faz `POST` em `/api/merchants/m-1/transactions/import`, `/external-settlements/import` e `/bank-statements/import`, com `FormData` contendo `file`, sem `layout` na URL e sem `Content-Type: application/json`
-- [ ] `getImportBatches` faz `GET .../<tipo>/imports?page=<n>&size=20&sort=createdAt%2Cdesc` para cada tipo
-- [ ] `ApiError.details` traz o objeto `details` de um `400` com `rowErrors` e de um `409` com `conflictingReferences`; fica `undefined` sem `details` e em resposta sem JSON
-- [ ] Os `POST`/`PUT` JSON existentes continuam com `Content-Type: application/json` (testes atuais de `lib/api*.test.ts` inalterados e verdes)
-- [ ] Testes em `frontend/lib/api.imports.test.ts`; gate quick passa
+- [x] `importCsv` faz `POST` em `/api/merchants/m-1/transactions/import`, `/external-settlements/import` e `/bank-statements/import`, com `FormData` contendo `file`, sem `layout` na URL e sem `Content-Type: application/json`
+- [x] `getImportBatches` faz `GET .../<tipo>/imports?page=<n>&size=20&sort=createdAt%2Cdesc` para cada tipo
+- [x] `ApiError.details` traz o objeto `details` de um `400` com `rowErrors` e de um `409` com `conflictingReferences`; fica `undefined` sem `details` e em resposta sem JSON
+- [x] Os `POST`/`PUT` JSON existentes continuam com `Content-Type: application/json` (testes atuais de `lib/api*.test.ts` inalterados e verdes)
+- [x] Testes em `frontend/lib/api.imports.test.ts`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
