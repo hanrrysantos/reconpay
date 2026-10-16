@@ -179,10 +179,10 @@ T9 → T10
 
 **Done when**:
 
-- [ ] `useRunPage` consulta empresa, janela e página pedidas; recarrega a cada `RUN_POLL_MS` com um run em andamento e para quando todos terminam
-- [ ] `useRun` recarrega enquanto o run está em andamento
-- [ ] Após `useStartReconciliation` aceito, a lista de runs e as consultas da janela do dashboard já foram recarregadas quando a mutação resolve; na recusa, nada é invalidado
-- [ ] Testes em `frontend/lib/queries.reconciliations.test.tsx`; gate quick passa
+- [x] `useRunPage` consulta empresa, janela e página pedidas; recarrega a cada `RUN_POLL_MS` com um run em andamento e para quando todos terminam
+- [x] `useRun` recarrega enquanto o run está em andamento
+- [x] Após `useStartReconciliation` aceito, a lista de runs e as consultas da janela do dashboard já foram recarregadas quando a mutação resolve; na recusa, nada é invalidado
+- [x] Testes em `frontend/lib/queries.reconciliations.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
