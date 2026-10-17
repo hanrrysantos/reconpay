@@ -67,7 +67,13 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
   - run na fila ou em andamento recarrega o run e os itens a cada 3 s; ao concluir, busca os itens uma última vez, porque eles só aparecem na API junto com o status final;
   - "Exportar CSV" aparece só em run concluído e baixa `reconciliation-<runId>.csv`; o erro aparece junto do botão;
   - trocar de empresa volta para `/conciliacoes`.
-- `/divergencias` e `/fechamento` mostram a barra e "em construção", sem chamar a API.
+- Divergências em `/divergencias`, pelo item "Divergências" da barra superior:
+  - mostra as divergências do run vigente da janela escolhida no menu de período do dashboard (abre na janela do run mais recente, ou no mês atual sem run), uma linha por divergência, da maior diferença para a menor, 20 itens por página;
+  - filtros "Status" (Abertas, Aceitas, Ajustadas, Baixadas, Todas) e "Tipo"; mudar filtro ou janela volta para a página 1;
+  - janela sem run, run em andamento (a tela recarrega a cada 3 s e mostra a lista ao concluir) ou com falha mostram um aviso com o link para Conciliações; período travado mostra o aviso e deixa a gaveta só para consulta;
+  - "Abrir" abre a gaveta do dashboard: os dois lados da transação, o histórico de transições e ajustes, aceitar, ajustar, baixar e reabrir; J/K navegam pelas divergências da página;
+  - trocar de empresa fecha a gaveta, vai para a janela do run mais recente da nova empresa e mantém os filtros.
+- `/fechamento` mostra a barra e "em construção", sem chamar a API.
 
 ## Dependências
 

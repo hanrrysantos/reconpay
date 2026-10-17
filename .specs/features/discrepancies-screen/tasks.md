@@ -277,8 +277,8 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Os READMEs descrevem fonte (run vigente), filtros, estados, gaveta (resolver, histórico, reabrir); `/divergencias` sai da lista "em construção"
-- [ ] Gate build passa
+- [x] Os READMEs descrevem fonte (run vigente), filtros, estados, gaveta (resolver, histórico, reabrir); `/divergencias` sai da lista "em construção"
+- [x] Gate build passa
 
 **Tests**: none
 **Gate**: build
