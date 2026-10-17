@@ -295,6 +295,26 @@ describe('RunDetailPage', () => {
     expect(itemCalls()).toHaveLength(settled.items)
   })
 
+  it('run com falha mostra o status e a mensagem do run no cabeçalho, sem Exportar CSV', async () => {
+    server.runs[0] = run('r-1', 'm-1', { status: 'FAILED', errorMessage: 'Falha ao processar o lote', matchedCount: null, divergentCount: null })
+    renderRoute()
+
+    const region = await header()
+    expect(totalsOf(region)).toMatchObject({ Status: 'Falhou' })
+    expect(within(region).getByText('Falha ao processar o lote')).toBeInTheDocument()
+    expect(within(region).queryByRole('button', { name: 'Exportar CSV' })).toBeNull()
+  })
+
+  it('sem empresa no acesso mostra o mesmo estado vazio das outras telas e não busca o run (REC-11 AC3)', async () => {
+    server.merchants = []
+    renderRoute()
+
+    expect(await screen.findByRole('heading', { name: 'Nenhuma empresa no seu acesso' })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Conciliação' })).toBeNull()
+    expect(runCalls()).toHaveLength(0)
+    expect(itemCalls()).toHaveLength(0)
+  })
+
   it('trocar de empresa volta para /conciliacoes; o primeiro carregamento não navega (REC-11 AC2)', async () => {
     const user = renderRoute()
     await header()
