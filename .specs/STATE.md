@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: reconciliations-screen (`/conciliacoes` e `/conciliacoes/[runId]`, frontend + correção de backend) — **Verified** (`validation.md` iteração 2: PASS, 39/39 ACs e 5/5 edge cases, sensor 12/14 com 2 equivalentes; a iteração 1 deu FAIL por itens não recarregados após a conclusão do run, corrigido em `7a0ad44`)
-- **Phase / Task**: T1–T10 concluídas (`c937b2b`..`6496843`) por dois sub-agentes; correções `7a0ad44`, `dc39363`
-- **Completed**: export de run inexistente responde `404` JSON (pendência antiga resolvida); histórico de runs com filtro de janela, progresso, substituído, falha e polling de 3 s; gaveta "Nova conciliação" (mês ou personalizado, até 366 dias) que invalida o dashboard da janela; detalhe com itens filtráveis, selos de divergência, export CSV e recarga final dos itens. Frontend 743 testes, backend 632.
+- **Feature**: discrepancies-screen (tela `/divergencias`, frontend) — **Specify**
+- **Phase / Task**: Specify; decisões do usuário: fonte = run vigente do período (só frontend, sem endpoint novo); gaveta do dashboard para resolver, com histórico e reabrir
+- **Completed**: reconciliations-screen mergeada no `main` (PR #50, 2026-10-16), Verifier PASS (iteração 2) e teste manual aprovado; CI do merge verde (Build and Test, Frontend, Docker Build) e deploy de produção verde, com o export `404` em produção
 - **In-progress** (file:line): none
-- **Next step**: teste manual pelo usuário e, com o aval dele, push e PR de `feat/reconciliations-screen`; depois, telas de Divergências e de Fechamento. Lição candidata nova: L-037. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: confirmar `.specs/features/discrepancies-screen/spec.md` com o usuário; depois, tela de Fechamento. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
-- **Uncommitted files**: none
-- **Branch**: `feat/reconciliations-screen`, local, sem push.
+- **Uncommitted files**: `.specs/features/discrepancies-screen/spec.md` (aguardando revisão)
+- **Branch**: `feat/discrepancies-screen`, criada a partir do `main` em `0ebab4a`.
