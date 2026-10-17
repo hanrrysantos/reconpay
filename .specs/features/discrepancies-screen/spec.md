@@ -144,16 +144,16 @@ O dashboard mostra só as 4 maiores divergências abertas do run vigente da jane
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| DIV-01 | P1 Lista: janela inicial, busca, colunas (AC 1, 2) | Design | Pending |
-| DIV-02 | P1 Lista: filtros de status e tipo, uma linha por divergência (AC 3, 4, 5, edges) | Design | Pending |
-| DIV-03 | P1 Lista: troca de janela, paginação, vazio, erro (AC 6–9) | Design | Pending |
-| DIV-04 | P1 Estado: sem run, em andamento, falha (AC 1, 2, 3) | Design | Pending |
-| DIV-05 | P1 Estado: período travado (AC 4) | Design | Pending |
-| DIV-06 | P1 Gaveta: abrir, histórico, resolver, reabrir, travado (AC 1–4) | Design | Pending |
-| DIV-07 | P1 Gaveta: atualização da lista e navegação (AC 5, 6, 7) | Design | Pending |
-| DIV-08 | P2 Isolamento por empresa e sem empresa (AC 1, 2) | Design | Pending |
+| DIV-01 | P1 Lista: janela inicial, busca, colunas (AC 1, 2) | Execute | Verified |
+| DIV-02 | P1 Lista: filtros de status e tipo, uma linha por divergência (AC 3, 4, 5, edges) | Execute | Verified |
+| DIV-03 | P1 Lista: troca de janela, paginação, vazio, erro (AC 6–9) | Execute | Verified |
+| DIV-04 | P1 Estado: sem run, em andamento, falha (AC 1, 2, 3) | Execute | Verified |
+| DIV-05 | P1 Estado: período travado (AC 4) | Execute | Verified |
+| DIV-06 | P1 Gaveta: abrir, histórico, resolver, reabrir, travado (AC 1–4) | Execute | Verified |
+| DIV-07 | P1 Gaveta: atualização da lista e navegação (AC 5, 6, 7) | Execute | Verified |
+| DIV-08 | P2 Isolamento por empresa e sem empresa (AC 1, 2) | Execute | Verified |
 
-**Coverage:** 8 total, 0 mapped to tasks, 8 unmapped ⚠️
+**Coverage:** 8 total, 8 mapped to tasks, 0 unmapped ✅
 
 ---
 

@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: discrepancies-screen (tela `/divergencias`, frontend) — **Specify**
-- **Phase / Task**: Specify; decisões do usuário: fonte = run vigente do período (só frontend, sem endpoint novo); gaveta do dashboard para resolver, com histórico e reabrir
-- **Completed**: reconciliations-screen mergeada no `main` (PR #50, 2026-10-16), Verifier PASS (iteração 2) e teste manual aprovado; CI do merge verde (Build and Test, Frontend, Docker Build) e deploy de produção verde, com o export `404` em produção
+- **Feature**: discrepancies-screen (tela `/divergencias`, frontend) — **Execute concluído**
+- **Phase / Task**: T1–T8 commitadas; Verifier PASS na iteração 5 (`validation.md`, diff `baa9d12^..79fea18`), 796 testes, typecheck e build verdes
+- **Completed**: reconciliations-screen mergeada no `main` (PR #50, 2026-10-16), CI e deploy verdes; discrepancies-screen implementada e verificada (iterações 1–4 reprovadas só por lacunas de teste, fechadas em `55e34e5`, `c5c736d`, `cadc990`, `e481c6e`, `79fea18`)
 - **In-progress** (file:line): none
-- **Next step**: confirmar `.specs/features/discrepancies-screen/spec.md` com o usuário; depois, tela de Fechamento. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: teste manual do usuário em `/divergencias`; push só com pedido; após o merge, conferir CI e seguir para a tela de Fechamento. Risco fora da spec: se um novo run começa na mesma janela com a gaveta aberta, a gaveta pode agir sobre o run novo (mesmo formato do dashboard). Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
-- **Uncommitted files**: `.specs/features/discrepancies-screen/spec.md` (aguardando revisão)
-- **Branch**: `feat/discrepancies-screen`, criada a partir do `main` em `0ebab4a`.
+- **Uncommitted files**: none
+- **Branch**: `feat/discrepancies-screen`, local, sem push, criada a partir do `main` em `0ebab4a`.
