@@ -300,6 +300,20 @@ describe('DiscrepanciesPage', () => {
     expect(drawer).not.toHaveTextContent('AVULSA-1')
   })
 
+  it('com uma venda de duas divergências, o rodapé conta divergências, não vendas (DIV-07 AC7, edge de duas linhas)', async () => {
+    const user = renderRoute()
+    await table()
+    // "Todas": IMP-T-002 shows two rows (status and fee) next to AVULSA-1, so 3 rows come from 2 items.
+    await user.selectOptions(screen.getByLabelText('Status'), 'Todas')
+    await waitFor(() => expect(rows()).toHaveLength(3))
+
+    await user.click(screen.getByRole('button', { name: 'Abrir IMP-T-002 · Taxa divergente' }))
+
+    const drawer = screen.getByRole('dialog', { name: 'Resolver divergência' })
+    expect(within(drawer).getByText('3 de 3 · J / K navega')).toBeInTheDocument()
+    expect(drawer).toHaveTextContent('Taxa divergente')
+  })
+
   it('J e K andam pelas divergências da página dentro da gaveta (DIV-07 AC7)', async () => {
     const user = renderRoute()
     await table()
