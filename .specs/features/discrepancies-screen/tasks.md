@@ -136,9 +136,9 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Filtros com status diferente geram chaves diferentes e consultam a API de novo
-- [ ] Depois de `useResolveDiscrepancy` aceito, uma página de itens da mesma empresa já foi recarregada quando a mutação resolve (padrão `later()`)
-- [ ] Testes atuais de queries (dashboard, conciliações) inalterados e verdes; testes novos em `frontend/lib/queries.discrepancies.test.tsx`; gate quick passa
+- [x] Filtros com status diferente geram chaves diferentes e consultam a API de novo
+- [x] Depois de `useResolveDiscrepancy` aceito, uma página de itens da mesma empresa já foi recarregada quando a mutação resolve (padrão `later()`)
+- [x] Testes atuais de queries (dashboard, conciliações) inalterados e verdes; testes novos em `frontend/lib/queries.discrepancies.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
