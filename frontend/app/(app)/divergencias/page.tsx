@@ -1,5 +1,5 @@
-import { UnderConstruction } from '@/components/shell/UnderConstruction'
+import { DiscrepanciesPage } from '@/components/discrepancies/DiscrepanciesPage'
 
 export default function DivergenciasPage() {
-  return <UnderConstruction title="Divergências" />
+  return <DiscrepanciesPage />
 }

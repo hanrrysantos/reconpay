@@ -245,15 +245,15 @@ T7 → T8
 
 **Done when**:
 
-- [ ] A rota abre na janela do run mais recente (ou no mês atual sem run), com o nome da empresa dentro do cabeçalho da página (L-035), e busca as abertas da página 1
-- [ ] Status, tipo e janela refazem a busca e voltam para a página 1; "Todas" usa `result=DIVERGENT`
-- [ ] Sem run, run com falha e travado mostram o aviso; run em andamento mostra o aviso, recarrega a cada 3 s e mostra a lista ao concluir, com os itens servidos só depois do status final (L-037)
-- [ ] "Abrir" abre a gaveta; aceitar com nota mostra o novo status, e ao fechar a lista não tem mais a linha no filtro Abertas; no filtro Aceitas, "Reabrir" envia `OPEN`
-- [ ] Período travado: a gaveta abre sem Aceitar/Ajustar/Baixar/Reabrir
-- [ ] Rodapé "<posição> de <total da página> · J / K navega"
-- [ ] Troca de empresa com status e tipo fora do padrão (L-036): gaveta fecha, janela vai para o run da nova empresa, filtros mantidos, página 1
-- [ ] Sem empresa: `NoMerchant`, sem filtros nem lista
-- [ ] Testes em `frontend/components/discrepancies/DiscrepanciesPage.test.tsx` renderizando a rota; gate build passa
+- [x] A rota abre na janela do run mais recente (ou no mês atual sem run), com o nome da empresa dentro do cabeçalho da página (L-035), e busca as abertas da página 1
+- [x] Status, tipo e janela refazem a busca e voltam para a página 1; "Todas" usa `result=DIVERGENT`
+- [x] Sem run, run com falha e travado mostram o aviso; run em andamento mostra o aviso, recarrega a cada 3 s e mostra a lista ao concluir, com os itens servidos só depois do status final (L-037)
+- [x] "Abrir" abre a gaveta; aceitar com nota mostra o novo status, e ao fechar a lista não tem mais a linha no filtro Abertas; no filtro Aceitas, "Reabrir" envia `OPEN`
+- [x] Período travado: a gaveta abre sem Aceitar/Ajustar/Baixar/Reabrir
+- [x] Rodapé "<posição> de <total da página> · J / K navega"
+- [x] Troca de empresa com status e tipo fora do padrão (L-036): gaveta fecha, janela vai para o run da nova empresa, filtros mantidos, página 1
+- [x] Sem empresa: `NoMerchant`, sem filtros nem lista
+- [x] Testes em `frontend/components/discrepancies/DiscrepanciesPage.test.tsx` renderizando a rota; gate build passa
 
 **Tests**: unit
 **Gate**: build

@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import type { ComponentType } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import DivergenciasPage from '@/app/(app)/divergencias/page'
 import FechamentoPage from '@/app/(app)/fechamento/page'
 
 const fetcher = vi.fn()
@@ -9,7 +8,6 @@ beforeEach(() => { fetcher.mockReset(); vi.stubGlobal('fetch', fetcher) })
 afterEach(() => vi.unstubAllGlobals())
 
 const ROUTES: Array<[string, string, ComponentType]> = [
-  ['/divergencias', 'Divergências', DivergenciasPage],
   ['/fechamento', 'Fechamento', FechamentoPage],
 ]
 
