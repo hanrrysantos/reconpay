@@ -223,8 +223,8 @@ T5 → T6
 
 **Done when**:
 
-- [ ] `README.md` (parágrafo do frontend) e `frontend/README.md` descrevem a tela; a linha "`/fechamento` mostra a barra e 'em construção'" sai
-- [ ] Gate build passa
+- [x] `README.md` (parágrafo do frontend) e `frontend/README.md` descrevem a tela; a linha "`/fechamento` mostra a barra e 'em construção'" sai
+- [x] Gate build passa
 
 **Tests**: none
 **Gate**: build

@@ -73,7 +73,11 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
   - janela sem run, run em andamento (a tela recarrega a cada 3 s e mostra a lista ao concluir) ou com falha mostram um aviso com o link para Conciliações; período travado mostra o aviso e deixa a gaveta só para consulta;
   - "Abrir" abre a gaveta do dashboard: os dois lados da transação, o histórico de transições e ajustes, aceitar, ajustar, baixar e reabrir; J/K navegam pelas divergências da página;
   - trocar de empresa fecha a gaveta, vai para a janela do run mais recente da nova empresa e mantém os filtros.
-- `/fechamento` mostra a barra e "em construção", sem chamar a API.
+- Fechamento em `/fechamento`, pelo item "Fechamento" da barra superior:
+  - uma linha por janela dos 100 runs mais recentes da empresa, da data inicial mais recente para a mais antiga, 10 por página;
+  - cada linha lê o seu período: "Travado" ou "Aberto" com taxa de match, valor em aberto, quando travou e quanto levou; "Em andamento" e "Sem conciliação concluída" ficam sem ações; uma leitura com erro mostra "Não carregou" e "Tentar novamente";
+  - "Travar" e "Destravar" pedem confirmação e atualizam a linha; a trava recusada (por exemplo, divergência em aberto) mostra a mensagem da API acima da tabela; "Exportar CSV" baixa `reconpay-<início>-<fim>.csv`;
+  - empresa sem runs mostra o aviso com o link para Conciliações; trocar de empresa volta para a página 1.
 
 ## Dependências
 
