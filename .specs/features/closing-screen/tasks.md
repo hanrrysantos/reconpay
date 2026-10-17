@@ -197,9 +197,9 @@ T5 → T6
 
 **Done when**:
 
-- [ ] Nenhum import de `UnderConstruction` no código
-- [ ] Componente removido; a contagem de testes não muda
-- [ ] Gate build passa
+- [x] Nenhum import de `UnderConstruction` no código
+- [x] Componente removido; a contagem de testes não muda
+- [x] Gate build passa
 
 **Tests**: none
 **Gate**: build
