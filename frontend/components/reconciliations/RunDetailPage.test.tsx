@@ -41,7 +41,13 @@ let server: { merchants: Merchant[]; runs: Run[]; items: ReconciliationItem[] }
 let runAnswers: Run[]
 let exportAnswer: (() => Promise<Response>) | null
 let calls: Call[]
+/**
+ * Like the backend, whose items commit together with COMPLETED: with `live` set, items are empty while the last
+ * delivered run answer is PENDING/RUNNING, and each answer waits `runDelay`/`itemsDelay` ms.
+ */
+let live: { delivered: Run['status'] | null; runDelay: number; itemsDelay: number } | null
 
+const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 const json = (body: unknown, status = 200) => Response.json(body, { status })
 const notFound = (runId: string) => json({ error: 'NOT_FOUND', message: `Conciliação não encontrada com id: ${runId}` }, 404)
 
@@ -52,9 +58,19 @@ async function route(method: string, path: string): Promise<Response> {
     const [, merchantId, runId, tail] = match
     const stored = server.runs.find(candidate => candidate.id === runId && candidate.merchantId === merchantId)
     if (!stored) return notFound(runId)
-    if (tail === '/items') return json({ content: server.items, totalPages: 1 })
+    if (tail === '/items') {
+      if (!live) return json({ content: server.items, totalPages: 1 })
+      const finished = live.delivered === 'COMPLETED' || live.delivered === 'FAILED'
+      await wait(live.itemsDelay)
+      return json({ content: finished ? server.items : [], totalPages: 1 })
+    }
     if (tail === '/export') return exportAnswer ? exportAnswer() : new Response('externalReference;result\nREF-1;MATCHED\n', { headers: { 'Content-Type': 'text/csv' } })
-    return json(runAnswers.length > 1 ? runAnswers.shift() : runAnswers[0] ?? stored)
+    const answer = runAnswers.length > 1 ? runAnswers.shift()! : runAnswers[0] ?? stored
+    if (live) {
+      await wait(live.runDelay)
+      live.delivered = answer.status
+    }
+    return json(answer)
   }
   throw new Error(`rota sem resposta no teste: ${method} ${path}`)
 }
@@ -65,6 +81,7 @@ beforeEach(() => {
   calls = []
   runAnswers = []
   exportAnswer = null
+  live = null
   server = {
     merchants: [alfa, beta],
     runs: [
@@ -245,6 +262,32 @@ describe('RunDetailPage', () => {
     const done = screen.getByRole('region', { name: 'Conciliação' })
     expect(totalsOf(done)).toMatchObject({ Status: 'Concluída', Itens: '3' })
     expect(within(done).getByRole('button', { name: 'Exportar CSV' })).toBeInTheDocument()
+
+    const settled = { runs: runCalls().length, items: itemCalls().length }
+    await tick(15000)
+    expect(runCalls()).toHaveLength(settled.runs)
+    expect(itemCalls()).toHaveLength(settled.items)
+  })
+
+  it('quando o run conclui, busca os itens de novo e mostra os finais, mesmo com o polling parado (REC-09 AC8)', async () => {
+    vi.useFakeTimers()
+    // Items reach the API only with COMPLETED, and the items answer is slower than the run answer.
+    live = { delivered: null, runDelay: 20, itemsDelay: 60 }
+    runAnswers = [
+      run('r-1', 'm-1', { status: 'RUNNING', processedItems: 1, totalItems: 1, matchedCount: null, divergentCount: null }),
+      run('r-1', 'm-1', { status: 'COMPLETED', processedItems: 1, totalItems: 1, matchedCount: 1, divergentCount: 0 }),
+    ]
+    const tick = (ms: number) => act(async () => { await vi.advanceTimersByTimeAsync(ms) })
+    renderRoute()
+
+    await tick(200)
+    expect(totalsOf(screen.getByRole('region', { name: 'Conciliação' }))).toMatchObject({ Status: 'Em andamento' })
+    expect(screen.getByText('Nenhum item encontrado para os filtros escolhidos.')).toBeInTheDocument()
+
+    await tick(3000)
+    expect(totalsOf(screen.getByRole('region', { name: 'Conciliação' }))).toMatchObject({ Status: 'Concluída' })
+    const items = screen.getByRole('table', { name: 'Itens' })
+    expect(within(items).getByText('REF-1')).toBeInTheDocument()
 
     const settled = { runs: runCalls().length, items: itemCalls().length }
     await tick(15000)

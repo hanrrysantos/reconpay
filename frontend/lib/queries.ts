@@ -42,8 +42,11 @@ export const queryKeys = {
   runPage: (merchantId: string, window: Window | null, page: number) =>
     ['runs', merchantId, 'page', window?.fromDate ?? 'all', window?.toDate ?? 'all', page] as const,
   run: (merchantId: string, runId: string) => ['runs', merchantId, 'run', runId] as const,
-  runItems: (merchantId: string, runId: string, filters: RunItemFilters, page: number) =>
-    ['runItems', merchantId, runId, filters.result ?? 'ALL', filters.discrepancyType ?? 'ALL', page] as const,
+  /** Without filters and page, the prefix of every item page of the run. */
+  runItems: (merchantId: string, runId: string, filters?: RunItemFilters, page?: number) =>
+    (filters === undefined
+      ? ['runItems', merchantId, runId]
+      : ['runItems', merchantId, runId, filters.result ?? 'ALL', filters.discrepancyType ?? 'ALL', page ?? 0]) as readonly unknown[],
   period: (merchantId: string, window: Window) => ['period', merchantId, window.fromDate, window.toDate] as const,
   summary: (merchantId: string, window: Window) => ['summary', merchantId, window.fromDate, window.toDate] as const,
   openDiscrepancies: (merchantId: string, runId?: string, type?: DiscrepancyType) =>

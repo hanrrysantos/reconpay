@@ -3,13 +3,14 @@
 import { ArrowLeft, Download } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
 import { BlockError, NoMerchant } from '@/components/dashboard/states'
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import { ApiError, type Run } from '@/lib/api'
 import { formatImportedAt } from '@/lib/imports'
 import { formatWindow } from '@/lib/period'
-import { useExportRun, useRun } from '@/lib/queries'
+import { queryKeys, useExportRun, useRun } from '@/lib/queries'
 import { RUN_STATUS_LABELS, anyInFlight, itemsProgress } from '@/lib/reconciliations'
 import { RunItems } from './RunItems'
 
@@ -97,6 +98,13 @@ function RunDetail({ merchantId, merchantName, runId }: { merchantId: string; me
   const runQuery = useRun(merchantId, runId)
   const run = runQuery.data
   const polling = run !== undefined && anyInFlight([run])
+  const queryClient = useQueryClient()
+  const wasPolling = useRef(polling)
+  // The run's items commit together with COMPLETED, so the last poll may have read none: reload them once it ends.
+  useEffect(() => {
+    if (wasPolling.current && !polling) void queryClient.invalidateQueries({ queryKey: queryKeys.runItems(merchantId, runId) })
+    wasPolling.current = polling
+  }, [polling, queryClient, merchantId, runId])
 
   if (runQuery.isPending) {
     return <div role="status" aria-label="Carregando conciliação" aria-busy="true" className="h-40 animate-pulse rounded-lg bg-surface" />

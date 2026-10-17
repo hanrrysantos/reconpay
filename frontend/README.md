@@ -64,7 +64,7 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
   - cabeçalho com janela, status, criado em, Itens, Conciliados, Divergentes, o selo "Substituído" e "Voltar para conciliações"; run inexistente ou de outra empresa mostra "Conciliação não encontrada.";
   - itens do run, 20 por página, da maior diferença absoluta para a menor, com Referência, Data da venda, Método, Líquido esperado, Líquido liquidado, Diferença, Resultado (Bateu, Divergente) e Divergências ("<tipo> · <status>"); o lado ausente aparece como "—";
   - filtros "Resultado" (Todos, Bateram, Divergentes) e "Tipo de divergência"; qualquer mudança volta para a página 1; sem itens, "Nenhum item encontrado para os filtros escolhidos.";
-  - run na fila ou em andamento recarrega o run e os itens a cada 3 s;
+  - run na fila ou em andamento recarrega o run e os itens a cada 3 s; ao concluir, busca os itens uma última vez, porque eles só aparecem na API junto com o status final;
   - "Exportar CSV" aparece só em run concluído e baixa `reconciliation-<runId>.csv`; o erro aparece junto do botão;
   - trocar de empresa volta para `/conciliacoes`.
 - `/divergencias` e `/fechamento` mostram a barra e "em construção", sem chamar a API.
