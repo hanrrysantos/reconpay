@@ -249,8 +249,8 @@ Seen once or not yet corroborated. Tracked, not trusted.
 ### L-040 - When a page wires a callback of a reused component, drive that callback through the page in a test instead of relying on the component's own test with a mocked callback
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
 - features: discrepancies-screen
-- evidence: validation.md M20; DiscrepanciesPage.test.tsx:237-256 (frontend)
-- last seen: 2026-10-17T01:22:31Z
+- evidence: validation.md M20; DiscrepanciesPage.test.tsx:237-256 (frontend) (+1 more)
+- last seen: 2026-10-17T01:31:48Z
 
 ### L-041 - Spec the exact text of composite cells, including when optional parts are omitted, instead of only naming the parts
 - signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0

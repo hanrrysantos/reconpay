@@ -723,10 +723,11 @@
       "recurrence": 1,
       "harmful": 0,
       "evidence": [
-        "validation.md M20; DiscrepanciesPage.test.tsx:237-256 (frontend)"
+        "validation.md M20; DiscrepanciesPage.test.tsx:237-256 (frontend)",
+        "validation.md iteração 2 N3; DiscrepanciesPage.test.tsx:330 (frontend)"
       ],
       "created": "2026-10-17T01:22:31Z",
-      "last_seen": "2026-10-17T01:22:31Z"
+      "last_seen": "2026-10-17T01:31:48Z"
     },
     {
       "id": "L-041",

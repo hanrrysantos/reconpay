@@ -2,10 +2,125 @@
 
 **Date**: 2026-10-16
 **Spec**: `.specs/features/discrepancies-screen/spec.md`
-**Diff range**: `baa9d12^..71174f1` (10 commits), branch `feat/discrepancies-screen`. Spec `baa9d12`, plano `8a24fe1`, código `2689579`..`71bdfb0`, docs `71174f1`.
-**Verifier**: sub-agente independente (author ≠ verifier), iteração 1 de 3.
+**Diff range**: `baa9d12^..55e34e5` (12 commits), branch `feat/discrepancies-screen`. Iteração 1 cobriu `baa9d12^..71174f1`; o relatório dela entrou em `18a53d8`; a fix é `55e34e5` (só testes + uma linha de Assumption na spec).
+**Verifier**: sub-agente independente (author ≠ verifier), iteração 2 de 3.
 
 ## Validation: discrepancies-screen - FAIL ❌
+
+Os cinco gaps da iteração 1 estão fechados. Os oito sobreviventes (M6, M10, M13, M14, M19, M20, M21, M23) agora morrem. A fix só acrescenta testes. Mas um mutante novo sobrevive: a página ignora a linha clicada e abre sempre a primeira divergência da página (N3). Nenhum teste da página clica "Abrir" numa linha que não seja a primeira e afirma qual divergência a gaveta mostra. Isso quebra a evidência de DIV-06 AC1 ("abrir a gaveta de resolução daquela divergência"). É o mesmo padrão de M20 (L-040): callback ligado pela página, testado só no componente com mock. O código está certo (`DiscrepanciesPage.tsx:108`); falta o teste. Gate verde: 792 testes, typecheck e build. Backend sem mudança.
+
+Abreviações: as mesmas da iteração 1 (abaixo).
+
+---
+
+## Iteração 2
+
+### Fix `55e34e5`
+
+- **Só testes e spec.** `git show --stat 55e34e5`: `spec.md` +1, `DPT` +74, `DLT` +9, `WNT` +9. Nenhum arquivo de produção. 93 inserções, 0 remoções.
+- **Nada enfraquecido.** `git diff 18a53d8 55e34e5` não tem nenhuma linha removida. A fixture ganhou o item `i-8` de `r-aug` (`DPT:109`); nenhum teste antigo lia itens de agosto (o teste de janela sem run vai para setembro, `DPT:188`). Os testes antigos passam sem mudança.
+- **Linha nova da spec** (`spec.md:41`, "Linha da Transação"). Bate com o código: parcelas só com `installments > 1` (`DiscrepancyList.tsx:21`), "—" no método e na data ausentes (`DiscrepancyList.tsx:20,22`). Bate com o dashboard no critério de parcelas (`OpenDiscrepancyTable.tsx:34`, mesmo `> 1`). Diferença menor, não é gap: o dashboard omite " · data" quando a data falta (`OpenDiscrepancyTable.tsx:36`); esta tela mostra "—", como a própria linha da spec diz e como `DLT:59` (`'REF-2— · —'`) afirma. A linha só invoca o dashboard para o "1x".
+- **Backend.** `git diff --name-only baa9d12^..55e34e5 -- backend` vazio.
+
+### Gaps da iteração 1 re-checados
+
+| Gap | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| 1. DIV-07 AC7 J/K pela página | J/K andam pelas divergências da página; rodapé "<n> de <total da página>" | `DPT:296-297` "1 de 2 · J / K navega" e `AVULSA-1`; `j` → `DPT:300-302` "2 de 2 · J / K navega", `IMP-T-002`, "Status inconsistente"; `k` → `DPT:305-306` "1 de 2" e `AVULSA-1`. M20 morre | ✅ PASS |
+| 2. DIV-03 AC6 troca de janela | run vigente da nova janela, página 1, filtros mantidos | Status "Todas", Tipo "Status inconsistente" e página 2 antes da troca (`DPT:206-210`); depois de agosto, `DPT:215` path `r-aug/items`; `DPT:216` `toEqual` com `page` = `'0'`, `size` = `'20'`, `sort` = `'absDifference,desc'`, `result` = `'DIVERGENT'`, `discrepancyType` = `'STATUS_MISMATCH'` (objeto exato); `DPT:217-218` selects `ALL` e `STATUS_MISMATCH`; `DPT:219` linha `AGO-1`. M6 e M23 morrem (L-036 aplicada) | ✅ PASS |
+| 3. DIV-08 AC1 página 1 e cache | fecha a gaveta, janela da nova empresa, filtros mantidos, página 1 | Alfa em agosto, página 2, gaveta aberta (`DPT:364-370`); Beta: `DPT:373-374` `r-beta/items` com `page:'0'`; volta a Alfa (com `runs` em cache): `DPT:377-380` `r-oct/items`, `page:'0'`, "Outubro de 2026", sem dialog. M13 e M14 morrem (L-038, L-039 aplicadas) | ✅ PASS |
+| 4. DIV-01 AC1 mês atual sem run | sem run, janela do mês atual | data 05/11/2026 (fora do mês das fixtures), Alfa sem runs; `DPT:227` "Nenhuma conciliação nesta janela."; `DPT:228` "Novembro de 2026"; `DPT:230` `/periods` com `{ fromDate:'2026-11-01', toDate:'2026-11-30' }`. M21 morre | ✅ PASS |
+| 5a. Aviso de travado só com run concluído | spec: DIV-04 AC2/AC3 mostram andamento/falha; DIV-05 AC4 travado para run concluído | `WNT:37-44`: `FAILED` e `RUNNING` com `locked` mostram o estado do run (`WNT:42`) e não "Período travado…" (`WNT:43`). M10 morre | ✅ PASS |
+| 5b. "1x" (spec-precision) | `spec.md:41` fixa "Pix · 03/10/2026" | `DLT:70` `toBe('REF-4Pix · 03/10/2026')`. M19 morre; o gap de precisão está fechado | ✅ PASS |
+
+### Gap novo
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| DIV-06 AC1 abrir (pela página) | `spec.md:107`: clicar "Abrir" numa linha abre a gaveta **daquela divergência** | `DLT:93-102` prova o índice entregue a `onOpen` (mock). Na página, os cliques em linha que não é a primeira (`DPT:330` "Abrir IMP-T-002 · Status inconsistente", índice 1) não afirmam qual divergência a gaveta mostra. Os outros cliques (`DPT:273`, `DPT:294`, `DPT:315`, `DPT:343`, `DPT:369`) são todos na primeira (ou única) linha. N3 sobrevive | ❌ GAP |
+
+As demais 18 ACs da iteração 1 seguem com a mesma evidência (o arquivo só ganhou linhas; números de linha da iteração 1 em `DPT` acima de 199 deslocaram +32 ou +54).
+
+**Status**: ❌ 21/22 ACs com evidência que discrimina; 1 gap (DIV-06 AC1 pela página). Sem spec-precision gap aberto.
+
+### Discrimination Sensor
+
+Scratch: `git worktree add --detach` em `scratchpad/div-wt2` a partir de `55e34e5`, com `frontend/node_modules` por symlink. Baseline do scratch: `next typegen` + `tsc --noEmit` exit 0; 191 testes em escopo passam. Cada mutante passou por `tsc --noEmit` (todos compilam) e rodou `vitest run` sobre `components/discrepancies`, `lib/discrepancies.test.ts`, `lib/queries.discrepancies.test.tsx` e `components/dashboard`. Revertido com `git checkout -- .` no scratch depois de cada mutante.
+
+| # | File | Mutação | Killed? | Testes que falharam |
+| - | ---- | ------- | ------- | ------------------- |
+| M6 | `DiscrepanciesPage.tsx:68` | janela não volta para a página 1 | ✅ Killed | `DPT:202` |
+| M10 | `WindowNotice.tsx:21` | aviso de travado antes dos outros ramos (`locked && run !== null`) | ✅ Killed | `WNT:37` (2 casos) |
+| M13 | `DiscrepanciesPage.tsx:159` | sem `key={merchantId}` | ✅ Killed | `DPT:360` |
+| M14 | `DiscrepanciesPage.tsx:55,137` | página no pai, passada por props | ✅ Killed | `DPT:360` |
+| M19 | `DiscrepancyList.tsx:21` | `installments >= 1`: "1x" aparece | ✅ Killed | `DLT:64` |
+| M20 | `DiscrepanciesPage.tsx:123` | `onNavigate={() => {}}` | ✅ Killed | `DPT:290` |
+| M21 | `DiscrepanciesPage.tsx:156` | sem run, janela do mês anterior | ✅ Killed | `DPT:222` |
+| M23 | `DiscrepanciesPage.tsx:68` | troca de janela zera os filtros | ✅ Killed | `DPT:202` |
+| N1 | `DiscrepanciesPage.tsx:155` | janela inicial no run mais antigo (`content.at(-1)`) | ✅ Killed | 11 testes de `DPT` |
+| N2 | `DiscrepanciesPage.tsx:62` | `locked` ignora o período travado | ✅ Killed | `DPT:324` |
+| N3 | `DiscrepanciesPage.tsx:108` | `onOpen` ignora o índice e abre sempre a linha 0 | ❌ Survived | - |
+| N4 | `DiscrepanciesPage.tsx:119` | `total` do rodapé com +1 | ✅ Killed | `DPT:269`, `DPT:290` |
+
+**Por que N3 sobrevive**: o teste de travado (`DPT:330`) clica na segunda linha, mas só afirma que não há ações. Com N3 a gaveta abre AVULSA-1 e o teste passa. É uma falha real: o operador abriria outra divergência e poderia resolvê-la.
+
+**M9 e M26**: seguem fora da spec, como na iteração 1. Nada na fix muda isso.
+
+**Sensor depth**: ampliado (8 re-execuções + 4 novos).
+**Result**: 11/12 mortos. 1 sobrevivente - FAIL ❌
+
+**Isolamento**: `git status --porcelain` antes = vazio; depois da remoção do scratch = vazio. Scratch removido com `git worktree remove --force` + `git worktree prune`; `git worktree list` não lista mais o scratch. Nenhum `git stash`.
+
+### Gate Check
+
+- **Gate command**: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- **Result**: 792 passed, 0 failed, 0 skipped (63 arquivos). Typecheck exit 0. Build ok, `/divergencias` estática.
+- **Test count**: 785 → 792 (+7: `DPT` +4, `DLT` +1, `WNT` +2 casos). Nenhum teste removido ou afrouxado.
+
+### Fix Plan
+
+#### Fix 1: abrir a divergência clicada pela página (DIV-06 AC1) - Major
+
+- **Root cause**: a ligação `onOpen={(list, index) => setDrawer({ list, index })}` (`DiscrepanciesPage.tsx:108`) só tem teste no componente, com mock (`DLT:93`).
+- **Fix task**: em `DPT`, clicar "Abrir IMP-T-002 · Status inconsistente" (segunda linha) e afirmar na gaveta "2 de 2 · J / K navega" e o texto `IMP-T-002` / "Status inconsistente" (não `AVULSA-1`). Pode entrar no teste de travado (`DPT:330-334`) ou em um `it` novo. Mata N3. Só teste.
+
+### Requirement Traceability Update
+
+| Requirement | Iteração 1 | Iteração 2 |
+| --- | --- | --- |
+| DIV-01 | ❌ Needs Fix (AC1) | ✅ Verified |
+| DIV-02 | ✅ Verified | ✅ Verified |
+| DIV-03 | ❌ Needs Fix (AC6) | ✅ Verified |
+| DIV-04 | ✅ Verified | ✅ Verified |
+| DIV-05 | ✅ Verified | ✅ Verified |
+| DIV-06 | ✅ Verified | ❌ Needs Fix (AC1 pela página, N3) |
+| DIV-07 | ❌ Needs Fix (AC7) | ✅ Verified |
+| DIV-08 | ❌ Needs Fix (AC1) | ✅ Verified |
+
+### Lessons
+
+- N3 é o mesmo padrão de L-040 (callback ligado pela página sem teste pela página). Registrado como nova evidência em L-040, com o mesmo texto. A recorrência conta features distintas, então L-040 segue `candidate`.
+- L-036, L-038 e L-039 foram aplicadas na fix e mataram M6, M23, M13 e M14. L-041 fechou o gap do "1x" na spec. Evitar falha não é sinal; nada registrado para elas.
+
+**Docs desatualizados (reportados, não editados)**: `spec.md:144-156` (traceability Pending, "0 mapped"); `tasks.md:12` (`Status: In Progress`); `.specs/STATE.md` Handoff (ainda em Specify).
+
+### Summary
+
+**Overall**: ❌ Not Ready
+
+**Spec-anchored check**: 21/22 ACs; 1 gap (DIV-06 AC1 pela página).
+**Sensor**: 11/12 mortos (N3 sobrevive).
+**Gate**: 792 passed, typecheck e build OK.
+
+**Next steps**: Fix 1 (só teste em `DPT`); depois, iteração 3.
+
+---
+
+# Histórico: iteração 1
+
+**Diff range da iteração 1**: `baa9d12^..71174f1` (10 commits). Spec `baa9d12`, plano `8a24fe1`, código `2689579`..`71bdfb0`, docs `71174f1`.
+
+### Veredito da iteração 1: reprovada
 
 O código atende a spec nos pontos que verifiquei. Os testes não. Quatro comportamentos pedidos pela spec não têm teste que discrimine: J/K na página (DIV-07 AC7), troca de janela volta para a página 1 e mantém os filtros (DIV-03 AC6), troca de empresa volta para a página 1 e reseta a janela também com dados em cache (DIV-08 AC1), e janela inicial no mês atual sem run (DIV-01 AC1). Oito mutantes não equivalentes sobrevivem. Gate verde: 785 testes, typecheck e build. Backend sem mudança.
 
