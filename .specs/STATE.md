@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: closing-screen (tela `/fechamento`, frontend) — **Specify** (não iniciada)
-- **Phase / Task**: Specify; escopo e decisões ainda a levantar com o usuário
-- **Completed**: discrepancies-screen mergeada no `main` (PR #51, 2026-10-17, `e0b03a6`), Verifier PASS (iteração 5) e teste manual aprovado; CI do merge verde (Detect changes, Frontend; backend e Docker pulados, só frontend mudou), sem deploy esperado
+- **Feature**: closing-screen (tela `/fechamento`, frontend) — **Execute concluído**
+- **Phase / Task**: T1–T6 commitadas; Verifier PASS na iteração 5 (`validation.md`, diff `03b25e9^..e86fdbc`), 861 testes, typecheck e build verdes
+- **Completed**: discrepancies-screen mergeada no `main` (PR #51, 2026-10-17), CI verde; closing-screen implementada e verificada (iterações 1–4 reprovadas só por lacunas de teste, fechadas em `3289be0`, `16f1337`, `40d5721`, `edda9b5`, `e86fdbc`). `UnderConstruction` removido: nenhuma tela fica "em construção"
 - **In-progress** (file:line): none
-- **Next step**: levantar o escopo de `/fechamento`, a última tela em construção, e escrever `.specs/features/closing-screen/spec.md`. Risco fora da spec herdado: a gaveta de resolução pode agir sobre um run novo iniciado na mesma janela. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: teste manual do usuário em `/fechamento`; push só com pedido; após o merge, conferir CI. Com isso todas as telas do app estão prontas. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia; a gaveta de resolução pode agir sobre um run novo iniciado na mesma janela.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/closing-screen`, criada a partir do `main` em `e0b03a6`.
+- **Branch**: `feat/closing-screen`, local, sem push, criada a partir do `main` em `e0b03a6`.

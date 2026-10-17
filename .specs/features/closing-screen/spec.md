@@ -186,16 +186,16 @@ O dashboard fecha uma janela por vez: mostra a régua de fechamento, trava, dest
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| FEC-01 | P1 Histórico: título, linhas, ordem, colunas (AC 1, 2, 3, edges de janela) | Design | Pending |
-| FEC-02 | P1 Histórico: status e valores por resposta do período (AC 4, 5, 6, edges de formato) | Design | Pending |
-| FEC-03 | P1 Estados: paginação, sem runs, erro da lista, leitura por página, erro da linha (AC 1–5) | Design | Pending |
-| FEC-04 | P1 Travar e destravar: botões e confirmação (AC 1, 2, 5) | Design | Pending |
-| FEC-05 | P1 Travar e destravar: chamadas, linha atualizada, cache (AC 3, 4, 6) | Design | Pending |
-| FEC-06 | P1 Erros e proteção das ações (AC 1, 2, 3) | Design | Pending |
-| FEC-07 | P1 Exportar CSV (AC 1, 2) | Design | Pending |
-| FEC-08 | P2 Isolamento por empresa e sem empresa (AC 1, 2) | Design | Pending |
+| FEC-01 | P1 Histórico: título, linhas, ordem, colunas (AC 1, 2, 3, edges de janela) | Execute | Verified |
+| FEC-02 | P1 Histórico: status e valores por resposta do período (AC 4, 5, 6, edges de formato) | Execute | Verified |
+| FEC-03 | P1 Estados: paginação, sem runs, erro da lista, leitura por página, erro da linha (AC 1–5) | Execute | Verified |
+| FEC-04 | P1 Travar e destravar: botões e confirmação (AC 1, 2, 5) | Execute | Verified |
+| FEC-05 | P1 Travar e destravar: chamadas, linha atualizada, cache (AC 3, 4, 6) | Execute | Verified |
+| FEC-06 | P1 Erros e proteção das ações (AC 1, 2, 3) | Execute | Verified |
+| FEC-07 | P1 Exportar CSV (AC 1, 2) | Execute | Verified |
+| FEC-08 | P2 Isolamento por empresa e sem empresa (AC 1, 2) | Execute | Verified |
 
-**Coverage:** 8 total, 0 mapped to tasks, 8 unmapped ⚠️
+**Coverage:** 8 total, 8 mapped to tasks, 0 unmapped ✅
 
 ---
 
