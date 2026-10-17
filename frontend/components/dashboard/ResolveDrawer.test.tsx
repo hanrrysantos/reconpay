@@ -230,6 +230,12 @@ describe('ResolveDrawer', () => {
     expect(screen.getByText('2 de 12 abertas · J / K navega')).toBeInTheDocument()
   })
 
+  it('com footerNoun nulo, o rodapé mostra só a posição e o total (DIV-07)', () => {
+    renderDrawer({ index: 1, total: 3, footerNoun: null })
+    expect(screen.getByText('2 de 3 · J / K navega')).toBeInTheDocument()
+    expect(screen.queryByText(/abertas/)).toBeNull()
+  })
+
   it('Esc fecha a gaveta', async () => {
     const { user, onClose } = renderDrawer()
     await user.keyboard('{Escape}')

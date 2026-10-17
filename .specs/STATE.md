@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: reconciliations-screen (`/conciliacoes` e `/conciliacoes/[runId]`, frontend + correção de backend) — **Verified** (`validation.md` iteração 2: PASS, 39/39 ACs e 5/5 edge cases, sensor 12/14 com 2 equivalentes; a iteração 1 deu FAIL por itens não recarregados após a conclusão do run, corrigido em `7a0ad44`)
-- **Phase / Task**: T1–T10 concluídas (`c937b2b`..`6496843`) por dois sub-agentes; correções `7a0ad44`, `dc39363`
-- **Completed**: export de run inexistente responde `404` JSON (pendência antiga resolvida); histórico de runs com filtro de janela, progresso, substituído, falha e polling de 3 s; gaveta "Nova conciliação" (mês ou personalizado, até 366 dias) que invalida o dashboard da janela; detalhe com itens filtráveis, selos de divergência, export CSV e recarga final dos itens. Frontend 743 testes, backend 632.
+- **Feature**: discrepancies-screen (tela `/divergencias`, frontend) — **Execute concluído**
+- **Phase / Task**: T1–T8 commitadas; Verifier PASS na iteração 5 (`validation.md`, diff `baa9d12^..79fea18`), 796 testes, typecheck e build verdes
+- **Completed**: reconciliations-screen mergeada no `main` (PR #50, 2026-10-16), CI e deploy verdes; discrepancies-screen implementada e verificada (iterações 1–4 reprovadas só por lacunas de teste, fechadas em `55e34e5`, `c5c736d`, `cadc990`, `e481c6e`, `79fea18`)
 - **In-progress** (file:line): none
-- **Next step**: teste manual pelo usuário e, com o aval dele, push e PR de `feat/reconciliations-screen`; depois, telas de Divergências e de Fechamento. Lição candidata nova: L-037. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: teste manual do usuário em `/divergencias`; push só com pedido; após o merge, conferir CI e seguir para a tela de Fechamento. Risco fora da spec: se um novo run começa na mesma janela com a gaveta aberta, a gaveta pode agir sobre o run novo (mesmo formato do dashboard). Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/reconciliations-screen`, local, sem push.
+- **Branch**: `feat/discrepancies-screen`, local, sem push, criada a partir do `main` em `0ebab4a`.

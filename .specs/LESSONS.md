@@ -8,7 +8,17 @@
 
 Corroborated across multiple features. Safe to apply as guidance.
 
-_none_
+### L-018 - When an acceptance criterion lists several allowed values, exercise each listed value at least once in the tests
+- signal: `ac_gap` · recurrence: 2 feature(s) · scope: `tests` · harmful: 0
+- features: fee-rules-screen, discrepancies-screen
+- evidence: FREG-03 - backend/src/test/java/br/com/hanrry/reconpay/feerule/integration/FeeRuleIntegrationTest.java:168 (tests) (+1 more)
+- last seen: 2026-10-17T01:51:23Z
+
+### L-036 - To test that state survives a reset, set every kept value away from its default before triggering the reset
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `frontend` · harmful: 0
+- features: transactions-screen, discrepancies-screen
+- evidence: validation.md M31; TransactionsPage.test.tsx:248-272 (frontend) (+1 more)
+- last seen: 2026-10-17T01:22:31Z
 
 ## Candidates (under observation - do NOT load as guidance yet)
 
@@ -116,12 +126,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M3 - frontend/lib/fee.ts:23 (FCAD-08) (frontend-validation)
 - last seen: 2026-10-16T01:28:09Z
 
-### L-018 - When an acceptance criterion lists several allowed values, exercise each listed value at least once in the tests
-- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
-- features: fee-rules-screen
-- evidence: FREG-03 - backend/src/test/java/br/com/hanrry/reconpay/feerule/integration/FeeRuleIntegrationTest.java:168 (tests)
-- last seen: 2026-10-16T01:28:09Z
-
 ### L-019 - When a bound check branches on digit count, test an input of each digit count past the bound, not only the shortest one
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-validation` · harmful: 0
 - features: fee-rules-screen
@@ -224,17 +228,53 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md M25; TransactionsPage.test.tsx:123 (frontend)
 - last seen: 2026-10-16T18:09:53Z
 
-### L-036 - To test that state survives a reset, set every kept value away from its default before triggering the reset
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
-- features: transactions-screen
-- evidence: validation.md M31; TransactionsPage.test.tsx:248-272 (frontend)
-- last seen: 2026-10-16T18:09:53Z
-
 ### L-037 - When polling stops on a parent state change, serve the child data by that state in the test fixture and assert the final child data shows after polling stops
 - signal: `ac_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
 - features: reconciliations-screen
 - evidence: REC-09 AC8 - frontend/components/reconciliations/RunDetailPage.test.tsx:55 (validation.md Defeito principal) (frontend)
 - last seen: 2026-10-17T00:14:15Z
+
+### L-038 - To test that a value resets, move it away from its default before triggering the reset
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md M6, M14; DiscrepanciesPage.test.tsx:187, DiscrepanciesPage.test.tsx:285 (frontend)
+- last seen: 2026-10-17T01:22:31Z
+
+### L-039 - Test a key-based remount reset by switching to a target whose data is already cached, so a loading state cannot remount the component for you
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md M13; DiscrepanciesPage.test.tsx:285-307 (frontend)
+- last seen: 2026-10-17T01:22:31Z
+
+### L-040 - When a page wires a callback of a reused component, drive that callback through the page in a test instead of relying on the component's own test with a mocked callback
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md M20; DiscrepanciesPage.test.tsx:237-256 (frontend) (+1 more)
+- last seen: 2026-10-17T01:31:48Z
+
+### L-041 - Spec the exact text of composite cells, including when optional parts are omitted, instead of only naming the parts
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md M19; DiscrepancyList.tsx:21 (frontend)
+- last seen: 2026-10-17T01:22:32Z
+
+### L-042 - When a list shows one row per child record, assert counts and positions with a fixture where one parent yields several visible rows
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md iteração 3, Q3 (DiscrepanciesPage.tsx:119) (frontend)
+- last seen: 2026-10-17T01:39:02Z
+
+### L-043 - When an acceptance criterion lists several allowed values, exercise each listed value at least once in the tests
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md iteração 4, F7 DiscrepanciesPage.tsx:91 (tests)
+- last seen: 2026-10-17T01:51:09Z
+
+### L-044 - Spec whether pagination controls are disabled on the first and last page, and test both edges
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md iteração 4, F1/F2 DiscrepancyList.tsx:116,120 (frontend)
+- last seen: 2026-10-17T01:51:09Z
 
 ## Quarantined (failed when applied - ignore)
 

@@ -77,6 +77,19 @@ describe('getRunItems', () => {
     expect(call(fetcher).url).toBe(`${base}/r-1/items?page=0&size=20&sort=absDifference%2Cdesc&discrepancyType=MISSING_SETTLEMENT`)
   })
 
+  it.each(['OPEN', 'ACCEPTED', 'ADJUSTED', 'WRITTEN_OFF'] as const)('inclui discrepancyStatus=%s no fim, só quando informado (DIV-02)', async status => {
+    const fetcher = stubFetch('{"content":[],"totalPages":0}')
+    await getRunItems('jwt', 'm-1', 'r-1', { discrepancyStatus: status }, 0)
+    expect(call(fetcher).url).toBe(`${base}/r-1/items?page=0&size=20&sort=absDifference%2Cdesc&discrepancyStatus=${status}`)
+  })
+
+  it('combina tipo e status nessa ordem, depois de result (DIV-02)', async () => {
+    const fetcher = stubFetch('{"content":[],"totalPages":0}')
+    await getRunItems('jwt', 'm-1', 'r-1', { discrepancyStatus: 'ACCEPTED', discrepancyType: 'FEE_DIVERGENCE', result: 'DIVERGENT' }, 1)
+    expect(call(fetcher).url)
+      .toBe(`${base}/r-1/items?page=1&size=20&sort=absDifference%2Cdesc&result=DIVERGENT&discrepancyType=FEE_DIVERGENCE&discrepancyStatus=ACCEPTED`)
+  })
+
   it('mantém os decimais dos itens como texto, inclusive inteiros (AD-010)', async () => {
     stubFetch(`{"content":[${itemJson}],"totalPages":1}`)
 

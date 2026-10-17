@@ -27,6 +27,8 @@ export type ResolveDrawerProps = {
   locked: boolean
   onClose: () => void
   onNavigate: (index: number) => void
+  /** What the footer count refers to ("abertas" by default); null shows only the position and the total. */
+  footerNoun?: string | null
 }
 
 type Outcome = Extract<DiscrepancyStatus, 'ACCEPTED' | 'ADJUSTED' | 'WRITTEN_OFF'>
@@ -73,7 +75,7 @@ function comparison(item: ReconciliationItem, type: DiscrepancyType, actualValue
   ]
 }
 
-export function ResolveDrawer({ merchantId, window, runId, list, index, total, locked, onClose, onNavigate }: ResolveDrawerProps) {
+export function ResolveDrawer({ merchantId, window, runId, list, index, total, locked, onClose, onNavigate, footerNoun = 'abertas' }: ResolveDrawerProps) {
   const entry = list[index]
   const { item, discrepancyId } = entry
   const snapshot = item.discrepancies.find(discrepancy => discrepancy.id === discrepancyId)!
@@ -275,7 +277,7 @@ export function ResolveDrawer({ merchantId, window, runId, list, index, total, l
 
         <footer className="flex items-center gap-2 border-t border-border px-6 py-4">
           <span className="mr-auto text-[13px] text-muted">
-            {index + 1} de {total ?? list.length} abertas · J / K navega
+            {index + 1} de {total ?? list.length}{footerNoun ? ` ${footerNoun}` : ''} · J / K navega
           </span>
           <button type="button" onClick={onClose} className="h-10 rounded-full bg-surface px-4 text-[14px] font-semibold">Cancelar</button>
           {!locked && status === 'OPEN' && (
