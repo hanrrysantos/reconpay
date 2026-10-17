@@ -214,6 +214,18 @@ describe('ClosingPage', () => {
     expect(periodReads()).toEqual([])
   })
 
+  it('empresa com uma janela só mostra a linha, sem o aviso de vazio nem paginação (FEC-03 AC2, borda de uma janela)', async () => {
+    server.runs = monthRuns('m-1', 1)
+    server.locked = new Set()
+    server.failedOnly = new Set()
+    renderRoute()
+
+    await table()
+    await waitFor(() => expect(rowText()).toEqual(['Outubro de 2026|Aberto']))
+    expect(screen.queryByText('Nenhuma conciliação ainda.')).toBeNull()
+    expect(screen.queryByRole('navigation', { name: 'Paginação' })).toBeNull()
+  })
+
   it('erro na busca dos runs mostra a mensagem e "Tentar novamente" refaz a busca (FEC-03 AC3)', async () => {
     server.runsAnswer = () => fail(403, 'Você não tem acesso a este comerciante')
     const user = renderRoute()
