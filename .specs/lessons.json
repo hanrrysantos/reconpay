@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 38,
+  "next_id": 42,
   "lessons": [
     {
       "id": "L-001",
@@ -642,17 +642,19 @@
       "text": "To test that state survives a reset, set every kept value away from its default before triggering the reset",
       "signal": "surviving_mutant",
       "scope": "frontend",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "transactions-screen"
+        "transactions-screen",
+        "discrepancies-screen"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "validation.md M31; TransactionsPage.test.tsx:248-272 (frontend)"
+        "validation.md M31; TransactionsPage.test.tsx:248-272 (frontend)",
+        "validation.md M23; DiscrepanciesPage.test.tsx:187-199 (frontend)"
       ],
       "created": "2026-10-16T18:09:53Z",
-      "last_seen": "2026-10-16T18:09:53Z"
+      "last_seen": "2026-10-17T01:22:31Z"
     },
     {
       "id": "L-037",
@@ -671,6 +673,78 @@
       ],
       "created": "2026-10-17T00:14:15Z",
       "last_seen": "2026-10-17T00:14:15Z"
+    },
+    {
+      "id": "L-038",
+      "key": "surviving_mutant::to test that a value resets move it away from its default before triggering the reset",
+      "text": "To test that a value resets, move it away from its default before triggering the reset",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "discrepancies-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M6, M14; DiscrepanciesPage.test.tsx:187, DiscrepanciesPage.test.tsx:285 (frontend)"
+      ],
+      "created": "2026-10-17T01:22:31Z",
+      "last_seen": "2026-10-17T01:22:31Z"
+    },
+    {
+      "id": "L-039",
+      "key": "surviving_mutant::test a key based remount reset by switching to a target whose data is already cached so a loading state cannot remount the component for you",
+      "text": "Test a key-based remount reset by switching to a target whose data is already cached, so a loading state cannot remount the component for you",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "discrepancies-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M13; DiscrepanciesPage.test.tsx:285-307 (frontend)"
+      ],
+      "created": "2026-10-17T01:22:31Z",
+      "last_seen": "2026-10-17T01:22:31Z"
+    },
+    {
+      "id": "L-040",
+      "key": "surviving_mutant::when a page wires a callback of a reused component drive that callback through the page in a test instead of relying on the component s own test with a mocked callback",
+      "text": "When a page wires a callback of a reused component, drive that callback through the page in a test instead of relying on the component's own test with a mocked callback",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "discrepancies-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M20; DiscrepanciesPage.test.tsx:237-256 (frontend)"
+      ],
+      "created": "2026-10-17T01:22:31Z",
+      "last_seen": "2026-10-17T01:22:31Z"
+    },
+    {
+      "id": "L-041",
+      "key": "spec_precision_gap::spec the exact text of composite cells including when optional parts are omitted instead of only naming the parts",
+      "text": "Spec the exact text of composite cells, including when optional parts are omitted, instead of only naming the parts",
+      "signal": "spec_precision_gap",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "discrepancies-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md M19; DiscrepancyList.tsx:21 (frontend)"
+      ],
+      "created": "2026-10-17T01:22:32Z",
+      "last_seen": "2026-10-17T01:22:32Z"
     }
   ]
 }

@@ -8,7 +8,11 @@
 
 Corroborated across multiple features. Safe to apply as guidance.
 
-_none_
+### L-036 - To test that state survives a reset, set every kept value away from its default before triggering the reset
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `frontend` · harmful: 0
+- features: transactions-screen, discrepancies-screen
+- evidence: validation.md M31; TransactionsPage.test.tsx:248-272 (frontend) (+1 more)
+- last seen: 2026-10-17T01:22:31Z
 
 ## Candidates (under observation - do NOT load as guidance yet)
 
@@ -224,17 +228,35 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md M25; TransactionsPage.test.tsx:123 (frontend)
 - last seen: 2026-10-16T18:09:53Z
 
-### L-036 - To test that state survives a reset, set every kept value away from its default before triggering the reset
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
-- features: transactions-screen
-- evidence: validation.md M31; TransactionsPage.test.tsx:248-272 (frontend)
-- last seen: 2026-10-16T18:09:53Z
-
 ### L-037 - When polling stops on a parent state change, serve the child data by that state in the test fixture and assert the final child data shows after polling stops
 - signal: `ac_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
 - features: reconciliations-screen
 - evidence: REC-09 AC8 - frontend/components/reconciliations/RunDetailPage.test.tsx:55 (validation.md Defeito principal) (frontend)
 - last seen: 2026-10-17T00:14:15Z
+
+### L-038 - To test that a value resets, move it away from its default before triggering the reset
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md M6, M14; DiscrepanciesPage.test.tsx:187, DiscrepanciesPage.test.tsx:285 (frontend)
+- last seen: 2026-10-17T01:22:31Z
+
+### L-039 - Test a key-based remount reset by switching to a target whose data is already cached, so a loading state cannot remount the component for you
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md M13; DiscrepanciesPage.test.tsx:285-307 (frontend)
+- last seen: 2026-10-17T01:22:31Z
+
+### L-040 - When a page wires a callback of a reused component, drive that callback through the page in a test instead of relying on the component's own test with a mocked callback
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md M20; DiscrepanciesPage.test.tsx:237-256 (frontend)
+- last seen: 2026-10-17T01:22:31Z
+
+### L-041 - Spec the exact text of composite cells, including when optional parts are omitted, instead of only naming the parts
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md M19; DiscrepancyList.tsx:21 (frontend)
+- last seen: 2026-10-17T01:22:32Z
 
 ## Quarantined (failed when applied - ignore)
 
