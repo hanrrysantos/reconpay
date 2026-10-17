@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 42,
+  "next_id": 43,
   "lessons": [
     {
       "id": "L-001",
@@ -746,6 +746,24 @@
       ],
       "created": "2026-10-17T01:22:32Z",
       "last_seen": "2026-10-17T01:22:32Z"
+    },
+    {
+      "id": "L-042",
+      "key": "surviving_mutant::when a list shows one row per child record assert counts and positions with a fixture where one parent yields several visible rows",
+      "text": "When a list shows one row per child record, assert counts and positions with a fixture where one parent yields several visible rows",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "discrepancies-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md iteração 3, Q3 (DiscrepanciesPage.tsx:119) (frontend)"
+      ],
+      "created": "2026-10-17T01:39:02Z",
+      "last_seen": "2026-10-17T01:39:02Z"
     }
   ]
 }

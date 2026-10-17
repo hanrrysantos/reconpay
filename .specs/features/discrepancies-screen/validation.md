@@ -2,18 +2,116 @@
 
 **Date**: 2026-10-16
 **Spec**: `.specs/features/discrepancies-screen/spec.md`
-**Diff range**: `baa9d12^..55e34e5` (12 commits), branch `feat/discrepancies-screen`. Iteração 1 cobriu `baa9d12^..71174f1`; o relatório dela entrou em `18a53d8`; a fix é `55e34e5` (só testes + uma linha de Assumption na spec).
-**Verifier**: sub-agente independente (author ≠ verifier), iteração 2 de 3.
+**Diff range**: `baa9d12^..c5c736d` (14 commits), branch `feat/discrepancies-screen`. Iteração 2 cobriu `baa9d12^..55e34e5`; o relatório dela entrou em `b1e566d`; a fix é `c5c736d` (só teste).
+**Verifier**: sub-agente independente (author ≠ verifier), iteração 3 de 3.
 
 ## Validation: discrepancies-screen - FAIL ❌
 
-Os cinco gaps da iteração 1 estão fechados. Os oito sobreviventes (M6, M10, M13, M14, M19, M20, M21, M23) agora morrem. A fix só acrescenta testes. Mas um mutante novo sobrevive: a página ignora a linha clicada e abre sempre a primeira divergência da página (N3). Nenhum teste da página clica "Abrir" numa linha que não seja a primeira e afirma qual divergência a gaveta mostra. Isso quebra a evidência de DIV-06 AC1 ("abrir a gaveta de resolução daquela divergência"). É o mesmo padrão de M20 (L-040): callback ligado pela página, testado só no componente com mock. O código está certo (`DiscrepanciesPage.tsx:108`); falta o teste. Gate verde: 792 testes, typecheck e build. Backend sem mudança.
+O gap da iteração 2 está fechado: N3 morre. A fix só acrescenta um teste. Mas um mutante novo sobrevive: o rodapé da gaveta conta itens em vez de divergências (Q3). A tela mostra uma linha por divergência (edge de `spec.md:136`), e o rodapé deve ser "<posição> de <total da página>" (DIV-07 AC7, `spec.md:113`). Nenhum teste da página abre a gaveta numa página em que um item tem duas divergências visíveis. O código está certo (`DiscrepanciesPage.tsx:119`, `total={drawer.list.length}`); falta o teste. Gate verde: 793 testes, typecheck e build. Backend sem mudança. É a última iteração: escalar para o usuário.
 
 Abreviações: as mesmas da iteração 1 (abaixo).
 
 ---
 
-## Iteração 2
+## Iteração 3
+
+### Fix `c5c736d`
+
+- **Só teste.** `git show --stat c5c736d`: `DPT` +13. Nenhum arquivo de produção. 13 inserções, 0 remoções.
+- **Nada enfraquecido.** `git diff b1e566d c5c736d` só tem o `it` novo (`DPT:290-301`). Nenhuma linha removida. Fixture sem mudança.
+- **Backend.** `git diff --name-only baa9d12^..c5c736d -- backend` vazio.
+
+### Gap da iteração 2 re-checado
+
+| Gap | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| DIV-06 AC1 abrir pela página | `spec.md:107`: clicar "Abrir" numa linha abre a gaveta daquela divergência | `DPT:294` clica "Abrir IMP-T-002 · Status inconsistente" (segunda linha); `DPT:297` "2 de 2 · J / K navega"; `DPT:298-299` gaveta com `IMP-T-002` e "Status inconsistente"; `DPT:300` sem `AVULSA-1`. N3 morre | ✅ PASS |
+
+### Gap novo
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| DIV-07 AC7 total da página (com o edge de duas divergências) | `spec.md:113`: rodapé "<posição> de <total da página>"; `spec.md:136`: um item com duas divergências vira duas linhas, logo o total conta divergências | Todos os rodapés afirmados pela página (`DPT:297`, `DPT:313`, e os de J/K) são "x de 2" com dois itens de uma divergência visível cada. `IMP-T-002` (`DPT:108`) tem `d-2` e `d-3`, mas nenhum teste abre a gaveta em "Todas" (3 linhas, 2 itens). `RDT:228-237` só prova que a gaveta mostra o `total` recebido. Q3 sobrevive | ❌ GAP |
+
+As outras 21 ACs seguem com a evidência da iteração 2 (o arquivo `DPT` só ganhou 13 linhas em 290; números de linha da iteração 2 acima de 289 deslocaram +13).
+
+**Status**: ❌ 21/22 ACs com evidência que discrimina; 1 gap (DIV-07 AC7, total da página). Sem spec-precision gap aberto.
+
+### Discrimination Sensor
+
+Scratch: `git worktree add --detach` em `scratchpad/div-wt3` a partir de `c5c736d`, com `frontend/node_modules` por symlink. Baseline do scratch: `next typegen` + `tsc --noEmit` exit 0; 192 testes em escopo passam. Cada mutante passou por `tsc --noEmit` (todos compilam) e rodou `vitest run` sobre `components/discrepancies`, `lib/discrepancies.test.ts`, `lib/queries.discrepancies.test.tsx` e `components/dashboard`. Revertido com `git checkout --` no scratch depois de cada mutante.
+
+| # | File | Mutação | Killed? | Testes que falharam |
+| - | ---- | ------- | ------- | ------------------- |
+| N3 | `DiscrepanciesPage.tsx:108` | `onOpen` ignora o índice e abre sempre a linha 0 | ✅ Killed | `DPT:290` |
+| Q1 | `DiscrepanciesPage.tsx:108` | `onOpen` abre `index + 1` (limitado ao fim da lista) | ✅ Killed | `DPT:303` J/K, teste de aceitar (DIV-06 AC2) |
+| Q2 | `DiscrepanciesPage.tsx:116` | gaveta com `runId` = id do primeiro item, não o run vigente | ✅ Killed | aceitar (PATCH `r-oct`), Reabrir (DIV-06 AC3) |
+| Q3 | `DiscrepanciesPage.tsx:119` | `total` = itens distintos da lista, não divergências | ❌ Survived | - |
+| Q4 | `lib/discrepancies.ts:23-26` | `rowsOf` com a ordem invertida | ✅ Killed | 10 testes (`LDT`, `DLT:50`, `DLT:93`, `DPT`) |
+| Q5 | `DiscrepancyList.tsx:99` | "Abrir" entrega a posição espelhada (`rows.length - 1 - index`) | ✅ Killed | `DPT:290`, `DPT:303`, aceitar |
+| Q6 | `lib/discrepancies.ts:25` | filtro de tipo ignorado dentro do item | ✅ Killed | `LDT` "o tipo restringe as linhas" (DIV-01 AC5) |
+| Q7 | `DiscrepanciesPage.tsx:123` | `onNavigate` corta a lista para a primeira linha | ✅ Killed | `DPT:303` |
+| Q8 | `DiscrepancyList.tsx:99` | "Abrir" entrega a posição do item, não da divergência | ✅ Killed | `DLT:93` |
+
+**Por que Q3 sobrevive**: nas páginas que os testes abrem, cada item mostra uma divergência só, então itens = linhas. Com uma sonda no scratch (Status "Todas", abrir "IMP-T-002 · Taxa divergente", afirmar "3 de 3 · J / K navega") o teste passa no código real e falha com Q3. A sonda foi descartada com o scratch. É uma falha real: o operador veria "3 de 2".
+
+**Sensor depth**: ampliado (N3 re-executado + 8 novos).
+**Saída**: 8/9 mortos. 1 sobrevivente.
+
+**Isolamento**: `git status --porcelain` antes = vazio; depois da remoção do scratch = vazio (antes de editar este relatório). Scratch removido com `git worktree remove --force` + `git worktree prune`; `git worktree list` não lista mais o scratch. Nenhum `git stash`.
+
+### Gate Check
+
+- **Gate command**: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- **Saída**: 793 passed, 0 failed, 0 skipped (63 arquivos). Typecheck exit 0. Build ok, `/divergencias` estática.
+- **Test count**: 792 → 793 (+1, `DPT:290`). Nenhum teste removido ou afrouxado.
+
+### Fix Plan
+
+#### Fix 1: total do rodapé conta divergências (DIV-07 AC7) - Minor
+
+- **Root cause**: o `total` da gaveta (`DiscrepanciesPage.tsx:119`) só é exercitado pela página com dois itens de uma divergência cada.
+- **Fix task**: em `DPT`, escolher Status "Todas", clicar "Abrir IMP-T-002 · Taxa divergente" e afirmar na gaveta "3 de 3 · J / K navega". Mata Q3 (verificado por sonda no scratch). Só teste.
+- **Severidade**: Minor. Texto errado no rodapé; a navegação e a resolução seguem certas.
+
+### Requirement Traceability Update
+
+| Requirement | Iteração 2 | Iteração 3 |
+| --- | --- | --- |
+| DIV-01 | ✅ Verified | ✅ Verified |
+| DIV-02 | ✅ Verified | ✅ Verified |
+| DIV-03 | ✅ Verified | ✅ Verified |
+| DIV-04 | ✅ Verified | ✅ Verified |
+| DIV-05 | ✅ Verified | ✅ Verified |
+| DIV-06 | ❌ Needs Fix (AC1, N3) | ✅ Verified |
+| DIV-07 | ✅ Verified | ❌ Needs Fix (AC7 total, Q3) |
+| DIV-08 | ✅ Verified | ✅ Verified |
+
+### Lessons
+
+- Q3: nova lição candidata, escopo `frontend` (uma linha por filho exige fixture com um registro que gera várias linhas ao afirmar contagens e posições).
+- L-040 foi aplicada na fix e matou N3. Evitar falha não é sinal.
+
+**Docs desatualizados (reportados, não editados)**: `spec.md:144-155` (traceability Pending, "0 mapped"); `tasks.md:12` (`Status: In Progress`); `.specs/STATE.md:104-108` Handoff (ainda em Specify).
+
+### Summary
+
+**Overall**: ❌ Not Ready
+
+**Spec-anchored check**: 21/22 ACs; 1 gap (DIV-07 AC7, total da página).
+**Sensor**: 8/9 mortos (Q3 sobrevive).
+**Gate**: 793 passed, typecheck e build OK.
+
+**Next steps**: limite de 3 iterações atingido. Escalar ao usuário: aplicar o Fix 1 (um teste em `DPT`) e rodar uma iteração extra, ou aceitar o gap.
+
+---
+
+# Histórico: iteração 2
+
+### Veredito da iteração 2: reprovada
+
+Os cinco gaps da iteração 1 estão fechados. Os oito sobreviventes (M6, M10, M13, M14, M19, M20, M21, M23) agora morrem. A fix só acrescenta testes. Mas um mutante novo sobrevive: a página ignora a linha clicada e abre sempre a primeira divergência da página (N3). Nenhum teste da página clica "Abrir" numa linha que não seja a primeira e afirma qual divergência a gaveta mostra. Isso quebra a evidência de DIV-06 AC1 ("abrir a gaveta de resolução daquela divergência"). É o mesmo padrão de M20 (L-040): callback ligado pela página, testado só no componente com mock. O código está certo (`DiscrepanciesPage.tsx:108`); falta o teste. Gate verde: 792 testes, typecheck e build. Backend sem mudança.
+
 
 ### Fix `55e34e5`
 
@@ -67,14 +165,14 @@ Scratch: `git worktree add --detach` em `scratchpad/div-wt2` a partir de `55e34e
 **M9 e M26**: seguem fora da spec, como na iteração 1. Nada na fix muda isso.
 
 **Sensor depth**: ampliado (8 re-execuções + 4 novos).
-**Result**: 11/12 mortos. 1 sobrevivente - FAIL ❌
+**Saída**: 11/12 mortos. 1 sobrevivente.
 
 **Isolamento**: `git status --porcelain` antes = vazio; depois da remoção do scratch = vazio. Scratch removido com `git worktree remove --force` + `git worktree prune`; `git worktree list` não lista mais o scratch. Nenhum `git stash`.
 
 ### Gate Check
 
 - **Gate command**: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
-- **Result**: 792 passed, 0 failed, 0 skipped (63 arquivos). Typecheck exit 0. Build ok, `/divergencias` estática.
+- **Saída**: 792 passed, 0 failed, 0 skipped (63 arquivos). Typecheck exit 0. Build ok, `/divergencias` estática.
 - **Test count**: 785 → 792 (+7: `DPT` +4, `DLT` +1, `WNT` +2 casos). Nenhum teste removido ou afrouxado.
 
 ### Fix Plan
@@ -237,7 +335,7 @@ Scratch: `git worktree add --detach` em `scratchpad/div-wt` a partir de `71174f1
 **Por que M13 sobrevive**: a empresa nova não tem `runs` em cache. `useRuns` fica pendente e a página troca a janela pelo esqueleto (`DiscrepanciesPage.tsx:151`), o que desmonta a janela com ou sem `key`. Voltar para uma empresa já visitada (`runs` em cache) não passa pelo esqueleto; aí só a `key` fecha a gaveta e reseta a janela e a página.
 
 **Sensor depth**: ampliado (30 mutantes).
-**Result**: 20/28 não equivalentes mortos (30 injetados; M9 e M26 fora da spec). 8 sobreviventes - FAIL ❌
+**Saída**: 20/28 não equivalentes mortos (30 injetados; M9 e M26 fora da spec). 8 sobreviventes.
 
 **Isolamento**: `git status --porcelain` antes = vazio; depois da remoção do scratch = vazio. Scratch removido com `git worktree remove --force` + `git worktree prune`; `git worktree list` não lista mais o scratch. Nenhum `git stash`.
 
@@ -246,7 +344,7 @@ Scratch: `git worktree add --detach` em `scratchpad/div-wt` a partir de `71174f1
 ## Gate Check
 
 - **Gate command**: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
-- **Result**: 785 passed, 0 failed, 0 skipped. Typecheck exit 0. Build ok, `/divergencias` estática.
+- **Saída**: 785 passed, 0 failed, 0 skipped. Typecheck exit 0. Build ok, `/divergencias` estática.
 - **Test count**: 743 → 785 (+42). Removido 1 caso planejado (`/divergencias` em `UnderConstruction.test.tsx`), porque a rota deixou de ser placeholder. Nenhuma asserção afrouxada.
 - **Backend**: `git diff --name-only baa9d12^..71174f1 -- backend` vazio. Sem `./mvnw verify` nesta feature.
 

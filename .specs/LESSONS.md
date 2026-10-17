@@ -258,6 +258,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md M19; DiscrepancyList.tsx:21 (frontend)
 - last seen: 2026-10-17T01:22:32Z
 
+### L-042 - When a list shows one row per child record, assert counts and positions with a fixture where one parent yields several visible rows
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: discrepancies-screen
+- evidence: validation.md iteração 3, Q3 (DiscrepanciesPage.tsx:119) (frontend)
+- last seen: 2026-10-17T01:39:02Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
