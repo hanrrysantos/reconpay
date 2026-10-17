@@ -2,16 +2,122 @@
 
 **Date**: 2026-10-16
 **Spec**: `.specs/features/discrepancies-screen/spec.md`
-**Diff range**: `baa9d12^..c5c736d` (14 commits), branch `feat/discrepancies-screen`. Iteração 2 cobriu `baa9d12^..55e34e5`; o relatório dela entrou em `b1e566d`; a fix é `c5c736d` (só teste).
-**Verifier**: sub-agente independente (author ≠ verifier), iteração 3 de 3.
+**Diff range**: `baa9d12^..cadc990` (16 commits), branch `feat/discrepancies-screen`. Iteração 3 cobriu `baa9d12^..c5c736d`; o relatório dela entrou em `7bd58ec`; a fix é `cadc990` (só teste).
+**Verifier**: sub-agente independente (author ≠ verifier), iteração 4 (extra, autorizada pelo usuário depois do limite de 3).
 
 ## Validation: discrepancies-screen - FAIL ❌
 
-O gap da iteração 2 está fechado: N3 morre. A fix só acrescenta um teste. Mas um mutante novo sobrevive: o rodapé da gaveta conta itens em vez de divergências (Q3). A tela mostra uma linha por divergência (edge de `spec.md:136`), e o rodapé deve ser "<posição> de <total da página>" (DIV-07 AC7, `spec.md:113`). Nenhum teste da página abre a gaveta numa página em que um item tem duas divergências visíveis. O código está certo (`DiscrepanciesPage.tsx:119`, `total={drawer.list.length}`); falta o teste. Gate verde: 793 testes, typecheck e build. Backend sem mudança. É a última iteração: escalar para o usuário.
+O gap da iteração 3 está fechado: Q3 morre. A fix só acrescenta um teste. Mas um mutante novo sobrevive: na página, voltar o Tipo para "Todos" não limpa o filtro (F7). O select entrega `''`, a página deveria virar `null` (`DiscrepanciesPage.tsx:91`). Com F7, a URL sai certa (o cliente ignora `''`, `api.ts:362`), mas `rowsOf` filtra por tipo `''` e a lista fica vazia. Nenhum teste escolhe um tipo e depois "Todos". Isso quebra a evidência de DIV-01 AC4 ("Todos SHALL remover o parâmetro") e AC5. O código está certo; falta o teste. Gate verde: 794 testes, typecheck e build. Backend sem mudança.
 
 Abreviações: as mesmas da iteração 1 (abaixo).
 
 ---
+
+## Iteração 4
+
+### Fix `cadc990`
+
+- **Só teste.** `git show --stat cadc990`: `DPT` +14. Nenhum arquivo de produção. 14 inserções, 0 remoções.
+- **Nada enfraquecido.** O diff só tem o `it` novo (`DPT:303-315`). Nenhuma linha removida. Fixture sem mudança.
+- **Backend.** `git diff --name-only baa9d12^..cadc990 -- backend` vazio.
+
+### Gap da iteração 3 re-checado
+
+| Gap | Spec-defined outcome | `file:line` + assertion | Status |
+| --- | --- | --- | --- |
+| DIV-07 AC7 total da página, com o edge de duas linhas | `spec.md:113`: rodapé "<posição> de <total da página>"; `spec.md:136`: item com duas divergências vira duas linhas | `DPT:307` Status "Todas"; `DPT:308` `rows()` com 3 linhas (2 itens: `AVULSA-1` e `IMP-T-002` com `d-2` e `d-3`); `DPT:310` clica "Abrir IMP-T-002 · Taxa divergente" (terceira linha); `DPT:313` `getByText('3 de 3 · J / K navega')` (posição 3 e total 3 = linhas, não itens); `DPT:314` gaveta com "Taxa divergente". Q3 morre; N3 também falha aqui | ✅ PASS |
+
+### Gap novo
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Status |
+| --- | --- | --- | --- |
+| DIV-01 AC4 "Todos" remove o tipo (e AC5 pela página) | `spec.md:71`: "Todos" SHALL remover o parâmetro; `spec.md:72`: mostrar as divergências que atendem aos filtros, ou seja, todos os tipos | `LDT:31-38` só prova `itemFilters(_, null)`. A conversão `'' → null` da página (`DiscrepanciesPage.tsx:91`) não tem teste: `DPT:183`, `DPT:207` e `DPT:368` escolhem um tipo, nenhum volta para "Todos". F7 sobrevive | ❌ GAP |
+
+As outras 21 ACs seguem com a evidência da iteração 2 e 3 (o arquivo `DPT` só ganhou 14 linhas em 303; números de linha da iteração 3 acima de 302 deslocaram +14).
+
+**Status**: ❌ 21/22 ACs com evidência que discrimina; 1 gap (DIV-01 AC4 "Todos" pela página).
+
+**Spec-precision gap (menor)**: DIV-03 AC7 (`spec.md:74`) pede "Anterior", "Próxima" e "Página X de Y", mas não diz que "Anterior" fica desabilitado na página 1 nem "Próxima" na última. O código desabilita (`DiscrepancyList.tsx:116,120`); F1 e F2 sobrevivem porque `DLT:105-116` só testa a página do meio. Com F2, "Próxima" na última página leva a uma página vazia "Página N+1 de N". Não é gap de AC; vale fixar na spec e testar.
+
+### Discrimination Sensor
+
+Scratch: `git worktree add --detach` em `scratchpad/div-wt4` a partir de `cadc990`, com `frontend/node_modules` por symlink. Baseline do scratch: `next typegen` + `tsc --noEmit` exit 0; 193 testes em escopo passam. Cada mutante passou por `tsc --noEmit` (todos compilam) e rodou `vitest run` sobre `components/discrepancies`, `lib/discrepancies.test.ts`, `lib/queries.discrepancies.test.tsx` e `components/dashboard`. Revertido com `git checkout -- .` no scratch depois de cada mutante.
+
+| # | File | Mutação | Killed? | Testes que falharam |
+| - | ---- | ------- | ------- | ------------------- |
+| Q3 | `DiscrepanciesPage.tsx:119` | `total` = itens distintos (`new Set(list.map(item.id)).size`) | ✅ Killed | `DPT:303` |
+| N3 | `DiscrepanciesPage.tsx:108` | `onOpen` ignora o índice e abre sempre a linha 0 | ✅ Killed | `DPT:290`, `DPT:303` |
+| F1 | `DiscrepancyList.tsx:116` | "Anterior" nunca desabilitado | ⚪ Survived, spec-precision (bordas não fixadas) | - |
+| F2 | `DiscrepancyList.tsx:120` | "Próxima" habilitado na última página (`>=` → `>`) | ⚪ Survived, spec-precision (bordas não fixadas) | - |
+| F3 | `DiscrepancyList.tsx:115` | "Página {page} de" (sem o +1) | ✅ Killed | `DLT:105` |
+| F4 | `WindowNotice.tsx:29` | `PENDING` deixa de contar como em andamento | ✅ Killed | `WNT` "run PENDING" (DIV-04 AC2) |
+| F5 | `DiscrepanciesPage.tsx:99` | aviso recebe `locked={false}` | ✅ Killed | travado (DIV-05, DIV-06 AC4) |
+| F6 | `DiscrepanciesPage.tsx:121` | gaveta recebe `locked={false}` | ✅ Killed | travado (DIV-05, DIV-06 AC4) |
+| F7 | `DiscrepanciesPage.tsx:91` | "Todos" vira tipo `''` em vez de `null` | ❌ Survived | - |
+| F8 | `DiscrepancyList.tsx:120` | "Próxima" pede `page + 2` | ✅ Killed | `DLT:105` e 3 de `DPT` |
+
+**Por que F7 sobrevive**: nenhum teste volta o Tipo para "Todos". Com uma sonda no scratch (no fim de `DPT:164`, escolher "Todos", afirmar a query `toEqual({ page:'0', size:'20', sort:'absDifference,desc', … })`, com `result` = `'DIVERGENT'` e 3 linhas) o teste passa no código real e falha com F7. A sonda foi descartada com o scratch. É uma falha real: o operador limpa o tipo e vê "Nenhuma divergência para os filtros escolhidos.".
+
+**Sensor depth**: ampliado (Q3 e N3 re-executados + 8 novos).
+**Saída**: 7/8 não equivalentes mortos (10 injetados; F1 e F2 contam como spec-precision). 1 sobrevivente.
+
+**Isolamento**: `git status --porcelain` antes = vazio; depois da remoção do scratch = vazio (antes de editar este relatório). Scratch removido com `git worktree remove --force` + `git worktree prune`; `git worktree list` não lista mais o scratch. Nenhum `git stash`.
+
+### Gate Check
+
+- **Gate command**: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- **Saída**: 794 passed, 0 failed, 0 skipped (63 arquivos). Typecheck exit 0. Build ok, `/divergencias` estática.
+- **Test count**: 793 → 794 (+1, `DPT:303`). Nenhum teste removido ou afrouxado.
+
+### Fix Plan
+
+#### Fix 1: "Todos" limpa o tipo pela página (DIV-01 AC4, AC5) - Major
+
+- **Root cause**: a conversão `value === '' ? null` (`DiscrepanciesPage.tsx:91`) não é exercitada; os testes só escolhem tipos.
+- **Fix task**: no fim de `DPT:164-185`, `user.selectOptions(screen.getByLabelText('Tipo'), 'Todos')`; afirmar `query(lastItems())` `toEqual({ page:'0', size:'20', sort:'absDifference,desc', … })`, com `result` = `'DIVERGENT'` e `rows()` com 3 linhas. Mata F7 (verificado por sonda no scratch). Só teste.
+
+#### Fix 2 (opcional): bordas da paginação (DIV-03 AC7) - Minor
+
+- **Fix task**: fixar em `spec.md:74` que "Anterior" fica desabilitado na página 1 e "Próxima" na última; em `DLT`, com `page: 0` afirmar "Anterior" `toBeDisabled()`, e com `page: 2` de 3 afirmar "Próxima" `toBeDisabled()`. Mata F1 e F2.
+
+### Requirement Traceability Update
+
+| Requirement | Iteração 3 | Iteração 4 |
+| --- | --- | --- |
+| DIV-01 | ✅ Verified | ❌ Needs Fix (AC4 "Todos", F7) |
+| DIV-02 | ✅ Verified | ✅ Verified |
+| DIV-03 | ✅ Verified | ✅ Verified (spec-precision menor em AC7) |
+| DIV-04 | ✅ Verified | ✅ Verified |
+| DIV-05 | ✅ Verified | ✅ Verified |
+| DIV-06 | ✅ Verified | ✅ Verified |
+| DIV-07 | ❌ Needs Fix (AC7 total, Q3) | ✅ Verified |
+| DIV-08 | ✅ Verified | ✅ Verified |
+
+### Lessons
+
+- F7 / DIV-01 AC4: o gap de AC entrou como recorrência de L-018 (`ac_gap`, mesmo texto, outra feature). O mutante sobrevivente entrou como L-043 (`surviving_mutant`, mesmo texto; a chave do script inclui o sinal, então não fundiu).
+- F1/F2: nova candidata L-044 `spec_precision_gap` (fixar o estado desabilitado dos controles de paginação nas bordas).
+- L-042 foi aplicada na fix e matou Q3. Evitar falha não é sinal.
+
+**Docs desatualizados (reportados, não editados)**: `spec.md:144-155` (traceability Pending, "0 mapped"); `tasks.md:12` (`Status: In Progress`); `.specs/STATE.md` Handoff (ainda em Specify).
+
+### Summary
+
+**Overall**: ❌ Not Ready
+
+**Spec-anchored check**: 21/22 ACs; 1 gap (DIV-01 AC4 "Todos" pela página); 1 spec-precision gap menor (bordas da paginação).
+**Sensor**: 7/8 não equivalentes mortos (F7 sobrevive; F1, F2 spec-precision).
+**Gate**: 794 passed, typecheck e build OK.
+
+**Next steps**: Fix 1 (um bloco de 3 linhas em `DPT`), Fix 2 opcional; nova iteração só por decisão do usuário.
+
+---
+
+# Histórico: iteração 3
+
+### Veredito da iteração 3: reprovada
+
+O gap da iteração 2 está fechado: N3 morre. A fix só acrescenta um teste. Mas um mutante novo sobrevive: o rodapé da gaveta conta itens em vez de divergências (Q3). A tela mostra uma linha por divergência (edge de `spec.md:136`), e o rodapé deve ser "<posição> de <total da página>" (DIV-07 AC7, `spec.md:113`). Nenhum teste da página abre a gaveta numa página em que um item tem duas divergências visíveis. O código está certo (`DiscrepanciesPage.tsx:119`, `total={drawer.list.length}`); falta o teste. Gate verde: 793 testes, typecheck e build. Backend sem mudança.
 
 ## Iteração 3
 
@@ -244,7 +350,7 @@ Abreviações: `DPT` = `frontend/components/discrepancies/DiscrepanciesPage.test
 ## Pontos pedidos pelo orquestrador
 
 1. **Compatibilidade das peças compartilhadas.** ✅ O padrão de `footerNoun` é `'abertas'` (`ResolveDrawer.tsx:78`). O teste antigo `RDT:228-231` ("2 de 12 abertas · J / K navega") não mudou e mata M8. O diff só acrescenta `RDT:233-237`. Nenhum teste do dashboard ou de Conciliações mudou (`git diff --stat`: só `ResolveDrawer.test.tsx` +6 e `UnderConstruction.test.tsx` -2, este planejado). A chave completa de `runItems` só ganhou um segmento; os prefixos `['runItems', m, r]` e `['runItems', m]` continuam prefixos (`queries.ts:46-51`). Os 278 testes de dashboard, Conciliações e queries passam com a invalidação nova.
-2. **`rowsOf` e paginação por item.** ✅ Uma linha por divergência que atende status e tipo (`lib/discrepancies.ts:22-26`). "Todas" vira `{ result: 'DIVERGENT' }` (`lib/discrepancies.ts:17`). M1-M4 morrem.
+2. **`rowsOf` e paginação por item.** ✅ Uma linha por divergência que atende status e tipo (`lib/discrepancies.ts:22-26`). "Todas" vira `result` = `'DIVERGENT'` (`lib/discrepancies.ts:17`). M1-M4 morrem.
 3. **Lista da gaveta congelada.** ✅ `drawer.list` é guardada no clique (`DiscrepanciesPage.tsx:57,108`) e não se recalcula. M7 (gaveta com as linhas vivas) morre em `DPT:252`. Rodapé "1 de 2 · J / K navega" em `DPT:243`; M8b morre. **J/K na página não tem teste**: M20 sobrevive (gap 1).
 4. **Travado.** ⚠️ `locked = period.locked || anyInFlight(run)` (`DiscrepanciesPage.tsx:62`). A parte do período está provada (`DPT:273-283`). A parte do run em andamento não tem teste (M9 sobrevive), mas a spec não pede isso: a lista só existe com run concluído. `WindowNotice` só mostra o aviso de travado depois dos ramos sem run, andamento e falha (`WindowNotice.tsx:41`). Isso também não tem teste (M10 sobrevive). Os dois são menores (gap 5).
 5. **Run ao vivo (L-037).** ✅ A fixture serve itens só depois de entregar `COMPLETED` (`DPT:74,77`). `DPT:225-227` mostra o aviso sem tabela; `DPT:229-230` mostra as linhas finais; `DPT:232-234` não busca mais itens depois de +15 s. M24 (lista montada com run em andamento) morre. L-037 evitou a falha da feature anterior.
@@ -377,7 +483,7 @@ Risco fora da spec (não é gap): se um run novo começar na mesma janela com a 
 ### Fix 2: troca de janela (DIV-03 AC6) - Major
 
 - **Root cause**: `DPT:187` vai de outubro (página 0, filtros padrão) para setembro (sem run). Não prova página 1 nem filtros mantidos.
-- **Fix task**: em `DPT`, mudar Status para "Todas" e Tipo para "Status inconsistente", ir para a página 2, acrescentar no teste um item divergente de `r-aug`, trocar para agosto, e afirmar a última busca `/r-aug/items` com `page:'0'`, `result:'DIVERGENT'`, `discrepancyType:'STATUS_MISMATCH'` e os selects nos mesmos valores. Mata M6 e M23 (L-036).
+- **Fix task**: em `DPT`, mudar Status para "Todas" e Tipo para "Status inconsistente", ir para a página 2, acrescentar no teste um item divergente de `r-aug`, trocar para agosto, e afirmar a última busca `/r-aug/items` com `page:'0'`, `result` = `'DIVERGENT'`, `discrepancyType:'STATUS_MISMATCH'` e os selects nos mesmos valores. Mata M6 e M23 (L-036).
 
 ### Fix 3: troca de empresa com página e cache (DIV-08 AC1) - Major
 

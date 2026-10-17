@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 43,
+  "next_id": 45,
   "lessons": [
     {
       "id": "L-001",
@@ -318,17 +318,19 @@
       "text": "When an acceptance criterion lists several allowed values, exercise each listed value at least once in the tests",
       "signal": "ac_gap",
       "scope": "tests",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "fee-rules-screen"
+        "fee-rules-screen",
+        "discrepancies-screen"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "FREG-03 - backend/src/test/java/br/com/hanrry/reconpay/feerule/integration/FeeRuleIntegrationTest.java:168 (tests)"
+        "FREG-03 - backend/src/test/java/br/com/hanrry/reconpay/feerule/integration/FeeRuleIntegrationTest.java:168 (tests)",
+        "DIV-01 AC4 - validation.md iteração 4, DiscrepanciesPage.tsx:91 sem teste de 'Todos' (tests)"
       ],
       "created": "2026-10-16T01:28:09Z",
-      "last_seen": "2026-10-16T01:28:09Z"
+      "last_seen": "2026-10-17T01:51:23Z"
     },
     {
       "id": "L-019",
@@ -764,6 +766,42 @@
       ],
       "created": "2026-10-17T01:39:02Z",
       "last_seen": "2026-10-17T01:39:02Z"
+    },
+    {
+      "id": "L-043",
+      "key": "surviving_mutant::when an acceptance criterion lists several allowed values exercise each listed value at least once in the tests",
+      "text": "When an acceptance criterion lists several allowed values, exercise each listed value at least once in the tests",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "discrepancies-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md iteração 4, F7 DiscrepanciesPage.tsx:91 (tests)"
+      ],
+      "created": "2026-10-17T01:51:09Z",
+      "last_seen": "2026-10-17T01:51:09Z"
+    },
+    {
+      "id": "L-044",
+      "key": "spec_precision_gap::spec whether pagination controls are disabled on the first and last page and test both edges",
+      "text": "Spec whether pagination controls are disabled on the first and last page, and test both edges",
+      "signal": "spec_precision_gap",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "discrepancies-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md iteração 4, F1/F2 DiscrepancyList.tsx:116,120 (frontend)"
+      ],
+      "created": "2026-10-17T01:51:09Z",
+      "last_seen": "2026-10-17T01:51:09Z"
     }
   ]
 }
