@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/discrepancies-screen/design.md`
-**Status**: Approved
+**Status**: In Progress
 
 ---
 
@@ -84,9 +84,9 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Sem a prop, o rodapé continua "<n> de <total> abertas · J / K navega"
-- [ ] Com `footerNoun={null}`, o rodapé fica "<n> de <total> · J / K navega"
-- [ ] Testes atuais da gaveta e do dashboard inalterados e verdes; teste novo no arquivo de testes da gaveta; gate quick passa
+- [x] Sem a prop, o rodapé continua "<n> de <total> abertas · J / K navega"
+- [x] Com `footerNoun={null}`, o rodapé fica "<n> de <total> · J / K navega"
+- [x] Testes atuais da gaveta e do dashboard inalterados e verdes; teste novo no arquivo de testes da gaveta; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
