@@ -38,6 +38,7 @@ O dashboard mostra só as 4 maiores divergências abertas do run vigente da jane
 | Ordem e paginação | Maior diferença absoluta primeiro (`sort=absDifference,desc`), 20 itens por página | Mesma prioridade do dashboard; a API pagina por item | n |
 | Colunas | Transação (referência, método e parcelas, data da venda), Tipo, Esperado, Diferença, Status, ação "Abrir" | As colunas da tabela de divergências do dashboard, mais a ação | n |
 | Formatos | Esperado com `formatMoney`; Diferença com sinal (`formatMoney(…, { signed: true })`); "—" no lado ausente; data `dd/mm/aaaa` | Mesmos formatos do dashboard e de `/conciliacoes/[runId]` (AD-010) | n |
+| Linha da Transação | "<método>[ <parcelas>x] · <dd/mm/aaaa>": parcelas só quando mais de 1 ("Crédito 3x · 03/10/2026", "Pix · 03/10/2026"); "—" no método ou na data ausente | Mesmo critério do dashboard, que omite "1x" (gap de precisão da verificação 1) | n |
 | Contador | Sem total de divergências; a paginação mostra só "Página X de Y" | A API conta itens, não divergências; um total de itens rotulado como divergências seria errado | n |
 | Navegação na gaveta | J/K e as setas da gaveta andam pelas divergências da página atual; o rodapé mostra "<posição> de <total da página>" | A gaveta já navega por uma lista carregada | n |
 | Depois de resolver ou reabrir | A gaveta continua aberta mostrando o novo status; a lista recarrega; uma divergência que sai do filtro some da lista depois de fechar a gaveta | Mesmo comportamento do dashboard | n |

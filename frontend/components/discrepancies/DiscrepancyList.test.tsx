@@ -61,6 +61,15 @@ describe('DiscrepancyList', () => {
     expect(within(table).getAllByRole('button', { name: /^Abrir/ })).toHaveLength(3)
   })
 
+  it('venda à vista mostra só o método e a data, sem "1x" (DIV-01 AC2)', async () => {
+    const pix = item('4', [discrepancy('d-6', 'FEE_DIVERGENCE', 'OPEN')], { paymentMethod: 'PIX', installments: 1 })
+    vi.mocked(api.getRunItems).mockResolvedValue({ content: [pix], totalPages: 1 })
+    show()
+
+    const table = await screen.findByRole('table', { name: 'Divergências' })
+    expect(rowsText(table)[0][0]).toBe('REF-4Pix · 03/10/2026')
+  })
+
   it.each<[StatusFilter, DiscrepancyType | null, object]>([
     ['OPEN', null, { discrepancyStatus: 'OPEN' }],
     ['ACCEPTED', 'FEE_DIVERGENCE', { discrepancyStatus: 'ACCEPTED', discrepancyType: 'FEE_DIVERGENCE' }],

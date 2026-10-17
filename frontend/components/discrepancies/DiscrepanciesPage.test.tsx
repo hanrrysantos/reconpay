@@ -106,6 +106,7 @@ beforeEach(() => {
         transactionStatus: 'APPROVED', transactionAmount: '100.00', expectedNetAmount: '96.71', netDifference: '-96.71', transactionDate: '2026-10-16',
       }),
       item('i-2', 'r-oct', 'IMP-T-002', [discrepancy('d-2', 'STATUS_MISMATCH', 'OPEN'), discrepancy('d-3', 'FEE_DIVERGENCE', 'ACCEPTED')]),
+      item('i-8', 'r-aug', 'AGO-1', [discrepancy('d-8', 'STATUS_MISMATCH', 'OPEN')], { transactionDate: '2026-08-12' }),
       item('i-9', 'r-beta', 'BETA-1', [discrepancy('d-9', 'FEE_DIVERGENCE', 'ACCEPTED')]),
     ],
     locked: new Set(),
@@ -198,6 +199,37 @@ describe('DiscrepanciesPage', () => {
     expect(itemCalls()).toHaveLength(before)
   })
 
+  it('trocar de janela volta para a página 1 e mantém status e tipo (DIV-03 AC6)', async () => {
+    const user = renderRoute()
+    await table()
+    // Both filters and the page move away from their defaults, so a reset of any of them would show.
+    await user.selectOptions(screen.getByLabelText('Status'), 'Todas')
+    await user.selectOptions(screen.getByLabelText('Tipo'), 'Status inconsistente')
+    await waitFor(() => expect(query(lastItems())).toMatchObject({ result: 'DIVERGENT', discrepancyType: 'STATUS_MISMATCH' }))
+    await user.click(within(await screen.findByRole('navigation', { name: 'Paginação' })).getByRole('button', { name: 'Próxima' }))
+    await waitFor(() => expect(lastItems().search.get('page')).toBe('1'))
+
+    await user.click(screen.getByRole('button', { name: /Outubro de 2026/ }))
+    await user.click(screen.getByRole('button', { name: /^Agosto de 2026/ }))
+
+    await waitFor(() => expect(lastItems().path).toBe('/api/merchants/m-1/reconciliations/r-aug/items'))
+    expect(query(lastItems())).toEqual({ page: '0', size: '20', sort: 'absDifference,desc', result: 'DIVERGENT', discrepancyType: 'STATUS_MISMATCH' })
+    expect(screen.getByLabelText('Status')).toHaveValue('ALL')
+    expect(screen.getByLabelText('Tipo')).toHaveValue('STATUS_MISMATCH')
+    await waitFor(() => expect(rows()).toEqual(['AGO-1|Status inconsistente|Aberta']))
+  })
+
+  it('empresa sem run abre no mês atual com o aviso de janela sem conciliação (DIV-01 AC1)', async () => {
+    vi.setSystemTime(new Date(2026, 10, 5, 9, 0))
+    server.runs = server.runs.filter(entry => entry.merchantId !== 'm-1')
+    renderRoute()
+
+    expect(await screen.findByText('Nenhuma conciliação nesta janela.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Novembro de 2026/ })).toBeInTheDocument()
+    const periodCall = calls.find(call => call.path.endsWith('/periods'))!
+    expect(query(periodCall)).toEqual({ fromDate: '2026-11-01', toDate: '2026-11-30' })
+  })
+
   it('run com falha mostra o aviso e a mensagem do run, sem lista (DIV-04 AC3)', async () => {
     server.runs[0] = run('r-oct', 'm-1', '2026-10-01', '2026-10-31', { status: 'FAILED', errorMessage: 'Falha ao processar o lote' })
     renderRoute()
@@ -255,6 +287,25 @@ describe('DiscrepanciesPage', () => {
     await waitFor(() => expect(rows()).toEqual(['IMP-T-002|Status inconsistente|Aberta']))
   })
 
+  it('J e K andam pelas divergências da página dentro da gaveta (DIV-07 AC7)', async () => {
+    const user = renderRoute()
+    await table()
+
+    await user.click(screen.getByRole('button', { name: 'Abrir AVULSA-1 · Liquidação ausente' }))
+    const drawer = () => screen.getByRole('dialog', { name: 'Resolver divergência' })
+    expect(within(drawer()).getByText('1 de 2 · J / K navega')).toBeInTheDocument()
+    expect(drawer()).toHaveTextContent('AVULSA-1')
+
+    await user.keyboard('j')
+    expect(within(drawer()).getByText('2 de 2 · J / K navega')).toBeInTheDocument()
+    expect(drawer()).toHaveTextContent('IMP-T-002')
+    expect(drawer()).toHaveTextContent('Status inconsistente')
+
+    await user.keyboard('k')
+    expect(within(drawer()).getByText('1 de 2 · J / K navega')).toBeInTheDocument()
+    expect(drawer()).toHaveTextContent('AVULSA-1')
+  })
+
   it('no filtro Aceitas, "Reabrir" envia OPEN (DIV-06 AC3)', async () => {
     const user = renderRoute()
     await table()
@@ -304,6 +355,29 @@ describe('DiscrepanciesPage', () => {
     expect(screen.getByLabelText('Tipo')).toHaveValue('FEE_DIVERGENCE')
     expect(within(pageHeader()).getByText('Beta Comércio')).toBeInTheDocument()
     await waitFor(() => expect(rows()).toEqual(['BETA-1|Taxa divergente|Aceita']))
+  })
+
+  it('voltar a uma empresa já carregada reabre na janela dela, página 1 e sem a gaveta (DIV-08 AC1)', async () => {
+    const user = renderRoute()
+    await table()
+    // Alfa moves to August, page 2 and an open drawer; its runs stay cached while Beta is selected.
+    await user.click(screen.getByRole('button', { name: /Outubro de 2026/ }))
+    await user.click(screen.getByRole('button', { name: /^Agosto de 2026/ }))
+    await waitFor(() => expect(rows()).toEqual(['AGO-1|Status inconsistente|Aberta']))
+    await user.click(within(screen.getByRole('navigation', { name: 'Paginação' })).getByRole('button', { name: 'Próxima' }))
+    await waitFor(() => expect(query(lastItems())).toMatchObject({ page: '1' }))
+    await user.click(screen.getByRole('button', { name: 'Abrir AGO-1 · Status inconsistente' }))
+    expect(screen.getByRole('dialog', { name: 'Resolver divergência' })).toBeInTheDocument()
+
+    await switchTo(user, 'Alfa Pagamentos', /Beta Comércio/)
+    await waitFor(() => expect(lastItems().path).toBe('/api/merchants/m-2/reconciliations/r-beta/items'))
+    expect(query(lastItems())).toMatchObject({ page: '0' })
+    await switchTo(user, 'Beta Comércio', /Alfa Pagamentos/)
+
+    await waitFor(() => expect(lastItems().path).toBe('/api/merchants/m-1/reconciliations/r-oct/items'))
+    expect(query(lastItems())).toMatchObject({ page: '0' })
+    expect(screen.getByRole('button', { name: /Outubro de 2026/ })).toBeInTheDocument()
+    expect(screen.queryByRole('dialog', { name: 'Resolver divergência' })).toBeNull()
   })
 
   it('sem empresa no acesso mostra o estado vazio, sem filtros nem lista (DIV-08 AC2)', async () => {

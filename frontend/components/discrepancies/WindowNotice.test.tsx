@@ -34,6 +34,15 @@ describe('WindowNotice', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Período travado: as divergências ficam só para consulta.')
   })
 
+  it.each([
+    ['FAILED', 'A conciliação desta janela falhou.'],
+    ['RUNNING', 'Conciliação em andamento.'],
+  ] as const)('run %s em período travado mostra o estado do run, não o aviso de travado (DIV-05)', (status, text) => {
+    render(<WindowNotice run={run({ status, errorMessage: status === 'FAILED' ? 'Falha' : null })} locked />)
+    expect(screen.getByText(text)).toBeInTheDocument()
+    expect(screen.queryByText('Período travado: as divergências ficam só para consulta.')).toBeNull()
+  })
+
   it('run concluído em período aberto não mostra aviso', () => {
     const { container } = render(<WindowNotice run={run()} locked={false} />)
     expect(container).toBeEmptyDOMElement()
