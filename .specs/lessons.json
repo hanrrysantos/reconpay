@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 46,
+  "next_id": 48,
   "lessons": [
     {
       "id": "L-001",
@@ -820,6 +820,42 @@
       ],
       "created": "2026-10-17T12:01:19Z",
       "last_seen": "2026-10-17T12:01:19Z"
+    },
+    {
+      "id": "L-046",
+      "key": "surviving_mutant::when a query keeps old data after a failed refetch test a success read followed by an error read and assert the error state hides the old values and actions",
+      "text": "When a query keeps old data after a failed refetch, test a success read followed by an error read and assert the error state hides the old values and actions",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "closing-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md iteração 2 N6 (frontend/components/closing/PeriodRow.tsx:29) (frontend)"
+      ],
+      "created": "2026-10-17T12:10:48Z",
+      "last_seen": "2026-10-17T12:10:48Z"
+    },
+    {
+      "id": "L-047",
+      "key": "surviving_mutant::test a list with exactly one item next to the empty case so an off by one empty check cannot pass",
+      "text": "Test a list with exactly one item next to the empty case so an off-by-one empty check cannot pass",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "closing-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md iteração 2 N10 (frontend/components/closing/ClosingPage.tsx:33) (frontend)"
+      ],
+      "created": "2026-10-17T12:10:48Z",
+      "last_seen": "2026-10-17T12:10:48Z"
     }
   ]
 }

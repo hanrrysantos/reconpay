@@ -282,6 +282,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M27 frontend/components/closing/ClosingPage.tsx:97 (frontend)
 - last seen: 2026-10-17T12:01:19Z
 
+### L-046 - When a query keeps old data after a failed refetch, test a success read followed by an error read and assert the error state hides the old values and actions
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: closing-screen
+- evidence: validation.md iteração 2 N6 (frontend/components/closing/PeriodRow.tsx:29) (frontend)
+- last seen: 2026-10-17T12:10:48Z
+
+### L-047 - Test a list with exactly one item next to the empty case so an off-by-one empty check cannot pass
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: closing-screen
+- evidence: validation.md iteração 2 N10 (frontend/components/closing/ClosingPage.tsx:33) (frontend)
+- last seen: 2026-10-17T12:10:48Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
