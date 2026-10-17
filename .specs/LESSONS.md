@@ -230,6 +230,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md M31; TransactionsPage.test.tsx:248-272 (frontend)
 - last seen: 2026-10-16T18:09:53Z
 
+### L-037 - When polling stops on a parent state change, serve the child data by that state in the test fixture and assert the final child data shows after polling stops
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: reconciliations-screen
+- evidence: REC-09 AC8 - frontend/components/reconciliations/RunDetailPage.test.tsx:55 (validation.md Defeito principal) (frontend)
+- last seen: 2026-10-17T00:14:15Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 37,
+  "next_id": 38,
   "lessons": [
     {
       "id": "L-001",
@@ -653,6 +653,24 @@
       ],
       "created": "2026-10-16T18:09:53Z",
       "last_seen": "2026-10-16T18:09:53Z"
+    },
+    {
+      "id": "L-037",
+      "key": "ac_gap::when polling stops on a parent state change serve the child data by that state in the test fixture and assert the final child data shows after polling stops",
+      "text": "When polling stops on a parent state change, serve the child data by that state in the test fixture and assert the final child data shows after polling stops",
+      "signal": "ac_gap",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "reconciliations-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "REC-09 AC8 - frontend/components/reconciliations/RunDetailPage.test.tsx:55 (validation.md Defeito principal) (frontend)"
+      ],
+      "created": "2026-10-17T00:14:15Z",
+      "last_seen": "2026-10-17T00:14:15Z"
     }
   ]
 }
