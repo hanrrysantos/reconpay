@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 48,
+  "next_id": 50,
   "lessons": [
     {
       "id": "L-001",
@@ -856,6 +856,42 @@
       ],
       "created": "2026-10-17T12:10:48Z",
       "last_seen": "2026-10-17T12:10:48Z"
+    },
+    {
+      "id": "L-048",
+      "key": "surviving_mutant::test a formatter of a nullable number with zero as well as null so a falsy check in place of the null check is caught",
+      "text": "Test a formatter of a nullable number with zero as well as null, so a falsy check in place of the null check is caught",
+      "signal": "surviving_mutant",
+      "scope": "frontend-format",
+      "status": "candidate",
+      "features": [
+        "closing-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md V3 frontend/lib/closing.ts:24 (frontend-format)"
+      ],
+      "created": "2026-10-17T12:22:00Z",
+      "last_seen": "2026-10-17T12:22:00Z"
+    },
+    {
+      "id": "L-049",
+      "key": "surviving_mutant::test a formatter that omits a zero sub unit with a sub unit of exactly one so a wrong omission threshold is caught",
+      "text": "Test a formatter that omits a zero sub-unit with a sub-unit of exactly one, so a wrong omission threshold is caught",
+      "signal": "surviving_mutant",
+      "scope": "frontend-format",
+      "status": "candidate",
+      "features": [
+        "closing-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md V15 frontend/lib/closing.ts:32, V16 frontend/lib/closing.ts:29 (frontend-format)"
+      ],
+      "created": "2026-10-17T12:22:00Z",
+      "last_seen": "2026-10-17T12:22:00Z"
     }
   ]
 }

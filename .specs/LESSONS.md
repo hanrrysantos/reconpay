@@ -294,6 +294,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md iteração 2 N10 (frontend/components/closing/ClosingPage.tsx:33) (frontend)
 - last seen: 2026-10-17T12:10:48Z
 
+### L-048 - Test a formatter of a nullable number with zero as well as null, so a falsy check in place of the null check is caught
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-format` · harmful: 0
+- features: closing-screen
+- evidence: validation.md V3 frontend/lib/closing.ts:24 (frontend-format)
+- last seen: 2026-10-17T12:22:00Z
+
+### L-049 - Test a formatter that omits a zero sub-unit with a sub-unit of exactly one, so a wrong omission threshold is caught
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-format` · harmful: 0
+- features: closing-screen
+- evidence: validation.md V15 frontend/lib/closing.ts:32, V16 frontend/lib/closing.ts:29 (frontend-format)
+- last seen: 2026-10-17T12:22:00Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -2,19 +2,22 @@
 
 **Date**: 2026-10-17
 **Spec**: `.specs/features/closing-screen/spec.md`
-**Diff range**: `03b25e9^..ecb479d` (11 commits), branch `feat/closing-screen`. Correções desta rodada: `df7cfe7..ecb479d` (`3289be0` só teste, `ecb479d` só `README.md`).
-**Verifier**: sub-agente independente (author ≠ verifier), iteração 2 de 3.
+**Diff range**: `03b25e9^..40d5721` (14 commits), branch `feat/closing-screen`. Correções desta rodada: `f308f38..40d5721` (`16f1337` e `40d5721`, só teste).
+**Verifier**: sub-agente independente (author ≠ verifier), iteração 3 de 3 (última do laço de correção).
 
-## Validation: closing-screen (iteração 2) - FAIL ❌
+## Validation: closing-screen (iteração 3) - FAIL ❌
 
-O gap da iteração 1 está fechado: o caso novo `PT:289-314` mata M27. As correções não mudam nenhum arquivo de produção e não enfraquecem nem removem teste (`git diff df7cfe7..ecb479d`: +27 linhas em `ClosingPage.test.tsx`, só um `it` novo; 1 linha em `README.md`). Gate verde: 853 testes, typecheck e build.
+Os dois gaps da iteração 2 estão fechados. O `it.each` novo `RT:199-213` mata N6 (3 casos falham), e o caso novo `PT:217-227` mata N10. M27 continua morto (`PT:301`). As correções não mudam nenhum arquivo de produção e não enfraquecem nem removem teste: `git diff --numstat f308f38..40d5721` dá +16/-0 em `PeriodRow.test.tsx` e +12/-0 em `ClosingPage.test.tsx`, e nada mais. Gate verde: 857 testes, typecheck e build.
 
-O sensor desta rodada injetou 13 mutantes (M27 de novo e 12 novos). 11 morreram e 2 sobreviveram:
+O sensor desta rodada injetou 20 mutantes: N6, N10 e M27 de novo, mais 17 novos (V1-V17). Três sobreviveram, todos em `formatDuration` (`frontend/lib/closing.ts:22-33`), regra definida em `spec.md:40` e cobrada por FEC-02 AC4 (`spec.md:83`):
 
-- **N6** (`frontend/components/closing/PeriodRow.tsx:29`, `const data = period.data`): a linha que já leu um período e depois relê com `409` mostra "Em andamento" com os valores antigos e o botão "Exportar CSV". A spec pede "—" e nenhuma ação (FEC-02 AC5). O caso acontece em FEC-06 AC2: a trava devolve `409` porque um run começou, e a releitura também devolve `409`. Nenhum teste da linha cobre uma releitura com erro depois de um `200`. `LT:93` cobre só a regra pura `periodStatus`, não as colunas e os botões.
-- **N10** (`frontend/components/closing/ClosingPage.tsx:33`, `windows.length === 0` → `<= 1`): uma empresa com uma janela só mostra "Nenhuma conciliação ainda." no lugar da tabela. Nenhum teste da página usa uma empresa com exatamente uma janela.
+- **V3** (`closing.ts:24`, `seconds === null` → `!seconds`): `0` segundos vira "—" em vez de "0 s". A spec diz "abaixo de 60 → 'N s'" e "nulo → '—'", e `0` não é nulo. O valor é alcançável: o backend calcula `Duration.between(run.getFinishedAt(), lock.getLockedAt()).toSeconds()` (`backend/src/main/java/br/com/hanrry/reconpay/reconciliation/service/PeriodService.java:137`), e uma trava menos de 1 s depois do fim do run dá `0`. Com o mutante, uma linha "Travado" mostraria "—" em Duração, como uma linha aberta.
+- **V15** (`closing.ts:32`, `hours ?` → `hours > 1 ?`): `90000` vira "1 d" em vez de "1 d 1 h".
+- **V16** (`closing.ts:29`, `minutes ?` → `minutes > 1 ?`): `3660` vira "1 h" em vez de "1 h 1 min".
 
-Uma sonda confirmou os dois. No scratch, foi um caso a mais em `RT` (200, depois trava 409 e releitura 409) e outro em `PT` (`monthRuns('m-1', 1)`). As duas sondas passam no HEAD e falham com N6 e N10. O scratch foi apagado depois.
+`LT:51-63` testa as bordas das faixas e os 6 valores da edge, mas nenhum valor com 0 s, 1 min de resto ou 1 h de resto. Uma sonda no scratch acrescentou `[0, '0 s']`, `[3660, '1 h 1 min']` e `[90000, '1 d 1 h']` ao `it.each`. A sonda passa no HEAD e mata V3, V15 e V16, um caso cada. O scratch foi apagado depois.
+
+Esta é a iteração 3, a última do laço. Os gaps restantes são só de teste, sem bug de produção. A decisão de rodar mais uma correção é do usuário.
 
 Abreviações: `LT` = `frontend/lib/closing.test.ts`, `RT` = `frontend/components/closing/PeriodRow.test.tsx`, `PT` = `frontend/components/closing/ClosingPage.test.tsx`, `CST` = `frontend/components/dashboard/CloseStepper.test.tsx`, `QT` = `frontend/lib/queries.test.tsx`.
 
@@ -30,11 +33,214 @@ Abreviações: `LT` = `frontend/lib/closing.test.ts`, `RT` = `frontend/component
 | T4 | ✅ Done | `c7895bb` |
 | T5 | ✅ Done | `5f6c23b` |
 | T6 | ✅ Done | `8cb65c2`, `ecb479d` |
-| Fix 1 (iteração 1) | ✅ Done | `3289be0`: `PT:289-314` |
+| Fix 1 (iteração 1) | ✅ Done | `3289be0`: `PT:301-326` |
+| Fix 1 (iteração 2) | ✅ Done | `16f1337`: `RT:199-213` |
+| Fix 2 (iteração 2) | ✅ Done | `40d5721`: `PT:217-227` |
 
 ---
 
 ## Spec-Anchored Acceptance Criteria
+
+Re-derivado no HEAD `40d5721`. As linhas de `RT` depois de 198 andaram +16 e as de `PT` depois de 216 andaram +12. As citações abaixo já usam os números novos.
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| FEC-01 AC1 título, empresa, tabela | `spec.md:80` | `PT:154` `findByRole('table', { name: 'Períodos' })`; `PT:155` `within(pageHeader()).getByText('Alfa Pagamentos')`; `PT:158-163` 4 linhas para 5 runs | ✅ PASS |
+| FEC-01 AC2 ordem com empate | `spec.md:81` | `LT:31-36` `toEqual([...])` com empate pela data final; `PT:158-163` | ✅ PASS |
+| FEC-01 AC3 colunas e nome | `spec.md:82` | `PT:156-157` `toEqual(['Período','Status','Match','Em aberto','Travado em','Duração','Ações'])`; `RT:59` `'Outubro de 2026'` | ✅ PASS |
+| FEC-01 edge vários runs | `spec.md:176` | `LT:18-21`; `PT:158` | ✅ PASS |
+| FEC-01 edge janela parcial | `spec.md:177` | `RT:83` `toBe('01/10/2026 – 15/10/2026')` | ✅ PASS |
+| FEC-02 AC4 `200` aberto | `spec.md:83`, `spec.md:39` | `RT:59` `toEqual(['Outubro de 2026','Aberto','94,2%','R$ 10,50','—','—'])` | ✅ PASS |
+| FEC-02 AC4 `200` travado | `spec.md:83` | `RT:70` `[..., 'Travado','100%','R$ 0,00','02/11/2026 08:07','2 h 5 min']`; `LT:71` `'05/09/2026 08:07'`; `LT:75` `'—'` | ✅ PASS |
+| FEC-02 AC4 formato da duração (regra completa) | `spec.md:40`: "N s" abaixo de 60 (inclusive 0), "N h M min" com M ≥ 1, "N d H h" com H ≥ 1, nulo "—" | `LT:51-66` `toBe(text)` para 29, 59, 60, 180, 3599, 3600, 7200, 7500, 86399, 86400, 97200 e nulo. **Sem 0 s, sem resto de 1 min, sem resto de 1 h**: V3, V15 e V16 sobrevivem | ❌ GAP |
+| FEC-02 AC5 `409` | `spec.md:84`: "Em andamento", "—" nos valores, nenhuma ação | Primeira leitura: `RT:93` `toEqual(['Outubro de 2026', label, '—','—','—','—'])`, `RT:94` `buttons()` = `[]`. Releitura depois de um `200`: `RT:211` `cells()` = `['Outubro de 2026','Em andamento','—','—','—','—']`, `RT:212` `buttons()` = `[]`. N6 morto | ✅ PASS |
+| FEC-02 AC6 `404` | `spec.md:85` | `RT:93-94` (caso 404); `RT:211-212` releitura 404 com `'Sem conciliação concluída'` e `[]`; `PT:162` | ✅ PASS |
+| FEC-02 edge `matchRate` nulo | `spec.md:178` | `RT:77` `toBe('0%')` | ✅ PASS |
+| FEC-02 edge duração | `spec.md:179` | `LT:52`, `LT:55`, `LT:58`, `LT:59`, `LT:61`, `LT:62` `toBe(text)` com os 6 valores | ✅ PASS |
+| FEC-03 AC1 paginação | `spec.md:99` | `PT:175`, `PT:178-180`, `PT:185-188`; `LT:46` `toBe(10)` | ✅ PASS |
+| FEC-03 edge 10 janelas | `spec.md:180` | `PT:203-204` 10 linhas e `navigation` nulo | ✅ PASS |
+| FEC-03 AC2 sem runs | `spec.md:100`: aviso e link só sem runs | `PT:211-213` (zero janelas); borda de uma janela: `PT:224` `rowText()` = `['Outubro de 2026|Aberto']`, `PT:225` aviso nulo, `PT:226` paginação nula. N10 morto | ✅ PASS |
+| FEC-03 AC3 erro dos runs | `spec.md:101` | `PT:234` `toHaveTextContent('Você não tem acesso a este comerciante')`; `PT:237-240` | ✅ PASS |
+| FEC-03 AC4 leitura só da página | `spec.md:102` | `PT:181`, `PT:189` | ✅ PASS |
+| FEC-03 AC5 erro da linha | `spec.md:103` | `RT:104` `'Não carregou'`; `RT:105` `['Tentar novamente']`; `RT:108-110` releitura só da janela; releitura 403 depois de um `200`: `RT:211` `'Não carregou'` e "—", `RT:212` `['Tentar novamente']` | ✅ PASS |
+| FEC-03 edge erro não JSON | `spec.md:181` | `frontend/lib/api.imports.test.ts:115` `toBe('A API retornou erro 502.')` | ✅ PASS |
+| FEC-04 AC1 botões por status | `spec.md:117` | `RT:61` `['Travar','Exportar CSV']`; `RT:71` `['Destravar','Exportar CSV']` | ✅ PASS |
+| FEC-04 AC2 confirmação | `spec.md:118` | `RT:119` `alertdialog` "Travar o período?"; `RT:120` `not.toHaveBeenCalled()`; `CST:115-122` | ✅ PASS |
+| FEC-04 AC5 cancelar | `spec.md:121` | `RT:155-156` | ✅ PASS |
+| FEC-05 AC3 travar | `spec.md:119` | `RT:123` `toHaveBeenCalledWith('jwt','m-1',october)`; `RT:124`; `PT:273` `toEqual([october])` | ✅ PASS |
+| FEC-05 AC4 destravar | `spec.md:120` | `RT:136`, `RT:140`, `RT:141` `[..., 'Aberto','100%','R$ 0,00','—','—']` | ✅ PASS |
+| FEC-05 AC6 cache | `spec.md:122` | `RT:169` `toEqual(answer)`; `RT:170` `invalidateQueries` com `queryKeys.period('m-1', october)`; `PT:274-275`; `QT:204` | ✅ PASS |
+| FEC-06 AC1 aviso | `spec.md:136` | `PT:255`, `PT:256`, `PT:260`; `RT:181`, `RT:223`, `RT:253`, `RT:242` | ✅ PASS |
+| FEC-06 AC2 `409` relê | `spec.md:137`: relê e mostra o estado atual | `RT:182-183`, `RT:195-196` (releitura `200`); `RT:211-212` (releitura 409, 404 e 403); `RT:224` sem releitura fora do 409 | ✅ PASS |
+| FEC-06 AC3 ocupado | `spec.md:138` | `RT:269-272`, `RT:285-288` | ✅ PASS |
+| FEC-07 AC1 botão | `spec.md:152` | `RT:61`, `RT:71`, `RT:94`, `RT:212` | ✅ PASS |
+| FEC-07 AC2 arquivo | `spec.md:153` | `RT:239` `[{ name: 'reconpay-2026-10-01-2026-10-31.csv', href: 'blob:csv' }]`; `RT:240` `exportRunCsv('jwt','m-1','r-9')`; `RT:241` | ✅ PASS |
+| FEC-08 AC1 troca de empresa | `spec.md:167` | Sem cache: `PT:292-298`. Com cache: `PT:322` sem skeleton, `PT:323` `'Página 1 de 2'`, `PT:324` `'Outubro de 2026|Aberto'`, `PT:325` alerta nulo. M27 morto | ✅ PASS |
+| FEC-08 AC2 sem empresa | `spec.md:168` | `PT:332` heading "Nenhuma empresa no seu acesso"; `PT:334` sem tabela; `PT:335` nenhuma chamada | ✅ PASS |
+
+**Status**: ❌ 1 gap (FEC-02 AC4, formato da duração fora dos 6 valores da edge), só de teste. Nenhum spec-precision gap: `spec.md:40` define a regra para todo valor.
+
+---
+
+## Discrimination Sensor
+
+Scratch: `git worktree add --detach <scratchpad>/verify-closing3 HEAD` com `frontend/node_modules` em symlink. Cada mutante rodou `vitest run lib/closing.test.ts components/closing components/dashboard` (209 testes, verdes no HEAD) e depois `git checkout --` só do arquivo de produção mutado. V1-V17 são diferentes de M1-M31 (iteração 1) e N1-N12 (iteração 2). Um mutante de `formatLockedAt` com `getUTCHours` ficou de fora: o resultado depende do fuso da máquina, porque a suíte não fixa `TZ`.
+
+| # | File | Mutação | Killed? |
+| --- | --- | --- | --- |
+| N6 | `frontend/components/closing/PeriodRow.tsx:29` | `data = period.data` (dado antigo em 409/404/erro) | ✅ Killed (3: `RT:199` 409, 404, 403) |
+| N10 | `frontend/components/closing/ClosingPage.tsx:33` | estado vazio com `<= 1` janela | ✅ Killed (1: `PT:217`) |
+| M27 | `frontend/components/closing/ClosingPage.tsx:97` | sem `key={merchantId}` | ✅ Killed (1: `PT:301`) |
+| V1 | `frontend/lib/closing.ts:26` | minutos com `Math.ceil` | ✅ Killed (1) |
+| V2 | `frontend/lib/closing.ts:48` | erro que não é `ApiError` vira `'none'` | ✅ Killed (1) |
+| V3 | `frontend/lib/closing.ts:24` | `seconds === null` → `!seconds` (0 s vira "—") | ❌ Survived → Fix 1 |
+| V4 | `frontend/components/closing/PeriodRow.tsx:56` | export com erro não chama `onError(mensagem)` | ✅ Killed (1) |
+| V5 | `frontend/components/closing/PeriodRow.tsx:40` | relê em todo erro (`>= 400`), não só no 409 | ✅ Killed (1) |
+| V6 | `frontend/components/closing/PeriodRow.tsx:33` | sem `setConfirming(null)` ao confirmar | ✅ Killed (4) |
+| V7 | `frontend/components/closing/PeriodRow.tsx:75` | "Travar" sem `disabled={busy}` | ✅ Killed (2) |
+| V8 | `frontend/components/closing/PeriodRow.tsx:71` | "Tentar novamente" também em "Em andamento" | ✅ Killed (2) |
+| V9 | `frontend/components/closing/ClosingPage.tsx:59` | "Página X de {windows.length}" | ✅ Killed (3) |
+| V10 | `frontend/components/closing/ClosingPage.tsx:53` | `onError` da linha ignorado (sem aviso) | ✅ Killed (3) |
+| V11 | `frontend/components/closing/ClosingPage.tsx:24` | fatia começa uma janela depois | ✅ Killed (9) |
+| V12 | `frontend/components/closing/ClosingPage.tsx:95` | erro dos runs com texto fixo, sem a mensagem da API | ✅ Killed (1) |
+| V13 | `frontend/components/dashboard/CloseStepper.tsx:29` | `Confirm`: "Cancelar" chama `onConfirm` | ✅ Killed (4) |
+| V14 | `frontend/components/dashboard/CloseStepper.tsx:26` | `Confirm`: `aria-label={action}` em vez do título | ✅ Killed (5) |
+| V15 | `frontend/lib/closing.ts:32` | `hours ?` → `hours > 1 ?` (1 d 1 h vira "1 d") | ❌ Survived → Fix 1 |
+| V16 | `frontend/lib/closing.ts:29` | `minutes ?` → `minutes > 1 ?` (1 h 1 min vira "1 h") | ❌ Survived → Fix 1 |
+| V17 | `frontend/components/closing/ClosingPage.tsx:97` | sem o nome da empresa no cabeçalho | ✅ Killed (3) |
+
+Sonda (só no scratch, apagada): `LT:51` com mais 3 linhas, `[0, '0 s']`, `[3660, '1 h 1 min']` e `[90000, '1 d 1 h']`. No HEAD, 30/30 verdes. V3, V15 e V16 caem, cada um num caso.
+
+**Sensor depth**: expandido (a tela trava períodos, caminho de integridade do fechamento).
+**Resultado do sensor (iteração 3)**: 17/20 killed, reprovado
+
+Isolamento: `git status --porcelain` do worktree real vazio antes e depois. O symlink foi removido, e `git worktree remove --force` e `git worktree prune` foram feitos.
+
+---
+
+## Code Quality
+
+| Principle | Status |
+| --- | --- |
+| Minimum code | ✅ |
+| Surgical changes | ✅ correções só em teste |
+| No scope creep | ✅ |
+| Matches patterns | ✅ |
+| Spec-anchored outcome check | ✅ nos casos cobertos; os casos novos asserem as células e os botões exatos |
+| Per-layer Coverage Expectation | ⚠️ `formatDuration` sem 0 s, resto de 1 min e resto de 1 h |
+| Every test maps to a spec requirement | ✅ `RT:203` cita FEC-02 AC5/AC6, FEC-03 AC5 e FEC-06 AC2; `PT:217` cita FEC-03 AC2 |
+| Documented guidelines followed: `AGENTS.md`, `frontend/AGENTS.md`, `.specs/LESSONS.md` | ✅ |
+
+O caso 403 de `RT:202` substitui o 500 sugerido na iteração 2. A troca é válida: o cliente repete um 5xx uma vez, e 403 cai no mesmo ramo `'error'` (`frontend/lib/closing.ts:48`). Testes não enfraquecidos: `git diff f308f38..40d5721` só adiciona linhas.
+
+---
+
+## Edge Cases
+
+- [x] Vários runs por janela: `LT:18`, `PT:158`
+- [x] Janela parcial: `RT:83`
+- [x] `matchRate` nulo: `RT:77`
+- [x] Durações 29/180/7200/7500/86400/97200: `LT:51-66`
+- [x] Exatamente 10 janelas: `PT:204`
+- [x] Erro não JSON: `frontend/lib/api.imports.test.ts:115`
+
+---
+
+## Gate Check
+
+- **Gate command**: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- **Resultado**: 857 passed, 0 failed, 0 skipped; typecheck exit 0; build exit 0 (`/fechamento` estática)
+- **Test count before feature**: 796
+- **Test count after feature**: 857
+- **Delta**: +61 (+4 nesta rodada: 3 casos em `RT:199` e 1 em `PT:217`)
+- **Skipped tests**: nenhum
+- **Failures**: nenhuma
+
+---
+
+## Fix Plans
+
+### Fix 1: `formatDuration` não prende 0 s nem os restos de 1 min e 1 h
+
+- **Root cause**: o `it.each` de `LT:51-63` tem as bordas das faixas e os 6 valores da edge, mas nenhum valor que separe `seconds === null` de `!seconds`, nem `minutes`/`hours` de `> 1`.
+- **Fix task**: em `frontend/lib/closing.test.ts`, no `it.each` de `formatDuration`, acrescentar `[0, '0 s']`, `[3660, '1 h 1 min']` e `[90000, '1 d 1 h']`. Sem mudança de produção.
+- **Done when**: os 3 casos passam no HEAD e cada um falha com V3 (`!seconds` em `closing.ts:24`), V16 (`minutes > 1` em `closing.ts:29`) e V15 (`hours > 1` em `closing.ts:32`).
+- **Priority**: Minor (FEC-02 AC4, formato de Duração; o 0 é alcançável numa trava menos de 1 s depois do fim do run)
+
+---
+
+## Requirement Traceability Update
+
+`spec.md:189-198` ainda está em "Design / Pending" e "0 mapped to tasks". O doc está desatualizado e o Verifier não o editou. Proposta:
+
+| Requirement | Previous Status | New Status |
+| --- | --- | --- |
+| FEC-01 | Pending | ✅ Verified |
+| FEC-02 | Pending | ❌ Needs Fix (Fix 1, só a regra de duração de AC4) |
+| FEC-03 | Pending | ✅ Verified |
+| FEC-04 | Pending | ✅ Verified |
+| FEC-05 | Pending | ✅ Verified |
+| FEC-06 | Pending | ✅ Verified |
+| FEC-07 | Pending | ✅ Verified |
+| FEC-08 | Pending | ✅ Verified |
+
+Outros docs: `tasks.md` com **Status** "In Progress".
+
+---
+
+## Summary
+
+**Overall (iteração 3)**: ❌ Not Ready (1 gap de teste, sem bug de produção; laço de 3 iterações esgotado, decisão do usuário)
+
+**Spec-anchored check**: 31/32 linhas batem com a spec, 1 gap; 0 spec-precision gaps
+**Sensor**: 17/20 mutations killed
+**Gate**: 857 passed
+
+**What works**: os gaps das iterações 1 e 2 estão fechados (M27, N6, N10). Os quatro status funcionam na primeira leitura e na releitura. Funcionam também as ações com confirmação, o ocupado, o export, a paginação com a borda de 1 e de 10 janelas, o aviso, o cache, sem empresa, sem runs e a troca de empresa com e sem cache.
+
+**Issues found**: Fix 1 (formato da duração com 0 s e restos de 1 min e 1 h: V3, V15, V16).
+
+**Next steps**: escalar ao usuário. A correção é de 3 linhas de teste, e uma iteração 4 fica a critério dele.
+
+---
+
+# Histórico
+
+## Veredito da iteração 2: reprovada
+
+**Date**: 2026-10-17
+**Spec**: `.specs/features/closing-screen/spec.md`
+**Diff range**: `03b25e9^..ecb479d` (11 commits), branch `feat/closing-screen`. Correções desta rodada: `df7cfe7..ecb479d` (`3289be0` só teste, `ecb479d` só `README.md`).
+**Verifier**: sub-agente independente (author ≠ verifier), iteração 2 (histórico; o veredito vigente é o da iteração 3, acima).
+
+O gap da iteração 1 está fechado: o caso novo `PT:289-314` mata M27. As correções não mudam nenhum arquivo de produção e não enfraquecem nem removem teste (`git diff df7cfe7..ecb479d`: +27 linhas em `ClosingPage.test.tsx`, só um `it` novo; 1 linha em `README.md`). Gate verde: 853 testes, typecheck e build.
+
+O sensor desta rodada injetou 13 mutantes (M27 de novo e 12 novos). 11 morreram e 2 sobreviveram:
+
+- **N6** (`frontend/components/closing/PeriodRow.tsx:29`, `const data = period.data`): a linha que já leu um período e depois relê com `409` mostra "Em andamento" com os valores antigos e o botão "Exportar CSV". A spec pede "—" e nenhuma ação (FEC-02 AC5). O caso acontece em FEC-06 AC2: a trava devolve `409` porque um run começou, e a releitura também devolve `409`. Nenhum teste da linha cobre uma releitura com erro depois de um `200`. `LT:93` cobre só a regra pura `periodStatus`, não as colunas e os botões.
+- **N10** (`frontend/components/closing/ClosingPage.tsx:33`, `windows.length === 0` → `<= 1`): uma empresa com uma janela só mostra "Nenhuma conciliação ainda." no lugar da tabela. Nenhum teste da página usa uma empresa com exatamente uma janela.
+
+Uma sonda confirmou os dois. No scratch, foi um caso a mais em `RT` (200, depois trava 409 e releitura 409) e outro em `PT` (`monthRuns('m-1', 1)`). As duas sondas passam no HEAD e falham com N6 e N10. O scratch foi apagado depois.
+
+Abreviações: `LT` = `frontend/lib/closing.test.ts`, `RT` = `frontend/components/closing/PeriodRow.test.tsx`, `PT` = `frontend/components/closing/ClosingPage.test.tsx`, `CST` = `frontend/components/dashboard/CloseStepper.test.tsx`, `QT` = `frontend/lib/queries.test.tsx`.
+
+---
+
+### Task Completion
+
+| Task | Status | Notes |
+| --- | --- | --- |
+| T1 | ✅ Done | `13ccbc7` |
+| T2 | ✅ Done | `341c0d8` |
+| T3 | ✅ Done | `ef4a69e` |
+| T4 | ✅ Done | `c7895bb` |
+| T5 | ✅ Done | `5f6c23b` |
+| T6 | ✅ Done | `8cb65c2`, `ecb479d` |
+| Fix 1 (iteração 1) | ✅ Done | `3289be0`: `PT:289-314` |
+
+---
+
+### Spec-Anchored Acceptance Criteria
 
 Re-derivado nesta rodada. As linhas citadas de `LT`, `RT`, `CST`, `QT` e `PT` até a linha 288 não mudaram desde `df7cfe7`, e todas foram relidas no HEAD.
 
@@ -76,7 +282,7 @@ Re-derivado nesta rodada. As linhas citadas de `LT`, `RT`, `CST`, `QT` e `PT` at
 
 ---
 
-## Discrimination Sensor
+### Discrimination Sensor
 
 Scratch: `git worktree add --detach <scratchpad>/verify-closing2 HEAD` com `frontend/node_modules` em symlink. Cada mutante rodou `vitest run lib/closing.test.ts components/closing components/dashboard` (205 testes, verdes no HEAD) e depois `git checkout --` só do arquivo de produção mutado. N1-N12 são diferentes dos mutantes M1-M31 da iteração 1.
 
@@ -99,13 +305,13 @@ Scratch: `git worktree add --detach <scratchpad>/verify-closing2 HEAD` com `fron
 Sondas (só no scratch, apagadas): `RT`, com `getPeriod` 200 e depois 409 e `lockPeriod` 409, espera `cells()` = `['Outubro de 2026','Em andamento','—','—','—','—']` e `buttons()` = `[]`. `PT`, com `monthRuns('m-1', 1)`, espera `rowText()` = `['Outubro de 2026|Aberto']` e nenhum "Nenhuma conciliação ainda.". HEAD: 2/2 verdes. N6 e N10: cada um falha na sua sonda.
 
 **Sensor depth**: expandido (a tela trava períodos, caminho de integridade do fechamento).
-**Resultado do sensor**: 11/13 killed - FAIL ❌
+**Resultado do sensor (iteração 2)**: 11/13 killed, reprovado
 
 Isolamento: `git status --porcelain` do worktree real vazio antes e depois; symlink removido, `git worktree remove --force` + `git worktree prune` feitos.
 
 ---
 
-## Code Quality
+### Code Quality
 
 | Principle | Status |
 | --- | --- |
@@ -122,7 +328,7 @@ Testes não enfraquecidos: `git diff df7cfe7..ecb479d -- '*.test.*'` só adicion
 
 ---
 
-## Edge Cases
+### Edge Cases
 
 - [x] Vários runs por janela: `LT:18`, `PT:158`
 - [x] Janela parcial: `RT:83`
@@ -133,7 +339,7 @@ Testes não enfraquecidos: `git diff df7cfe7..ecb479d -- '*.test.*'` só adicion
 
 ---
 
-## Gate Check
+### Gate Check
 
 - **Gate command**: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 - **Resultado**: 853 passed, 0 failed, 0 skipped; typecheck exit 0; build exit 0 (`/fechamento` estática)
@@ -145,16 +351,16 @@ Testes não enfraquecidos: `git diff df7cfe7..ecb479d -- '*.test.*'` só adicion
 
 ---
 
-## Fix Plans
+### Fix Plans
 
-### Fix 1: a linha não prende o estado de uma releitura com erro depois de um `200`
+#### Fix 1: a linha não prende o estado de uma releitura com erro depois de um `200`
 
 - **Root cause**: React Query mantém `data` quando a releitura falha. Só `PeriodRow.tsx:29` (`data` só em `locked`/`open`) esconde os valores antigos e o "Exportar CSV". Os testes de `RT` com erro partem de uma linha sem dado, e a releitura de `RT:173-196` devolve `200`.
 - **Fix task**: em `frontend/components/closing/PeriodRow.test.tsx`, criar um caso (ou `it.each` com 409 → "Em andamento" e `[]`, 404 → "Sem conciliação concluída" e `[]`, 500 → "Não carregou" e `['Tentar novamente']`): `getPeriod` resolve `period()` uma vez e depois rejeita com o status; `lockPeriod` rejeita com `conflict(...)`; confirmar a trava; asserir `cells()` = `['Outubro de 2026', <label>, '—','—','—','—']` e `buttons()` com o valor da spec. Sem mudança de produção.
 - **Done when**: o caso passa no HEAD e falha com N6 (`const data = period.data` em `PeriodRow.tsx:29`).
 - **Priority**: Major (FEC-02 AC5 com FEC-06 AC2)
 
-### Fix 2: a página não prende a borda de uma janela
+#### Fix 2: a página não prende a borda de uma janela
 
 - **Root cause**: as rotas de `PT` usam 0, 4, 10 ou 12 janelas; nenhuma tem exatamente 1.
 - **Fix task**: em `frontend/components/closing/ClosingPage.test.tsx`, criar um caso com `server.runs = monthRuns('m-1', 1)` (sem `locked` e `failedOnly`) que espera `rowText()` = `['Outubro de 2026|Aberto']`, `queryByText('Nenhuma conciliação ainda.')` nulo e `queryByRole('navigation', { name: 'Paginação' })` nulo.
@@ -163,7 +369,7 @@ Testes não enfraquecidos: `git diff df7cfe7..ecb479d -- '*.test.*'` só adicion
 
 ---
 
-## Requirement Traceability Update
+### Requirement Traceability Update
 
 `spec.md:189-198` ainda está em "Design / Pending" e "0 mapped to tasks". O doc está desatualizado e o Verifier não o editou. Proposta:
 
@@ -182,9 +388,9 @@ Outros docs: `tasks.md` com **Status** "In Progress". O `README.md` já lista os
 
 ---
 
-## Summary
+### Summary
 
-**Overall**: ❌ Not Ready (2 gaps de teste, sem bug de produção)
+**Overall (iteração 2)**: ❌ Not Ready (2 gaps de teste, sem bug de produção)
 
 **Spec-anchored check**: 27/31 linhas batem com a spec, 2 gaps e 2 parciais ligados ao Fix 1; 0 spec-precision gaps
 **Sensor**: 11/13 mutations killed
@@ -198,14 +404,12 @@ Outros docs: `tasks.md` com **Status** "In Progress". O `README.md` já lista os
 
 ---
 
-# Histórico
-
 ## Veredito da iteração 1: reprovada
 
 **Date**: 2026-10-17
 **Spec**: `.specs/features/closing-screen/spec.md`
 **Diff range**: `03b25e9^..8cb65c2` (8 commits), branch `feat/closing-screen`. Código em `13ccbc7..8cb65c2`; backend sem diff (`git diff --stat` só lista `frontend/`, `README.md` e `.specs/`).
-**Verifier**: sub-agente independente (author ≠ verifier), iteração 1 (histórico; o veredito vigente é o da iteração 2, acima).
+**Verifier**: sub-agente independente (author ≠ verifier), iteração 1 (histórico; o veredito vigente é o da iteração 3, acima).
 
 As 8 requisições (FEC-01..FEC-08) têm evidência `file:line` e os valores asseridos batem com a spec. Gate verde: 852 testes (796 antes, +56), typecheck e build. O sensor matou 30 de 31 mutantes. O mutante M27 sobreviveu: tirar `key={merchantId}` de `ClosingWindows` (`frontend/components/closing/ClosingPage.tsx:97`) não quebra nenhum teste. O teste de FEC-08 AC1 troca para uma empresa sem runs em cache, então a página passa pelo skeleton, desmonta `ClosingWindows` e zera página e aviso sem depender da `key`. Com os runs da nova empresa já em cache (por exemplo, Alfa → Beta → Alfa), a página 2 e o aviso continuam na tela. Uma sonda no scratch confirmou: o mesmo cenário com os runs de `m-2` semeados no cache passa no HEAD e falha com M27 ("Unable to find ... Página 1 de 2").
 
@@ -385,7 +589,7 @@ Outros docs: `tasks.md` com **Status** "In Progress"; `README.md` lista os statu
 
 ### Summary
 
-**Overall**: ❌ Not Ready (1 gap de teste, sem bug de produção)
+**Overall (iteração 1)**: ❌ Not Ready (1 gap de teste, sem bug de produção)
 
 **Spec-anchored check**: 30/31 linhas da tabela batem com a spec; 0 spec-precision gaps
 **Sensor**: 30/31 mutations killed
