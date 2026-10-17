@@ -189,11 +189,11 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Colunas Transação, Tipo, Esperado, Diferença (com sinal), Status e "Abrir"; "—" no lado ausente
-- [ ] Item com duas divergências mostra duas linhas; "Abrir" entrega a lista da página e o índice da linha
-- [ ] Consulta com os filtros recebidos (status/tipo) e a página
-- [ ] Paginação "Página X de Y"; vazio "Nenhuma divergência para os filtros escolhidos."; erro com "Tentar novamente"
-- [ ] Testes em `frontend/components/discrepancies/DiscrepancyList.test.tsx`; gate quick passa
+- [x] Colunas Transação, Tipo, Esperado, Diferença (com sinal), Status e "Abrir"; "—" no lado ausente
+- [x] Item com duas divergências mostra duas linhas; "Abrir" entrega a lista da página e o índice da linha
+- [x] Consulta com os filtros recebidos (status/tipo) e a página
+- [x] Paginação "Página X de Y"; vazio "Nenhuma divergência para os filtros escolhidos."; erro com "Tentar novamente"
+- [x] Testes em `frontend/components/discrepancies/DiscrepancyList.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
