@@ -110,9 +110,9 @@ T5 → T6
 
 **Done when**:
 
-- [ ] `Confirm` exportado com a mesma assinatura
-- [ ] Testes atuais da régua e do dashboard inalterados e verdes
-- [ ] Teste novo em `CloseStepper.test.tsx`: título, botão de ação chama `onConfirm`, "Cancelar" chama `onCancel`; gate quick passa
+- [x] `Confirm` exportado com a mesma assinatura
+- [x] Testes atuais da régua e do dashboard inalterados e verdes
+- [x] Teste novo em `CloseStepper.test.tsx`: título, botão de ação chama `onConfirm`, "Cancelar" chama `onCancel`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick

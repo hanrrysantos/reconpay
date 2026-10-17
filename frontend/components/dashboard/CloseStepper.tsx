@@ -21,7 +21,7 @@ export type CloseStepperProps = {
 const time = (iso: string) =>
   new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
-function Confirm({ title, action, onConfirm, onCancel }: { title: string; action: string; onConfirm: () => void; onCancel: () => void }) {
+export function Confirm({ title, action, onConfirm, onCancel }: { title: string; action: string; onConfirm: () => void; onCancel: () => void }) {
   return (
     <div role="alertdialog" aria-label={title} className="absolute top-12 right-0 z-30 flex w-64 flex-col gap-3 rounded-[16px] bg-white p-3 shadow-[0_0_0_1px_var(--color-border),0_20px_48px_rgba(11,13,10,0.14)]">
       <p className="text-[13px] font-semibold">{title}</p>
