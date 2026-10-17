@@ -2,10 +2,110 @@
 
 **Date**: 2026-10-16
 **Spec**: `.specs/features/reconciliations-screen/spec.md`
-**Diff range**: `8f27056^..6496843` (12 commits), branch `feat/reconciliations-screen`. Spec `8f27056`, plano `80ce6ff`, código `c937b2b`..`13d34af`, docs `6496843`.
-**Verifier**: sub-agente independente (author ≠ verifier), iteração 1 de 3.
+**Diff range**: `8f27056^..dc39363` (15 commits), branch `feat/reconciliations-screen`. Iteração 1 cobriu `8f27056^..6496843`; o relatório dela entrou em `f1cd4e0`; as fixes são `7a0ad44` (código + teste) e `dc39363` (só teste).
+**Verifier**: sub-agente independente (author ≠ verifier), iteração 2 de 3.
 
-## Validation: reconciliations-screen - FAIL ❌
+## Validation: reconciliations-screen - PASS ✅
+
+O gap de REC-09 AC8 está fechado. Quando o run sai de `PENDING`/`RUNNING`, o detalhe invalida os itens do run e a tabela mostra os itens finais. O teste novo reproduz o backend real (itens só depois do `COMPLETED`, endpoint de itens mais lento) e mata o mutante que tira a invalidação. Os dois comportamentos sem teste da iteração 1 (mensagem do `FAILED` no cabeçalho e `NoMerchant` no detalhe) agora têm teste, e os mutantes deles morrem. Gate: 743 testes, typecheck e build. Backend sem mudança.
+
+Abreviações: as mesmas da iteração 1 (abaixo). `RDT` = `frontend/components/reconciliations/RunDetailPage.test.tsx`.
+
+---
+
+## Iteração 2
+
+### Fixes `7a0ad44` e `dc39363`
+
+- **Código** (`7a0ad44`). `RunDetailPage.tsx:101-107`: `useRef(polling)` guarda o estado anterior; o efeito chama `queryClient.invalidateQueries({ queryKey: queryKeys.runItems(merchantId, runId) })` só quando `wasPolling.current && !polling`. `queries.ts:46-49`: `queryKeys.runItems` aceita `filters` e `page` opcionais; sem `filters`, devolve o prefixo `['runItems', merchantId, runId]`.
+- **Chaves completas inalteradas.** O único outro chamador é `useRunItems` (`queries.ts:227`), que sempre passa `filters` e `page`. A chave continua `['runItems', merchantId, runId, result ?? 'ALL', discrepancyType ?? 'ALL', page]`. O `page ?? 0` só vale sem `page`, e `useRunItems` recebe `page: number`. O prefixo casa com todas as páginas e filtros do run, e com nenhum outro run (M3 e M3b morrem).
+- **Nada enfraquecido.** O diff dos testes só acrescenta: a fixture `live` (`RDT:44-48, 61-73`) é `null` por padrão (`RDT:84`) e mantém o comportamento antigo para os demais testes; o teste antigo de AC8 (`RDT:234-270`) não mudou; `dc39363` só acrescenta dois `it`. Nenhuma asserção removida ou afrouxada.
+- **README.** `frontend/README.md:67` descreve a busca final dos itens. Correto.
+- **Backend.** `git diff --name-only 6496843..dc39363` não lista nenhum arquivo de `backend/`. `./mvnw verify` da iteração 1 segue valendo.
+
+### ACs re-checadas
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| REC-09 AC8 polling do detalhe | recarrega run e itens a cada 3 s até sair de `PENDING`/`RUNNING`; o usuário acompanha o run até a conclusão sem recarregar | `RDT:275` itens vazios enquanto o último run entregue está em andamento, run 20 ms, itens 60 ms (`RDT:61-73`); `RDT:284-285` `Status: 'Em andamento'` e "Nenhum item encontrado para os filtros escolhidos."; `RDT:288` `Status: 'Concluída'`; `RDT:290` `within(getByRole('table',{name:'Itens'})).getByText('REF-1')`; `RDT:294-295` nenhuma chamada nova de run ou itens depois de +15 s. Junto com `RDT:234-270` (cadência de 3 s). M1, M2b, M3, M3b e N6 morrem | ✅ PASS |
+| Assumption "Run com falha" / REC-03 AC5 no detalhe | `FAILED` mostra a `errorMessage` do run | `RDT:303` `Status: 'Falhou'`; `RDT:304` `within(region).getByText('Falha ao processar o lote')`; `RDT:305` sem "Exportar CSV". M4 morre | ✅ PASS |
+| REC-11 AC3 no detalhe | sem empresa: estado vazio, sem buscar o run | `RDT:312` heading "Nenhuma empresa no seu acesso"; `RDT:313` sem região "Conciliação"; `RDT:314-315` 0 chamadas de run e de itens. M5 morre | ✅ PASS |
+
+**Status**: ✅ 39/39 ACs e 5/5 edge cases com evidência que discrimina (38 ACs da iteração 1 sem mudança que as afete, mais REC-09 AC8 re-checada; os dois extras do detalhe agora cobertos).
+
+**Spec-precision gaps (menores, aceitos, sem mudança)**: `itemsProgress` mostra "—" com `totalItems` nulo fora de `RUNNING` (`frontend/lib/reconciliations.ts:43`); Diferença com sinal (`RunItems.tsx:86`). A spec não fixa nenhum dos dois; a escolha segue as convenções da spec e do dashboard. Ver o ponto 2 e 3 da iteração 1.
+
+### Discrimination Sensor (iteração 2)
+
+Scratch: `git worktree add --detach` em `scratchpad/rec-wt2` a partir de `dc39363`, com `frontend/node_modules` por symlink. Baseline do scratch: `tsc --noEmit` exit 0, 251 testes em escopo passam. Cada mutante passou por `tsc --noEmit` (todos compilam) e rodou `vitest run` sobre `components/reconciliations`, `lib/reconciliations.test.ts`, `lib/api.reconciliations.test.ts`, `lib/queries.reconciliations.test.tsx`, `lib/queries.test.tsx` e `components/dashboard` (251 testes). Revertido com `git checkout` no scratch.
+
+| # | File | Mutação | Killed? | Testes que falharam |
+| - | ---- | ------- | ------- | ------------------- |
+| M1 | `RunDetailPage.tsx:105` | nunca invalida os itens ao concluir | ✅ Killed | `RDT:272` |
+| M2a | `RunDetailPage.tsx:105` | invalida em qualquer mudança de `polling` (entrar e sair) | ⚪ Survived, equivalente na spec: mantém a invalidação na saída; só acrescenta uma busca de itens quando o run chega em andamento, que a spec não proíbe nem observa |
+| M2b | `RunDetailPage.tsx:105` | invalida ao entrar em andamento, não ao sair | ✅ Killed | `RDT:272` |
+| M2c | `RunDetailPage.tsx:104-107` | invalida em todo render de `RunDetail` (efeito sem deps, sem condição) | ⚪ Survived, equivalente na spec: `RunDetail` só renderiza quando o run muda, então inclui a invalidação na saída e não entra em laço (`RDT:295` prova); o efeito extra é busca redundante de itens, sem resultado visível diferente |
+| M3 | `RunDetailPage.tsx:105` | invalida `runItems(merchantId, runId + '-x')` | ✅ Killed | `RDT:272` |
+| M3b | `queries.ts:48` | prefixo `['runItems', runId, merchantId]` | ✅ Killed | `RDT:272` |
+| M4 | `RunDetailPage.tsx:92` | `errorMessage` só em `RUNNING` | ✅ Killed | `RDT:298` |
+| M5 | `RunDetailPage.tsx:147` | ramo `NoMerchant` nunca roda no detalhe | ✅ Killed | `RDT:308` |
+| N1 | `lib/reconciliations.ts:42` | progresso "<processados> de <processados>" | ✅ Killed | `RLT` REC-03 (2), `RDT:234`, `LRT` (2), `RLT` AC6 |
+| N2 | `lib/reconciliations.ts:51` | `anyInFlight` ignora `PENDING` | ✅ Killed | `LRT`, `QRT` AC6, `RLT` AC6 |
+| N3 | `lib/api.ts:363` | itens em `absDifference,asc` | ✅ Killed | `ART` (4), `RDT:136` |
+| N4 | `NewRunDrawer.tsx:53` | editar data não muda "Mês" para Personalizado | ✅ Killed | `NDT` De e Até |
+| N5 | `lib/reconciliations.ts:34` | "Informe as duas datas" só com as duas vazias | ✅ Killed | `LRT`, `NDT` De vazio, `NDT` Até vazio |
+| N6 | `lib/queries.ts:219` | `useRun` recarrega sempre, mesmo concluído | ✅ Killed | `QRT` useRun, `RDT:234`, `RDT:272` |
+
+**Sensor depth**: ampliado (8 mutantes dirigidos aos gaps + 6 novos).
+**Result**: 12/12 não equivalentes mortos (14 injetados; M2a e M2c equivalentes na spec) - PASS ✅
+
+**Isolamento**: `git status --porcelain` antes = vazio; depois da remoção do scratch = vazio (igual ao baseline). Scratch removido com `git worktree remove --force` + `git worktree prune`; `git worktree list` não lista mais o scratch. Nenhum `git stash`.
+
+### Gate Check (iteração 2)
+
+- **Frontend**: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build` → 743 passed, 0 failed, 0 skipped. Typecheck exit 0. Build exit 0, `/conciliacoes` estática e `/conciliacoes/[runId]` dinâmica.
+- **Backend**: sem arquivo alterado desde a iteração 1 (`git diff --name-only 6496843..dc39363`); vale o `./mvnw verify` da iteração 1 (632 testes, JaCoCo 94% linha, 87% branch).
+- **Test count**: frontend 740 → 743 (+3: AC8 com backend em estágios, FAILED no cabeçalho, detalhe sem empresa). Nenhum teste removido.
+
+### Code Quality (iteração 2)
+
+| Principle | Status |
+| --- | --- |
+| Minimum code | ✅ Um `useRef` e um efeito; a chave ganhou só a forma de prefixo |
+| Surgical changes | ✅ 4 arquivos em `7a0ad44`, 1 em `dc39363` |
+| Matches patterns | ✅ `queryKeys` com prefixo opcional, como `openDiscrepancies` |
+| Spec-anchored outcome check | ✅ |
+| Every test maps to a spec requirement | ✅ REC-09 AC8, Assumption "Run com falha", REC-11 AC3 |
+
+### Lessons
+
+Nenhuma lição nova: a iteração 2 é PASS limpo (os sobreviventes são equivalentes e os spec-precision gaps já foram aceitos na iteração 1). L-037 segue candidata; `lessons.md` só promove por recorrência em outra feature. A fix aplicou L-037 (`RDT:61-73` serve os itens conforme o estado do run).
+
+### Requirement Traceability Update
+
+| Requirement | Previous Status | New Status |
+| --- | --- | --- |
+| REC-01 .. REC-08 | ✅ Verified | ✅ Verified |
+| REC-09 | ❌ Needs Fix (AC8) | ✅ Verified |
+| REC-10, REC-11 | ✅ Verified | ✅ Verified |
+
+**Docs desatualizados (reportados, não editados)**: `spec.md:197-209` ainda marca REC-01..REC-11 como "Design | Pending" e diz "0 mapped to tasks". `tasks.md:12` está com Status "In Progress". O orquestrador deve marcar REC-01..REC-11 como Verified e o Status como Done. `frontend/README.md:67` já está certo.
+
+### Summary
+
+**Overall**: ✅ Ready
+
+**Spec-anchored check**: 39/39 ACs e 5/5 edge cases com o valor da spec; 2 spec-precision gaps menores aceitos
+**Sensor**: 12/12 não equivalentes mortos na iteração 2 (24/24 na iteração 1)
+**Gate**: frontend 743 passed, typecheck e build OK; backend 632 (sem mudança)
+
+---
+
+# Histórico: iteração 1
+
+**Diff range da iteração 1**: `8f27056^..6496843` (12 commits). Spec `8f27056`, plano `80ce6ff`, código `c937b2b`..`13d34af`, docs `6496843`.
+
+### Veredito da iteração 1: reprovada
 
 O detalhe de um run em andamento termina com o cabeçalho "Concluída" e a tabela de itens vazia. Os itens só reaparecem com um recarregamento manual. O backend grava todos os itens na mesma transação que marca o run `COMPLETED`, então toda busca de itens feita em `RUNNING` volta vazia. Quando o run chega `COMPLETED`, o polling dos itens para, e a última busca de itens costuma ser anterior ao commit. Isso quebra REC-09 AC8 ("recarregar o run e os itens a cada 3 s até sair de `PENDING`/`RUNNING`") e o critério de sucesso "acompanha um run do disparo à conclusão sem recarregar a página". O teste de AC8 não pega o defeito, porque o servidor do teste devolve os mesmos itens em qualquer estado.
 

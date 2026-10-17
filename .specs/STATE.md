@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: reconciliations-screen (tela `/conciliacoes`, frontend) — **Specify**
-- **Phase / Task**: Specify. Ordem das telas restantes escolhida pelo usuário: Conciliações, depois Divergências e Fechamento, cada uma com spec e PR próprios
-- **Completed**: transactions-screen mergeada no `main` (PR #49, 2026-10-16), Verifier PASS (iteração 2) e teste manual aprovado (menu de período alinhado em `4b8ab10`); CI do merge verde (só o job Frontend), sem deploy
+- **Feature**: reconciliations-screen (`/conciliacoes` e `/conciliacoes/[runId]`, frontend + correção de backend) — **Verified** (`validation.md` iteração 2: PASS, 39/39 ACs e 5/5 edge cases, sensor 12/14 com 2 equivalentes; a iteração 1 deu FAIL por itens não recarregados após a conclusão do run, corrigido em `7a0ad44`)
+- **Phase / Task**: T1–T10 concluídas (`c937b2b`..`6496843`) por dois sub-agentes; correções `7a0ad44`, `dc39363`
+- **Completed**: export de run inexistente responde `404` JSON (pendência antiga resolvida); histórico de runs com filtro de janela, progresso, substituído, falha e polling de 3 s; gaveta "Nova conciliação" (mês ou personalizado, até 366 dias) que invalida o dashboard da janela; detalhe com itens filtráveis, selos de divergência, export CSV e recarga final dos itens. Frontend 743 testes, backend 632.
 - **In-progress** (file:line): none
-- **Next step**: levantar o contrato de `/reconciliations` e escrever `.specs/features/reconciliations-screen/spec.md`. Pendências antigas: `GET /reconciliations/{runId}/export` com run inexistente devolve erro de servlet em vez de `404` (candidata a entrar nesta feature); exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: teste manual pelo usuário e, com o aval dele, push e PR de `feat/reconciliations-screen`; depois, telas de Divergências e de Fechamento. Lição candidata nova: L-037. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/reconciliations-screen`, criada a partir do `main` em `cef8e97`.
+- **Branch**: `feat/reconciliations-screen`, local, sem push.

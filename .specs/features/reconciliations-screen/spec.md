@@ -194,19 +194,19 @@ O dashboard mostra só o run vigente de uma janela, com as 4 maiores divergênci
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| REC-01 | P1 Export 404 (AC 1, 2, 3) | Design | Pending |
-| REC-02 | P1 Lista: busca, colunas, formatos (AC 1, 2) | Design | Pending |
-| REC-03 | P1 Lista: progresso, substituído, falha (AC 3, 4, 5, edge processedItems nulo) | Design | Pending |
-| REC-04 | P1 Lista: atualização automática (AC 6) | Design | Pending |
-| REC-05 | P1 Lista: filtro de janela, paginação, vazio, erro, navegação (AC 7–11) | Design | Pending |
-| REC-06 | P1 Disparo: gaveta, mês e personalizado, validação (AC 1, 2, 3, edges 366/367 e um dia) | Design | Pending |
-| REC-07 | P1 Disparo: envio, sucesso, erro e invalidação do dashboard (AC 4–8) | Design | Pending |
-| REC-08 | P1 Itens: cabeçalho do run, colunas, divergências (AC 1, 2, 3, edge sem divergência) | Design | Pending |
-| REC-09 | P1 Itens: filtros, paginação, vazio, erro, 404, atualização (AC 4–10) | Design | Pending |
-| REC-10 | P1 Export: botão, download, erro (AC 1–4) | Design | Pending |
-| REC-11 | P2 Isolamento por empresa e sem empresa (AC 1, 2, 3) | Design | Pending |
+| REC-01 | P1 Export 404 (AC 1, 2, 3) | Execute | Verified |
+| REC-02 | P1 Lista: busca, colunas, formatos (AC 1, 2) | Execute | Verified |
+| REC-03 | P1 Lista: progresso, substituído, falha (AC 3, 4, 5, edge processedItems nulo) | Execute | Verified |
+| REC-04 | P1 Lista: atualização automática (AC 6) | Execute | Verified |
+| REC-05 | P1 Lista: filtro de janela, paginação, vazio, erro, navegação (AC 7–11) | Execute | Verified |
+| REC-06 | P1 Disparo: gaveta, mês e personalizado, validação (AC 1, 2, 3, edges 366/367 e um dia) | Execute | Verified |
+| REC-07 | P1 Disparo: envio, sucesso, erro e invalidação do dashboard (AC 4–8) | Execute | Verified |
+| REC-08 | P1 Itens: cabeçalho do run, colunas, divergências (AC 1, 2, 3, edge sem divergência) | Execute | Verified |
+| REC-09 | P1 Itens: filtros, paginação, vazio, erro, 404, atualização (AC 4–10) | Execute | Verified |
+| REC-10 | P1 Export: botão, download, erro (AC 1–4) | Execute | Verified |
+| REC-11 | P2 Isolamento por empresa e sem empresa (AC 1, 2, 3) | Execute | Verified |
 
-**Coverage:** 11 total, 0 mapped to tasks, 11 unmapped ⚠️
+**Coverage:** 11 total, 11 mapped to tasks, 0 unmapped
 
 ---
 
