@@ -136,13 +136,13 @@ T5 → T6
 
 **Done when**:
 
-- [ ] Cada status da spec ("Travado", "Aberto", "Em andamento", "Sem conciliação concluída", "Não carregou") com as colunas e as ações exatas de cada um; `matchRate` nulo mostra "0%"
-- [ ] "Travar" e "Destravar" só chamam a API depois de confirmar; "Cancelar" não chama; a linha mostra a resposta da API
-- [ ] Erro de ação chama `onError` com a mensagem; `onError(null)` antes de cada ação; `409` relê o período
-- [ ] Botões da linha desabilitados com trava, reabertura ou export em andamento (cada um testado)
-- [ ] "Exportar CSV" baixa `reconpay-<from>-<to>.csv` do `runId` da linha
-- [ ] "Tentar novamente" relê só a janela da linha
-- [ ] Testes em `frontend/components/closing/PeriodRow.test.tsx`; gate quick passa
+- [x] Cada status da spec ("Travado", "Aberto", "Em andamento", "Sem conciliação concluída", "Não carregou") com as colunas e as ações exatas de cada um; `matchRate` nulo mostra "0%"
+- [x] "Travar" e "Destravar" só chamam a API depois de confirmar; "Cancelar" não chama; a linha mostra a resposta da API
+- [x] Erro de ação chama `onError` com a mensagem; `onError(null)` antes de cada ação; `409` relê o período
+- [x] Botões da linha desabilitados com trava, reabertura ou export em andamento (cada um testado)
+- [x] "Exportar CSV" baixa `reconpay-<from>-<to>.csv` do `runId` da linha
+- [x] "Tentar novamente" relê só a janela da linha
+- [x] Testes em `frontend/components/closing/PeriodRow.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
