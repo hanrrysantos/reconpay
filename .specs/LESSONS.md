@@ -276,6 +276,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md iteração 4, F1/F2 DiscrepancyList.tsx:116,120 (frontend)
 - last seen: 2026-10-17T01:51:09Z
 
+### L-045 - When a state reset depends on a key remount, test the switch with the target data already cached so a loading unmount cannot hide a missing key
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: closing-screen
+- evidence: M27 frontend/components/closing/ClosingPage.tsx:97 (frontend)
+- last seen: 2026-10-17T12:01:19Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
