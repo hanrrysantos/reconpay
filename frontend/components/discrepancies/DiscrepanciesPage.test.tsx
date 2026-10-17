@@ -161,7 +161,7 @@ describe('DiscrepanciesPage', () => {
     expect(rows()).toEqual(['AVULSA-1|Liquidação ausente|Aberta', 'IMP-T-002|Status inconsistente|Aberta'])
   })
 
-  it('status, tipo e "Todas" refazem a busca e voltam para a página 1 (DIV-01 AC3, AC4, AC5)', async () => {
+  it('status, tipo, "Todas" e "Todos" refazem a busca e voltam para a página 1 (DIV-01 AC3, AC4, AC5)', async () => {
     const user = renderRoute()
     await table()
     const next = async () => {
@@ -183,6 +183,11 @@ describe('DiscrepanciesPage', () => {
     await user.selectOptions(screen.getByLabelText('Tipo'), 'Liquidação ausente')
     await waitFor(() => expect(query(lastItems())).toMatchObject({ result: 'DIVERGENT', discrepancyType: 'MISSING_SETTLEMENT', page: '0' }))
     await waitFor(() => expect(rows()).toEqual(['AVULSA-1|Liquidação ausente|Aberta']))
+
+    await next()
+    await user.selectOptions(screen.getByLabelText('Tipo'), 'Todos')
+    await waitFor(() => expect(query(lastItems())).toEqual({ page: '0', size: '20', sort: 'absDifference,desc', result: 'DIVERGENT' }))
+    await waitFor(() => expect(rows()).toHaveLength(3))
   })
 
   it('janela sem run mostra o aviso com o link e não busca itens (DIV-03 AC6, DIV-04 AC1)', async () => {
