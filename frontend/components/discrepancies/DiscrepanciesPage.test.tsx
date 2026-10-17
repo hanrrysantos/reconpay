@@ -287,6 +287,19 @@ describe('DiscrepanciesPage', () => {
     await waitFor(() => expect(rows()).toEqual(['IMP-T-002|Status inconsistente|Aberta']))
   })
 
+  it('"Abrir" numa linha que não é a primeira abre a gaveta daquela divergência (DIV-06 AC1)', async () => {
+    const user = renderRoute()
+    await table()
+
+    await user.click(screen.getByRole('button', { name: 'Abrir IMP-T-002 · Status inconsistente' }))
+
+    const drawer = screen.getByRole('dialog', { name: 'Resolver divergência' })
+    expect(within(drawer).getByText('2 de 2 · J / K navega')).toBeInTheDocument()
+    expect(drawer).toHaveTextContent('IMP-T-002')
+    expect(drawer).toHaveTextContent('Status inconsistente')
+    expect(drawer).not.toHaveTextContent('AVULSA-1')
+  })
+
   it('J e K andam pelas divergências da página dentro da gaveta (DIV-07 AC7)', async () => {
     const user = renderRoute()
     await table()
