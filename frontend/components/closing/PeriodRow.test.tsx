@@ -196,6 +196,22 @@ describe('PeriodRow', () => {
     expect(api.getPeriod).toHaveBeenCalledTimes(2)
   })
 
+  it.each([
+    [409, 'Em andamento', []],
+    [404, 'Sem conciliação concluída', []],
+    [403, 'Não carregou', ['Tentar novamente']],
+  ])('trava recusada cuja releitura responde %i esconde os valores e as ações antigas (FEC-02 AC5, AC6, FEC-03 AC5, FEC-06 AC2)', async (status, label, actions) => {
+    vi.mocked(api.getPeriod).mockResolvedValueOnce(period()).mockRejectedValue(new api.ApiError('Falha na releitura', status))
+    vi.mocked(api.lockPeriod).mockRejectedValue(conflict('Janela possui conciliação em andamento'))
+    const { user } = show()
+
+    await user.click(await within(row()).findByRole('button', { name: 'Travar Outubro de 2026' }))
+    await user.click(within(within(row()).getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
+
+    await waitFor(() => expect(cells()).toEqual(['Outubro de 2026', label, '—', '—', '—', '—']))
+    expect(buttons()).toEqual(actions)
+  })
+
   it('trava com erro que não é 409 avisa a mensagem sem reler o período (FEC-06 AC1, AC2)', async () => {
     vi.mocked(api.getPeriod).mockResolvedValue(period())
     vi.mocked(api.lockPeriod).mockRejectedValue(new api.ApiError('Você não tem acesso a este comerciante', 403, 'FORBIDDEN'))
