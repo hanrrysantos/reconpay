@@ -286,6 +286,33 @@ describe('ClosingPage', () => {
     expect(calls.filter(call => call.method === 'GET' && call.path === '/api/merchants/m-2/periods')).toHaveLength(10)
   })
 
+  it('voltar para uma empresa já carregada também volta para a página 1 sem o aviso (FEC-08 AC1)', async () => {
+    server.runs = [...monthRuns('m-1', 12), ...monthRuns('m-2', 12)]
+    server.locked = new Set()
+    server.failedOnly = new Set()
+    server.open = new Set(['2025-12-01/2025-12-31'])
+    const user = renderRoute()
+    await table()
+    // Both merchants' runs get cached first, so the switch below shows no loading state that would remount the list.
+    await switchTo(user, 'Alfa Pagamentos', /Beta Comércio/)
+    await waitFor(() => expect(within(pageHeader()).getByText('Beta Comércio')).toBeInTheDocument())
+    await table()
+    await switchTo(user, 'Beta Comércio', /Alfa Pagamentos/)
+    await waitFor(() => expect(within(pageHeader()).getByText('Alfa Pagamentos')).toBeInTheDocument())
+    await user.click(within(nav()).getByRole('button', { name: 'Próxima' }))
+    await waitFor(() => expect(rowText()[0]).toBe('Dezembro de 2025|Aberto'))
+    await lockRow(user, 'Dezembro de 2025')
+    expect(await screen.findByRole('alert')).toHaveTextContent('Janela possui divergência em aberto')
+
+    await switchTo(user, 'Alfa Pagamentos', /Beta Comércio/)
+
+    await waitFor(() => expect(within(pageHeader()).getByText('Beta Comércio')).toBeInTheDocument())
+    expect(screen.queryByRole('status', { name: 'Carregando períodos' })).toBeNull()
+    expect(within(nav()).getByText('Página 1 de 2')).toBeInTheDocument()
+    expect(rowText()[0]).toBe('Outubro de 2026|Aberto')
+    expect(screen.queryByRole('alert')).toBeNull()
+  })
+
   it('sem empresa no acesso mostra o estado vazio, sem tabela (FEC-08 AC2)', async () => {
     server.merchants = []
     renderRoute()
