@@ -217,11 +217,11 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Sem run: "Nenhuma conciliação nesta janela." + link "Ir para conciliações" (`/conciliacoes`)
-- [ ] `PENDING`/`RUNNING`: "Conciliação em andamento."
-- [ ] `FAILED`: "A conciliação desta janela falhou.", a `errorMessage` e o link
-- [ ] Concluído e travado: "Período travado: as divergências ficam só para consulta."; concluído e aberto: nada
-- [ ] Testes em `frontend/components/discrepancies/WindowNotice.test.tsx`; gate quick passa
+- [x] Sem run: "Nenhuma conciliação nesta janela." + link "Ir para conciliações" (`/conciliacoes`)
+- [x] `PENDING`/`RUNNING`: "Conciliação em andamento."
+- [x] `FAILED`: "A conciliação desta janela falhou.", a `errorMessage` e o link
+- [x] Concluído e travado: "Período travado: as divergências ficam só para consulta."; concluído e aberto: nada
+- [x] Testes em `frontend/components/discrepancies/WindowNotice.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
