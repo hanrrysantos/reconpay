@@ -36,6 +36,17 @@ describe('periodWindows', () => {
     ])
   })
 
+  it('janelas diferentes com a mesma data final são duas linhas, a de início mais recente primeiro (FEC-01 AC1, AC2)', () => {
+    const windows = periodWindows([
+      { fromDate: '2026-10-01', toDate: '2026-10-31' },
+      { fromDate: '2026-10-16', toDate: '2026-10-31' },
+    ])
+    expect(windows).toEqual([
+      { fromDate: '2026-10-16', toDate: '2026-10-31' },
+      { fromDate: '2026-10-01', toDate: '2026-10-31' },
+    ])
+  })
+
   it('sem runs devolve lista vazia (FEC-03 AC2)', () => {
     expect(periodWindows([])).toEqual([])
   })
