@@ -49,16 +49,19 @@ describe('CLOSING_PAGE_SIZE', () => {
 
 describe('formatDuration', () => {
   it.each<[number | null, string]>([
+    [0, '0 s'],
     [29, '29 s'],
     [59, '59 s'],
     [60, '1 min'],
     [180, '3 min'],
     [3599, '59 min'],
     [3600, '1 h'],
+    [3660, '1 h 1 min'],
     [7200, '2 h'],
     [7500, '2 h 5 min'],
     [86399, '23 h 59 min'],
     [86400, '1 d'],
+    [90000, '1 d 1 h'],
     [97200, '1 d 3 h'],
     [null, '—'],
   ])('%s segundos viram "%s" (FEC-02 AC4, edge de duração)', (seconds, text) => {
