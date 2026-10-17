@@ -306,6 +306,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md V15 frontend/lib/closing.ts:32, V16 frontend/lib/closing.ts:29 (frontend-format)
 - last seen: 2026-10-17T12:22:00Z
 
+### L-050 - When an identity is a composite key, test two items that share each component alone so dropping any part of the key fails
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: closing-screen
+- evidence: validation.md iteração 4 W4 frontend/lib/closing.ts:18 (frontend)
+- last seen: 2026-10-17T12:47:14Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
