@@ -1,5 +1,5 @@
-import { UnderConstruction } from '@/components/shell/UnderConstruction'
+import { ClosingPage } from '@/components/closing/ClosingPage'
 
 export default function FechamentoPage() {
-  return <UnderConstruction title="Fechamento" />
+  return <ClosingPage />
 }

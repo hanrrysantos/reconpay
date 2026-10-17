@@ -166,14 +166,14 @@ T5 → T6
 
 **Done when**:
 
-- [ ] Pela rota: título "Fechamento", nome da empresa, tabela "Períodos" com as colunas e uma linha por janela na ordem da spec, com fixture de janelas repetidas e com empate de data inicial
-- [ ] Paginação com 12 janelas: 10 na página 1 e 2 na página 2, "Anterior" desabilitado na primeira e "Próxima" na última; com 10 janelas, sem paginação; só as janelas da página leem o período
-- [ ] Sem runs: aviso e link; erro dos runs: mensagem e "Tentar novamente" que refaz a busca
-- [ ] O aviso de erro de uma ação aparece acima da tabela e some na ação seguinte (testado pela página, L-040)
-- [ ] Depois de travar pela página, a leitura do período da janela no cache é a da resposta e foi invalidada
-- [ ] Trocar de empresa na página 2 com aviso visível volta para a página 1 e limpa o aviso; sem empresa, estado vazio sem tabela
-- [ ] `app/(app)/fechamento/page.tsx` renderiza `<ClosingPage />`; a entrada `/fechamento` sai de `UnderConstruction.test.tsx`
-- [ ] Testes em `frontend/components/closing/ClosingPage.test.tsx`; gate quick passa
+- [x] Pela rota: título "Fechamento", nome da empresa, tabela "Períodos" com as colunas e uma linha por janela na ordem da spec, com fixture de janelas repetidas e com empate de data inicial
+- [x] Paginação com 12 janelas: 10 na página 1 e 2 na página 2, "Anterior" desabilitado na primeira e "Próxima" na última; com 10 janelas, sem paginação; só as janelas da página leem o período
+- [x] Sem runs: aviso e link; erro dos runs: mensagem e "Tentar novamente" que refaz a busca
+- [x] O aviso de erro de uma ação aparece acima da tabela e some na ação seguinte (testado pela página, L-040)
+- [x] Depois de travar pela página, a leitura do período da janela no cache é a da resposta e foi invalidada
+- [x] Trocar de empresa na página 2 com aviso visível volta para a página 1 e limpa o aviso; sem empresa, estado vazio sem tabela
+- [x] `app/(app)/fechamento/page.tsx` renderiza `<ClosingPage />`; a entrada `/fechamento` sai de `UnderConstruction.test.tsx`, e como era a única, o arquivo sai junto (uma suíte vazia falha no Vitest com "no tests"; desvio registrado: a remoção do teste veio de T5 para cá)
+- [x] Testes em `frontend/components/closing/ClosingPage.test.tsx`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
@@ -184,7 +184,7 @@ T5 → T6
 
 ### T5: Remover o placeholder sem uso
 
-**What**: Apagar `UnderConstruction.tsx` e `UnderConstruction.test.tsx`, que não têm mais rota.
+**What**: Apagar `UnderConstruction.tsx`, que não tem mais rota (o teste dele saiu em T4).
 **Where**: `frontend/components/shell/UnderConstruction.tsx`
 **Depends on**: T4
 **Reuses**: precedentes `34723d9`, `a022791`
@@ -198,7 +198,7 @@ T5 → T6
 **Done when**:
 
 - [ ] Nenhum import de `UnderConstruction` no código
-- [ ] Os dois arquivos removidos; a contagem de testes cai só pelo caso do arquivo removido (nenhum outro teste some)
+- [ ] Componente removido; a contagem de testes não muda
 - [ ] Gate build passa
 
 **Tests**: none
