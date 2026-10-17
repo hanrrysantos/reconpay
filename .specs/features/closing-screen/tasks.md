@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/closing-screen/design.md`
-**Status**: Approved
+**Status**: In Progress
 
 ---
 
@@ -82,11 +82,11 @@ T5 → T6
 
 **Done when**:
 
-- [ ] `periodWindows` devolve uma janela por par `fromDate`/`toDate`, mesmo com runs repetidos da janela, ordenada pela data inicial desc e, no empate, pela final desc
-- [ ] `formatDuration` cobre 29, 180, 7200, 7500, 86400, 97200 e nulo com os textos da spec, mais as fronteiras 59/60 e 3599/3600
-- [ ] `formatLockedAt` devolve `dd/mm/aaaa hh:mm` e "—" no nulo
-- [ ] `periodStatus` mapeia `200` travado, `200` aberto, `409`, `404`, outro erro e carregando
-- [ ] Testes em `frontend/lib/closing.test.ts`; gate quick passa
+- [x] `periodWindows` devolve uma janela por par `fromDate`/`toDate`, mesmo com runs repetidos da janela, ordenada pela data inicial desc e, no empate, pela final desc
+- [x] `formatDuration` cobre 29, 180, 7200, 7500, 86400, 97200 e nulo com os textos da spec, mais as fronteiras 59/60 e 3599/3600
+- [x] `formatLockedAt` devolve `dd/mm/aaaa hh:mm` e "—" no nulo
+- [x] `periodStatus` mapeia `200` travado, `200` aberto, `409`, `404`, outro erro e carregando
+- [x] Testes em `frontend/lib/closing.test.ts`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
