@@ -162,10 +162,10 @@ T7 → T8
 
 **Done when**:
 
-- [ ] `STATUS_FILTERS` na ordem Abertas, Aceitas, Ajustadas, Baixadas, Todas
-- [ ] `itemFilters('ALL', null)` → `{ result: 'DIVERGENT' }`; `itemFilters('ACCEPTED', 'FEE_DIVERGENCE')` → `{ discrepancyStatus: 'ACCEPTED', discrepancyType: 'FEE_DIVERGENCE' }`
-- [ ] `rowsOf`: item com duas abertas → duas linhas na ordem; filtro Aceitas com uma aceita e uma aberta → só a aceita; filtro de tipo restringe; Todas → todas as divergências
-- [ ] Testes em `frontend/lib/discrepancies.test.ts`; gate quick passa
+- [x] `STATUS_FILTERS` na ordem Abertas, Aceitas, Ajustadas, Baixadas, Todas
+- [x] `itemFilters('ALL', null)` → `{ result: 'DIVERGENT' }`; `itemFilters('ACCEPTED', 'FEE_DIVERGENCE')` → `{ discrepancyStatus: 'ACCEPTED', discrepancyType: 'FEE_DIVERGENCE' }`
+- [x] `rowsOf`: item com duas abertas → duas linhas na ordem; filtro Aceitas com uma aceita e uma aberta → só a aceita; filtro de tipo restringe; Todas → todas as divergências
+- [x] Testes em `frontend/lib/discrepancies.test.ts`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
