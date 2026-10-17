@@ -348,19 +348,21 @@ export function getRun(token: string, merchantId: string, runId: string): Promis
   return request(runPath(merchantId, runId), {}, token)
 }
 
-export type RunItemFilters = { result?: ReconciliationItem['result']; discrepancyType?: DiscrepancyType }
+export type RunItemFilters = { result?: ReconciliationItem['result']; discrepancyType?: DiscrepancyType; discrepancyStatus?: DiscrepancyStatus }
 
-/** Items of a run, 20 per page, largest absolute difference first; result and type only when given. */
+/** Items of a run, 20 per page, largest absolute difference first; result, type and discrepancy status only when given. */
 export function getRunItems(
   token: string,
   merchantId: string,
   runId: string,
-  { result, discrepancyType }: RunItemFilters,
+  { result, discrepancyType, discrepancyStatus }: RunItemFilters,
   page: number,
 ): Promise<Page<ReconciliationItem>> {
   const resultFilter = result ? `&result=${result}` : ''
   const typeFilter = discrepancyType ? `&discrepancyType=${discrepancyType}` : ''
-  return request(`${runPath(merchantId, runId)}/items?page=${page}&size=20&sort=absDifference%2Cdesc${resultFilter}${typeFilter}`, {}, token)
+  // An item is listed when at least one of its discrepancies has this status.
+  const statusFilter = discrepancyStatus ? `&discrepancyStatus=${discrepancyStatus}` : ''
+  return request(`${runPath(merchantId, runId)}/items?page=${page}&size=20&sort=absDifference%2Cdesc${resultFilter}${typeFilter}${statusFilter}`, {}, token)
 }
 
 export function runReconciliation(token: string, merchantId: string, window: Window): Promise<Run> {

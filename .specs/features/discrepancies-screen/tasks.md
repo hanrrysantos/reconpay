@@ -110,9 +110,9 @@ T7 → T8
 
 **Done when**:
 
-- [ ] `discrepancyStatus=OPEN` (e os demais) entra no fim da URL só quando informado; combinado com `discrepancyType` e com `result=DIVERGENT`, a ordem dos parâmetros é fixa e testada
-- [ ] Os testes atuais de `getRunItems` inalterados e verdes
-- [ ] Testes novos em `frontend/lib/api.reconciliations.test.ts`; gate quick passa
+- [x] `discrepancyStatus=OPEN` (e os demais) entra no fim da URL só quando informado; combinado com `discrepancyType` e com `result=DIVERGENT`, a ordem dos parâmetros é fixa e testada
+- [x] Os testes atuais de `getRunItems` inalterados e verdes
+- [x] Testes novos em `frontend/lib/api.reconciliations.test.ts`; gate quick passa
 
 **Tests**: unit
 **Gate**: quick
