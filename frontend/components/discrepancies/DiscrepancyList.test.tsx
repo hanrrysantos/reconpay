@@ -115,6 +115,19 @@ describe('DiscrepancyList', () => {
     expect(onPageChange).toHaveBeenLastCalledWith(2)
   })
 
+  it.each([
+    [0, 'Página 1 de 3', 'Anterior', 'Próxima'],
+    [2, 'Página 3 de 3', 'Próxima', 'Anterior'],
+  ])('na página %i desabilita o botão da ponta (DIV-03 AC7)', async (page, label, disabled, enabled) => {
+    vi.mocked(api.getRunItems).mockResolvedValue({ content: [orphan], totalPages: 3 })
+    show({ page })
+
+    const nav = await screen.findByRole('navigation', { name: 'Paginação' })
+    expect(within(nav).getByText(label)).toBeInTheDocument()
+    expect(within(nav).getByRole('button', { name: disabled })).toBeDisabled()
+    expect(within(nav).getByRole('button', { name: enabled })).toBeEnabled()
+  })
+
   it('sem divergências mostra o estado vazio (DIV-03 AC8)', async () => {
     vi.mocked(api.getRunItems).mockResolvedValue({ content: [], totalPages: 0 })
     show()

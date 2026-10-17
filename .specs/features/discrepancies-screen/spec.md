@@ -71,7 +71,7 @@ O dashboard mostra só as 4 maiores divergências abertas do run vigente da jane
 4. WHEN o operador escolhe um tipo THEN the system SHALL buscar com `discrepancyType=<tipo>` e voltar para a página 1; "Todos" SHALL remover o parâmetro.
 5. The system SHALL mostrar, de cada item, só as divergências que atendem aos filtros de status e tipo escolhidos.
 6. WHEN o operador escolhe outra janela no menu THEN the system SHALL usar o run vigente dessa janela e voltar para a página 1, mantendo os filtros.
-7. WHILE os itens tiverem mais de uma página the system SHALL mostrar "Anterior", "Próxima" e "Página X de Y".
+7. WHILE os itens tiverem mais de uma página the system SHALL mostrar "Anterior", "Próxima" e "Página X de Y", com "Anterior" desabilitado na primeira página e "Próxima" na última.
 8. IF não há divergências para os filtros THEN the system SHALL mostrar "Nenhuma divergência para os filtros escolhidos."
 9. IF a busca falha THEN the system SHALL mostrar a mensagem do erro e "Tentar novamente".
 
