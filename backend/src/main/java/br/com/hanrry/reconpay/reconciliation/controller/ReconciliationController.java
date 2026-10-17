@@ -83,13 +83,17 @@ public class ReconciliationController implements ReconciliationControllerApi {
 
     /*
      * Written straight to the servlet output stream rather than returned as a
-     * body, so a large run never has to exist as a byte array in heap.
+     * body, so a large run never has to exist as a byte array in heap. The run
+     * is looked up before the CSV headers are set, so a missing run still gets
+     * the standard JSON 404.
      */
     @Override
     public void exportCsv(
             @PathVariable UUID merchantId,
             @PathVariable UUID runId,
             HttpServletResponse response) throws IOException {
+        reconciliationService.findRunById(merchantId, runId);
+
         response.setContentType("text/csv");
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION,

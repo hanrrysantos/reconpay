@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -279,6 +280,34 @@ class ReconciliationIntegrationTest extends AbstractIntegrationTest {
                                 }
                                 """))
                 .andExpect(status().isAccepted());
+    }
+
+    @Test
+    void exportOfUnknownRunShouldAnswerNotFoundAsJson() throws Exception {
+        UUID unknownRunId = UUID.randomUUID();
+
+        mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/export", merchantId, unknownRunId)
+                        .header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(header().doesNotExist("Content-Disposition"))
+                .andExpect(jsonPath("$.error").value("NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Conciliação não encontrada com id: " + unknownRunId));
+    }
+
+    @Test
+    void exportOfAnotherMerchantsRunShouldAnswerNotFoundAsJson() throws Exception {
+        String runId = runReconciliation("2026-07-01", "2026-07-31");
+        String otherMerchantId = createMerchant("Merchant Outro Export");
+        IntegrationTestUtils.grantOperatorAccess(mockMvc, adminToken, UUID.fromString(otherMerchantId));
+
+        mockMvc.perform(get("/api/merchants/{merchantId}/reconciliations/{runId}/export", otherMerchantId, runId)
+                        .header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(header().doesNotExist("Content-Disposition"))
+                .andExpect(jsonPath("$.error").value("NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Conciliação não encontrada com id: " + runId));
     }
 
     @Test

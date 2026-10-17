@@ -5,12 +5,13 @@ import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import {
   ApiError, createFeeRule, createMerchant, createTransaction, deactivateFeeRule, deactivateMerchant, exportRunCsv, getDiscrepancy, getFeeRules,
   getImportBatches, getLatestBankStatementImportTime, getLatestSettlementImport, getMerchantPage, importCsv, getOpenDiscrepancies, getPeriod,
-  getPeriodSummary, getRuns, getTransactionPage, lockPeriod, renameMerchant, runReconciliation, unlockPeriod, updateDiscrepancy,
+  getPeriodSummary, getRun, getRunItems, getRuns, getTransactionPage, lockPeriod, renameMerchant, runReconciliation, unlockPeriod, updateDiscrepancy,
   updateFeeRuleFees, updateTransactionStatus, type DiscrepancyType, type DiscrepancyUpdate, type FeeRuleFees, type FeeRuleInput,
-  type ImportKind, type Run, type TransactionFilters, type TransactionInput, type TransactionStatus,
+  type ImportKind, type Run, type RunItemFilters, type TransactionFilters, type TransactionInput, type TransactionStatus,
 } from './api'
 import { useAuth } from './auth'
 import type { Window } from './period'
+import { anyInFlight } from './reconciliations'
 
 export const RUN_POLL_MS = 3000
 const RUNS_SCAN_SIZE = 100
@@ -37,6 +38,15 @@ export function createQueryClient(onUnauthorized: () => void): QueryClient {
 export const queryKeys = {
   runs: (merchantId: string) => ['runs', merchantId] as const,
   latestRun: (merchantId: string, window: Window) => ['runs', merchantId, window.fromDate, window.toDate] as const,
+  /** One page of the `/conciliacoes` list; the literal segment keeps it apart from `latestRun` under the same prefix. */
+  runPage: (merchantId: string, window: Window | null, page: number) =>
+    ['runs', merchantId, 'page', window?.fromDate ?? 'all', window?.toDate ?? 'all', page] as const,
+  run: (merchantId: string, runId: string) => ['runs', merchantId, 'run', runId] as const,
+  /** Without filters and page, the prefix of every item page of the run. */
+  runItems: (merchantId: string, runId: string, filters?: RunItemFilters, page?: number) =>
+    (filters === undefined
+      ? ['runItems', merchantId, runId]
+      : ['runItems', merchantId, runId, filters.result ?? 'ALL', filters.discrepancyType ?? 'ALL', page ?? 0]) as readonly unknown[],
   period: (merchantId: string, window: Window) => ['period', merchantId, window.fromDate, window.toDate] as const,
   summary: (merchantId: string, window: Window) => ['summary', merchantId, window.fromDate, window.toDate] as const,
   openDiscrepancies: (merchantId: string, runId?: string, type?: DiscrepancyType) =>
@@ -143,16 +153,21 @@ export function useLatestImports(merchantId: string | null) {
   })
 }
 
-/** After a successful change, every block of the same merchant and window reloads from the API. */
-function useInvalidateWindow(merchantId: string, window: Window) {
-  const queryClient = useQueryClient()
-  return () => Promise.all([
+/** Every block of the same merchant and window, plus all the merchant's runs, reloads from the API. */
+function invalidateWindow(queryClient: QueryClient, merchantId: string, window: Window) {
+  return Promise.all([
     queryClient.invalidateQueries({ queryKey: queryKeys.period(merchantId, window) }),
     queryClient.invalidateQueries({ queryKey: queryKeys.summary(merchantId, window) }),
     queryClient.invalidateQueries({ queryKey: queryKeys.openDiscrepancies(merchantId) }),
     queryClient.invalidateQueries({ queryKey: queryKeys.discrepancy(merchantId) }),
     queryClient.invalidateQueries({ queryKey: queryKeys.runs(merchantId) }),
   ])
+}
+
+/** After a successful change, every block of the same merchant and window reloads from the API. */
+function useInvalidateWindow(merchantId: string, window: Window) {
+  const queryClient = useQueryClient()
+  return () => invalidateWindow(queryClient, merchantId, window)
 }
 
 export function useResolveDiscrepancy(merchantId: string, window: Window) {
@@ -181,6 +196,49 @@ export function useUnlockPeriod(merchantId: string, window: Window) {
   const { token } = useAuth()
   const invalidate = useInvalidateWindow(merchantId, window)
   return useMutation({ mutationFn: () => unlockPeriod(token!, merchantId, window), onSuccess: invalidate })
+}
+
+/** One page of the merchant's runs, newest first, polled every 3 s while any run of the page is PENDING or RUNNING. */
+export function useRunPage(merchantId: string, window: Window | null, page: number) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: queryKeys.runPage(merchantId, window, page),
+    queryFn: () => getRuns(token!, merchantId, window ? { page, window } : { page }),
+    enabled: Boolean(token),
+    refetchInterval: query => anyInFlight(query.state.data?.content ?? []) ? RUN_POLL_MS : false,
+  })
+}
+
+/** One run, polled every 3 s while it is PENDING or RUNNING. */
+export function useRun(merchantId: string, runId: string) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: queryKeys.run(merchantId, runId),
+    queryFn: () => getRun(token!, merchantId, runId),
+    enabled: Boolean(token),
+    refetchInterval: query => inFlight(query.state.data) ? RUN_POLL_MS : false,
+  })
+}
+
+/** One page of a run's items; `polling` while the run is still in progress. */
+export function useRunItems(merchantId: string, runId: string, filters: RunItemFilters, page: number, polling: boolean) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: queryKeys.runItems(merchantId, runId, filters, page),
+    queryFn: () => getRunItems(token!, merchantId, runId, filters, page),
+    enabled: Boolean(token),
+    refetchInterval: polling ? RUN_POLL_MS : false,
+  })
+}
+
+/** Resolves only after the merchant's runs and the dashboard blocks of the same window have reloaded; a refusal reloads nothing. */
+export function useStartReconciliation(merchantId: string) {
+  const { token } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (window: Window) => runReconciliation(token!, merchantId, window),
+    onSuccess: (_run, window) => invalidateWindow(queryClient, merchantId, window),
+  })
 }
 
 export function useExportRun(merchantId: string) {
