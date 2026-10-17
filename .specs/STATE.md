@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: discrepancies-screen (tela `/divergencias`, frontend) — **Execute concluído**
-- **Phase / Task**: T1–T8 commitadas; Verifier PASS na iteração 5 (`validation.md`, diff `baa9d12^..79fea18`), 796 testes, typecheck e build verdes
-- **Completed**: reconciliations-screen mergeada no `main` (PR #50, 2026-10-16), CI e deploy verdes; discrepancies-screen implementada e verificada (iterações 1–4 reprovadas só por lacunas de teste, fechadas em `55e34e5`, `c5c736d`, `cadc990`, `e481c6e`, `79fea18`)
+- **Feature**: closing-screen (tela `/fechamento`, frontend) — **Specify** (não iniciada)
+- **Phase / Task**: Specify; escopo e decisões ainda a levantar com o usuário
+- **Completed**: discrepancies-screen mergeada no `main` (PR #51, 2026-10-17, `e0b03a6`), Verifier PASS (iteração 5) e teste manual aprovado; CI do merge verde (Detect changes, Frontend; backend e Docker pulados, só frontend mudou), sem deploy esperado
 - **In-progress** (file:line): none
-- **Next step**: teste manual do usuário em `/divergencias`; push só com pedido; após o merge, conferir CI e seguir para a tela de Fechamento. Risco fora da spec: se um novo run começa na mesma janela com a gaveta aberta, a gaveta pode agir sobre o run novo (mesmo formato do dashboard). Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
+- **Next step**: levantar o escopo de `/fechamento`, a última tela em construção, e escrever `.specs/features/closing-screen/spec.md`. Risco fora da spec herdado: a gaveta de resolução pode agir sobre um run novo iniciado na mesma janela. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/discrepancies-screen`, local, sem push, criada a partir do `main` em `0ebab4a`.
+- **Branch**: `feat/closing-screen`, criada a partir do `main` em `e0b03a6`.
