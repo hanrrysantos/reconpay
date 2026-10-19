@@ -207,6 +207,8 @@ describe('DashboardPage', () => {
     await waitFor(() => expect(within(drawer).getByTestId('drawer-status')).toHaveTextContent('Aceita'))
     await waitFor(() => expect(calls.some(call => call.path.includes('/reconciliations/run-new/'))).toBe(true))
     expect(within(drawer).queryByRole('button', { name: /^Reabrir/ })).toBeNull()
+    expect(within(drawer).getByText('Há uma conciliação mais nova nesta janela · somente leitura')).toBeInTheDocument()
+    expect(within(drawer).queryByText('Período travado · somente leitura')).toBeNull()
     expect(calls.filter(call => call.path.includes('/discrepancies/') && !call.path.includes(`/reconciliations/${opened}/`))).toEqual([])
   })
 

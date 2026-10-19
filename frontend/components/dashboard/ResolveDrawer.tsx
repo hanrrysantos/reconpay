@@ -13,6 +13,9 @@ export const NOTE_LIMIT = 500
 export const CONFLICT_MESSAGE = 'Esta divergência mudou. Recarregamos o estado atual.'
 export const ZERO_AMOUNT_MESSAGE = 'Informe um valor diferente de zero'
 
+/** Read-only notice of a drawer whose run a newer run of the window replaced. */
+export const STALE_RUN_NOTICE = 'Há uma conciliação mais nova nesta janela · somente leitura'
+
 export type DrawerEntry = { item: ReconciliationItem; discrepancyId: string }
 
 export type ResolveDrawerProps = {
@@ -25,6 +28,8 @@ export type ResolveDrawerProps = {
   /** Open discrepancies of the run, for the footer ("3 de 12 abertas"). */
   total: number | null
   locked: boolean
+  /** Why the drawer is read-only when `locked`; a locked period by default. */
+  lockedNotice?: string
   onClose: () => void
   onNavigate: (index: number) => void
   /** What the footer count refers to ("abertas" by default); null shows only the position and the total. */
@@ -75,7 +80,7 @@ function comparison(item: ReconciliationItem, type: DiscrepancyType, actualValue
   ]
 }
 
-export function ResolveDrawer({ merchantId, window, runId, list, index, total, locked, onClose, onNavigate, footerNoun = 'abertas' }: ResolveDrawerProps) {
+export function ResolveDrawer({ merchantId, window, runId, list, index, total, locked, lockedNotice = 'Período travado · somente leitura', onClose, onNavigate, footerNoun = 'abertas' }: ResolveDrawerProps) {
   const entry = list[index]
   const { item, discrepancyId } = entry
   const snapshot = item.discrepancies.find(discrepancy => discrepancy.id === discrepancyId)!
@@ -197,7 +202,7 @@ export function ResolveDrawer({ merchantId, window, runId, list, index, total, l
             </tbody>
           </table>
 
-          {locked && <p className="rounded-md bg-surface px-4 py-3 text-[13px] text-muted">Período travado · somente leitura</p>}
+          {locked && <p className="rounded-md bg-surface px-4 py-3 text-[13px] text-muted">{lockedNotice}</p>}
 
           {!locked && status === 'OPEN' && (
             <form id="resolve-form" onSubmit={submit} className="flex flex-col gap-4" noValidate>

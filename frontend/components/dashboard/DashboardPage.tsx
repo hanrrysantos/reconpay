@@ -20,7 +20,7 @@ import { MatchRingCard } from './MatchRingCard'
 import { OpenDiscrepancyTable, rowDiscrepancy } from './OpenDiscrepancyTable'
 import { PageHeader } from './PageHeader'
 import { PeriodMenu, windowKey } from './PeriodMenu'
-import { ResolveDrawer, type DrawerEntry } from './ResolveDrawer'
+import { ResolveDrawer, STALE_RUN_NOTICE, type DrawerEntry } from './ResolveDrawer'
 import { TypeDonut } from './TypeDonut'
 import { BlockError, DashboardSkeleton, EmptyOnboarding, Forbidden, NetworkBanner, NoMerchant, RunFailedCard } from './states'
 import { deriveDashboardView, type Loaded } from './view'
@@ -286,6 +286,7 @@ function DashboardWindow({ merchantId, window, runs, today, onWindow }: {
           index={drawer.index}
           total={summaryData ? openCount(summaryData) : null}
           locked={locked || drawer.runId !== tableRunId}
+          lockedNotice={drawer.runId !== tableRunId ? STALE_RUN_NOTICE : undefined}
           onClose={() => setDrawer(null)}
           onNavigate={index => setDrawer({ ...drawer, index })}
         />

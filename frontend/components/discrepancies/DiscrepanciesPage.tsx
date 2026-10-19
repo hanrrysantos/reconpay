@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
 import { TYPE_LABELS } from '@/components/dashboard/format'
 import { PeriodMenu, windowKey } from '@/components/dashboard/PeriodMenu'
-import { ResolveDrawer, type DrawerEntry } from '@/components/dashboard/ResolveDrawer'
+import { ResolveDrawer, STALE_RUN_NOTICE, type DrawerEntry } from '@/components/dashboard/ResolveDrawer'
 import { BlockError, NoMerchant } from '@/components/dashboard/states'
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import type { DiscrepancyType, Period, Run } from '@/lib/api'
@@ -122,6 +122,7 @@ function DiscrepanciesWindow({ merchantId, merchantName, runs, initial, filters,
           total={drawer.list.length}
           footerNoun={null}
           locked={locked || drawer.runId !== current?.id}
+          lockedNotice={drawer.runId !== current?.id ? STALE_RUN_NOTICE : undefined}
           onClose={() => setDrawer(null)}
           onNavigate={index => setDrawer({ ...drawer, index })}
         />

@@ -271,7 +271,7 @@ O dashboard atual mostra perfil, merchant e cinco transações; os indicadores f
 - IF the merchant list has more than one page THEN the merchant menu SHALL include every page.
 - IF an amount exceeds 13 digits THEN the frontend SHALL format it without overflow or rounding.
 - WHEN the selected merchant changes while requests are pending THEN the frontend SHALL discard responses of the previous merchant.
-- IF a newer run of the window replaces the table's run while the resolution drawer is open THEN the drawer SHALL keep reading the run it opened on and SHALL offer no resolve or reopen action.
+- IF a newer run of the window replaces the table's run while the resolution drawer is open THEN the drawer SHALL keep reading the run it opened on and SHALL offer no resolve or reopen action, showing "Há uma conciliação mais nova nesta janela · somente leitura" instead of the locked-period notice.
 
 ---
 
