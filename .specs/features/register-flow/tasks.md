@@ -93,12 +93,12 @@ T7 → T8
 
 **Done when**:
 
-- [ ] O compositor devolve o assunto e um HTML com cada texto de MAIL-01 AC1, o link no botão e por extenso
-- [ ] Prazo "24 horas" no padrão e "1 hora" com `verificationTokenHours=1`
-- [ ] Texto puro com saudação, instrução, link, prazo e aviso para ignorar
-- [ ] Nome com `<`, `>`, `&`, `"` e `'` sai escapado no HTML
-- [ ] Link `http://localhost:3000/verificar-email?token=...` no padrão e com barra final na base
-- [ ] Testes do compositor e da fábrica de link; gate quick (backend) passa
+- [x] O compositor devolve o assunto e um HTML com cada texto de MAIL-01 AC1, o link no botão e por extenso
+- [x] Prazo "24 horas" no padrão e "1 hora" com `verificationTokenHours=1`
+- [x] Texto puro com saudação, instrução, link, prazo e aviso para ignorar
+- [x] Nome com `<`, `>`, `&`, `"` e `'` sai escapado no HTML
+- [x] Link `http://localhost:3000/verificar-email?token=...` no padrão e com barra final na base
+- [x] Testes do compositor e da fábrica de link; gate quick (backend) passa
 
 **Tests**: unit
 **Gate**: quick

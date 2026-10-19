@@ -231,7 +231,7 @@ Desenhos no Pen: "Cadastro · Desktop", "Cadastro · Desktop · Confirmação", 
 | CAD-02 | P1: Formulário de cadastro | Design | Pending |
 | CAD-03 | P1: Enviar o cadastro | Design | Pending |
 | CAD-04 | P1: Erro no cadastro | Design | Pending |
-| MAIL-01 | P1: E-mail de verificação | Design | Pending |
+| MAIL-01 | P1: E-mail de verificação | Execute | Implemented |
 | VER-01 | P1: Página de confirmação (AC 1, 2) | Design | Pending |
 | VER-02 | P1: Página de confirmação (AC 3, 4) | Design | Pending |
 | VER-03 | P1: Pedir um link novo | Design | Pending |
@@ -240,7 +240,7 @@ Desenhos no Pen: "Cadastro · Desktop", "Cadastro · Desktop · Confirmação", 
 
 **ID format:** `<ÁREA>-<NN>`; o critério é citado como `CAD-02 AC4`. VER-01 cobre os critérios 1 e 2 da story, VER-02 os critérios 3 e 4.
 
-**Coverage:** 10 total, 0 mapped to tasks, 10 unmapped
+**Coverage:** 10 total, 10 mapped to tasks (T1–T8), 0 unmapped
 
 ---
 

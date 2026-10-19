@@ -14,7 +14,7 @@ public class EmailVerificationLinkFactory {
     public String buildConfirmUrl(String rawToken) {
         String base = emailProperties.verificationBaseUrl().replaceAll("/+$", "");
         return UriComponentsBuilder.fromHttpUrl(base)
-                .path("/api/auth/verify-email")
+                .path("/verificar-email")
                 .queryParam("token", rawToken)
                 .build()
                 .encode()
