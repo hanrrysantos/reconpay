@@ -253,8 +253,8 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Testes 1:1 com cada AC de VER-01..03, rota pública e os edges (uma chamada em modo estrito, e-mail do reenvio sem espaços)
-- [ ] Gate build passa (`Suspense` em volta de `useSearchParams`)
+- [x] Testes 1:1 com cada AC de VER-01..03, rota pública e os edges (uma chamada em modo estrito, e-mail do reenvio sem espaços)
+- [x] Gate build passa (`Suspense` em volta de `useSearchParams`)
 
 **Tests**: unit
 **Gate**: build
