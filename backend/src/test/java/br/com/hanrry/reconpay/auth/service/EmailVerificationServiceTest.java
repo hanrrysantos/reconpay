@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -170,6 +171,13 @@ class EmailVerificationServiceTest {
         UserEntity user = pendingUser("ana@lojacentro.com.br");
         user.setActive(true);
         when(userRepository.findByEmail("ana@lojacentro.com.br")).thenReturn(Optional.of(user));
+        // Every other condition allows a resend, so only the active check can stop it
+        // (self-registered account activated by an ADMIN, with a pending token).
+        lenient().when(tokenRepository.existsByUserIdAndConsumedAtIsNotNull(user.getId())).thenReturn(false);
+        lenient().when(tokenRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId()))
+                .thenReturn(Optional.of(tokenCreatedAt(user, NOW.minusSeconds(600))));
+        lenient().when(tokenHasher.generateRawToken()).thenReturn("fresh");
+        lenient().when(tokenHasher.hash("fresh")).thenReturn("fresh-hash");
 
         emailVerificationService.resend("ana@lojacentro.com.br");
 

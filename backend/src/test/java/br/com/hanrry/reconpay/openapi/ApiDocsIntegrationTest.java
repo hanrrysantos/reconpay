@@ -191,6 +191,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 Set.of(),
                 List.of("202 sem corpo em qualquer caso", "60 segundos")
         ));
+        assertOperationTag(document, "post", "/api/auth/resend-verification", "Authentication");
         assertOperation(document, new Op(
                 "get",
                 "/api/auth/verify-email",
