@@ -33,7 +33,8 @@ describe('LoginPage', () => {
   it('mostra o painel com a marca, o título, o texto e o rodapé, e o formulário "Entrar" (LOG-01 AC1)', () => {
     renderPage()
     const panel = screen.getByRole('complementary')
-    expect(within(panel).getByText('reconpay')).toBeInTheDocument()
+    expect(within(panel).getByText('Pay').parentElement).toHaveTextContent(/^ReconPay$/)
+    expect(within(panel).getByText('Conciliação financeira com clareza')).toBeInTheDocument()
     expect(within(panel).getByRole('heading', { name: 'Do vendido ao que caiu na conta, sem planilha.' })).toBeInTheDocument()
     expect(within(panel).getByText('Cruze vendas, liquidações e extrato numa janela, trate cada divergência e trave o período com rastro para auditoria.')).toBeInTheDocument()
     expect(within(panel).getByText('Conciliação financeira para fintechs, gateways e marketplaces')).toBeInTheDocument()
@@ -47,7 +48,7 @@ describe('LoginPage', () => {
     const panel = screen.getByRole('complementary')
     expect(within(panel).getByText(/^Cruze vendas/)).toHaveClass('hidden', 'lg:block')
     expect(within(panel).getByText('Conciliação financeira para fintechs, gateways e marketplaces').parentElement).toHaveClass('hidden', 'lg:flex')
-    expect(within(panel).getByText('reconpay')).not.toHaveClass('hidden')
+    expect(within(panel).getByText('Pay').parentElement).not.toHaveClass('hidden')
     expect(within(panel).getByRole('heading')).not.toHaveClass('hidden')
   })
 

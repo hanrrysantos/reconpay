@@ -50,6 +50,16 @@ describe('Logo (BRD-02)', () => {
     expect(pay().parentElement).toHaveClass(nameSize)
   })
 
+  it.each([
+    ['md', 'h-[50px]'],
+    ['sm', 'h-[42px]'],
+  ] as const)('com a frase, no tamanho %s o símbolo cresce para %s e a frase fica em duas linhas', (size, markHeight) => {
+    const { container } = render(<Logo tone="dark" size={size} tagline />)
+
+    expect(mark(container)).toHaveClass(markHeight)
+    expect(screen.getByText(/^Conciliação financeira/).querySelector('br')).toBeInTheDocument()
+  })
+
   it('o símbolo é decorativo e o texto lido é "ReconPay" (BRD-02 AC4)', () => {
     const { container } = render(<Logo tone="dark" />)
 

@@ -149,9 +149,9 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Painel escuro com o tom escuro e a frase, no celular e no desktop
-- [ ] Confirmação de e-mail com o tom claro, sem a frase
-- [ ] Gate quick (frontend) passa
+- [x] Painel escuro com o tom escuro e a frase, no celular e no desktop
+- [x] Confirmação de e-mail com o tom claro, sem a frase
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick

@@ -3,6 +3,7 @@
 import { ArrowRight, Check, CircleAlert, Link2Off, LoaderCircle, MailCheck, RotateCw, Send } from 'lucide-react'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { Logo } from '@/components/brand/Logo'
 import { ApiError, resendVerification, verifyEmail } from '@/lib/api'
 import { authAlert, authField, authPrimaryButton } from './AuthPanel'
 
@@ -37,12 +38,7 @@ export function VerifyEmail({ token }: { token: string | null }) {
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-8 bg-surface px-4 py-12 text-foreground">
-      <span className="flex items-center gap-2.5 font-display text-[20px] font-extrabold tracking-[-0.04em]">
-        <span className="grid size-[30px] place-items-center rounded-sm bg-primary">
-          <Check aria-hidden="true" className="size-4" strokeWidth={3} />
-        </span>
-        reconpay
-      </span>
+      <Logo tone="light" />
       <main className="w-full max-w-[480px]">
         {state.kind === 'verifying' && (
           <Card mark={<Mark tone="neutral"><LoaderCircle aria-hidden="true" className="size-[26px] animate-spin" /></Mark>}>

@@ -33,7 +33,8 @@ describe('RegisterPage', () => {
     renderPage()
     const panel = screen.getByRole('complementary')
 
-    expect(within(panel).getByText('reconpay')).toBeInTheDocument()
+    expect(within(panel).getByText('Pay').parentElement).toHaveTextContent(/^ReconPay$/)
+    expect(within(panel).getByText('Conciliação financeira com clareza')).toBeInTheDocument()
     expect(within(panel).getByRole('heading', { name: 'Seu primeiro fechamento começa aqui.' })).toBeInTheDocument()
     expect(within(panel).getByText('Crie a conta, cadastre a empresa e importe os arquivos do mês. A conta é ativada pelo link que enviamos por e-mail.')).toBeInTheDocument()
     expect(within(panel).getByText('Conciliação financeira para fintechs, gateways e marketplaces')).toBeInTheDocument()
