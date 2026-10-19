@@ -120,9 +120,10 @@ RESEND_API_KEY=
 RECONPAY_EMAIL_FROM=ReconPay <noreply@reconpay.local>
 RECONPAY_VERIFICATION_BASE_URL=http://localhost:3000
 RECONPAY_VERIFICATION_TOKEN_HOURS=24
+RECONPAY_CORS_ALLOWED_ORIGINS=http://localhost:3000
 ```
 
-> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` da raiz ao rodar em `backend/`; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece). `RECONPAY_VERIFICATION_BASE_URL` é o endereço do **frontend**, onde fica a página `/verificar-email` (padrão `http://localhost:3000`); em produção, a URL pública HTTPS do app. Sem `RESEND_API_KEY`, o envio de e-mail de verificação é apenas logado no console (útil em dev).
+> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` da raiz ao rodar em `backend/`; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece). `RECONPAY_VERIFICATION_BASE_URL` é o endereço do **frontend**, onde fica a página `/verificar-email` (padrão `http://localhost:3000`); em produção, a URL pública HTTPS do app. Sem `RESEND_API_KEY`, o envio de e-mail de verificação é apenas logado no console (útil em dev). `RECONPAY_CORS_ALLOWED_ORIGINS` lista, separadas por vírgula, as origens do frontend que podem chamar a API (por exemplo `https://reconpay.vercel.app`); ela substitui a lista padrão inteira, que tem só `localhost` nas portas 3000 e 5173, e aceita espaços em volta e barra final.
 
 ### 2. Escolha como subir a aplicação
 
@@ -248,7 +249,7 @@ Em `dev` e `test` existem usuários seed (nunca em produção):
 | ADMIN | `admin@reconpay.local` | `DevAdmin@2026` |
 | OPERATOR | `analyst@reconpay.local` | `DevAnalyst@2026` |
 
-CORS em `dev` libera origens em `reconpay.cors.allowed-origins` (incluindo `http://localhost:3000`, Next.js) para `/api/**`.
+CORS libera, em `/api/**`, as origens de `reconpay.cors.allowed-origins`: por padrão `http://localhost:3000` (Next.js) e `http://localhost:5173`, com as variantes `127.0.0.1`. Em produção, defina `RECONPAY_CORS_ALLOWED_ORIGINS` com o endereço do frontend; o Compose repassa a variável ao container.
 
 ---
 

@@ -92,7 +92,7 @@ O frontend está na Vercel (`https://reconpay.vercel.app`), mas a API de produç
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
 | CORS-01 | P1: Origens de produção pelo ambiente | Execute | Implemented |
-| CORS-02 | P2: Documentação | Specify | Pending |
+| CORS-02 | P2: Documentação | Execute | Implemented |
 
 **ID format:** `CORS-<NN>`; o critério é citado como `CORS-01 AC2`.
 
