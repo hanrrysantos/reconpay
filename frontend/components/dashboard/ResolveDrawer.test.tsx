@@ -218,6 +218,31 @@ describe('ResolveDrawer', () => {
     expect(second.onNavigate).toHaveBeenCalledTimes(1)
   })
 
+  it('depois de resolver, o foco fica na gaveta e J segue navegando (edge de foco)', async () => {
+    const { user, onNavigate } = renderDrawer()
+    await user.click(screen.getByRole('radio', { name: /^Aceitar/ }))
+    details['d-2'] = makeDetail({ id: 'd-2', type: 'FEE_DIVERGENCE', status: 'ACCEPTED' })
+    await user.click(screen.getByRole('button', { name: /^Aceitar/ }))
+    await waitFor(() => expect(screen.getByTestId('drawer-status')).toHaveTextContent('Aceita'))
+
+    expect(screen.getByRole('dialog', { name: 'Resolver divergência' })).toHaveFocus()
+    await user.keyboard('j')
+    expect(onNavigate).toHaveBeenCalledWith(1)
+  })
+
+  it('depois de reabrir, o foco fica na gaveta e J segue navegando (edge de foco)', async () => {
+    details['d-2'] = makeDetail({ id: 'd-2', type: 'FEE_DIVERGENCE', status: 'ADJUSTED' })
+    const { user, onNavigate } = renderDrawer()
+    const reopen = await screen.findByRole('button', { name: 'Reabrir' })
+    details['d-2'] = makeDetail({ id: 'd-2', type: 'FEE_DIVERGENCE', status: 'OPEN' })
+    await user.click(reopen)
+    await waitFor(() => expect(screen.getByRole('radio', { name: /^Aceitar/ })).toBeInTheDocument())
+
+    expect(screen.getByRole('dialog', { name: 'Resolver divergência' })).toHaveFocus()
+    await user.keyboard('j')
+    expect(onNavigate).toHaveBeenCalledWith(1)
+  })
+
   it('J/K não navegam enquanto se digita na nota', async () => {
     const { user, onNavigate } = renderDrawer()
     await user.click(screen.getByRole('radio', { name: /^Aceitar/ }))

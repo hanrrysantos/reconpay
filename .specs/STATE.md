@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: pending-items (três pendências pós-merge) — **concluída, aguardando push**
-- **Phase / Task**: Verifier PASS (`.specs/features/pending-items/validation.md`, diff `1db4744..22203aa`), gaps 1 e 3 fechados depois; 864 testes, typecheck, build e `./mvnw verify` verdes
-- **Completed**: closing-screen mergeada no `main` (PR #52, 2026-10-19, `520f800`), CI verde; todas as telas prontas. Pendências resolvidas: CNPJ válido no exemplo de `/api/me/merchants` (`3f56e91`, teste que valida todo `document` do Swagger); página de empresas esvaziada volta para a nova última página (`d53b04e`, MDES-07); gaveta de resolução presa ao run em que abriu e só para consulta quando chega um run novo, com aviso próprio (`22203aa`, `8880ab8`)
+- **Feature**: pending-items (três pendências pós-merge) — **mergeada**
+- **Phase / Task**: concluída; Verifier PASS (`.specs/features/pending-items/validation.md`), 864 testes, typecheck, build e `./mvnw verify` verdes
+- **Completed**: pending-items mergeada no `main` (PR #53, 2026-10-19, `5b8124e`); CI e deploy de produção verdes. Antes: closing-screen (PR #52, `520f800`); todas as telas prontas
 - **In-progress** (file:line): none
-- **Next step**: push de `fix/pending-items` só com pedido; o usuário abre e mergeia o PR; depois conferir CI e deploy (o PR muda `backend/**`, então o deploy de produção roda). Observação fora de spec: depois de resolver, o foco sai da gaveta e J/K só voltam após clicar nela (comportamento anterior).
+- **Next step**: nenhuma feature em andamento e nenhuma pendência aberta. Foco da gaveta depois de resolver ou reabrir corrigido em `fix/drawer-focus` (local, sem push).
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `fix/pending-items`, local, sem push, criada de `docs/record-closing-merge` (`1db4744`, registro do merge do #52) sobre o `main` em `520f800`.
+- **Branch**: `main` em `5b8124e`; este registro em `docs/record-pending-items-merge`, local, sem push.

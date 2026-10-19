@@ -109,6 +109,8 @@ export function ResolveDrawer({ merchantId, window, runId, list, index, total, l
     try {
       await resolve.mutateAsync({ runId, discrepancyId, update: { ...update, ...(note.trim() ? { note } : {}) } })
       setOutcome(null); setAmount(''); setNote('')
+      // The control that saved goes away with the new status; keep focus in the drawer so J/K still work.
+      panel.current?.focus()
     } catch (failure) {
       if (failure instanceof ApiError && failure.status === 409) {
         setError(CONFLICT_MESSAGE)
