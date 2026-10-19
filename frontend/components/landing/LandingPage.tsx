@@ -1,6 +1,7 @@
-import { ArrowRight, Check } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
+import { Logo } from '@/components/brand/Logo'
 import { Discrepancies } from './Discrepancies'
 import { FinalCta } from './FinalCta'
 import { HowItWorks } from './HowItWorks'
@@ -15,13 +16,11 @@ const primaryButton = 'inline-flex h-[52px] items-center justify-center gap-2 ro
 const secondaryButton = 'inline-flex h-[52px] items-center justify-center rounded-full bg-surface px-6 text-[15px] font-semibold text-foreground'
 
 function Brand({ size }: { size: 'nav' | 'footer' }) {
-  const nav = size === 'nav'
+  const footer = size === 'footer'
+  // In the footer the tagline sits inside the link, so the link is named after the brand alone.
   return (
-    <Link href="/" className={`flex items-center gap-2.5 font-display font-extrabold tracking-[-0.04em] ${nav ? 'text-[20px]' : 'text-[17px]'}`}>
-      <span className={`grid place-items-center rounded-[6px] bg-primary ${nav ? 'size-[30px]' : 'size-[26px]'}`}>
-        <Check aria-hidden="true" className="size-4" strokeWidth={3} />
-      </span>
-      reconpay
+    <Link href="/" aria-label={footer ? 'ReconPay' : undefined}>
+      <Logo tone="light" size={footer ? 'sm' : 'md'} tagline={footer} />
     </Link>
   )
 }

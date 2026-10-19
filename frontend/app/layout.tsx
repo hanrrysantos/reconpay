@@ -16,6 +16,12 @@ const interTight = localFont({
   variable: '--font-inter-tight',
   display: 'swap',
 })
+const manrope = localFont({
+  src: '../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2',
+  weight: '200 800',
+  variable: '--font-manrope',
+  display: 'swap',
+})
 const plexMono = localFont({
   src: [
     { path: '../node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2', weight: '400' },
@@ -38,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${interTight.variable} ${plexMono.variable}`}>
+    <html lang="pt-BR" className={`${inter.variable} ${interTight.variable} ${manrope.variable} ${plexMono.variable}`}>
       <body className="bg-background font-sans text-foreground antialiased"><Providers>{children}</Providers></body>
     </html>
   )

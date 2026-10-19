@@ -1,9 +1,10 @@
 'use client'
 
-import { Check, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
+import { Logo } from '@/components/brand/Logo'
 import { useAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
@@ -30,11 +31,8 @@ export function TopNav({ merchantSwitcher }: { merchantSwitcher?: ReactNode }) {
 
   return (
     <header className="flex min-h-10 items-center gap-6">
-      <Link href="/painel" className="flex shrink-0 items-center gap-2.5 font-display text-[20px] font-extrabold tracking-[-0.04em]">
-        <span className="grid size-[30px] place-items-center rounded-sm bg-primary text-foreground">
-          <Check aria-hidden="true" className="size-4" strokeWidth={3} />
-        </span>
-        reconpay
+      <Link href="/painel" className="shrink-0">
+        <Logo tone="light" />
       </Link>
 
       <nav aria-label="Principal" className="min-w-0 overflow-x-auto">

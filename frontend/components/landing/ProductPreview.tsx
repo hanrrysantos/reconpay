@@ -1,5 +1,6 @@
-import { Check, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import type { CSSProperties } from 'react'
+import { Logo } from '@/components/brand/Logo'
 import { CountUp } from './CountUp'
 
 const TABS = ['Visão geral', 'Conciliações', 'Divergências', 'Fechamento']
@@ -31,12 +32,7 @@ export function ProductPreview() {
       className="rise flex w-full flex-col gap-[18px] rounded-t-[24px] border border-b-0 border-border bg-surface px-4 pt-5 md:gap-6 md:rounded-t-[28px] md:px-8 md:pt-7 lg:h-[560px]"
     >
       <div className="flex items-center justify-between gap-4">
-        <span className="flex items-center gap-2.5 font-display text-[17px] font-extrabold tracking-[-0.05em]">
-          <span className="grid size-[26px] place-items-center rounded-[6px] bg-primary">
-            <Check aria-hidden="true" className="size-4" strokeWidth={3} />
-          </span>
-          reconpay
-        </span>
+        <Logo tone="light" size="sm" />
         <span className="hidden items-center gap-1.5 lg:flex">
           {TABS.map((tab, index) => (
             <span key={tab} className={`rounded-full px-3.5 py-2 text-[13px] font-semibold ${index === 0 ? 'bg-foreground text-background' : 'text-muted'}`}>

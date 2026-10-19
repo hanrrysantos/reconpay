@@ -6,14 +6,15 @@ const GITHUB = 'https://github.com/hanrrysantos/reconpay'
 const API_DOCS = 'https://reconpay.hanrry.top/swagger-ui/index.html'
 
 const hrefOf = (link: HTMLElement) => link.getAttribute('href')
+const accessibleName = (link: HTMLElement) => link.getAttribute('aria-label') ?? link.textContent
 
 describe('LandingPage', () => {
   it('menu tem a marca, as duas âncoras, "Entrar" e "Criar conta" (LAND-02 AC2, AC3)', () => {
     render(<LandingPage />)
 
     const nav = screen.getByRole('navigation', { name: 'Principal' })
-    expect(within(nav).getAllByRole('link').map(link => [link.textContent, hrefOf(link)])).toEqual([
-      ['reconpay', '/'],
+    expect(within(nav).getAllByRole('link').map(link => [accessibleName(link), hrefOf(link)])).toEqual([
+      ['ReconPay', '/'],
       ['Como funciona', '#como-funciona'],
       ['Divergências', '#divergencias'],
       ['Entrar', '/login'],
@@ -58,8 +59,8 @@ describe('LandingPage', () => {
 
     const footer = screen.getByRole('contentinfo')
     const links = within(footer).getAllByRole('link')
-    expect(links.map(link => [link.textContent, hrefOf(link)])).toEqual([
-      ['reconpay', '/'],
+    expect(links.map(link => [accessibleName(link), hrefOf(link)])).toEqual([
+      ['ReconPay', '/'],
       ['GitHub', GITHUB],
       ['Documentação da API', API_DOCS],
       ['Entrar', '/login'],
@@ -69,6 +70,37 @@ describe('LandingPage', () => {
       expect(external).toHaveAttribute('rel', 'noopener noreferrer')
     }
     expect(footer).toHaveTextContent('Feito por Hanrry Santos · 2026')
+  })
+
+  it('a marca do menu é a de fundo claro, toda em preto e sem a frase (BRD-02 AC2, AC4)', () => {
+    render(<LandingPage />)
+
+    const brand = within(screen.getByRole('navigation', { name: 'Principal' })).getByRole('link', { name: 'ReconPay' })
+    expect(brand.querySelector('img')).toHaveAttribute('src', '/brand/reconpay-mark-on-light.svg')
+    expect(brand.querySelector('img')).toHaveAttribute('alt', '')
+    expect(within(brand).getByText('Pay').parentElement).toHaveClass('text-foreground', 'text-[21px]')
+    expect(within(brand).getByText('Pay')).not.toHaveClass('text-primary')
+    expect(brand).not.toHaveTextContent('Conciliação financeira com clareza')
+  })
+
+  it('a marca do rodapé é a de fundo claro, em preto e com a frase (BRD-02 AC3, AC4)', () => {
+    render(<LandingPage />)
+
+    const brand = within(screen.getByRole('contentinfo')).getByRole('link', { name: 'ReconPay' })
+    expect(brand.querySelector('img')).toHaveAttribute('src', '/brand/reconpay-mark-on-light.svg')
+    expect(within(brand).getByText('Pay').parentElement).toHaveClass('text-foreground', 'text-[18px]')
+    expect(within(brand).getByText('Pay')).not.toHaveClass('text-primary')
+    expect(within(brand).getByText(/^Conciliação financeira/)).toHaveTextContent('Conciliação financeira com clareza')
+  })
+
+  it('a prévia do painel usa a marca de fundo claro, toda em preto e sem a frase (BRD-02 AC2)', () => {
+    render(<LandingPage />)
+
+    const preview = screen.getByRole('img', { name: 'Prévia do painel de fechamento do ReconPay' })
+    expect(preview.querySelector('img')).toHaveAttribute('src', '/brand/reconpay-mark-on-light.svg')
+    expect(within(preview).getByText('Pay').parentElement).toHaveClass('text-foreground')
+    expect(within(preview).getByText('Pay')).not.toHaveClass('text-primary')
+    expect(preview).not.toHaveTextContent('Conciliação financeira com clareza')
   })
 
   it('tem as regiões nav, main e footer (LAND-05 AC1)', () => {

@@ -65,6 +65,17 @@ describe('VerifyEmail', () => {
     expect(screen.queryByRole('button', { name: 'Enviar novo link' })).not.toBeInTheDocument()
   })
 
+  it('mostra a marca para fundo claro, toda em preto e sem a frase (BRD-02 AC2)', async () => {
+    const { container } = render(<VerifyEmail token="q7Xk2mV9" />)
+    await screen.findByRole('heading', { name: 'E-mail confirmado' })
+
+    expect(container.querySelector('img')).toHaveAttribute('src', '/brand/reconpay-mark-on-light.svg')
+    expect(screen.getByText('Pay').parentElement).toHaveTextContent(/^ReconPay$/)
+    expect(screen.getByText('Pay').parentElement).toHaveClass('text-foreground')
+    expect(screen.getByText('Pay')).not.toHaveClass('text-primary')
+    expect(screen.queryByText('Conciliação financeira com clareza')).not.toBeInTheDocument()
+  })
+
   it('mostra o link inválido com o reenvio quando a API recusa o token (VER-02 AC3)', async () => {
     await renderInvalid()
 

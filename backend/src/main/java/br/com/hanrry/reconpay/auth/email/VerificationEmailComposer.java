@@ -17,7 +17,8 @@ public class VerificationEmailComposer {
     public VerificationEmail compose(String toEmail, String recipientName, String rawToken) {
         String link = verificationLinkFactory.buildConfirmUrl(rawToken);
         String expiry = "O link vale por " + validity() + " e só pode ser usado uma vez.";
-        return new VerificationEmail(SUBJECT, html(toEmail, recipientName, link, expiry), text(toEmail, recipientName, link, expiry));
+        String brandMark = verificationLinkFactory.buildBrandMarkUrl();
+        return new VerificationEmail(SUBJECT, html(toEmail, recipientName, link, expiry, brandMark), text(toEmail, recipientName, link, expiry));
     }
 
     private String validity() {
@@ -25,7 +26,7 @@ public class VerificationEmailComposer {
         return hours == 1 ? "1 hora" : hours + " horas";
     }
 
-    private static String html(String toEmail, String recipientName, String link, String expiry) {
+    private static String html(String toEmail, String recipientName, String link, String expiry, String brandMark) {
         String href = escapeHtml(link);
         return """
                 <!DOCTYPE html>
@@ -36,8 +37,8 @@ public class VerificationEmailComposer {
                 <tr><td align="center" style="padding:48px 16px;">
                 <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="width:100%%;max-width:560px;background:#FFFFFF;border-radius:24px;overflow:hidden;">
                 <tr><td style="background:#0B0D0A;padding:28px 40px;">
-                <span style="display:inline-block;width:28px;height:28px;line-height:28px;border-radius:6px;background:#C6F135;color:#0B0D0A;text-align:center;font-size:16px;font-weight:800;vertical-align:middle;">✓</span>
-                <span style="margin-left:10px;color:#FFFFFF;font-size:19px;font-weight:800;letter-spacing:-0.8px;vertical-align:middle;">reconpay</span>
+                <img src="%7$s" width="27" height="28" alt="" style="display:inline-block;width:27px;height:28px;border:0;vertical-align:middle;"/>
+                <span style="margin-left:10px;font-family:Manrope,%2$s;color:#FFFFFF;font-size:19px;font-weight:800;letter-spacing:-0.6px;vertical-align:middle;">Recon<span style="color:#C6F135;">Pay</span></span>
                 </td></tr>
                 <tr><td style="padding:40px 40px 36px 40px;">
                 <p style="margin:0 0 14px 0;font-size:15px;font-weight:600;color:#6B6F66;">Olá, %3$s!</p>
@@ -56,7 +57,7 @@ public class VerificationEmailComposer {
                 </table>
                 </body>
                 </html>
-                """.formatted(SUBJECT, FONT, escapeHtml(recipientName), escapeHtml(toEmail), href, expiry);
+                """.formatted(SUBJECT, FONT, escapeHtml(recipientName), escapeHtml(toEmail), href, expiry, escapeHtml(brandMark));
     }
 
     private static String text(String toEmail, String recipientName, String link, String expiry) {

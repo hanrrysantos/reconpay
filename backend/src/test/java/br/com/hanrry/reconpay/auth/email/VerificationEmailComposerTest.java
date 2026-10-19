@@ -11,7 +11,11 @@ class VerificationEmailComposerTest {
     private static final String LINK = "https://app.example.com/verificar-email?token=q7Xk2mV9pL4r";
 
     private static VerificationEmailComposer composer(Long tokenHours) {
-        EmailProperties properties = new EmailProperties(null, null, "https://app.example.com", tokenHours);
+        return composer("https://app.example.com", tokenHours);
+    }
+
+    private static VerificationEmailComposer composer(String baseUrl, Long tokenHours) {
+        EmailProperties properties = new EmailProperties(null, null, baseUrl, tokenHours);
         return new VerificationEmailComposer(new EmailVerificationLinkFactory(properties), properties);
     }
 
@@ -21,7 +25,6 @@ class VerificationEmailComposerTest {
 
         assertThat(email.subject()).isEqualTo("Confirme seu e-mail — ReconPay");
         assertThat(email.html())
-                .contains("reconpay")
                 .contains("Olá, Ana!")
                 .contains(">Confirme seu <span style=\"white-space:nowrap;\">e-mail</span></h1>")
                 .contains("Falta um passo para ativar sua conta no ReconPay. Confirme que ana@lojacentro.com.br é seu e entre para cadastrar a primeira empresa.")
@@ -31,6 +34,26 @@ class VerificationEmailComposerTest {
                 .contains("Se o botão não funcionar, copie e cole este endereço no navegador:")
                 .contains(">" + LINK + "<")
                 .contains("Não criou uma conta no ReconPay? Ignore este e-mail: nada será ativado.");
+    }
+
+    @Test
+    void headerShowsTheBrandMarkFromTheAppFollowedByTheName() {
+        VerificationEmail email = composer(null).compose("ana@lojacentro.com.br", "Ana", "t");
+
+        assertThat(email.html())
+                .contains("<img src=\"https://app.example.com/brand/reconpay-mark-on-dark.png\" width=\"27\" height=\"28\" alt=\"\"")
+                .contains("color:#FFFFFF;font-size:19px;font-weight:800;letter-spacing:-0.6px;vertical-align:middle;\">Recon<span style=\"color:#C6F135;\">Pay</span></span>")
+                .doesNotContain("✓")
+                .doesNotContain(">reconpay<");
+    }
+
+    @Test
+    void brandMarkUrlIgnoresTrailingSlashesInTheBaseUrl() {
+        VerificationEmail email = composer("https://app.example.com/", null).compose("ana@lojacentro.com.br", "Ana", "t");
+
+        assertThat(email.html())
+                .contains("<img src=\"https://app.example.com/brand/reconpay-mark-on-dark.png\"")
+                .doesNotContain("app.example.com//");
     }
 
     @Test
@@ -54,6 +77,8 @@ class VerificationEmailComposerTest {
                 .contains("\n" + LINK + "\n")
                 .contains("O link vale por 24 horas e só pode ser usado uma vez.")
                 .contains("Não criou uma conta no ReconPay? Ignore este e-mail: nada será ativado.")
+                .contains("ReconPay · Conciliação financeira")
+                .doesNotContain("reconpay")
                 .doesNotContain("<");
     }
 

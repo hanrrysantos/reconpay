@@ -101,12 +101,12 @@
 
 ## Handoff
 
-- **Feature**: prod-cors-env (`RECONPAY_CORS_ALLOWED_ORIGINS` repassada pelo `docker-compose.yaml`; o Spring Boot substitui `reconpay.cors.allowed-origins`) — **mergeada** (PR #57, 2026-10-19, `7206ef2`; CI e deploy de produção verdes). Em produção, a pré-requisição de `https://reconpay.vercel.app` responde `200` e a de `localhost` `403`
-- **Phase / Task**: Verifier PASS na 1ª rodada (`.specs/features/prod-cors-env/validation.md`, diff `650941d..64daff8`); 657 testes
-- **Completed**: register-flow (#56). Frontend publicado na Vercel em `https://reconpay.vercel.app` (Root Directory `frontend`, Node 24, Install `npx --yes pnpm@12.3.4 install --frozen-lockfile`, Build `npm run build`, `NEXT_PUBLIC_API_URL=https://reconpay.hanrry.top`; o Corepack da Vercel não acha o `packageManager` porque não há `package.json` na raiz). `.env` do servidor com `RECONPAY_CORS_ALLOWED_ORIGINS` e `RECONPAY_VERIFICATION_BASE_URL` apontando para a Vercel. Itens da vitrine feitos: 1, 2, 3, 5, 6 e 7. Restam: (4) landing, (8) remetente do Resend, (9–10) demonstração própria, (11) tela de usuários do ADMIN; recuperar senha depois
-- **Known issues**: (a) `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender` (decisão do usuário: corrigir depois); (b) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`; (c) opcional: `text-balance` no título do `AuthPanel`; (d) o nome da variável no Compose não tem teste automático (só `docker compose config`)
+- **Feature**: landing-page (landing pública em `/` com animações ligadas ao scroll; painel em `/painel`) — **mergeada** (PR #58, 2026-10-19, `a2b2857`; CI verde; Vercel serve a landing em `https://reconpay.vercel.app/`)
+- **Phase / Task**: Verifier PASS em 3 rodadas (`.specs/features/landing-page/validation.md`): rodada 1 FAIL no LAND-03 AC4 (`max-[379px]` do Tailwind 4 é `< 379px`; corrigido em `ce7991d`), rodada 2 PASS, rodada 3 PASS após o usuário tirar "Fechamento" do menu; 953 testes
+- **Completed**: itens da vitrine 1, 2, 3, 4 (landing), 5, 6 e 7. Desenho no Pen: `Landing · Desktop` e `Landing · Mobile` (o Pen mostra "Ver demonstração"; a página usa "Criar conta" até a demo existir). Animações: CSS `animation-timeline: view()` em `frontend/app/globals.css`, números em `components/landing/CountUp.tsx` com o mesmo intervalo (`lib/scrollProgress.ts`); sem suporte (Firefox) ou com movimento reduzido, tudo parado no estado final
+- **Known issues**: (a) `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender` (decisão do usuário: corrigir depois); (b) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`; (c) opcional: `text-balance` no título do `AuthPanel`; (d) o nome da variável de CORS no Compose não tem teste automático; (e) nenhum teste renderiza `app/(app)/painel/page.tsx` (rota coberta pelo build e pelo guard do `AppShell`); (f) lição L-054 ficou como candidata
 - **In-progress** (file:line): none
-- **Next step**: usuário testa login e cadastro pela Vercel; depois escolher o próximo item (landing, Resend, demonstração ou tela de usuários)
+- **Next step**: escolher o próximo item da vitrine: (8) remetente do Resend, (9–10) demonstração por visitante (troca "Criar conta" por "Ver demonstração" na landing), (11) tela de usuários do ADMIN; recuperar senha depois
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `docs/record-prod-cors-merge`, local, sem push, criada do `main` em `7206ef2`.
+- **Branch**: `docs/record-landing-merge`, local, sem push, criada do `main` em `a2b2857`.
