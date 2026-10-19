@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiError, authenticate, getMerchants, getTransactions, register } from './api'
+import { ApiError, authenticate, getMerchants, getTransactions, register, resendVerification, verifyEmail } from './api'
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -86,5 +86,31 @@ describe('API do ReconPay', () => {
     vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch') }))
 
     await expect(getMerchants('jwt')).rejects.toThrow('Não foi possível conectar à API')
+  })
+
+  it('confirma o e-mail com o token pelo POST da API', async () => {
+    const fetcher = vi.fn(async (_input: string, _init?: RequestInit) => new Response(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetcher)
+
+    await expect(verifyEmail(' q7Xk2mV9 ')).resolves.toBeUndefined()
+    expect(fetcher.mock.calls[0][0]).toBe('http://localhost:8080/api/auth/verify-email')
+    expect(fetcher.mock.calls[0][1]?.method).toBe('POST')
+    expect(JSON.parse(String(fetcher.mock.calls[0][1]?.body))).toEqual({ token: ' q7Xk2mV9 ' })
+  })
+
+  it('recusa a confirmação com a mensagem e o código da API', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => Response.json({ status: 400, error: 'VALIDATION_ERROR', message: 'Token de verificação inválido ou expirado' }, { status: 400 })))
+
+    await expect(verifyEmail('velho')).rejects.toEqual(new ApiError('Token de verificação inválido ou expirado', 400))
+  })
+
+  it('pede um link novo com o e-mail sem espaços nas pontas', async () => {
+    const fetcher = vi.fn(async (_input: string, _init?: RequestInit) => new Response(null, { status: 202 }))
+    vi.stubGlobal('fetch', fetcher)
+
+    await expect(resendVerification('  ana@lojacentro.com.br  ')).resolves.toBeUndefined()
+    expect(fetcher.mock.calls[0][0]).toBe('http://localhost:8080/api/auth/resend-verification')
+    expect(fetcher.mock.calls[0][1]?.method).toBe('POST')
+    expect(JSON.parse(String(fetcher.mock.calls[0][1]?.body))).toEqual({ email: 'ana@lojacentro.com.br' })
   })
 })

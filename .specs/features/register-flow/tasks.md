@@ -176,9 +176,9 @@ T7 → T8
 
 **Done when**:
 
-- [ ] `verifyEmail` faz `POST /api/auth/verify-email` com `{ token }`; `resendVerification` faz `POST /api/auth/resend-verification` com o e-mail sem espaços nas pontas
-- [ ] Cada regra com um valor que cumpre e um que não cumpre; "8 caracteres" com 7 e 8
-- [ ] Testes em `frontend/lib/*.test.ts`; gate quick (frontend) passa
+- [x] `verifyEmail` faz `POST /api/auth/verify-email` com `{ token }`; `resendVerification` faz `POST /api/auth/resend-verification` com o e-mail sem espaços nas pontas
+- [x] Cada regra com um valor que cumpre e um que não cumpre; "8 caracteres" com 7 e 8
+- [x] Testes em `frontend/lib/*.test.ts`; gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick
