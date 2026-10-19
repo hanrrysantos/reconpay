@@ -29,9 +29,9 @@ A tela `/login` ainda usa o visual antigo (`app/auth.module.css`), diferente do 
 | Desenho | Telas do Pen "Login · Desktop", "Login · Desktop · Erro" e "Login · Mobile", com o painel escuro sem o resumo de match | Aprovado pelo usuário ("login mais leve ok") | y |
 | Texto do painel | Marca "reconpay" (quadrado lima com check, como na barra do app), título "Do vendido ao que caiu na conta, sem planilha.", texto "Cruze vendas, liquidações e extrato numa janela, trate cada divergência e trave o período com rastro para auditoria." e rodapé "Conciliação financeira para fintechs, gateways e marketplaces" | Desenho aprovado | y |
 | Texto do formulário | Título "Entrar"; subtítulo "Use o e-mail e a senha da sua conta ReconPay."; campos "E-mail" (placeholder "voce@empresa.com") e "Senha" (placeholder "Sua senha"); botão "Entrar"; "Ainda não tem conta?" com o link "Criar conta" para `/register` | Desenho aprovado | y |
-| Quebra para o celular | Abaixo de 1024 px (`lg` do Tailwind): faixa escura no topo com a marca e o título, sem o texto e o rodapé do painel; formulário embaixo em coluna única | Desenho "Login · Mobile"; o painel lateral não cabe em tablet estreito | n |
+| Quebra para o celular | Abaixo de 1024 px (`lg` do Tailwind): faixa escura no topo com a marca e o título, sem o texto e o rodapé do painel; formulário embaixo em coluna única. Entre 1024 e 1279 px o painel tem 440 px e o título 40 px; a partir de 1280 px, 640 px e 52 px como no desenho | Desenho "Login · Mobile"; o painel lateral não cabe em tablet estreito, e com 640 px fixos o formulário ficaria com 272 px em 1024 | n |
 | Mostrar senha | Botão com ícone de olho dentro do campo, nome acessível "Mostrar senha" / "Ocultar senha", `aria-pressed`; alterna o campo entre `password` e `text` | Desenho tem o olho; nome acessível porque o botão só tem ícone | n |
-| Erro | A mensagem da API num aviso `role="alert"` acima do botão; sem mensagem (rede), "Não foi possível entrar. Tente novamente." | Comportamento atual | y |
+| Erro | A mensagem do erro num aviso `role="alert"` acima do botão. Falha de rede já chega com mensagem própria do cliente ("Não foi possível conectar à API. Tente novamente."); só uma falha que não é `Error` mostra "Não foi possível entrar. Tente novamente." | Comportamento atual | y |
 | Envio em andamento | Botão desabilitado com "Entrando..."; um clique a mais não gera outro POST | Comportamento atual | n |
 | Estilo | Tailwind com os tokens de `globals.css`; `auth.module.css` continua só para `/register` até o item 2 | Mesmo padrão das outras telas | n |
 
@@ -144,11 +144,11 @@ A tela `/login` ainda usa o visual antigo (`app/auth.module.css`), diferente do 
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| LOG-01 | P1: Visual novo | Execute | Implemented |
-| LOG-02 | P1: Formulário | Execute | Implemented |
-| LOG-03 | P1: Entrar | Execute | Implemented |
-| LOG-04 | P1: Erro ao entrar | Execute | Implemented |
-| LOG-05 | P2: Já logado | Execute | Implemented |
+| LOG-01 | P1: Visual novo | Execute | Verified |
+| LOG-02 | P1: Formulário | Execute | Verified |
+| LOG-03 | P1: Entrar | Execute | Verified |
+| LOG-04 | P1: Erro ao entrar | Execute | Verified |
+| LOG-05 | P2: Já logado | Execute | Verified |
 
 **ID format:** `LOG-<NN>` por story; o critério é citado como `LOG-02 AC3`.
 
