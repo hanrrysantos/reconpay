@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.auth.openapi;
 
 import br.com.hanrry.reconpay.auth.dto.AuthRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.AuthResponseDTO;
+import br.com.hanrry.reconpay.auth.dto.ResendVerificationRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
@@ -139,8 +140,8 @@ public interface AuthControllerApi {
     @Operation(
             summary = "Confirmação de e-mail pela API",
             description = """
-                    Ativa a conta com o token (JSON). Preferível para clientes programáticos;
-                    usuários finais usam o link/botão do e-mail (GET)."""
+                    Ativa a conta com o token (JSON). É a chamada feita pela página \
+                    /verificar-email do app, aberta pelo link do e-mail de verificação."""
     )
     @ApiResponse(responseCode = "204", description = "Confirmação concluída; a conta fica ativa")
     @ApiValidationErrorResponse
@@ -164,10 +165,40 @@ public interface AuthControllerApi {
             @Valid @RequestBody VerifyEmailRequestDTO request);
 
     @Operation(
+            summary = "Reenvio do e-mail de verificação",
+            description = """
+                    Envia um link novo para uma conta criada pelo cadastro que ainda não confirmou o e-mail. \
+                    Responde 202 sem corpo em qualquer caso, exista ou não a conta, para não revelar \
+                    quais e-mails estão cadastrados. Nada é enviado quando a conta não existe, já está ativa, \
+                    foi criada por um ADMIN, já confirmou um link antes ou recebeu e-mail há menos de 60 segundos. \
+                    O link novo invalida os anteriores."""
+    )
+    @ApiResponse(responseCode = "202", description = "Pedido aceito; o e-mail sai só quando a conta tem direito ao reenvio")
+    @ApiValidationErrorResponse
+    @PostMapping("/resend-verification")
+    ResponseEntity<Void> resendVerification(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ResendVerificationRequestDTO.class),
+                            examples = @ExampleObject(
+                                    name = "reenvio",
+                                    value = """
+                                            {
+                                              "email": "usuario.novo@reconpay.local"
+                                            }
+                                            """
+                            )
+                    )
+            )
+            @Valid @RequestBody ResendVerificationRequestDTO request);
+
+    @Operation(
             summary = "Confirmação de e-mail pelo link",
             description = """
-                    Ativa a conta ao abrir o link do botão no e-mail de verificação.
-                    Retorna uma página HTML de sucesso ou erro."""
+                    Ativa a conta pelo formato antigo do link, enviado antes da página /verificar-email \
+                    do app. Mantido para os links que ainda valem. Retorna uma página HTML de sucesso ou erro."""
     )
     @ApiResponse(
             responseCode = "200",

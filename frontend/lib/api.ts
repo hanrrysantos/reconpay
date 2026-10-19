@@ -263,6 +263,14 @@ export async function register(input: { name: string; email: string; password: s
   await request('/api/auth/register', { method: 'POST', body: JSON.stringify(input) })
 }
 
+export async function verifyEmail(token: string): Promise<void> {
+  await request('/api/auth/verify-email', { method: 'POST', body: JSON.stringify({ token }) })
+}
+
+export async function resendVerification(email: string): Promise<void> {
+  await request('/api/auth/resend-verification', { method: 'POST', body: JSON.stringify({ email: email.trim() }) })
+}
+
 export async function getMerchants(token: string): Promise<Merchant[]> {
   const merchants: Merchant[] = []
   let page = 0

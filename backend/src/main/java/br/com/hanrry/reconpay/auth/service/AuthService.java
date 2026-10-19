@@ -56,4 +56,8 @@ public class AuthService {
     public void verifyEmail(String rawToken) {
         emailVerificationService.verify(rawToken);
     }
+
+    public void resendVerification(String email) {
+        emailVerificationService.resend(email);
+    }
 }

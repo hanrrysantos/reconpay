@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 
 @Service
@@ -25,6 +27,9 @@ public class EmailVerificationService {
     private final EmailVerificationTokenHasher tokenHasher;
     private final EmailProperties emailProperties;
     private final AuditLogger auditLogger;
+    private final Clock clock;
+
+    static final Duration RESEND_COOLDOWN = Duration.ofSeconds(60);
 
     @Transactional
     public void sendVerificationEmail(UserEntity user) {
@@ -61,5 +66,16 @@ public class EmailVerificationService {
         tokenRepository.save(token);
 
         auditLogger.record("USER_EMAIL_VERIFIED", "user", user.getId());
+    }
+
+    @Transactional
+    public void resend(String email) {
+        userRepository.findByEmail(email.trim())
+                .filter(user -> !user.isActive())
+                .filter(user -> !tokenRepository.existsByUserIdAndConsumedAtIsNotNull(user.getId()))
+                .filter(user -> tokenRepository.findTopByUserIdOrderByCreatedAtDesc(user.getId())
+                        .map(last -> !last.getCreatedAt().plus(RESEND_COOLDOWN).isAfter(clock.instant()))
+                        .orElse(false))
+                .ifPresent(this::sendVerificationEmail);
     }
 }

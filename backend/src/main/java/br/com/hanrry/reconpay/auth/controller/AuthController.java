@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.auth.controller;
 
 import br.com.hanrry.reconpay.auth.dto.AuthRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.AuthResponseDTO;
+import br.com.hanrry.reconpay.auth.dto.ResendVerificationRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
@@ -38,6 +39,12 @@ public class AuthController implements AuthControllerApi {
     public ResponseEntity<Void> verifyEmail(@Valid VerifyEmailRequestDTO request) {
         authService.verifyEmail(request.token());
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> resendVerification(@Valid ResendVerificationRequestDTO request) {
+        authService.resendVerification(request.email());
+        return ResponseEntity.accepted().build();
     }
 
     @Override

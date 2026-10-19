@@ -48,7 +48,8 @@ API em produção: [https://reconpay.hanrry.top](https://reconpay.hanrry.top) ·
 
 ### Usuários
 - E-mail único; soft delete; usuários inativos não autenticam.
-- Auto-cadastro cria `OPERATOR` inativo até a verificação de e-mail (link GET no e-mail, ou `POST /api/auth/verify-email` para clientes programáticos).
+- Auto-cadastro cria `OPERATOR` inativo até a verificação de e-mail. O link do e-mail abre `/verificar-email` no app, que chama `POST /api/auth/verify-email`; o link vale por `RECONPAY_VERIFICATION_TOKEN_HOURS` horas e só uma vez. `GET /api/auth/verify-email` continua atendendo os links do formato antigo.
+- `POST /api/auth/resend-verification` envia um link novo e invalida os anteriores. Responde `202` sem corpo em qualquer caso, para não revelar quais e-mails têm cadastro, e só envia para conta do auto-cadastro que nunca confirmou um link e não recebeu e-mail nos últimos 60 segundos. Conta desativada pelo ADMIN não se reativa por aqui.
 
 ### Merchants
 - O documento é um CNPJ de 14 dígitos com dígitos verificadores válidos; CNPJ com os 14 dígitos iguais é inválido. Inválido responde `400` `VALIDATION_ERROR` "CNPJ inválido".
@@ -117,11 +118,11 @@ JWT_SECRET=sua-chave-secreta-com-pelo-menos-32-caracteres
 JWT_EXPIRATION=86400
 RESEND_API_KEY=
 RECONPAY_EMAIL_FROM=ReconPay <noreply@reconpay.local>
-RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080
+RECONPAY_VERIFICATION_BASE_URL=http://localhost:3000
 RECONPAY_VERIFICATION_TOKEN_HOURS=24
 ```
 
-> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` da raiz ao rodar em `backend/`; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece). Em produção, `RECONPAY_VERIFICATION_BASE_URL` deve ser a URL pública HTTPS. Sem `RESEND_API_KEY`, o envio de e-mail de verificação é apenas logado no console (útil em dev).
+> `JWT_SECRET` é obrigatório fora dos testes, que possuem chave local exclusiva. Na **Opção A** o profile `dev` importa o `.env` da raiz ao rodar em `backend/`; na **Opção B** o Compose o injeta no container. `JWT_EXPIRATION` é expresso em segundos, com padrão `86400`, repassado pelo Compose e retornado exatamente como `expiresIn` no login. Fora de `dev`, configure também `DB_URL`, `DB_USER` e `DB_PASSWORD` (o Compose os fornece). `RECONPAY_VERIFICATION_BASE_URL` é o endereço do **frontend**, onde fica a página `/verificar-email` (padrão `http://localhost:3000`); em produção, a URL pública HTTPS do app. Sem `RESEND_API_KEY`, o envio de e-mail de verificação é apenas logado no console (útil em dev).
 
 ### 2. Escolha como subir a aplicação
 
@@ -209,7 +210,7 @@ O contrato vivo está no Swagger, gerado a partir do código. Com a API no ar:
 - UI: http://localhost:8080/swagger-ui.html ou https://reconpay.hanrry.top/swagger-ui.html
 - OpenAPI: http://localhost:8080/v3/api-docs ou https://reconpay.hanrry.top/v3/api-docs
 
-Faça login (`POST /api/auth/login`), copie o token e use **Authorize** no Swagger (`Bearer {token}`). Em `dev`, os usuários seed estão na seção Segurança. Rotas públicas: cadastro, login, verificação de e-mail, Swagger e `/actuator/health`.
+Faça login (`POST /api/auth/login`), copie o token e use **Authorize** no Swagger (`Bearer {token}`). Em `dev`, os usuários seed estão na seção Segurança. Rotas públicas: cadastro, login, verificação e reenvio do e-mail de verificação, Swagger e `/actuator/health`.
 
 A conciliação é assíncrona: o POST devolve `202 Accepted` e o `Location` aponta para o GET da execução.
 
@@ -253,7 +254,7 @@ CORS em `dev` libera origens em `reconpay.cors.allowed-origins` (incluindo `http
 
 ## Frontend
 
-O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. O dashboard em `/` lê o fechamento da janela, resolve divergências, roda a conciliação, trava e exporta, sempre com dados da API. Em `/empresas` o usuário lista, cadastra, renomeia e desativa merchants. Em `/importacoes` envia os CSVs de transações, liquidação (layout `RECONPAY`) e extrato da empresa selecionada, vê todos os erros por linha de um arquivo recusado e os lotes já importados. Em `/transacoes` lista as transações da empresa por período, status e método, cadastra uma venda avulsa e muda o status de uma transação aprovada para cancelada, estornada ou chargeback, com confirmação por ser irreversível. Em `/conciliacoes` vê o histórico de runs da empresa (com progresso, selo de substituído e falha, filtro por mês) e dispara uma conciliação de qualquer janela de até 366 dias. Em `/conciliacoes/[runId]` vê os itens de um run, filtra por resultado e tipo de divergência e exporta o CSV de um run concluído. Em `/divergencias` vê as divergências do run vigente de uma janela, filtradas por status e tipo, e as resolve (aceitar, ajustar, baixar) ou reabre pela gaveta do dashboard, com o histórico de cada uma. Em `/fechamento` vê todos os períodos da empresa com o status de fechamento (travado, aberto, em andamento, sem conciliação concluída), a taxa de match, o valor em aberto e a duração da trava, e trava, destrava ou exporta o CSV de cada um.
+O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. Em `/register` o visitante cria a conta e vê as regras da senha marcadas enquanto digita; o link do e-mail abre `/verificar-email`, que ativa a conta ou, com o link vencido ou já usado, pede um link novo. O dashboard em `/` lê o fechamento da janela, resolve divergências, roda a conciliação, trava e exporta, sempre com dados da API. Em `/empresas` o usuário lista, cadastra, renomeia e desativa merchants. Em `/importacoes` envia os CSVs de transações, liquidação (layout `RECONPAY`) e extrato da empresa selecionada, vê todos os erros por linha de um arquivo recusado e os lotes já importados. Em `/transacoes` lista as transações da empresa por período, status e método, cadastra uma venda avulsa e muda o status de uma transação aprovada para cancelada, estornada ou chargeback, com confirmação por ser irreversível. Em `/conciliacoes` vê o histórico de runs da empresa (com progresso, selo de substituído e falha, filtro por mês) e dispara uma conciliação de qualquer janela de até 366 dias. Em `/conciliacoes/[runId]` vê os itens de um run, filtra por resultado e tipo de divergência e exporta o CSV de um run concluído. Em `/divergencias` vê as divergências do run vigente de uma janela, filtradas por status e tipo, e as resolve (aceitar, ajustar, baixar) ou reabre pela gaveta do dashboard, com o histórico de cada uma. Em `/fechamento` vê todos os períodos da empresa com o status de fechamento (travado, aberto, em andamento, sem conciliação concluída), a taxa de match, o valor em aberto e a duração da trava, e trava, destrava ou exporta o CSV de cada um.
 
 ---
 

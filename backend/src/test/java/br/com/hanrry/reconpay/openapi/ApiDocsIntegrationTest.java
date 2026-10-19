@@ -8,6 +8,7 @@ import br.com.hanrry.reconpay.auth.dto.CreateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.MerchantAccessRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
+import br.com.hanrry.reconpay.auth.dto.ResendVerificationRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
 import br.com.hanrry.reconpay.bankstatement.controller.BankStatementController;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
@@ -176,6 +177,21 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 Set.of(),
                 List.of()
         ));
+        assertOperation(document, new Op(
+                "post",
+                "/api/auth/resend-verification",
+                Set.of("202", "400"),
+                false,
+                ResendVerificationRequestDTO.class,
+                Map.of("email", "usuario.novo@reconpay.local"),
+                null,
+                List.of(),
+                false,
+                Set.of("202"),
+                Set.of(),
+                List.of("202 sem corpo em qualquer caso", "60 segundos")
+        ));
+        assertOperationTag(document, "post", "/api/auth/resend-verification", "Authentication");
         assertOperation(document, new Op(
                 "get",
                 "/api/auth/verify-email",

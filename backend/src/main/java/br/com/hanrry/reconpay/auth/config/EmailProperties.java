@@ -14,7 +14,7 @@ public record EmailProperties(
             from = "ReconPay <noreply@reconpay.local>";
         }
         if (verificationBaseUrl == null || verificationBaseUrl.isBlank()) {
-            verificationBaseUrl = "http://localhost:8080";
+            verificationBaseUrl = "http://localhost:3000";
         }
         if (verificationTokenHours == null || verificationTokenHours <= 0) {
             verificationTokenHours = 24L;
