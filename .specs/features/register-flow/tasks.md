@@ -151,8 +151,8 @@ T7 → T8
 
 **Done when**:
 
-- [ ] A operação aparece com resumo e descrição em português, `202` e `400` com exemplo, sem exigir token
-- [ ] Gate full (`./mvnw verify`) passa
+- [x] A operação aparece com resumo e descrição em português, `202` e `400` com exemplo, sem exigir token
+- [x] Gate full (`./mvnw verify`) passa
 
 **Tests**: integration
 **Gate**: full
