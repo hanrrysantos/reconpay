@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 51,
+  "next_id": 54,
   "lessons": [
     {
       "id": "L-001",
@@ -910,6 +910,60 @@
       ],
       "created": "2026-10-17T12:47:14Z",
       "last_seen": "2026-10-17T12:47:14Z"
+    },
+    {
+      "id": "L-051",
+      "key": "surviving_mutant::in a test for one rejection reason of a chained guard stub every other condition to pass so only the condition under test can reject",
+      "text": "In a test for one rejection reason of a chained guard, stub every other condition to pass so only the condition under test can reject",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "register-flow"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "B1; backend/src/test/java/br/com/hanrry/reconpay/auth/service/EmailVerificationServiceTest.java:168 (tests)"
+      ],
+      "created": "2026-10-19T15:37:36Z",
+      "last_seen": "2026-10-19T15:37:36Z"
+    },
+    {
+      "id": "L-052",
+      "key": "ac_gap::when an acceptance criterion names the swagger tag of an operation assert that tag on the operation itself",
+      "text": "When an acceptance criterion names the Swagger tag of an operation, assert that tag on the operation itself",
+      "signal": "ac_gap",
+      "scope": "openapi",
+      "status": "candidate",
+      "features": [
+        "register-flow"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "RSD-01 AC6; backend/src/test/java/br/com/hanrry/reconpay/openapi/ApiDocsIntegrationTest.java:180 (openapi)"
+      ],
+      "created": "2026-10-19T15:37:36Z",
+      "last_seen": "2026-10-19T15:37:36Z"
+    },
+    {
+      "id": "L-053",
+      "key": "surviving_mutant::when a rule accepts a character range assert both endpoints of the range not one value from the middle",
+      "text": "When a rule accepts a character range, assert both endpoints of the range, not one value from the middle",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "register-flow"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "N7, N13; frontend/lib/password.test.ts:25 (tests)"
+      ],
+      "created": "2026-10-19T15:45:27Z",
+      "last_seen": "2026-10-19T15:45:27Z"
     }
   ]
 }

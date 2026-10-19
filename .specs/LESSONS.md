@@ -312,6 +312,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md iteração 4 W4 frontend/lib/closing.ts:18 (frontend)
 - last seen: 2026-10-17T12:47:14Z
 
+### L-051 - In a test for one rejection reason of a chained guard, stub every other condition to pass so only the condition under test can reject
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: register-flow
+- evidence: B1; backend/src/test/java/br/com/hanrry/reconpay/auth/service/EmailVerificationServiceTest.java:168 (tests)
+- last seen: 2026-10-19T15:37:36Z
+
+### L-052 - When an acceptance criterion names the Swagger tag of an operation, assert that tag on the operation itself
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `openapi` · harmful: 0
+- features: register-flow
+- evidence: RSD-01 AC6; backend/src/test/java/br/com/hanrry/reconpay/openapi/ApiDocsIntegrationTest.java:180 (openapi)
+- last seen: 2026-10-19T15:37:36Z
+
+### L-053 - When a rule accepts a character range, assert both endpoints of the range, not one value from the middle
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: register-flow
+- evidence: N7, N13; frontend/lib/password.test.ts:25 (tests)
+- last seen: 2026-10-19T15:45:27Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
