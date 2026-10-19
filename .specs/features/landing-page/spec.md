@@ -154,10 +154,10 @@ O frontend está público em `https://reconpay.vercel.app`, mas quem abre o ende
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
 | LAND-01 | P1: Landing no endereço raiz | Execute | Implemented |
-| LAND-02 | P1: Conteúdo do desenho | Specify | Pending |
-| LAND-03 | P1: Celular | Specify | Pending |
+| LAND-02 | P1: Conteúdo do desenho | Execute | Implemented |
+| LAND-03 | P1: Celular | Execute | Implemented |
 | LAND-04 | P1: Animações ligadas ao scroll | Specify | Pending |
-| LAND-05 | P2: Acessibilidade e busca | Specify | Pending |
+| LAND-05 | P2: Acessibilidade e busca | Execute | Implemented |
 
 **ID format:** `LAND-<NN>`; o critério é citado como `LAND-04 AC2`.
 

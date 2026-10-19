@@ -1,5 +1,9 @@
 import { ArrowRight, Check } from 'lucide-react'
 import Link from 'next/link'
+import { Discrepancies } from './Discrepancies'
+import { FinalCta } from './FinalCta'
+import { HowItWorks } from './HowItWorks'
+import { Problem } from './Problem'
 import { ProductPreview } from './ProductPreview'
 
 const GITHUB = 'https://github.com/hanrrysantos/reconpay'
@@ -62,6 +66,10 @@ export function LandingPage() {
           </div>
           <ProductPreview />
         </section>
+        <Problem shell={shell} />
+        <HowItWorks shell={shell} />
+        <Discrepancies shell={shell} />
+        <FinalCta shell={shell} />
       </main>
 
       <footer className={`${shell} flex flex-col items-start gap-5 pt-8 pb-10 md:flex-row md:items-center md:justify-between md:pt-10 md:pb-12`}>

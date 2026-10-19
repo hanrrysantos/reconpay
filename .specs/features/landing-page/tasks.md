@@ -188,10 +188,10 @@ T6 → T7
 
 **Done when**:
 
-- [ ] As seções aparecem na ordem de LAND-02 AC1, com os textos do Pen e um `h2` cada
-- [ ] Convite final com "Crie sua conta e concilie o primeiro mês.", "Criar conta" → `/register` e "Entrar na minha conta" → `/login`
-- [ ] Sem rolagem horizontal de 320 a 1920 px; capturas a 390 e 1440 px conferidas com o Pen
-- [ ] Gate build passa
+- [x] As seções aparecem na ordem de LAND-02 AC1, com os textos do Pen e um `h2` cada
+- [x] Convite final com "Crie sua conta e concilie o primeiro mês.", "Criar conta" → `/register` e "Entrar na minha conta" → `/login`
+- [x] Sem rolagem horizontal de 320 a 1920 px; capturas a 390 e 1440 px conferidas com o Pen
+- [x] Gate build passa
 
 **Tests**: unit
 **Gate**: build
