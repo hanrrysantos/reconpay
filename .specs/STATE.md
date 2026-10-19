@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: pending-items (três pendências pós-merge) — **mergeada**
-- **Phase / Task**: concluída; Verifier PASS (`.specs/features/pending-items/validation.md`), 864 testes, typecheck, build e `./mvnw verify` verdes
-- **Completed**: pending-items mergeada no `main` (PR #53, 2026-10-19, `5b8124e`); CI e deploy de produção verdes. Antes: closing-screen (PR #52, `520f800`); todas as telas prontas
+- **Feature**: drawer-focus (foco da gaveta depois de resolver ou reabrir) — **mergeada**
+- **Phase / Task**: concluída; Verifier PASS (`.specs/features/drawer-focus/validation.md`), 866 testes, typecheck e build verdes
+- **Completed**: drawer-focus mergeada no `main` (PR #54, 2026-10-19, `a1f3b27`), CI verde (só frontend; deploy de produção não roda). Antes: pending-items (PR #53, `5b8124e`, CI e deploy verdes), closing-screen (PR #52); todas as telas prontas
 - **In-progress** (file:line): none
-- **Next step**: nenhuma feature em andamento e nenhuma pendência aberta. Foco da gaveta depois de resolver ou reabrir corrigido em `fix/drawer-focus` (local, sem push).
+- **Next step**: nenhuma feature em andamento e nenhuma pendência aberta. Fora de spec, sem pedido: foco da gaveta depois de um erro ao salvar.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `main` em `5b8124e`; este registro em `docs/record-pending-items-merge`, local, sem push.
+- **Branch**: `main` em `a1f3b27`; este registro em `docs/record-drawer-focus-merge`, local, sem push.
