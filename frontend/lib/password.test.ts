@@ -20,11 +20,15 @@ describe('regras da senha', () => {
   it('exige uma letra maiúscula de A a Z', () => {
     expect(rule('Uma letra maiúscula').test('reconpay20')).toBe(false)
     expect(rule('Uma letra maiúscula').test('reconPay20')).toBe(true)
+    expect(rule('Uma letra maiúscula').test('Areconpay1')).toBe(true)
+    expect(rule('Uma letra maiúscula').test('reconpayZ1')).toBe(true)
   })
 
   it('exige um número de 0 a 9', () => {
     expect(rule('Um número').test('Reconpay')).toBe(false)
     expect(rule('Um número').test('Reconpay7')).toBe(true)
+    expect(rule('Um número').test('Reconpay0')).toBe(true)
+    expect(rule('Um número').test('Reconpay9')).toBe(true)
   })
 
   it('o padrão do campo aceita só a senha que cumpre as três regras', () => {
