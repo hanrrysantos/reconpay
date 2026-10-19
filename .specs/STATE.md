@@ -101,12 +101,12 @@
 
 ## Handoff
 
-- **Feature**: register-flow (cadastro no visual novo, e-mail de verificação redesenhado, página `/verificar-email` e `POST /api/auth/resend-verification`) — **mergeada** (PR #56, 2026-10-19, `86cda11`; CI e deploy de produção verdes; em produção, o reenvio responde e aparece no Swagger)
-- **Phase / Task**: Verifier PASS na 3ª rodada (`.specs/features/register-flow/validation.md`, diff `48b1ad4..00e5d7f`); 651 testes no backend, 915 no frontend
-- **Completed**: itens 1 (login, #55), 2 (cadastro) e 3 (página pós-verificação) da lista da vitrine. Lista restante: (4) landing (desktop no Pen; celular depois), (5) CORS de produção por env, (6) `RECONPAY_VERIFICATION_BASE_URL` em produção apontando para o frontend, (7) projeto na Vercel, (8) remetente do Resend, (9–10) demonstração própria por visitante, (11) tela de usuários do ADMIN. Recuperar senha fica para depois
-- **Known issues**: (a) até a Vercel e o item 6, os links dos e-mails de cadastro em produção não abrem; quem ficar preso pede um link novo pelo reenvio depois; (b) bug anterior à feature: `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender`; o modo "só log" do README não funciona; (c) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`, que deveria ser `http://localhost:3000`; (d) opcional: `text-balance` no título do `AuthPanel` para equilibrar as quebras como no Pen
+- **Feature**: prod-cors-env (`RECONPAY_CORS_ALLOWED_ORIGINS` repassada pelo `docker-compose.yaml`; o Spring Boot substitui `reconpay.cors.allowed-origins`) — **mergeada** (PR #57, 2026-10-19, `7206ef2`; CI e deploy de produção verdes). Em produção, a pré-requisição de `https://reconpay.vercel.app` responde `200` e a de `localhost` `403`
+- **Phase / Task**: Verifier PASS na 1ª rodada (`.specs/features/prod-cors-env/validation.md`, diff `650941d..64daff8`); 657 testes
+- **Completed**: register-flow (#56). Frontend publicado na Vercel em `https://reconpay.vercel.app` (Root Directory `frontend`, Node 24, Install `npx --yes pnpm@12.3.4 install --frozen-lockfile`, Build `npm run build`, `NEXT_PUBLIC_API_URL=https://reconpay.hanrry.top`; o Corepack da Vercel não acha o `packageManager` porque não há `package.json` na raiz). `.env` do servidor com `RECONPAY_CORS_ALLOWED_ORIGINS` e `RECONPAY_VERIFICATION_BASE_URL` apontando para a Vercel. Itens da vitrine feitos: 1, 2, 3, 5, 6 e 7. Restam: (4) landing, (8) remetente do Resend, (9–10) demonstração própria, (11) tela de usuários do ADMIN; recuperar senha depois
+- **Known issues**: (a) `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender` (decisão do usuário: corrigir depois); (b) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`; (c) opcional: `text-balance` no título do `AuthPanel`; (d) o nome da variável no Compose não tem teste automático (só `docker compose config`)
 - **In-progress** (file:line): none
-- **Next step**: item 5, origens de CORS de produção por variável de ambiente; depois Vercel (item 7) e as variáveis do servidor (itens 5 e 6)
+- **Next step**: usuário testa login e cadastro pela Vercel; depois escolher o próximo item (landing, Resend, demonstração ou tela de usuários)
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/prod-cors-env`, local, sem push, criada do `main` em `86cda11`.
+- **Branch**: `docs/record-prod-cors-merge`, local, sem push, criada do `main` em `7206ef2`.
