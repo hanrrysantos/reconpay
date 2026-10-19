@@ -328,7 +328,6 @@ describe('DiscrepanciesPage', () => {
     expect(within(drawer()).getByText('1 de 2 · J / K navega')).toBeInTheDocument()
     expect(drawer()).toHaveTextContent('AVULSA-1')
 
-    await user.click(within(drawer()).getByRole('table', { name: 'Comparação' }))
     await user.keyboard('j')
     expect(within(drawer()).getByText('2 de 2 · J / K navega')).toBeInTheDocument()
     expect(drawer()).toHaveTextContent('IMP-T-002')
@@ -381,7 +380,6 @@ describe('DiscrepanciesPage', () => {
     expect(within(drawer()).queryByRole('button', { name: /^Reabrir/ })).toBeNull()
     expect(within(drawer()).getByText('Há uma conciliação mais nova nesta janela · somente leitura')).toBeInTheDocument()
     expect(within(drawer()).queryByText('Período travado · somente leitura')).toBeNull()
-    await user.click(within(drawer()).getByRole('table', { name: 'Comparação' }))
     await user.keyboard('j')
     expect(within(drawer()).getByText('2 de 2 · J / K navega')).toBeInTheDocument()
     expect(drawer()).toHaveTextContent('IMP-T-002')

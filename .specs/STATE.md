@@ -105,7 +105,7 @@
 - **Phase / Task**: concluída; Verifier PASS (`.specs/features/pending-items/validation.md`), 864 testes, typecheck, build e `./mvnw verify` verdes
 - **Completed**: pending-items mergeada no `main` (PR #53, 2026-10-19, `5b8124e`); CI e deploy de produção verdes. Antes: closing-screen (PR #52, `520f800`); todas as telas prontas
 - **In-progress** (file:line): none
-- **Next step**: nenhuma feature em andamento e nenhuma pendência aberta. Observação fora de spec: depois de resolver, o foco sai da gaveta e J/K só voltam após clicar nela (comportamento anterior).
+- **Next step**: nenhuma feature em andamento e nenhuma pendência aberta. Foco da gaveta depois de resolver ou reabrir corrigido em `fix/drawer-focus` (local, sem push).
 - **Blockers**: none
 - **Uncommitted files**: none
 - **Branch**: `main` em `5b8124e`; este registro em `docs/record-pending-items-merge`, local, sem push.
