@@ -4,11 +4,11 @@
 
 **Date**: 2026-10-19
 **Spec**: `.specs/features/landing-page/spec.md`
-**Diff range**: `b7ed449..ce7991d` (a8dab6c … 9fd9a96, plus fix ce7991d; branch `feat/landing-page`)
-**Rounds**: 2 (round 1 FAIL on LAND-03 AC4; fix `ce7991d`; round 2 PASS)
+**Diff range**: `b7ed449..HEAD` (HEAD = `577687e`; includes fix `ce7991d` and the round-3 spec change `577687e`; branch `feat/landing-page`)
+**Rounds**: 3 (round 1 FAIL on LAND-03 AC4; fix `ce7991d`; round 2 PASS; round 3 PASS after the user removed the "Fechamento" anchor, LAND-02 AC3)
 **Verifier**: independent sub-agent (author ≠ verifier)
 
-Round 2: fix `ce7991d` closes the only round-1 gap (**LAND-03 AC4**), which I re-measured in the browser (see Round 2 below). Every AC now has evidence, and the sensor killed all 28 code mutants plus 3 in-page CSS mutants.
+Round 3: the user's spec change (`577687e`, "Fechamento" anchor removed, LAND-02 AC3 now forbids other anchors) is verified; see Round 3 below. Round 2: fix `ce7991d` closes the only round-1 gap (**LAND-03 AC4**), which I re-measured in the browser (see Round 2 below). Every AC now has evidence, and the sensor killed all 28 code mutants plus 3 in-page CSS mutants.
 
 ---
 
@@ -40,10 +40,10 @@ Round 2: fix `ce7991d` closes the only round-1 gap (**LAND-03 AC4**), which I re
 
 | Criterion | Spec-defined outcome | `file:line` + assertion | Result |
 | --- | --- | --- | --- |
-| AC1 texts in design order | menu → hero + preview → problem (4 distortions) → steps → decisions + example → CTA → footer | `frontend/components/landing/LandingPage.test.tsx:91-96` - h2 list `toEqual([...4 titles in order])`; `:99` - preview precedes the problem section (`compareDocumentPosition`); `:109-117` - the four distortions with their text; `:127` - three steps; `:151-155` - three decisions; `:158-160` - example adjustment texts; `:168` - CTA text; `:73` - footer credit | ✅ PASS |
-| AC2 "Criar conta" goes to `/register`; "Entrar" and "Entrar na minha conta" go to `/login` | exact hrefs | menu `frontend/components/landing/LandingPage.test.tsx:15-22` (`['Entrar','/login'],['Criar conta','/register']`); hero `:35-36`; CTA `:169-170`; footer `:67` (`['Entrar','/login']`) | ✅ PASS |
-| AC3 anchors scroll to steps, discrepancies and preview | `#como-funciona`, `#divergencias`, `#fechamento` linked to matching ids | hrefs `frontend/components/landing/LandingPage.test.tsx:17-19`; ids `:124` (`id','como-funciona'`), `:148` (`'divergencias'`), `:44` (`'fechamento'`) | ✅ PASS |
-| AC4 GitHub and API docs | `https://github.com/hanrrysantos/reconpay`, `https://reconpay.hanrry.top/swagger-ui/index.html` | `frontend/components/landing/LandingPage.test.tsx:63-68` - footer links `toEqual([... ['GitHub', GITHUB], ['Documentação da API', API_DOCS] ...])` with constants at `:5-6` | ✅ PASS |
+| AC1 texts in design order | menu → hero + preview → problem (4 distortions) → steps → decisions + example → CTA → footer | `frontend/components/landing/LandingPage.test.tsx:89-94` - h2 list `toEqual([...4 titles in order])`; `:97` - preview precedes the problem section (`compareDocumentPosition`); `:107-115` - the four distortions with their text; `:125` - three steps; `:149-153` - three decisions; `:156-158` - example adjustment texts; `:166` - CTA text; `:71` - footer credit | ✅ PASS |
+| AC2 "Criar conta" goes to `/register`; "Entrar" and "Entrar na minha conta" go to `/login` | exact hrefs | menu `frontend/components/landing/LandingPage.test.tsx:15-21` (`['Entrar','/login'],['Criar conta','/register']`); hero `:34-35`; CTA `:167-168`; footer `:65` (`['Entrar','/login']`) | ✅ PASS |
+| AC3 (round 3 text) "Como funciona" and "Divergências" scroll to the steps and discrepancies sections; the menu SHALL have no other anchors | exactly `#como-funciona` and `#divergencias`, linked to matching ids; nothing else in the menu | the exact list of every menu link `frontend/components/landing/LandingPage.test.tsx:15-21` - `toEqual([['reconpay','/'],['Como funciona','#como-funciona'],['Divergências','#divergencias'],['Entrar','/login'],['Criar conta','/register']])`, so any extra anchor fails; ids `:122` (`toHaveAttribute('id','como-funciona')`), `:146` (`'divergencias'`). Browser (`node anchors.mjs`, 1440 and 1024): the menu hrefs are `/`, `#como-funciona`, `#divergencias`, `/login`, `/register`; clicking puts each section's top at 24 px (1024: 24 and 42, the bottom of the page); no `#fechamento` link or `id="fechamento"` in the DOM | ✅ PASS (round 3) |
+| AC4 GitHub and API docs | `https://github.com/hanrrysantos/reconpay`, `https://reconpay.hanrry.top/swagger-ui/index.html` | `frontend/components/landing/LandingPage.test.tsx:61-66` - footer links `toEqual([... ['GitHub', GITHUB], ['Documentação da API', API_DOCS] ...])` with constants at `:5-6` | ✅ PASS |
 
 ### LAND-03: Mobile (CSS only; evidence is browser measurement)
 
@@ -67,7 +67,7 @@ AC1–AC5 and the CSS half of AC7/AC8 rely on browser measurement by design. The
 | AC3 no scroll-timeline support: everything static and visible | no hiding rules outside `@supports` | Static review: every scroll-linked rule is inside `@supports (animation-timeline: view())` in `frontend/app/globals.css`. Outside it only `.hero-in` (time-based) and the `@keyframes` exist. Chromium cannot emulate missing support | ✅ PASS (static) |
 | AC4 reduced motion: everything static, opaque, in place | 0 blocks off their final state | sweep with `prefers-reduced-motion: reduce` emulated: `fora do estado final = 0` | ✅ PASS (browser) |
 | AC5 ring and bar build from empty to 94.2% and 964/1.284 with scroll, and undo on the way back | dashoffset from full length to length×(1−0.942); scaleX 0→1 | sweep: `ring-fill dash 428.8→24.9` (2π·68.25 = 428.8; ×0.058 = 24.9), `bar-fill scaleX 0→1`, symmetric; bar width `frontend/components/landing/HowItWorks.tsx:12,36` (964/1284) | ✅ PASS (browser) |
-| AC6 numbers grow with the same progress, in pt-BR format; screen readers hear only the final value | each listed value; `sr-only` final | format of every listed value: `frontend/lib/scrollProgress.test.ts:51` - `expect(formatCount(value, options)).toBe(expected)` over `94,2%`, `1.209`, `R$ 10.389,38`, `R$ 121.212,50`, `R$ 3.787,50`, `964`, `912`, `52`, `1.284`, `1.271`, `312` (L-018 satisfied); zero `:55-57`; progress: `frontend/components/landing/CountUp.test.tsx:67,69,71,73,75` (`R$ 0,00` → `R$ 60.606,25` → `R$ 121.212,50` → back → `R$ 0,00`); range parity with CSS `frontend/lib/scrollProgress.test.ts:33` - `toEqual({ start: 0.05, end: 0.45 })`; screen reader `frontend/components/landing/CountUp.test.tsx:94` - `.sr-only toHaveTextContent(/^1\.209$/)` while the visible value is `605`; texts in the page `frontend/components/landing/LandingPage.test.tsx:49-50,131-137`. Browser: `node counts.mjs` shows all 11 numbers going from 0 to their final values and back in step with the charts (e.g. y=150 → `19,5%`, `R$ 25.030,43`; y=600 → final) | ✅ PASS |
+| AC6 numbers grow with the same progress, in pt-BR format; screen readers hear only the final value | each listed value; `sr-only` final | format of every listed value: `frontend/lib/scrollProgress.test.ts:51` - `expect(formatCount(value, options)).toBe(expected)` over `94,2%`, `1.209`, `R$ 10.389,38`, `R$ 121.212,50`, `R$ 3.787,50`, `964`, `912`, `52`, `1.284`, `1.271`, `312` (L-018 satisfied); zero `:55-57`; progress: `frontend/components/landing/CountUp.test.tsx:67,69,71,73,75` (`R$ 0,00` → `R$ 60.606,25` → `R$ 121.212,50` → back → `R$ 0,00`); range parity with CSS `frontend/lib/scrollProgress.test.ts:33` - `toEqual({ start: 0.05, end: 0.45 })`; screen reader `frontend/components/landing/CountUp.test.tsx:94` - `.sr-only toHaveTextContent(/^1\.209$/)` while the visible value is `605`; texts in the page `frontend/components/landing/LandingPage.test.tsx:47-48,129-135`. Browser: `node counts.mjs` shows all 11 numbers going from 0 to their final values and back in step with the charts (e.g. y=150 → `19,5%`, `R$ 25.030,43`; y=600 → final) | ✅ PASS |
 | AC7 no support, reduced motion or no JS: charts full, numbers final | final values | `frontend/components/landing/CountUp.test.tsx:48,50` (no support) and `:57,59` (reduced motion) - `toBe('94,2%')` even after scrolling; no JS `:101-102` - `renderToString` contains the final values; the prerendered `.next/server/app/index.html` contains `R$ 121.212,50`, `94,2%`, `1.209`; the static ring offset is the final value (`frontend/components/landing/ProductPreview.tsx:76`) | ✅ PASS |
 | AC8 hero animates once on load (time-based); preview rises with scroll and undoes on the way back | `.hero-in` time-based; `.rise` scroll-linked | `.hero-in > *` uses `animation: landing-reveal 700ms … both` with `--i` delays and no timeline (`frontend/app/globals.css`); `.rise` symmetric in the sweep (y 46.6→0) | ✅ PASS (browser/static) |
 
@@ -75,7 +75,7 @@ AC1–AC5 and the CSS half of AC7/AC8 rely on browser measurement by design. The
 
 | Criterion | Spec-defined outcome | `file:line` + assertion | Result |
 | --- | --- | --- | --- |
-| AC1 one h1, one h2 per section, nav/main/footer, preview as img with its name | exactly so | `frontend/components/landing/LandingPage.test.tsx:30` - `toHaveLength(1)` h1; `:91-96,100` - 4 h2s inside `main`; `:79-81` - main, navigation "Principal", contentinfo; `:43` - `getByRole('img',{name:'Prévia do painel de fechamento do ReconPay'})` | ✅ PASS |
+| AC1 one h1, one h2 per section, nav/main/footer, preview as img with its name | exactly so | `frontend/components/landing/LandingPage.test.tsx:29` - `toHaveLength(1)` h1; `:89-94,98` - 4 h2s inside `main`; `:77-79` - main, navigation "Principal", contentinfo; `:42` - `getByRole('img',{name:'Prévia do painel de fechamento do ReconPay'})` | ✅ PASS |
 | AC2 content in server HTML, readable without JS; title and description | title `ReconPay · Conciliação financeira`; description about sales, settlement and statement | `frontend/app/page.test.tsx:20-21` - `metadata.title`/`description` `toBe(...)`; `frontend/components/landing/CountUp.test.tsx:101` (SSR values); the built `.next/server/app/index.html` has `<title>ReconPay · Conciliação financeira</title>`, the description meta, 1 `<h1`, 4 `<h2` and the CTA text (route `○ /` static) | ✅ PASS |
 
 **Status**: ✅ All ACs covered (LAND-03 AC4 after fix `ce7991d`). No spec-precision gaps.
@@ -85,7 +85,7 @@ AC1–AC5 and the CSS half of AC7/AC8 rely on browser measurement by design. The
 ## Edge Cases
 
 - [x] Page opened mid-way (`#divergencias`): `node hash.mjs` shows scrollY 2605 and every block above at opacity 1.00 / y 0.0, ring dash 24.9 and bar scaleX 1.00, with no scrolling; blocks still entering show intermediate values that match their position.
-- [x] Logged-in user opens `/`: the landing renders with no session dependency (`frontend/app/page.test.tsx:14-16`), and "Entrar" goes to `/login` (`frontend/components/landing/LandingPage.test.tsx:20`), which goes straight to `/painel` when there is a session (`frontend/app/login/page.test.tsx:172`).
+- [x] Logged-in user opens `/`: the landing renders with no session dependency (`frontend/app/page.test.tsx:14-16`), and "Entrar" goes to `/login` (`frontend/components/landing/LandingPage.test.tsx:19`), which goes straight to `/painel` when there is a session (`frontend/app/login/page.test.tsx:172`).
 
 ---
 
@@ -119,7 +119,7 @@ Isolated scratch worktree (`git worktree add --detach …/verifier/wt HEAD`, sym
 | M22 | `frontend/components/landing/LandingPage.tsx:54` | h1 → h2 (balanced tags; a first unbalanced attempt was discarded as a compile error) | ✅ (3) |
 | M23 | `frontend/components/landing/LandingPage.tsx:41` | menu "Entrar" → `/register` | ✅ (1) |
 | M24 | `frontend/components/landing/ProductPreview.tsx:30` | preview loses `role="img"` | ✅ (2) |
-| M25 | `frontend/components/landing/ProductPreview.tsx:29` | id `fechamento` → `previa` | ✅ (1) |
+| M25 | `frontend/components/landing/ProductPreview.tsx:29` | id `fechamento` → `previa` | ✅ (1), now obsolete: round 3 removed the id by spec change; replaced by R1–R5 |
 | M26 | `frontend/components/landing/FinalCta.tsx:13` | CTA "Criar conta" → `/login` | ✅ (1) |
 | M27 | `frontend/app/page.tsx:5` | metadata title | ✅ (1) |
 | M28 | `frontend/components/landing/LandingPage.tsx:76` | footer → div (balanced) | ✅ (2) |
@@ -172,6 +172,24 @@ Verifier measurements (headless Chromium 148, `next dev` on :3100, my own script
 
 - Gate re-run: 953 passed (75 files), typecheck exit 0, build exit 0 (`○ /`, `○ /painel`). Real tree untouched (only the uncommitted `.specs` files written by the Verifier).
 
+## Round 3 re-verification (spec change `577687e`)
+
+The user decided to remove the menu's "Fechamento" anchor. The spec's assumption row and LAND-02 AC3 now read: "Como funciona" / "Divergências" scroll to the steps and discrepancies sections, and the menu SHALL have no other anchors. Code: `<a href="#fechamento">` removed from `frontend/components/landing/LandingPage.tsx`, and `id="fechamento"` and `scroll-mt-6` removed from the preview (`frontend/components/landing/ProductPreview.tsx:27-32`). Tests: the nav list (`frontend/components/landing/LandingPage.test.tsx:15-21`) drops `['Fechamento','#fechamento']`, and the preview test drops the id assertion. Nothing else was weakened: the preview test keeps its role, name and content checks (`frontend/components/landing/LandingPage.test.tsx:42-54`).
+
+- Leftovers: `git grep "#fechamento"` finds nothing in `frontend/` or the READMEs. The remaining "Fechamento" strings are the preview's static tab label (`frontend/components/landing/ProductPreview.tsx:5`, not a link), the image name "Prévia do painel de fechamento…", and the app's `/fechamento` route (out of the landing). The `tasks.md` T3 note records the change.
+- Browser: see LAND-02 AC3 row (`node anchors.mjs`, port 9355).
+- Sensor (scratch worktree at HEAD, `LandingPage.test.tsx` run per mutant; real-tree porcelain identical before and after; worktree removed):
+
+| # | Mutation in `frontend/components/landing/LandingPage.tsx` | Killed? |
+| --- | --- | --- |
+| R1 | re-add `<a href="#fechamento">Fechamento</a>` | ✅ (nav test fails) |
+| R2 | add another anchor `<a href="#precos">Preços</a>` | ✅ |
+| R3 | `#como-funciona` → `#passos` | ✅ |
+| R4 | `#divergencias` → `#decisoes` | ✅ |
+| R5 | remove the "Divergências" anchor | ✅ |
+
+- Gate re-run: 953 passed (75 files; the count is unchanged because tests were edited, not deleted), typecheck exit 0, build exit 0 (`○ /`, `○ /painel`).
+
 ## Fix Plans (round 1, applied in `ce7991d`)
 
 ### Fix 1: LAND-03 AC4 below 380 px
@@ -197,10 +215,10 @@ Verifier measurements (headless Chromium 148, `next dev` on :3100, my own script
 
 ## Summary
 
-**Overall**: ✅ Ready (round 2)
+**Overall**: ✅ Ready (round 3)
 
 **Spec-anchored check**: 22/22 ACs matched the spec outcome; 0 spec-precision gaps
-**Sensor**: 28/28 code mutants killed; 3/3 in-page CSS mutants for the fix killed
+**Sensor**: 28/28 code mutants killed (M25 now obsolete); 3/3 in-page CSS mutants for the round-2 fix killed; 5/5 round-3 anchor mutants killed
 **Gate**: 953 passed; typecheck and build green
 
 **What works**: routes and redirects, all content, links and anchors, metadata and SSR, responsive breakpoints at 768/1024/1280/1400, no horizontal overflow from 320 to 1920 px, symmetric scroll animations, reduced-motion fallback, and numbers in step with the charts.
