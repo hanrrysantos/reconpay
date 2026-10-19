@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { Run } from '@/lib/api'
-import { CloseStepper, type CloseStepperProps } from './CloseStepper'
+import { CloseStepper, Confirm, type CloseStepperProps } from './CloseStepper'
 import { makeRun } from './fixtures'
 
 process.env.TZ = 'America/Sao_Paulo'
@@ -102,5 +102,23 @@ describe('CloseStepper', () => {
 
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     expect(onUnlock).not.toHaveBeenCalled()
+  })
+})
+
+describe('Confirm', () => {
+  it('mostra o título e chama onConfirm na ação e onCancel em "Cancelar" (FEC-04 AC2, AC5)', async () => {
+    const onConfirm = vi.fn()
+    const onCancel = vi.fn()
+    render(<Confirm title="Travar o período?" action="Travar" onConfirm={onConfirm} onCancel={onCancel} />)
+    const user = userEvent.setup()
+
+    const dialog = screen.getByRole('alertdialog', { name: 'Travar o período?' })
+    expect(dialog).toHaveTextContent('Travar o período?')
+    await user.click(within(dialog).getByRole('button', { name: 'Travar' }))
+    expect(onConfirm).toHaveBeenCalledTimes(1)
+    expect(onCancel).not.toHaveBeenCalled()
+    await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+    expect(onCancel).toHaveBeenCalledTimes(1)
+    expect(onConfirm).toHaveBeenCalledTimes(1)
   })
 })

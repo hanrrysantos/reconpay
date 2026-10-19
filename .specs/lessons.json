@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 45,
+  "next_id": 51,
   "lessons": [
     {
       "id": "L-001",
@@ -802,6 +802,114 @@
       ],
       "created": "2026-10-17T01:51:09Z",
       "last_seen": "2026-10-17T01:51:09Z"
+    },
+    {
+      "id": "L-045",
+      "key": "surviving_mutant::when a state reset depends on a key remount test the switch with the target data already cached so a loading unmount cannot hide a missing key",
+      "text": "When a state reset depends on a key remount, test the switch with the target data already cached so a loading unmount cannot hide a missing key",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "closing-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M27 frontend/components/closing/ClosingPage.tsx:97 (frontend)"
+      ],
+      "created": "2026-10-17T12:01:19Z",
+      "last_seen": "2026-10-17T12:01:19Z"
+    },
+    {
+      "id": "L-046",
+      "key": "surviving_mutant::when a query keeps old data after a failed refetch test a success read followed by an error read and assert the error state hides the old values and actions",
+      "text": "When a query keeps old data after a failed refetch, test a success read followed by an error read and assert the error state hides the old values and actions",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "closing-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md iteração 2 N6 (frontend/components/closing/PeriodRow.tsx:29) (frontend)"
+      ],
+      "created": "2026-10-17T12:10:48Z",
+      "last_seen": "2026-10-17T12:10:48Z"
+    },
+    {
+      "id": "L-047",
+      "key": "surviving_mutant::test a list with exactly one item next to the empty case so an off by one empty check cannot pass",
+      "text": "Test a list with exactly one item next to the empty case so an off-by-one empty check cannot pass",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "closing-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md iteração 2 N10 (frontend/components/closing/ClosingPage.tsx:33) (frontend)"
+      ],
+      "created": "2026-10-17T12:10:48Z",
+      "last_seen": "2026-10-17T12:10:48Z"
+    },
+    {
+      "id": "L-048",
+      "key": "surviving_mutant::test a formatter of a nullable number with zero as well as null so a falsy check in place of the null check is caught",
+      "text": "Test a formatter of a nullable number with zero as well as null, so a falsy check in place of the null check is caught",
+      "signal": "surviving_mutant",
+      "scope": "frontend-format",
+      "status": "candidate",
+      "features": [
+        "closing-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md V3 frontend/lib/closing.ts:24 (frontend-format)"
+      ],
+      "created": "2026-10-17T12:22:00Z",
+      "last_seen": "2026-10-17T12:22:00Z"
+    },
+    {
+      "id": "L-049",
+      "key": "surviving_mutant::test a formatter that omits a zero sub unit with a sub unit of exactly one so a wrong omission threshold is caught",
+      "text": "Test a formatter that omits a zero sub-unit with a sub-unit of exactly one, so a wrong omission threshold is caught",
+      "signal": "surviving_mutant",
+      "scope": "frontend-format",
+      "status": "candidate",
+      "features": [
+        "closing-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md V15 frontend/lib/closing.ts:32, V16 frontend/lib/closing.ts:29 (frontend-format)"
+      ],
+      "created": "2026-10-17T12:22:00Z",
+      "last_seen": "2026-10-17T12:22:00Z"
+    },
+    {
+      "id": "L-050",
+      "key": "surviving_mutant::when an identity is a composite key test two items that share each component alone so dropping any part of the key fails",
+      "text": "When an identity is a composite key, test two items that share each component alone so dropping any part of the key fails",
+      "signal": "surviving_mutant",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "closing-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md iteração 4 W4 frontend/lib/closing.ts:18 (frontend)"
+      ],
+      "created": "2026-10-17T12:47:14Z",
+      "last_seen": "2026-10-17T12:47:14Z"
     }
   ]
 }

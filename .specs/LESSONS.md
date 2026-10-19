@@ -276,6 +276,42 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md iteração 4, F1/F2 DiscrepancyList.tsx:116,120 (frontend)
 - last seen: 2026-10-17T01:51:09Z
 
+### L-045 - When a state reset depends on a key remount, test the switch with the target data already cached so a loading unmount cannot hide a missing key
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: closing-screen
+- evidence: M27 frontend/components/closing/ClosingPage.tsx:97 (frontend)
+- last seen: 2026-10-17T12:01:19Z
+
+### L-046 - When a query keeps old data after a failed refetch, test a success read followed by an error read and assert the error state hides the old values and actions
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: closing-screen
+- evidence: validation.md iteração 2 N6 (frontend/components/closing/PeriodRow.tsx:29) (frontend)
+- last seen: 2026-10-17T12:10:48Z
+
+### L-047 - Test a list with exactly one item next to the empty case so an off-by-one empty check cannot pass
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: closing-screen
+- evidence: validation.md iteração 2 N10 (frontend/components/closing/ClosingPage.tsx:33) (frontend)
+- last seen: 2026-10-17T12:10:48Z
+
+### L-048 - Test a formatter of a nullable number with zero as well as null, so a falsy check in place of the null check is caught
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-format` · harmful: 0
+- features: closing-screen
+- evidence: validation.md V3 frontend/lib/closing.ts:24 (frontend-format)
+- last seen: 2026-10-17T12:22:00Z
+
+### L-049 - Test a formatter that omits a zero sub-unit with a sub-unit of exactly one, so a wrong omission threshold is caught
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend-format` · harmful: 0
+- features: closing-screen
+- evidence: validation.md V15 frontend/lib/closing.ts:32, V16 frontend/lib/closing.ts:29 (frontend-format)
+- last seen: 2026-10-17T12:22:00Z
+
+### L-050 - When an identity is a composite key, test two items that share each component alone so dropping any part of the key fails
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: closing-screen
+- evidence: validation.md iteração 4 W4 frontend/lib/closing.ts:18 (frontend)
+- last seen: 2026-10-17T12:47:14Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
