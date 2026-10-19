@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: closing-screen (tela `/fechamento`, frontend) — **Execute concluído**
-- **Phase / Task**: T1–T6 commitadas; Verifier PASS na iteração 5 (`validation.md`, diff `03b25e9^..e86fdbc`), 861 testes, typecheck e build verdes
-- **Completed**: discrepancies-screen mergeada no `main` (PR #51, 2026-10-17), CI verde; closing-screen implementada e verificada (iterações 1–4 reprovadas só por lacunas de teste, fechadas em `3289be0`, `16f1337`, `40d5721`, `edda9b5`, `e86fdbc`). `UnderConstruction` removido: nenhuma tela fica "em construção"
+- **Feature**: closing-screen (tela `/fechamento`, frontend) — **mergeada**
+- **Phase / Task**: concluída; Verifier PASS na iteração 5 (`validation.md`, diff `03b25e9^..e86fdbc`), 861 testes, typecheck e build verdes
+- **Completed**: closing-screen mergeada no `main` (PR #52, 2026-10-19, `520f800`), CI verde; deploy de produção não roda (só dispara com mudança em `backend/**`). Todas as telas do app estão prontas; nenhuma fica "em construção"
 - **In-progress** (file:line): none
-- **Next step**: teste manual do usuário em `/fechamento`; push só com pedido; após o merge, conferir CI. Com isso todas as telas do app estão prontas. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia; a gaveta de resolução pode agir sobre um run novo iniciado na mesma janela.
+- **Next step**: nenhuma feature em andamento. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia; a gaveta de resolução pode agir sobre um run novo iniciado na mesma janela.
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/closing-screen`, local, sem push, criada a partir do `main` em `e0b03a6`.
+- **Branch**: `main` em `520f800`; este registro em `docs/record-closing-merge`, local, sem push.
