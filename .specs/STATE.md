@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: login-redesign (tela `/login` no visual novo, desenho do Pen) — **Execute concluído**
+- **Feature**: login-redesign (tela `/login` no visual novo, desenho do Pen) — **mergeada** (PR #55, 2026-10-19, `672bca5`, CI verde)
 - **Phase / Task**: Verifier PASS (`.specs/features/login-redesign/validation.md`, diff `3421a9e..c91ff8b`), gaps 1, 2 e 4 fechados depois; 879 testes, typecheck e build verdes
 - **Completed**: drawer-focus mergeada (PR #54, `a1f3b27`). Plano da vitrine pública (2026-10-19, decisões do usuário): frontend na Vercel; API já em `https://reconpay.hanrry.top` (nginx no host); lista: (1) login, (2) cadastro, (3) página pós-verificação de e-mail, (4) landing (desktop desenhado no Pen; celular depois), (5) CORS de produção por env, (6) link de verificação, (7) projeto na Vercel, (8) remetente do Resend, (9–10) demonstração própria por visitante (conta temporária de 24 h, dados de exemplo, limites por IP), (11) tela de usuários do ADMIN. Recuperar senha fica para depois
 - **In-progress** (file:line): none
-- **Next step**: teste manual do usuário em `/login`; push só com pedido. Depois: item 2, cadastro (desenhar no Pen e implementar)
+- **Next step**: item 2, cadastro (`/register`): desenhar no Pen e implementar
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/login-redesign`, local, sem push, criada de `docs/record-drawer-focus-merge` (`3421a9e`, registro do merge do #54) sobre o `main` em `a1f3b27`.
+- **Branch**: `feat/register-redesign`, local, sem push, criada do `main` em `672bca5`.
