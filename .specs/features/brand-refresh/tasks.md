@@ -230,8 +230,8 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Nenhuma tela do Pen mostra o ✓ ou "reconpay" como marca
-- [ ] Capturas das telas trocadas conferidas
+- [x] Nenhuma tela do Pen mostra o ✓ ou "reconpay" como marca
+- [x] Capturas das telas trocadas conferidas (16 marcas em 13 telas; o arquivo do Pen fica fora do repositório)
 
 **Tests**: none
 **Gate**: build
