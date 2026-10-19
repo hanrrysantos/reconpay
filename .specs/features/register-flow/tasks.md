@@ -278,9 +278,9 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Nenhuma referência a `auth.module.css`
-- [ ] READMEs descrevem o fluxo novo e a variável
-- [ ] Gate build passa
+- [x] Nenhuma referência a `auth.module.css`
+- [x] READMEs descrevem o fluxo novo e a variável
+- [x] Gate build passa
 
 **Tests**: none
 **Gate**: build

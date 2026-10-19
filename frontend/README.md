@@ -17,7 +17,8 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
 
 ## Fluxos disponíveis
 
-- Cadastro e login; após o cadastro, a verificação de email abre o link servido pela API.
+- Cadastro e login no mesmo visual (painel escuro e formulário). No cadastro, as regras da senha (8 caracteres, uma letra maiúscula, um número) ficam marcadas enquanto o usuário digita; depois do envio, a confirmação toma o lugar do formulário.
+- O link do e-mail de verificação abre `/verificar-email`, que confirma a conta sozinha e leva ao login. Com o link vencido ou já usado, a página pede o e-mail e envia um link novo. Para isso, `RECONPAY_VERIFICATION_BASE_URL` no backend aponta para este app.
 - Sessão JWT apenas em memória: atualizar a página pede novo login. Qualquer `401` encerra a sessão e volta ao login. "Sair" fica na barra superior.
 - Barra superior com Visão geral, Conciliações, Divergências, Transações, Importações e Fechamento, e o menu de empresa (busca por nome ou CNPJ, "Regras de taxa da <empresa>" com uma empresa selecionada, "Cadastrar empresa").
 - Dashboard em `/`:
