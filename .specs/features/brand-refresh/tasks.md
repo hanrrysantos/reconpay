@@ -203,10 +203,10 @@ T6 → T7
 
 **Done when**:
 
-- [ ] HTML com `<img src="http://localhost:3000/brand/reconpay-mark-on-dark.png"` no padrão e sem barra dupla com base terminada em `/`
-- [ ] Imagem com `alt=""` e altura 28; "Recon" branco e "Pay" `#C6F135`
-- [ ] Sem ✓ nem "reconpay" minúsculo; texto puro com "ReconPay"
-- [ ] Gate full passa
+- [x] HTML com `<img src="http://localhost:3000/brand/reconpay-mark-on-dark.png"` no padrão e sem barra dupla com base terminada em `/`
+- [x] Imagem com `alt=""` e altura 28; "Recon" branco e "Pay" `#C6F135`
+- [x] Sem ✓ nem "reconpay" minúsculo; texto puro com "ReconPay"
+- [x] Gate full passa
 
 **Tests**: unit
 **Gate**: full

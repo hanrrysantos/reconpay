@@ -23,4 +23,21 @@ class EmailVerificationLinkFactoryTest {
         assertThat(factory.buildConfirmUrl("abc-_123"))
                 .isEqualTo("https://app.example.com/verificar-email?token=abc-_123");
     }
+
+    @Test
+    void brandMarkIsServedByTheAppByDefault() {
+        EmailVerificationLinkFactory factory = new EmailVerificationLinkFactory(new EmailProperties(null, null, null, null));
+
+        assertThat(factory.buildBrandMarkUrl())
+                .isEqualTo("http://localhost:3000/brand/reconpay-mark-on-dark.png");
+    }
+
+    @Test
+    void brandMarkIgnoresTrailingSlashesInTheBaseUrl() {
+        EmailVerificationLinkFactory factory = new EmailVerificationLinkFactory(
+                new EmailProperties(null, null, "https://app.example.com//", null));
+
+        assertThat(factory.buildBrandMarkUrl())
+                .isEqualTo("https://app.example.com/brand/reconpay-mark-on-dark.png");
+    }
 }
