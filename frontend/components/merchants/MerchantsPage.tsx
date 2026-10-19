@@ -47,6 +47,10 @@ export function MerchantsPage() {
   const merchants = list.data?.content ?? []
   const totalPages = list.data?.totalPages ?? 0
   const empty = list.data !== undefined && merchants.length === 0 && page === 0
+  // A page left empty by a deactivation (here or in another tab) steps back to the new last page.
+  useEffect(() => {
+    if (list.data && list.data.content.length === 0 && page > 0) setPage(Math.max(list.data.totalPages - 1, 0))
+  }, [list.data, page])
 
   return (
     <>

@@ -145,6 +145,7 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 4. IF a empresa desativada era a selecionada THEN the system SHALL selecionar a primeira empresa restante do menu, ou mostrar o estado "sem empresa" quando não restar nenhuma.
 5. WHEN o usuário cancela ou pressiona `Esc` THEN the system SHALL fechar o diálogo sem chamar a API.
 6. IF a API responde erro ou a rede falha THEN the system SHALL manter o diálogo aberto e mostrar a mensagem do erro.
+7. IF a página mostrada volta vazia e não é a primeira (a última empresa dela foi desativada, aqui ou em outra aba) THEN the system SHALL mostrar a nova última página.
 
 **Independent Test**: Desativar a empresa selecionada e ver o menu do topo passar para a próxima empresa.
 
@@ -218,10 +219,11 @@ O fluxo do ReconPay começa pela empresa (merchant), mas `/empresas` mostra "em 
 | MDES-04 | P2: Desativar empresa | Execute | Verified |
 | MDES-05 | P2: Desativar empresa | Execute | Verified |
 | MDES-06 | P2: Desativar empresa | Execute | Verified |
+| MDES-07 | P2: Desativar empresa | Execute | Verified (pendência pós-merge) |
 
 **ID format:** `M<STORY>-<NN>` (`MCAD`, `MDOC`, `MLIST`, `MEDIT`, `MDES`); o número é a posição do critério na story.
 
-**Coverage:** 39 total, 39 mapped to tasks, 0 unmapped (MCAD-11, MCAD-12, MLIST-09 e MLIST-10 adicionados após a conferência visual)
+**Coverage:** 40 total, 40 mapped to tasks, 0 unmapped (MCAD-11, MCAD-12, MLIST-09 e MLIST-10 adicionados após a conferência visual; MDES-07 corrigido depois do merge)
 
 ---
 
