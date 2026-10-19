@@ -202,9 +202,9 @@ T7 → T8
 
 **Done when**:
 
-- [ ] `AuthPanel` recebe título e texto; marca e rodapé fixos; classes responsivas iguais às do login
-- [ ] Os 13 testes do login passam sem alteração
-- [ ] Teste próprio do painel (título e texto por prop, texto e rodapé ocultos abaixo de 1024 px); gate quick (frontend) passa
+- [x] `AuthPanel` recebe título e texto; marca e rodapé fixos; classes responsivas iguais às do login
+- [x] Os 13 testes do login passam sem alteração
+- [x] Teste próprio do painel (título e texto por prop, texto e rodapé ocultos abaixo de 1024 px); gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick
