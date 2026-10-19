@@ -35,7 +35,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground lg:flex-row">
-      <aside className="flex flex-col gap-7 bg-foreground px-6 pt-7 pb-8 text-background lg:w-[640px] lg:shrink-0 lg:justify-between lg:p-14">
+      <aside className="flex flex-col gap-7 bg-foreground px-6 pt-7 pb-8 text-background lg:w-[440px] lg:shrink-0 lg:justify-between lg:p-12 xl:w-[640px] xl:p-14">
         <span className="flex items-center gap-2.5 font-display text-[20px] font-extrabold tracking-[-0.04em]">
           <span className="grid size-[30px] place-items-center rounded-sm bg-primary text-foreground">
             <Check aria-hidden="true" className="size-4" strokeWidth={3} />
@@ -43,7 +43,7 @@ export default function LoginPage() {
           reconpay
         </span>
         <div className="flex flex-col gap-[18px]">
-          <h2 className="max-w-[500px] font-display text-[30px] leading-[1.05] font-extrabold tracking-[-0.04em] lg:text-[52px] lg:leading-[1.02]">
+          <h2 className="max-w-[500px] font-display text-[30px] leading-[1.05] font-extrabold tracking-[-0.04em] lg:text-[40px] lg:leading-[1.02] xl:text-[52px]">
             Do vendido ao que caiu na conta, sem planilha.
           </h2>
           <p className="hidden max-w-[460px] text-[16px] leading-[1.55] text-background/65 lg:block">

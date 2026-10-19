@@ -51,6 +51,16 @@ describe('LoginPage', () => {
     expect(within(panel).getByRole('heading')).not.toHaveClass('hidden')
   })
 
+  it('o painel vem antes do formulário: em cima no celular e à esquerda a partir de 1024 px (LOG-01 AC1, AC2)', () => {
+    renderPage()
+    const panel = screen.getByRole('complementary')
+    const main = screen.getByRole('main')
+    expect(panel.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(panel.parentElement).toBe(main.parentElement)
+    expect(panel.parentElement).toHaveClass('flex', 'flex-col', 'lg:flex-row')
+    expect(panel.parentElement).not.toHaveClass('flex-col-reverse')
+  })
+
   it('campos com rótulos, placeholders, tipos e preenchimento automático (LOG-02 AC1, AC2)', () => {
     renderPage()
     expect(email()).toHaveAttribute('placeholder', 'voce@empresa.com')
