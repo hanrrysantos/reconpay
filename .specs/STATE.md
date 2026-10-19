@@ -101,11 +101,11 @@
 
 ## Handoff
 
-- **Feature**: closing-screen (tela `/fechamento`, frontend) — **mergeada**
-- **Phase / Task**: concluída; Verifier PASS na iteração 5 (`validation.md`, diff `03b25e9^..e86fdbc`), 861 testes, typecheck e build verdes
-- **Completed**: closing-screen mergeada no `main` (PR #52, 2026-10-19, `520f800`), CI verde; deploy de produção não roda (só dispara com mudança em `backend/**`). Todas as telas do app estão prontas; nenhuma fica "em construção"
+- **Feature**: pending-items (três pendências pós-merge) — **concluída, aguardando push**
+- **Phase / Task**: Verifier PASS (`.specs/features/pending-items/validation.md`, diff `1db4744..22203aa`), gaps 1 e 3 fechados depois; 864 testes, typecheck, build e `./mvnw verify` verdes
+- **Completed**: closing-screen mergeada no `main` (PR #52, 2026-10-19, `520f800`), CI verde; todas as telas prontas. Pendências resolvidas: CNPJ válido no exemplo de `/api/me/merchants` (`3f56e91`, teste que valida todo `document` do Swagger); página de empresas esvaziada volta para a nova última página (`d53b04e`, MDES-07); gaveta de resolução presa ao run em que abriu e só para consulta quando chega um run novo, com aviso próprio (`22203aa`, `8880ab8`)
 - **In-progress** (file:line): none
-- **Next step**: nenhuma feature em andamento. Pendências antigas: exemplo inválido em `auth/openapi/MeControllerApi.java:80`; desativar a última empresa de uma página > 1 deixa a tabela vazia; a gaveta de resolução pode agir sobre um run novo iniciado na mesma janela.
+- **Next step**: push de `fix/pending-items` só com pedido; o usuário abre e mergeia o PR; depois conferir CI e deploy (o PR muda `backend/**`, então o deploy de produção roda). Observação fora de spec: depois de resolver, o foco sai da gaveta e J/K só voltam após clicar nela (comportamento anterior).
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `main` em `520f800`; este registro em `docs/record-closing-merge`, local, sem push.
+- **Branch**: `fix/pending-items`, local, sem push, criada de `docs/record-closing-merge` (`1db4744`, registro do merge do #52) sobre o `main` em `520f800`.
