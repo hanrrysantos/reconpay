@@ -228,8 +228,8 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Testes 1:1 com cada AC de CAD-01..04 e com `/register` público
-- [ ] Gate quick (frontend) passa
+- [x] Testes 1:1 com cada AC de CAD-01..04 e com `/register` público
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick

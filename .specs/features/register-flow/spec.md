@@ -227,10 +227,10 @@ Desenhos no Pen: "Cadastro · Desktop", "Cadastro · Desktop · Confirmação", 
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| CAD-01 | P1: Visual do cadastro | Design | Pending |
-| CAD-02 | P1: Formulário de cadastro | Design | Pending |
-| CAD-03 | P1: Enviar o cadastro | Design | Pending |
-| CAD-04 | P1: Erro no cadastro | Design | Pending |
+| CAD-01 | P1: Visual do cadastro | Execute | Implemented |
+| CAD-02 | P1: Formulário de cadastro | Execute | Implemented |
+| CAD-03 | P1: Enviar o cadastro | Execute | Implemented |
+| CAD-04 | P1: Erro no cadastro | Execute | Implemented |
 | MAIL-01 | P1: E-mail de verificação | Execute | Implemented |
 | VER-01 | P1: Página de confirmação (AC 1, 2) | Design | Pending |
 | VER-02 | P1: Página de confirmação (AC 3, 4) | Design | Pending |
