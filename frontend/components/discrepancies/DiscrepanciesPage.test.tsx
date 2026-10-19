@@ -365,6 +365,22 @@ describe('DiscrepanciesPage', () => {
     expect(within(drawer).queryByRole('button', { name: /^(Aceitar|Salvar ajuste|Baixar|Reabrir)/ })).toBeNull()
   })
 
+  it('um run novo na janela com a gaveta aberta deixa a gaveta no run em que abriu, só para consulta (edge de run novo)', async () => {
+    const user = renderRoute()
+    await table()
+
+    await user.click(screen.getByRole('button', { name: 'Abrir AVULSA-1 · Liquidação ausente' }))
+    server.runs = [run('r-new', 'm-1', '2026-10-01', '2026-10-31'), ...server.runs]
+    const drawer = () => screen.getByRole('dialog', { name: 'Resolver divergência' })
+    await user.click(within(drawer()).getByRole('radio', { name: /^Aceitar/ }))
+    await user.click(within(drawer()).getByRole('button', { name: /^Aceitar/ }))
+
+    await waitFor(() => expect(within(drawer()).getByTestId('drawer-status')).toHaveTextContent('Aceita'))
+    await waitFor(() => expect(calls.some(call => call.path.includes('/reconciliations/r-new/'))).toBe(true))
+    expect(within(drawer()).queryByRole('button', { name: /^Reabrir/ })).toBeNull()
+    expect(calls.filter(call => call.path.includes('/discrepancies/') && !call.path.includes('/reconciliations/r-oct/'))).toEqual([])
+  })
+
   it('trocar de empresa fecha a gaveta, vai para a janela da nova empresa e mantém os filtros (DIV-08 AC1)', async () => {
     const user = renderRoute()
     await table()
