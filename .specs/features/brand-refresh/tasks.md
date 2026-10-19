@@ -94,10 +94,10 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `/brand/reconpay-mark-on-dark.svg`, `/brand/reconpay-mark-on-light.svg` e `/brand/reconpay-mark-on-dark.png` respondem 200
-- [ ] O ícone da aba é o quadrado preto com o símbolo, conferido a 16 e 32 px
-- [ ] `font-brand` aplica Manrope 800, sem rede no build
-- [ ] Gate build passa
+- [x] `/brand/reconpay-mark-on-dark.svg`, `/brand/reconpay-mark-on-light.svg` e `/brand/reconpay-mark-on-dark.png` respondem 200
+- [x] O ícone da aba é o quadrado preto com o símbolo, conferido a 16 e 32 px
+- [ ] `font-brand` aplica Manrope 800, sem rede no build (o Tailwind só gera a classe quando ela é usada; conferido na T2)
+- [x] Gate build passa
 
 **Tests**: none
 **Gate**: build
