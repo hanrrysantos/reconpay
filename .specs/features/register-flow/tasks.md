@@ -122,12 +122,12 @@ T7 → T8
 
 **Done when**:
 
-- [ ] Envia para conta inativa, com token, sem token consumido e último envio há 60 s ou mais
-- [ ] Não envia: sem conta, ativa, sem token, com token consumido (desativada depois de ativa), último envio há 59 s
-- [ ] O reenvio invalida o link anterior (integração: link antigo recusado, novo aceito)
-- [ ] `202` sem corpo com e sem conta; `400` `VALIDATION_ERROR` para vazio e inválido; sem token de acesso
-- [ ] E-mail com espaços nas pontas é encontrado
-- [ ] Gate quick (backend) passa
+- [x] Envia para conta inativa, com token, sem token consumido e último envio há 60 s ou mais
+- [x] Não envia: sem conta, ativa, sem token, com token consumido (desativada depois de ativa), último envio há 59 s
+- [x] O reenvio invalida o link anterior (integração: link antigo recusado, novo aceito)
+- [x] `202` sem corpo com e sem conta; `400` `VALIDATION_ERROR` para vazio e inválido; sem token de acesso
+- [x] E-mail com espaços nas pontas é encontrado
+- [x] Gate quick (backend) passa
 
 **Tests**: unit, integration
 **Gate**: quick

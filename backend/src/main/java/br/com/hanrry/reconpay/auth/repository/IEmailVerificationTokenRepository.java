@@ -13,6 +13,10 @@ public interface IEmailVerificationTokenRepository extends JpaRepository<EmailVe
 
     Optional<EmailVerificationTokenEntity> findByTokenHashAndConsumedAtIsNull(String tokenHash);
 
+    boolean existsByUserIdAndConsumedAtIsNotNull(UUID userId);
+
+    Optional<EmailVerificationTokenEntity> findTopByUserIdOrderByCreatedAtDesc(UUID userId);
+
     @Modifying
     @Query("DELETE FROM EmailVerificationTokenEntity t WHERE t.userId = :userId AND t.consumedAt IS NULL")
     void deleteAllPendingByUserId(@Param("userId") UUID userId);

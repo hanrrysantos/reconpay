@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.auth.openapi;
 
 import br.com.hanrry.reconpay.auth.dto.AuthRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.AuthResponseDTO;
+import br.com.hanrry.reconpay.auth.dto.ResendVerificationRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
@@ -162,6 +163,9 @@ public interface AuthControllerApi {
                     )
             )
             @Valid @RequestBody VerifyEmailRequestDTO request);
+
+    @PostMapping("/resend-verification")
+    ResponseEntity<Void> resendVerification(@Valid @RequestBody ResendVerificationRequestDTO request);
 
     @Operation(
             summary = "Confirmação de e-mail pelo link",
