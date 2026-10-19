@@ -1,5 +1,5 @@
 import { Download, FileText, Lock } from 'lucide-react'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { CountUp } from './CountUp'
 
 const FILES = [
@@ -32,8 +32,8 @@ const STEPS: Array<{ title: string; text: string; illustration: ReactNode }> = [
           <span className="text-[13px] font-semibold">Conciliando setembro</span>
           <span className="font-mono text-[12px] text-muted"><CountUp value={964} /> de 1.284</span>
         </div>
-        <div className="h-2.5 overflow-hidden rounded-full bg-surface">
-          <div className="h-full origin-left rounded-full bg-primary" style={{ width: `${PROGRESS * 100}%` }} />
+        <div className="h-2.5 overflow-clip rounded-full bg-surface">
+          <div className="bar-fill h-full origin-left rounded-full bg-primary" style={{ width: `${PROGRESS * 100}%` }} />
         </div>
         <div className="flex flex-wrap gap-2 pt-2 font-mono text-[12px]">
           <span className="rounded-full bg-subtle px-2.5 py-[5px] text-success">Conciliados <CountUp value={912} /></span>
@@ -68,15 +68,15 @@ const STEPS: Array<{ title: string; text: string; illustration: ReactNode }> = [
 export function HowItWorks({ shell }: { shell: string }) {
   return (
     <section id="como-funciona" className={`${shell} flex scroll-mt-6 flex-col gap-8 py-16 md:gap-14 md:py-28`}>
-      <div className="flex flex-col gap-3.5">
+      <div className="reveal flex flex-col gap-3.5">
         <p className="font-mono text-[13px] text-success">Como funciona</p>
         <h2 className="max-w-[720px] font-display text-[32px] leading-[1.04] font-extrabold tracking-[-0.035em] md:text-[48px] md:tracking-[-0.04em]">
           Três passos por período, do arquivo ao fechamento.
         </h2>
       </div>
-      <ol className="grid gap-3.5 lg:grid-cols-3 lg:gap-5">
+      <ol className="reveal-stagger grid gap-3.5 lg:grid-cols-3 lg:gap-5">
         {STEPS.map((step, index) => (
-          <li key={step.title} className="flex flex-col justify-between gap-[22px] rounded-[24px] bg-surface p-[22px] md:gap-7 md:p-7 lg:min-h-[377px]">
+          <li key={step.title} style={{ '--i': index } as CSSProperties} className="flex flex-col justify-between gap-[22px] rounded-[24px] bg-surface p-[22px] md:gap-7 md:p-7 lg:min-h-[377px]">
             <div className="flex flex-col gap-2.5">
               <span className="font-mono text-[13px] text-muted">{String(index + 1).padStart(2, '0')}</span>
               <h3 className="font-display text-[26px] font-bold tracking-[-0.03em]">{step.title}</h3>

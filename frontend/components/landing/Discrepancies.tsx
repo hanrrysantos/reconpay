@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import type { CSSProperties } from 'react'
 
 const OUTCOMES = [
   { label: 'Aceitar', text: 'A diferença está correta e fica registrada.' },
@@ -19,16 +20,18 @@ export function Discrepancies({ shell }: { shell: string }) {
     <section id="divergencias" className="scroll-mt-6 bg-surface">
       <div className={`${shell} flex flex-col gap-9 py-16 lg:flex-row lg:items-center lg:gap-20 lg:py-28`}>
         <div className="flex flex-1 flex-col gap-5">
-          <p className="font-mono text-[13px] text-success">Divergências</p>
-          <h2 className="font-display text-[32px] leading-[1.04] font-extrabold tracking-[-0.035em] md:text-[48px] md:tracking-[-0.04em]">
-            Cada diferença tem dono, decisão e histórico.
-          </h2>
-          <p className="text-[16px] leading-[1.6] text-muted md:text-[17px]">
-            Abra a divergência, veja os dois lados lado a lado e decida. Toda mudança fica registrada com quem fez, quando e por quê.
-          </p>
-          <ul className="flex flex-col gap-3.5 pt-3">
-            {OUTCOMES.map(outcome => (
-              <li key={outcome.label} className="flex items-center gap-3.5 text-[15px]">
+          <div className="reveal flex flex-col gap-5">
+            <p className="font-mono text-[13px] text-success">Divergências</p>
+            <h2 className="font-display text-[32px] leading-[1.04] font-extrabold tracking-[-0.035em] md:text-[48px] md:tracking-[-0.04em]">
+              Cada diferença tem dono, decisão e histórico.
+            </h2>
+            <p className="text-[16px] leading-[1.6] text-muted md:text-[17px]">
+              Abra a divergência, veja os dois lados lado a lado e decida. Toda mudança fica registrada com quem fez, quando e por quê.
+            </p>
+          </div>
+          <ul className="reveal-stagger flex flex-col gap-3.5 pt-3">
+            {OUTCOMES.map((outcome, index) => (
+              <li key={outcome.label} style={{ '--i': index } as CSSProperties} className="flex items-center gap-3.5 text-[15px]">
                 <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary">
                   <Check aria-hidden="true" className="size-3.5" strokeWidth={3} />
                 </span>
@@ -42,7 +45,7 @@ export function Discrepancies({ shell }: { shell: string }) {
         <div
           role="img"
           aria-label="Exemplo de ajuste da divergência PED-10022"
-          className="flex w-full flex-col gap-5 rounded-[28px] bg-background p-5 shadow-[0_24px_60px_#0B0D0A1F] md:p-7 lg:w-[560px] lg:shrink-0"
+          className="reveal flex w-full flex-col gap-5 rounded-[28px] bg-background p-5 shadow-[0_24px_60px_#0B0D0A1F] md:p-7 lg:w-[560px] lg:shrink-0"
         >
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col gap-1">

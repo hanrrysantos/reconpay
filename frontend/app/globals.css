@@ -27,3 +27,76 @@
   --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-ibm-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
 }
+
+/*
+ * Landing animations. Scroll-linked ones run on view timelines, so the scroll position sets their
+ * progress and scrolling back plays them in reverse. Nothing is hidden outside these guards: without
+ * support or with reduced motion every block stays in its final state.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-in > * {
+    animation: landing-reveal 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  @supports (animation-timeline: view()) {
+    [data-chart] {
+      view-timeline-name: --chart;
+    }
+
+    .reveal,
+    .reveal-stagger > * {
+      animation: landing-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--i, 0) * 8%) cover calc(30% + var(--i, 0) * 8%);
+    }
+
+    .rise {
+      animation: landing-rise linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 35%;
+    }
+
+    /* Same range as CHART_RANGE in lib/scrollProgress.ts, so the numbers follow the charts. */
+    .ring-fill,
+    .bar-fill {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --chart;
+      animation-range: cover 5% cover 45%;
+    }
+
+    .ring-fill {
+      animation-name: landing-ring;
+    }
+
+    .bar-fill {
+      animation-name: landing-bar;
+    }
+  }
+}
+
+@keyframes landing-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+}
+
+@keyframes landing-rise {
+  from {
+    transform: translateY(80px) scale(0.96);
+  }
+}
+
+@keyframes landing-ring {
+  from {
+    stroke-dashoffset: var(--ring-length);
+  }
+}
+
+@keyframes landing-bar {
+  from {
+    transform: scaleX(0);
+  }
+}

@@ -1,5 +1,6 @@
 import { ArrowRight, Check } from 'lucide-react'
 import Link from 'next/link'
+import type { CSSProperties } from 'react'
 import { Discrepancies } from './Discrepancies'
 import { FinalCta } from './FinalCta'
 import { HowItWorks } from './HowItWorks'
@@ -45,18 +46,18 @@ export function LandingPage() {
 
       <main>
         <section className={`${shell} flex flex-col items-center gap-9 pt-10 md:gap-14 md:pt-[72px]`}>
-          <div className="flex w-full max-w-[900px] flex-col items-center gap-5 text-center md:gap-6">
-            <p className="flex items-center gap-2 rounded-full bg-surface px-3.5 py-1.5 text-[12px] font-medium md:text-[13px]">
+          <div className="hero-in flex w-full max-w-[900px] flex-col items-center gap-5 text-center md:gap-6">
+            <p style={{ '--i': 0 } as CSSProperties} className="flex items-center gap-2 rounded-full bg-surface px-3.5 py-1.5 text-[12px] font-medium md:text-[13px]">
               <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-foreground" />
               Conciliação financeira para fintechs, gateways e marketplaces
             </p>
-            <h1 className="font-display text-[clamp(32px,10.5vw,40px)] leading-none font-extrabold tracking-[-0.04em] md:text-[60px] lg:text-[76px] lg:leading-[0.98] lg:tracking-[-0.045em]">
+            <h1 style={{ '--i': 1 } as CSSProperties} className="font-display text-[clamp(32px,10.5vw,40px)] leading-none font-extrabold tracking-[-0.04em] md:text-[60px] lg:text-[76px] lg:leading-[0.98] lg:tracking-[-0.045em]">
               O que você vendeu,<br /> o que caiu na conta<br /> e onde não bate.
             </h1>
-            <p className="max-w-[640px] text-[16px] leading-[1.55] text-muted md:text-[18px]">
+            <p style={{ '--i': 2 } as CSSProperties} className="max-w-[640px] text-[16px] leading-[1.55] text-muted md:text-[18px]">
               O ReconPay cruza suas vendas com a liquidação da adquirente e o extrato do banco, aponta cada divergência e fecha o período com rastro para auditoria.
             </p>
-            <div className="flex w-full flex-col gap-3 pt-2 md:w-auto md:flex-row">
+            <div style={{ '--i': 3 } as CSSProperties} className="flex w-full flex-col gap-3 pt-2 md:w-auto md:flex-row">
               <Link href="/register" className={primaryButton}>
                 Criar conta
                 <ArrowRight aria-hidden="true" className="size-[18px]" />

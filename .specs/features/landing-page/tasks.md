@@ -242,10 +242,12 @@ T6 → T7
 
 **Done when**:
 
-- [ ] No Chromium sem interface: cada bloco animado sai de opacidade 0 e vai a 1 descendo, e volta a 0 subindo; anel e barra enchem e esvaziam junto com os números
-- [ ] Com `prefers-reduced-motion: reduce` emulado e sem suporte: tudo opaco, no lugar, anel e barra cheios
-- [ ] Abrir com `#divergencias` mostra a seção no estado certo
-- [ ] Gate build passa
+- [x] No Chromium sem interface: cada bloco animado sai de opacidade 0 e vai a 1 descendo, e volta a 0 subindo; anel e barra enchem e esvaziam junto com os números
+- [x] Com `prefers-reduced-motion: reduce` emulado e sem suporte: tudo opaco, no lugar, anel e barra cheios
+- [x] Abrir com `#divergencias` mostra a seção no estado certo
+- [x] Gate build passa
+
+**Evidence** (Chromium 148 sem interface, `next dev` na porta 3100, 2026-10-19): a 1440×900 (40 posições) e a 390×844 (47 posições), descendo de 100 em 100 px e subindo, cada bloco `.reveal` e `.reveal-stagger > *` vai de opacidade 0 e `translateY(32px)` a 1 e 0, e passa pelos mesmos valores na volta (0 blocos assimétricos); o anel vai de `stroke-dashoffset` 428,8 a 24,9 e a barra de `scaleX` 0 a 1, também simétricos; com `prefers-reduced-motion: reduce` emulado, 0 blocos fora do estado final em qualquer posição e os números no valor final; aberta em `#divergencias`, todos os blocos acima estão no estado final. Navegador sem suporte: todas as regras de scroll ficam dentro de `@supports (animation-timeline: view())` em `frontend/app/globals.css` (não há como emular no Chromium).
 
 **Tests**: none
 **Gate**: build

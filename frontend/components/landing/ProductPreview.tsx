@@ -1,4 +1,5 @@
 import { Check, ChevronDown } from 'lucide-react'
+import type { CSSProperties } from 'react'
 import { CountUp } from './CountUp'
 
 const TABS = ['Visão geral', 'Conciliações', 'Divergências', 'Fechamento']
@@ -28,7 +29,7 @@ export function ProductPreview() {
       id="fechamento"
       role="img"
       aria-label="Prévia do painel de fechamento do ReconPay"
-      className="flex w-full scroll-mt-6 flex-col gap-[18px] rounded-t-[24px] border border-b-0 border-border bg-surface px-4 pt-5 md:gap-6 md:rounded-t-[28px] md:px-8 md:pt-7 lg:h-[560px]"
+      className="rise flex w-full scroll-mt-6 flex-col gap-[18px] rounded-t-[24px] border border-b-0 border-border bg-surface px-4 pt-5 md:gap-6 md:rounded-t-[28px] md:px-8 md:pt-7 lg:h-[560px]"
     >
       <div className="flex items-center justify-between gap-4">
         <span className="flex items-center gap-2.5 font-display text-[17px] font-extrabold tracking-[-0.05em]">
@@ -70,9 +71,10 @@ export function ProductPreview() {
                   r={RING_RADIUS}
                   fill="none"
                   strokeWidth="13.5"
-                  className="stroke-primary"
+                  className="ring-fill stroke-primary"
                   strokeDasharray={RING_LENGTH}
                   strokeDashoffset={RING_LENGTH * (1 - MATCH_RATE)}
+                  style={{ '--ring-length': RING_LENGTH } as CSSProperties}
                 />
               </svg>
               <span className="absolute inset-0 grid place-items-center font-display text-[24px] font-extrabold tracking-[-0.03em] text-background md:text-[30px]">

@@ -4,7 +4,7 @@ import Link from 'next/link'
 export function FinalCta({ shell }: { shell: string }) {
   return (
     <section className={`${shell} pt-2 md:pt-6`}>
-      <div className="flex flex-col items-center gap-6 rounded-[28px] bg-foreground px-6 py-14 text-center text-background md:rounded-[32px] md:px-20 md:py-24">
+      <div className="reveal flex flex-col items-center gap-6 rounded-[28px] bg-foreground px-6 py-14 text-center text-background md:rounded-[32px] md:px-20 md:py-24">
         <h2 className="font-display text-[34px] leading-[1.02] font-extrabold tracking-[-0.035em] md:text-[60px] md:tracking-[-0.04em]">
           Feche o próximo mês<br className="hidden md:inline" /> sem abrir uma planilha.
         </h2>
