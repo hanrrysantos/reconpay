@@ -20,7 +20,7 @@ import { MatchRingCard } from './MatchRingCard'
 import { OpenDiscrepancyTable, rowDiscrepancy } from './OpenDiscrepancyTable'
 import { PageHeader } from './PageHeader'
 import { PeriodMenu, windowKey } from './PeriodMenu'
-import { ResolveDrawer, type DrawerEntry } from './ResolveDrawer'
+import { ResolveDrawer, STALE_RUN_NOTICE, type DrawerEntry } from './ResolveDrawer'
 import { TypeDonut } from './TypeDonut'
 import { BlockError, DashboardSkeleton, EmptyOnboarding, Forbidden, NetworkBanner, NoMerchant, RunFailedCard } from './states'
 import { deriveDashboardView, type Loaded } from './view'
@@ -100,7 +100,8 @@ function DashboardWindow({ merchantId, window, runs, today, onWindow }: {
 
   const [typeFilter, setTypeFilter] = useState<DiscrepancyType | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  const [drawer, setDrawer] = useState<{ list: DrawerEntry[]; index: number } | null>(null)
+  /** The run of the table when the drawer opened: a newer run of the window never receives its actions. */
+  const [drawer, setDrawer] = useState<{ list: DrawerEntry[]; index: number; runId: string } | null>(null)
 
   const runMutation = useRunReconciliation(merchantId, window)
   const lock = useLockPeriod(merchantId, window)
@@ -266,24 +267,26 @@ function DashboardWindow({ merchantId, window, runs, today, onWindow }: {
                   onFilter={setTypeFilter}
                   locked={locked}
                   onResolve={(item, discrepancy) => {
+                    if (!tableRunId) return
                     const list = (openItems ?? []).slice(0, 4).map(row => ({ item: row, discrepancyId: rowDiscrepancy(row, typeFilter)?.id ?? '' }))
                     const index = list.findIndex(entry => entry.item.id === item.id && entry.discrepancyId === discrepancy.id)
-                    setDrawer({ list, index: Math.max(index, 0) })
+                    setDrawer({ list, index: Math.max(index, 0), runId: tableRunId })
                   }}
                 />}
             {summaryBlock(data => <DailyHeatmap days={data.days} window={window} />, 'O mapa diário não carregou', 'Recarregar', 'lg:w-[420px]')}
           </div>
         </div>
       )}
-      {drawer && tableRunId && (
+      {drawer && (
         <ResolveDrawer
           merchantId={merchantId}
           window={window}
-          runId={tableRunId}
+          runId={drawer.runId}
           list={drawer.list}
           index={drawer.index}
           total={summaryData ? openCount(summaryData) : null}
-          locked={locked}
+          locked={locked || drawer.runId !== tableRunId}
+          lockedNotice={drawer.runId !== tableRunId ? STALE_RUN_NOTICE : undefined}
           onClose={() => setDrawer(null)}
           onNavigate={index => setDrawer({ ...drawer, index })}
         />

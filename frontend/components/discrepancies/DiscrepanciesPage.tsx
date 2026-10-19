@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
 import { TYPE_LABELS } from '@/components/dashboard/format'
 import { PeriodMenu, windowKey } from '@/components/dashboard/PeriodMenu'
-import { ResolveDrawer, type DrawerEntry } from '@/components/dashboard/ResolveDrawer'
+import { ResolveDrawer, STALE_RUN_NOTICE, type DrawerEntry } from '@/components/dashboard/ResolveDrawer'
 import { BlockError, NoMerchant } from '@/components/dashboard/states'
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import type { DiscrepancyType, Period, Run } from '@/lib/api'
@@ -53,8 +53,11 @@ function DiscrepanciesWindow({ merchantId, merchantName, runs, initial, filters,
 }) {
   const [window, setWindow] = useState(initial)
   const [page, setPage] = useState(0)
-  /** The rows of the page when the drawer opened; they stay fixed until it closes, so J/K keep their order. */
-  const [drawer, setDrawer] = useState<{ list: DrawerEntry[]; index: number } | null>(null)
+  /**
+   * The rows of the page and the run when the drawer opened; they stay fixed until it closes, so J/K keep their
+   * order and a newer run of the window never receives an action meant for these rows.
+   */
+  const [drawer, setDrawer] = useState<{ list: DrawerEntry[]; index: number; runId: string } | null>(null)
   const run = useLatestRun(merchantId, window)
   const period = usePeriod(merchantId, window)
   const locks = useLocks(merchantId, window, period.data)
@@ -105,20 +108,21 @@ function DiscrepanciesWindow({ merchantId, merchantName, runs, initial, filters,
           type={filters.type}
           page={page}
           onPageChange={setPage}
-          onOpen={(list, index) => setDrawer({ list, index })}
+          onOpen={(list, index) => setDrawer({ list, index, runId: current.id })}
         />
       )}
 
-      {drawer && current && (
+      {drawer && (
         <ResolveDrawer
           merchantId={merchantId}
           window={window}
-          runId={current.id}
+          runId={drawer.runId}
           list={drawer.list}
           index={drawer.index}
           total={drawer.list.length}
           footerNoun={null}
-          locked={locked}
+          locked={locked || drawer.runId !== current?.id}
+          lockedNotice={drawer.runId !== current?.id ? STALE_RUN_NOTICE : undefined}
           onClose={() => setDrawer(null)}
           onNavigate={index => setDrawer({ ...drawer, index })}
         />

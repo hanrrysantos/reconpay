@@ -194,6 +194,24 @@ describe('DashboardPage', () => {
     await waitFor(() => expect(within(drawer).getByTestId('drawer-status')).toHaveTextContent('Aceita'))
   })
 
+  it('um run novo na janela com a gaveta aberta deixa a gaveta no run em que abriu, só para consulta (edge de run novo)', async () => {
+    const opened = makePeriod().runId
+    const user = renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Resolver PED-10021' }))
+    const drawer = screen.getByRole('dialog', { name: 'Resolver divergência' })
+    await user.click(within(drawer).getByRole('radio', { name: /^Aceitar/ }))
+    server.period = () => json(makePeriod({ runId: 'run-new' }))
+    server.detail = () => makeDetail({ status: 'ACCEPTED' })
+    await user.click(within(drawer).getByRole('button', { name: /^Aceitar/ }))
+
+    await waitFor(() => expect(within(drawer).getByTestId('drawer-status')).toHaveTextContent('Aceita'))
+    await waitFor(() => expect(calls.some(call => call.path.includes('/reconciliations/run-new/'))).toBe(true))
+    expect(within(drawer).queryByRole('button', { name: /^Reabrir/ })).toBeNull()
+    expect(within(drawer).getByText('Há uma conciliação mais nova nesta janela · somente leitura')).toBeInTheDocument()
+    expect(within(drawer).queryByText('Período travado · somente leitura')).toBeNull()
+    expect(calls.filter(call => call.path.includes('/discrepancies/') && !call.path.includes(`/reconciliations/${opened}/`))).toEqual([])
+  })
+
   it('conciliar mostra o run em andamento e, ao concluir, recarrega período, resumo e divergências (DASH-05 AC1, AC2, AC4)', async () => {
     const user = renderPage()
     await screen.findByRole('heading', { name: 'Faltam 12 divergências para fechar setembro' })

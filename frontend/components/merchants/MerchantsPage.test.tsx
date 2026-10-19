@@ -564,6 +564,29 @@ describe('Desativar empresa', () => {
     expect(screen.getByRole('option', { name: /Alfa Pagamentos/ })).toBeInTheDocument()
   })
 
+  it('desativar a única empresa da última página volta para a nova última página (MDES-07)', async () => {
+    server.merchants = [alfa, beta, record('m-3', 'Gama Varejo', '11444777000161')]
+    server.list = search => {
+      const index = Number(search.get('page'))
+      return json(page(server.merchants.slice(index, index + 1), server.merchants.length))
+    }
+    const user = renderPage()
+    await screen.findByRole('row', { name: /Alfa Pagamentos/ })
+    await user.click(screen.getByRole('button', { name: 'Próxima' }))
+    await screen.findByRole('row', { name: /Beta Comércio/ })
+    await user.click(screen.getByRole('button', { name: 'Próxima' }))
+    await screen.findByRole('row', { name: /Gama Varejo/ })
+
+    await user.click(within(row('Gama Varejo')).getByRole('button', { name: 'Desativar' }))
+    await user.click(confirmButton())
+
+    await screen.findByRole('row', { name: /Beta Comércio/ })
+    expect(listRequests().at(-1)!.search.get('page')).toBe('1')
+    expect(screen.queryByRole('row', { name: /Gama Varejo/ })).not.toBeInTheDocument()
+    expect(screen.getByText('Página 2 de 2')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Próxima' })).toBeDisabled()
+  })
+
   it('desativar a selecionada passa o menu para a primeira empresa restante (MDES-04)', async () => {
     const user = await openDialog('Alfa Pagamentos')
     await user.click(confirmButton())

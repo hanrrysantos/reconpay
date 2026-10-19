@@ -137,6 +137,7 @@ O dashboard mostra só as 4 maiores divergências abertas do run vigente da jane
 - WHEN o filtro é "Aceitas" e um item tem uma divergência aceita e outra aberta THEN the system SHALL mostrar só a aceita.
 - WHEN o lado da liquidação está ausente THEN the system SHALL mostrar "—" no que vier dele, mantendo Esperado e Diferença do servidor.
 - IF a resposta de erro não é JSON THEN the system SHALL mostrar "A API retornou erro <status>." (comportamento atual do cliente).
+- IF um run novo da janela substitui o run da lista com a gaveta aberta THEN the system SHALL manter a gaveta no run em que abriu, só para consulta, com o aviso "Há uma conciliação mais nova nesta janela · somente leitura" e sem ações de resolver ou reabrir.
 
 ---
 
