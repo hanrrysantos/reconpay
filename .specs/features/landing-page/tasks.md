@@ -131,10 +131,10 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `coverProgress` dá 0 com o topo na base da tela, 1 com a base no topo e 0,5 no meio, limitado a 0–1 fora disso
-- [ ] `rangeProgress` dá 0 antes de `start`, 1 depois de `end` e a fração no meio
-- [ ] `formatCount` dá `94,2%`, `1.209`, `R$ 10.389,38`, `R$ 121.212,50`, `R$ 3.787,50`, `964`, `912`, `52`, `1.284`, `1.271`, `312` no valor final e `0,0%` / `R$ 0,00` / `0` no zero
-- [ ] Gate quick passa
+- [x] `coverProgress` dá 0 com o topo na base da tela, 1 com a base no topo e 0,5 no meio, limitado a 0–1 fora disso
+- [x] `rangeProgress` dá 0 antes de `start`, 1 depois de `end` e a fração no meio
+- [x] `formatCount` dá `94,2%`, `1.209`, `R$ 10.389,38`, `R$ 121.212,50`, `R$ 3.787,50`, `964`, `912`, `52`, `1.284`, `1.271`, `312` no valor final e `0,0%` / `R$ 0,00` / `0` no zero
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick
