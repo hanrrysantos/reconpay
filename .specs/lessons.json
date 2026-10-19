@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 54,
+  "next_id": 55,
   "lessons": [
     {
       "id": "L-001",
@@ -964,6 +964,24 @@
       ],
       "created": "2026-10-19T15:45:27Z",
       "last_seen": "2026-10-19T15:45:27Z"
+    },
+    {
+      "id": "L-054",
+      "key": "ac_gap::when a spec sets a width threshold measure the layout at the threshold minus one pixel and at a common device width just below it because tailwind 4 max npx means width n and flex wrap only wraps when the row overflows",
+      "text": "When a spec sets a width threshold, measure the layout at the threshold minus one pixel and at a common device width just below it, because Tailwind 4 max-[Npx] means width < N and flex-wrap only wraps when the row overflows",
+      "signal": "ac_gap",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "landing-page"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "LAND-03 AC4 - frontend/components/landing/ProductPreview.tsx:103 (frontend)"
+      ],
+      "created": "2026-10-19T20:43:55Z",
+      "last_seen": "2026-10-19T20:43:55Z"
     }
   ]
 }
