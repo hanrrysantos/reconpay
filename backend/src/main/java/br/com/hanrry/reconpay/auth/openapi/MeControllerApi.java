@@ -77,7 +77,7 @@ public interface MeControllerApi {
                                         {
                                           "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
                                           "name": "Loja Centro",
-                                          "document": "12345678000199"
+                                          "document": "12345678000195"
                                         }
                                       ],
                                       "totalElements": 1,

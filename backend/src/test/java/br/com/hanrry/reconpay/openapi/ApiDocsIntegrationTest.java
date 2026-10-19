@@ -23,6 +23,7 @@ import br.com.hanrry.reconpay.reconciliation.dto.RunReconciliationRequestDTO;
 import br.com.hanrry.reconpay.reconciliation.dto.UpdateDiscrepancyStatusRequestDTO;
 import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
 import br.com.hanrry.reconpay.merchant.dto.UpdateMerchantRequestDTO;
+import br.com.hanrry.reconpay.shared.CnpjRules;
 import br.com.hanrry.reconpay.transaction.controller.TransactionController;
 import br.com.hanrry.reconpay.transaction.dto.CreateTransactionRequestDTO;
 import br.com.hanrry.reconpay.transaction.dto.UpdateTransactionStatusRequestDTO;
@@ -359,6 +360,17 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
                 DeleteMapping.class,
                 RequestMapping.class
         );
+    }
+
+    @Test
+    void everyDocumentExampleIsAValidCnpj() throws Exception {
+        List<String> documents = new ArrayList<>();
+        collectDocuments(apiDocs(), documents);
+
+        assertThat(documents).isNotEmpty();
+        assertThat(documents)
+                .as("CNPJs nos exemplos")
+                .allSatisfy(document -> assertThat(CnpjRules.isValid(document)).as(document).isTrue());
     }
 
     @Test
@@ -1086,6 +1098,28 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             return schemaExample.asText();
         }
         return null;
+    }
+
+    private void collectDocuments(JsonNode node, List<String> documents) throws Exception {
+        if (node.isTextual()) {
+            String text = node.asText().strip();
+            if (text.startsWith("{") || text.startsWith("[")) {
+                collectDocuments(objectMapper.readTree(text), documents);
+            }
+            return;
+        }
+        for (Map.Entry<String, JsonNode> entry : node.properties()) {
+            if (entry.getKey().equals("document") && entry.getValue().isTextual()) {
+                documents.add(entry.getValue().asText());
+            } else {
+                collectDocuments(entry.getValue(), documents);
+            }
+        }
+        for (JsonNode element : node) {
+            if (node.isArray()) {
+                collectDocuments(element, documents);
+            }
+        }
     }
 
     private static List<String> fieldNames(JsonNode node) {
