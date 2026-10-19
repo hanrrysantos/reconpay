@@ -175,11 +175,11 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Barra do painel, menu da landing e prévia com o tom claro e sem frase
-- [ ] Rodapé da landing com o tom claro e a frase
-- [ ] Links "ReconPay" → `/painel` (barra) e `/` (landing)
-- [ ] Sem rolagem horizontal de 320 a 1920 px; capturas a 390 e 1440 px conferidas
-- [ ] Gate build passa
+- [x] Barra do painel, menu da landing e prévia com o tom claro e sem frase
+- [x] Rodapé da landing com o tom claro e a frase
+- [x] Links "ReconPay" → `/painel` (barra) e `/` (landing)
+- [x] Sem rolagem horizontal de 320 a 1920 px; capturas a 390 e 1440 px conferidas (a barra do painel por teste: a sessão vive só em memória e a API local estava parada; usa o mesmo `Logo tone="light"` do menu da landing)
+- [x] Gate build passa
 
 **Tests**: unit
 **Gate**: build

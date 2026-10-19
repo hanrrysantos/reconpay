@@ -40,7 +40,18 @@ describe('TopNav', () => {
   it('a marca leva ao painel (LAND-01 AC3)', () => {
     render(<TopNav />)
 
-    expect(screen.getByRole('link', { name: 'reconpay' })).toHaveAttribute('href', '/painel')
+    expect(screen.getByRole('link', { name: 'ReconPay' })).toHaveAttribute('href', '/painel')
+  })
+
+  it('a marca é a de fundo claro, toda em preto e sem a frase (BRD-02 AC2, AC4)', () => {
+    render(<TopNav />)
+
+    const brand = screen.getByRole('link', { name: 'ReconPay' })
+    expect(brand.querySelector('img')).toHaveAttribute('src', '/brand/reconpay-mark-on-light.svg')
+    expect(brand.querySelector('img')).toHaveAttribute('alt', '')
+    expect(within(brand).getByText('Pay').parentElement).toHaveClass('text-foreground')
+    expect(within(brand).getByText('Pay')).not.toHaveClass('text-primary')
+    expect(screen.queryByText('Conciliação financeira com clareza')).not.toBeInTheDocument()
   })
 
   it('marca o item da seção numa sub-rota', () => {
