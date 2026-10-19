@@ -330,6 +330,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: N7, N13; frontend/lib/password.test.ts:25 (tests)
 - last seen: 2026-10-19T15:45:27Z
 
+### L-054 - When a spec sets a width threshold, measure the layout at the threshold minus one pixel and at a common device width just below it, because Tailwind 4 max-[Npx] means width < N and flex-wrap only wraps when the row overflows
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `frontend` · harmful: 0
+- features: landing-page
+- evidence: LAND-03 AC4 - frontend/components/landing/ProductPreview.tsx:103 (frontend)
+- last seen: 2026-10-19T20:43:55Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

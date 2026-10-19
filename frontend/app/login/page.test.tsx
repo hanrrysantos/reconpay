@@ -96,13 +96,13 @@ describe('LoginPage', () => {
     expect(screen.getByRole('link', { name: 'Criar conta' })).toHaveAttribute('href', '/register')
   })
 
-  it('enviar chama signIn com o e-mail e a senha e, ao concluir, vai para / (LOG-03 AC1, AC3)', async () => {
+  it('enviar chama signIn com o e-mail e a senha e, ao concluir, vai para /painel (LOG-03 AC1, AC3)', async () => {
     const user = renderPage()
     await fill(user)
     await user.click(submit())
 
     expect(auth.signIn).toHaveBeenCalledWith('ana@lojacentro.com.br', 'Senha@2026')
-    await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith('/'))
+    await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith('/painel'))
   })
 
   it('durante o envio o botão fica desabilitado com "Entrando..." e outro envio não chama signIn de novo (LOG-03 AC2)', async () => {
@@ -119,7 +119,7 @@ describe('LoginPage', () => {
     expect(navigation.replace).not.toHaveBeenCalled()
 
     finish()
-    await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith('/'))
+    await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith('/painel'))
     expect(submit()).toBeEnabled()
     expect(submit()).toHaveTextContent('Entrar')
   })
@@ -163,13 +163,13 @@ describe('LoginPage', () => {
     expect(screen.queryByRole('alert')).toBeNull()
     expect(auth.signIn).toHaveBeenLastCalledWith('ana@lojacentro.com.br', 'Senha@2026')
     finish()
-    await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith('/'))
+    await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith('/painel'))
   })
 
-  it('com sessão ativa vai para / sem enviar nada (LOG-05 AC1)', () => {
+  it('com sessão ativa vai para /painel sem enviar nada (LOG-05 AC1)', () => {
     auth.user = { name: 'Ana Souza' }
     renderPage()
-    expect(navigation.replace).toHaveBeenCalledWith('/')
+    expect(navigation.replace).toHaveBeenCalledWith('/painel')
     expect(auth.signIn).not.toHaveBeenCalled()
   })
 

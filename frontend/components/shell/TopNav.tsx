@@ -8,7 +8,7 @@ import { useAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 
 export const NAV_ITEMS = [
-  { label: 'Visão geral', href: '/' },
+  { label: 'Visão geral', href: '/painel' },
   { label: 'Conciliações', href: '/conciliacoes' },
   { label: 'Divergências', href: '/divergencias' },
   { label: 'Transações', href: '/transacoes' },
@@ -16,8 +16,7 @@ export const NAV_ITEMS = [
   { label: 'Fechamento', href: '/fechamento' },
 ] as const
 
-const isActive = (pathname: string, href: string) =>
-  href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`)
+const isActive = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`)
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -31,7 +30,7 @@ export function TopNav({ merchantSwitcher }: { merchantSwitcher?: ReactNode }) {
 
   return (
     <header className="flex min-h-10 items-center gap-6">
-      <Link href="/" className="flex shrink-0 items-center gap-2.5 font-display text-[20px] font-extrabold tracking-[-0.04em]">
+      <Link href="/painel" className="flex shrink-0 items-center gap-2.5 font-display text-[20px] font-extrabold tracking-[-0.04em]">
         <span className="grid size-[30px] place-items-center rounded-sm bg-primary text-foreground">
           <Check aria-hidden="true" className="size-4" strokeWidth={3} />
         </span>

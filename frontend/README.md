@@ -17,11 +17,12 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
 
 ## Fluxos disponíveis
 
+- Página inicial pública em `/`, sem sessão e sem chamar a API: o que o ReconPay faz, uma prévia estática do painel de fechamento, os três passos e o tratamento de divergências, com "Criar conta" e "Entrar". As seções entram conforme o scroll e desfazem a entrada ao voltar; o anel da taxa de match e a barra do passo 2 enchem junto com os números (`components/landing/CountUp.tsx`, `lib/scrollProgress.ts`). As animações de scroll usam `animation-timeline: view()` (Chrome, Edge, Safari 26); sem suporte, como no Firefox hoje, ou com movimento reduzido no sistema, tudo aparece parado no estado final.
 - Cadastro e login no mesmo visual (painel escuro e formulário). No cadastro, as regras da senha (8 caracteres, uma letra maiúscula, um número) ficam marcadas enquanto o usuário digita; depois do envio, a confirmação toma o lugar do formulário.
 - O link do e-mail de verificação abre `/verificar-email`, que confirma a conta sozinha e leva ao login. Com o link vencido ou já usado, a página pede o e-mail e envia um link novo. Para isso, `RECONPAY_VERIFICATION_BASE_URL` no backend aponta para este app.
 - Sessão JWT apenas em memória: atualizar a página pede novo login. Qualquer `401` encerra a sessão e volta ao login. "Sair" fica na barra superior.
 - Barra superior com Visão geral, Conciliações, Divergências, Transações, Importações e Fechamento, e o menu de empresa (busca por nome ou CNPJ, "Regras de taxa da <empresa>" com uma empresa selecionada, "Cadastrar empresa").
-- Dashboard em `/`:
+- Dashboard em `/painel`, para onde o login leva:
   - abre na janela do run mais recente da empresa; sem run, no mês atual com os três passos (liquidação, extrato, conciliar);
   - menu de período com meses ("Sem run", "Aberto", travado) e intervalo personalizado; janela inválida mostra a mensagem da API e mantém a anterior;
   - régua de fechamento Importado → Conciliado → Zerar divergências → Travar período;
