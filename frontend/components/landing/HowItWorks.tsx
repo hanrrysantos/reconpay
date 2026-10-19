@@ -1,10 +1,11 @@
 import { Download, FileText, Lock } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { CountUp } from './CountUp'
 
 const FILES = [
-  { name: 'vendas-setembro.csv', rows: '1.284 linhas' },
-  { name: 'liquidacao-setembro.csv', rows: '1.271 linhas' },
-  { name: 'extrato-setembro.csv', rows: '312 linhas' },
+  { name: 'vendas-setembro.csv', rows: 1284 },
+  { name: 'liquidacao-setembro.csv', rows: 1271 },
+  { name: 'extrato-setembro.csv', rows: 312 },
 ]
 
 // 964 of 1.284 items reconciled in the design sample.
@@ -18,7 +19,7 @@ const STEPS: Array<{ title: string; text: string; illustration: ReactNode }> = [
       <div key={file.name} className="flex items-center gap-1.5 rounded-[10px] bg-subtle px-2 py-2.5 font-mono text-[11px] md:gap-2.5 md:px-3 md:text-[12px]">
         <FileText aria-hidden="true" className="size-4 shrink-0 text-muted" />
         <span className="min-w-0 flex-1 wrap-break-word">{file.name}</span>
-        <span className="shrink-0 text-muted">{file.rows}</span>
+        <span className="shrink-0 text-muted"><CountUp value={file.rows} /> linhas</span>
       </div>
     )),
   },
@@ -29,14 +30,14 @@ const STEPS: Array<{ title: string; text: string; illustration: ReactNode }> = [
       <>
         <div className="flex items-baseline justify-between gap-3 py-1">
           <span className="text-[13px] font-semibold">Conciliando setembro</span>
-          <span className="font-mono text-[12px] text-muted">964 de 1.284</span>
+          <span className="font-mono text-[12px] text-muted"><CountUp value={964} /> de 1.284</span>
         </div>
         <div className="h-2.5 overflow-hidden rounded-full bg-surface">
           <div className="h-full origin-left rounded-full bg-primary" style={{ width: `${PROGRESS * 100}%` }} />
         </div>
         <div className="flex flex-wrap gap-2 pt-2 font-mono text-[12px]">
-          <span className="rounded-full bg-subtle px-2.5 py-[5px] text-success">Conciliados 912</span>
-          <span className="rounded-full bg-subtle px-2.5 py-[5px] text-danger-strong">Divergentes 52</span>
+          <span className="rounded-full bg-subtle px-2.5 py-[5px] text-success">Conciliados <CountUp value={912} /></span>
+          <span className="rounded-full bg-subtle px-2.5 py-[5px] text-danger-strong">Divergentes <CountUp value={52} /></span>
         </div>
       </>
     ),
@@ -81,7 +82,7 @@ export function HowItWorks({ shell }: { shell: string }) {
               <h3 className="font-display text-[26px] font-bold tracking-[-0.03em]">{step.title}</h3>
               <p className="text-[15px] leading-[1.55] text-muted">{step.text}</p>
             </div>
-            <div className="flex flex-col gap-2 rounded-[16px] bg-background p-3 md:p-4">{step.illustration}</div>
+            <div data-chart className="flex flex-col gap-2 rounded-[16px] bg-background p-3 md:p-4">{step.illustration}</div>
           </li>
         ))}
       </ol>

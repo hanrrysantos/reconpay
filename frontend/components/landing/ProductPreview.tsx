@@ -1,11 +1,12 @@
 import { Check, ChevronDown } from 'lucide-react'
+import { CountUp } from './CountUp'
 
 const TABS = ['Visão geral', 'Conciliações', 'Divergências', 'Fechamento']
 
 const KPIS = [
-  { label: 'Em aberto', value: 'R$ 10.389,38', tone: 'text-danger-strong' },
-  { label: 'Líquido esperado', value: 'R$ 121.212,50', tone: 'text-foreground' },
-  { label: 'Taxas', value: 'R$ 3.787,50', tone: 'text-foreground' },
+  { label: 'Em aberto', value: 10389.38, tone: 'text-danger-strong' },
+  { label: 'Líquido esperado', value: 121212.5, tone: 'text-foreground' },
+  { label: 'Taxas', value: 3787.5, tone: 'text-foreground' },
 ]
 
 const ROWS = [
@@ -56,7 +57,7 @@ export function ProductPreview() {
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:gap-4">
+      <div data-chart className="flex flex-col gap-3 lg:flex-row lg:gap-4">
         <div className="flex h-[220px] flex-col justify-between rounded-[22px] bg-foreground p-6 lg:h-[300px] lg:w-[300px] lg:shrink-0">
           <p className="text-[13px] text-white/60">Taxa de match</p>
           <div className="flex justify-center">
@@ -75,18 +76,18 @@ export function ProductPreview() {
                 />
               </svg>
               <span className="absolute inset-0 grid place-items-center font-display text-[24px] font-extrabold tracking-[-0.03em] text-background md:text-[30px]">
-                94,2%
+                <CountUp value={94.2} decimals={1} suffix="%" />
               </span>
             </div>
           </div>
-          <p className="font-mono text-[12px] text-white/60">1.209 de 1.284 itens</p>
+          <p className="font-mono text-[12px] text-white/60"><CountUp value={1209} /> de 1.284 itens</p>
         </div>
 
         <div className="hidden flex-col gap-4 xl:flex xl:w-[300px] xl:shrink-0">
           {KPIS.map(kpi => (
             <div key={kpi.label} className="flex flex-col gap-1.5 rounded-[18px] bg-background px-5 py-4">
               <p className="text-[12px] text-muted">{kpi.label}</p>
-              <p className={`font-mono text-[18px] font-semibold ${kpi.tone}`}>{kpi.value}</p>
+              <p className={`font-mono text-[18px] font-semibold ${kpi.tone}`}><CountUp value={kpi.value} decimals={2} prefix="R$ " /></p>
             </div>
           ))}
         </div>

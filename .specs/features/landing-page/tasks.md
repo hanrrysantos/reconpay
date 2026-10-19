@@ -215,10 +215,10 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Sem suporte a animação ligada ao scroll, com movimento reduzido ou antes de montar: valor final
-- [ ] Com suporte: valor de zero, do meio e final conforme a posição do bloco; ao rolar de volta, o valor volta
-- [ ] Texto animado `aria-hidden` e valor final em `sr-only`
-- [ ] Gate quick passa
+- [x] Sem suporte a animação ligada ao scroll, com movimento reduzido ou antes de montar: valor final
+- [x] Com suporte: valor de zero, do meio e final conforme a posição do bloco; ao rolar de volta, o valor volta
+- [x] Texto animado `aria-hidden` e valor final em `sr-only`
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick

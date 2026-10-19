@@ -128,7 +128,9 @@ describe('LandingPage: seções', () => {
 
     expect(steps[0]).toHaveTextContent('01')
     expect(steps[0]).toHaveTextContent('Vendas, liquidação da adquirente e extrato do banco, em CSV. Um arquivo com erro volta com cada linha apontada.')
-    for (const file of ['vendas-setembro.csv1.284 linhas', 'liquidacao-setembro.csv1.271 linhas', 'extrato-setembro.csv312 linhas']) expect(steps[0]).toHaveTextContent(file)
+    for (const [name, rows] of [['vendas-setembro.csv', '1.284 linhas'], ['liquidacao-setembro.csv', '1.271 linhas'], ['extrato-setembro.csv', '312 linhas']]) {
+      expect(within(steps[0]).getByText(name).parentElement).toHaveTextContent(rows)
+    }
 
     expect(steps[1]).toHaveTextContent('02')
     expect(steps[1]).toHaveTextContent('Escolha o período e o ReconPay cruza tudo em segundo plano, item por item, com sete tipos de divergência.')
