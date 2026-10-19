@@ -101,11 +101,12 @@
 
 ## Handoff
 
-- **Feature**: login-redesign (tela `/login` no visual novo, desenho do Pen) — **mergeada** (PR #55, 2026-10-19, `672bca5`, CI verde)
-- **Phase / Task**: Verifier PASS (`.specs/features/login-redesign/validation.md`, diff `3421a9e..c91ff8b`), gaps 1, 2 e 4 fechados depois; 879 testes, typecheck e build verdes
-- **Completed**: drawer-focus mergeada (PR #54, `a1f3b27`). Plano da vitrine pública (2026-10-19, decisões do usuário): frontend na Vercel; API já em `https://reconpay.hanrry.top` (nginx no host); lista: (1) login, (2) cadastro, (3) página pós-verificação de e-mail, (4) landing (desktop desenhado no Pen; celular depois), (5) CORS de produção por env, (6) link de verificação, (7) projeto na Vercel, (8) remetente do Resend, (9–10) demonstração própria por visitante (conta temporária de 24 h, dados de exemplo, limites por IP), (11) tela de usuários do ADMIN. Recuperar senha fica para depois
+- **Feature**: register-flow (cadastro no visual novo, e-mail de verificação redesenhado, página `/verificar-email` e `POST /api/auth/resend-verification`) — **mergeada** (PR #56, 2026-10-19, `86cda11`; CI e deploy de produção verdes; em produção, o reenvio responde e aparece no Swagger)
+- **Phase / Task**: Verifier PASS na 3ª rodada (`.specs/features/register-flow/validation.md`, diff `48b1ad4..00e5d7f`); 651 testes no backend, 915 no frontend
+- **Completed**: itens 1 (login, #55), 2 (cadastro) e 3 (página pós-verificação) da lista da vitrine. Lista restante: (4) landing (desktop no Pen; celular depois), (5) CORS de produção por env, (6) `RECONPAY_VERIFICATION_BASE_URL` em produção apontando para o frontend, (7) projeto na Vercel, (8) remetente do Resend, (9–10) demonstração própria por visitante, (11) tela de usuários do ADMIN. Recuperar senha fica para depois
+- **Known issues**: (a) até a Vercel e o item 6, os links dos e-mails de cadastro em produção não abrem; quem ficar preso pede um link novo pelo reenvio depois; (b) bug anterior à feature: `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender`; o modo "só log" do README não funciona; (c) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`, que deveria ser `http://localhost:3000`; (d) opcional: `text-balance` no título do `AuthPanel` para equilibrar as quebras como no Pen
 - **In-progress** (file:line): none
-- **Next step**: item 2, cadastro (`/register`): desenhar no Pen e implementar
+- **Next step**: item 5, origens de CORS de produção por variável de ambiente; depois Vercel (item 7) e as variáveis do servidor (itens 5 e 6)
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/register-redesign`, local, sem push, criada do `main` em `672bca5`.
+- **Branch**: `feat/prod-cors-env`, local, sem push, criada do `main` em `86cda11`.
