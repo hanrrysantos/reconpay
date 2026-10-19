@@ -40,6 +40,7 @@ services:
       RECONPAY_EMAIL_FROM: ${RECONPAY_EMAIL_FROM:-ReconPay <noreply@reconpay.local>}
       RECONPAY_VERIFICATION_BASE_URL: ${RECONPAY_VERIFICATION_BASE_URL:-http://localhost:3000}
       RECONPAY_VERIFICATION_TOKEN_HOURS: ${RECONPAY_VERIFICATION_TOKEN_HOURS:-24}
+      RECONPAY_CORS_ALLOWED_ORIGINS: ${RECONPAY_CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000}
     deploy:
       resources:
         limits:
