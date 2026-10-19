@@ -100,9 +100,11 @@ export function ProductPreview() {
             <p className="font-mono text-[12px] text-muted">12 abertas</p>
           </div>
           {ROWS.map(row => (
-            <div key={row.ref} className="flex items-center gap-2 px-2.5 py-3 max-[379px]:flex-wrap md:gap-3 md:px-3.5">
+            <div key={row.ref} className="flex items-center gap-2 px-2.5 py-3 max-[380px]:flex-wrap md:gap-3 md:px-3.5">
               <span className="shrink-0 font-mono text-[12px] font-medium md:text-[13px]">{row.ref}</span>
-              <span className="rounded-full bg-surface px-2.5 py-1 text-[12px] font-medium whitespace-nowrap max-[379px]:order-last">{row.type}</span>
+              {/* Under 380 px the type always takes a line of its own, not only when the row overflows. */}
+              <span aria-hidden="true" className="hidden max-[380px]:order-last max-[380px]:block max-[380px]:basis-full" />
+              <span className="rounded-full bg-surface px-2.5 py-1 text-[12px] font-medium whitespace-nowrap max-[380px]:order-last">{row.type}</span>
               <span className="ml-auto shrink-0 font-mono text-[12px] md:text-[13px]">{row.value}</span>
               <span className="hidden shrink-0 rounded-full bg-foreground px-3 py-1.5 text-[12px] font-semibold text-background min-[1400px]:inline">Resolver</span>
             </div>

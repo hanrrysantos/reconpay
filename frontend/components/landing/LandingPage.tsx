@@ -38,7 +38,7 @@ export function LandingPage() {
             <a href="#fechamento">Fechamento</a>
           </div>
           <div className="flex shrink-0 items-center gap-4 text-[14px] font-semibold md:gap-5">
-            <Link href="/login" className="max-[379px]:hidden">Entrar</Link>
+            <Link href="/login" className="max-[380px]:hidden">Entrar</Link>
             <Link href="/register" className="inline-flex h-9 items-center rounded-full bg-foreground px-3.5 whitespace-nowrap min-[380px]:px-[18px] text-background md:h-10">Criar conta</Link>
           </div>
         </nav>
