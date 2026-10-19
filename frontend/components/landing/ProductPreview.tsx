@@ -26,10 +26,9 @@ const MATCH_RATE = 0.942
 export function ProductPreview() {
   return (
     <div
-      id="fechamento"
       role="img"
       aria-label="Prévia do painel de fechamento do ReconPay"
-      className="rise flex w-full scroll-mt-6 flex-col gap-[18px] rounded-t-[24px] border border-b-0 border-border bg-surface px-4 pt-5 md:gap-6 md:rounded-t-[28px] md:px-8 md:pt-7 lg:h-[560px]"
+      className="rise flex w-full flex-col gap-[18px] rounded-t-[24px] border border-b-0 border-border bg-surface px-4 pt-5 md:gap-6 md:rounded-t-[28px] md:px-8 md:pt-7 lg:h-[560px]"
     >
       <div className="flex items-center justify-between gap-4">
         <span className="flex items-center gap-2.5 font-display text-[17px] font-extrabold tracking-[-0.05em]">

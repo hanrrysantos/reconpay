@@ -8,7 +8,7 @@ const API_DOCS = 'https://reconpay.hanrry.top/swagger-ui/index.html'
 const hrefOf = (link: HTMLElement) => link.getAttribute('href')
 
 describe('LandingPage', () => {
-  it('menu tem a marca, as três âncoras, "Entrar" e "Criar conta" (LAND-02 AC2, AC3)', () => {
+  it('menu tem a marca, as duas âncoras, "Entrar" e "Criar conta" (LAND-02 AC2, AC3)', () => {
     render(<LandingPage />)
 
     const nav = screen.getByRole('navigation', { name: 'Principal' })
@@ -16,7 +16,6 @@ describe('LandingPage', () => {
       ['reconpay', '/'],
       ['Como funciona', '#como-funciona'],
       ['Divergências', '#divergencias'],
-      ['Fechamento', '#fechamento'],
       ['Entrar', '/login'],
       ['Criar conta', '/register'],
     ])
@@ -37,11 +36,10 @@ describe('LandingPage', () => {
     expect(screen.queryByText(/Ver demonstração/)).not.toBeInTheDocument()
   })
 
-  it('prévia do painel é uma imagem com nome, alvo de "Fechamento" (LAND-02 AC3; LAND-05 AC1)', () => {
+  it('prévia do painel é uma imagem com nome (LAND-02 AC1; LAND-05 AC1)', () => {
     render(<LandingPage />)
 
     const preview = screen.getByRole('img', { name: 'Prévia do painel de fechamento do ReconPay' })
-    expect(preview).toHaveAttribute('id', 'fechamento')
     expect(preview).toHaveTextContent('Faltam 12 divergências para fechar setembro')
     expect(preview).toHaveTextContent('Fechamento · Setembro de 2026')
     expect(preview).toHaveTextContent('Taxa de match')

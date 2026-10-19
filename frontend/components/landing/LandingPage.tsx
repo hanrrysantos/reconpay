@@ -35,7 +35,6 @@ export function LandingPage() {
           <div className="hidden items-center gap-9 text-[14px] font-medium text-muted lg:flex">
             <a href="#como-funciona">Como funciona</a>
             <a href="#divergencias">Divergências</a>
-            <a href="#fechamento">Fechamento</a>
           </div>
           <div className="flex shrink-0 items-center gap-4 text-[14px] font-semibold md:gap-5">
             <Link href="/login" className="max-[380px]:hidden">Entrar</Link>

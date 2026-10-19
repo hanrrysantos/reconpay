@@ -29,7 +29,7 @@ O frontend está público em `https://reconpay.vercel.app`, mas quem abre o ende
 | Endereço do painel | O painel sai de `/` e vai para `/painel`; o login leva a `/painel` | A landing precisa ser o endereço raiz | y |
 | Landing para quem já entrou | A landing aparece para todos; "Entrar" leva ao login, que já manda quem tem sessão para `/painel` | Sem mudar o fluxo de sessão | y |
 | Botões de demonstração | Viram "Criar conta" (`/register`); o texto do CTA final vira "Crie sua conta e concilie o primeiro mês." | A demonstração ainda não existe (combinado antes) | y |
-| Link "Fechamento" do menu | Leva à prévia do painel ("Faltam 12 divergências para fechar setembro") | Não há seção própria de fechamento no desenho | y |
+| Link "Fechamento" do menu | Sai do menu; ficam "Como funciona" e "Divergências" | Não há seção própria de fechamento no desenho, e apontar para a prévia rolava tão pouco que parecia não fazer nada (decisão do usuário, 2026-10-19) | y |
 | Tecnologia das animações | CSS ligado ao scroll (`animation-timeline: view()`), sem biblioteca e sem JavaScript; a posição do scroll define o progresso, então voltar desfaz a animação | Funciona no Chrome, Edge e Safari 26; nada a carregar | y |
 | Navegador sem suporte (Firefox hoje) | Conteúdo aparece parado e visível, sem animação | Nada pode ficar escondido sem animação | y |
 | Prévia do painel | Desenho estático com os números do Pen, não os componentes reais do painel | Os componentes do painel dependem de dados da API | y |
@@ -82,7 +82,7 @@ O frontend está público em `https://reconpay.vercel.app`, mas quem abre o ende
 
 1. WHEN a landing abre THEN the system SHALL mostrar, nesta ordem, os textos do Pen `Landing · Desktop`: menu, abertura com a prévia do painel, "O valor que cai na conta quase nunca é o da venda." com as quatro distorções (Taxa, Parcela, Atraso, Estorno), "Três passos por período, do arquivo ao fechamento." com os três passos, "Cada diferença tem dono, decisão e histórico." com as três decisões e o ajuste de exemplo, o convite final e o rodapé.
 2. WHEN o visitante usa um botão principal ("Criar conta" no menu, na abertura e no convite final) THEN the system SHALL abrir `/register`; "Entrar" no menu e no rodapé e "Entrar na minha conta" SHALL abrir `/login`.
-3. WHEN o visitante usa "Como funciona", "Divergências" ou "Fechamento" no menu THEN the system SHALL rolar até a seção dos passos, a das divergências e a prévia do painel.
+3. WHEN o visitante usa "Como funciona" ou "Divergências" no menu THEN the system SHALL rolar até a seção dos passos e a das divergências; o menu SHALL não ter outras âncoras.
 4. WHEN o visitante usa "GitHub" ou "Documentação da API" no rodapé THEN the system SHALL abrir os endereços da tabela de decisões.
 
 **Independent Test**: Comparar a página com o Pen e clicar em cada link.
