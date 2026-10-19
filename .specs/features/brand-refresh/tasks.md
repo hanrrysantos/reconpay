@@ -96,7 +96,7 @@ T6 → T7
 
 - [x] `/brand/reconpay-mark-on-dark.svg`, `/brand/reconpay-mark-on-light.svg` e `/brand/reconpay-mark-on-dark.png` respondem 200
 - [x] O ícone da aba é o quadrado preto com o símbolo, conferido a 16 e 32 px
-- [ ] `font-brand` aplica Manrope 800, sem rede no build (o Tailwind só gera a classe quando ela é usada; conferido na T2)
+- [x] `font-brand` aplica Manrope 800, sem rede no build (o Tailwind só gera a classe quando ela é usada; conferido na T2: `getComputedStyle` dá `manrope` e `document.fonts` tem `manrope` carregada)
 - [x] Gate build passa
 
 **Tests**: none
@@ -121,11 +121,11 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `tone="dark"`: símbolo para fundo escuro, "Recon" branco e "Pay" verde-limão
-- [ ] `tone="light"`: símbolo para fundo claro e "ReconPay" todo preto
-- [ ] Frase só com `tagline`; tamanhos `md` e `sm`
-- [ ] Símbolo com `alt=""` e fora da leitura de tela; o texto lido é "ReconPay"
-- [ ] Gate quick (frontend) passa
+- [x] `tone="dark"`: símbolo para fundo escuro, "Recon" branco e "Pay" verde-limão
+- [x] `tone="light"`: símbolo para fundo claro e "ReconPay" todo preto
+- [x] Frase só com `tagline`; tamanhos `md` e `sm`
+- [x] Símbolo com `alt=""` e fora da leitura de tela; o texto lido é "ReconPay"
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick
