@@ -81,6 +81,16 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
   - "Travar" e "Destravar" pedem confirmação e atualizam a linha; a trava recusada (por exemplo, divergência em aberto) mostra a mensagem da API acima da tabela; "Exportar CSV" baixa `reconpay-<início>-<fim>.csv`;
   - empresa sem runs mostra o aviso com o link para Conciliações; trocar de empresa volta para a página 1.
 
+## Marca
+
+- Arquivos em `public/brand/`: `reconpay-mark-on-dark.svg` (R branco), `reconpay-mark-on-light.svg` (R preto) e `reconpay-mark-on-dark.png` (usado pelo e-mail de verificação, que o busca em `<RECONPAY_VERIFICATION_BASE_URL>/brand/`). A folha é sempre verde-limão. O ícone da aba é `public/icon.svg`.
+- O símbolo foi redesenhado em SVG sobre o quadro da marca, que só existe em PNG.
+- Use sempre `components/brand/Logo.tsx`:
+  - `tone` é o fundo onde a marca fica: `dark` mostra "Pay" em verde-limão; `light` deixa "ReconPay" todo em preto, porque o verde some em tamanho pequeno sobre fundo claro;
+  - `tagline` mostra "Conciliação financeira com clareza", hoje só no painel escuro do login e do cadastro e no rodapé da landing;
+  - `size`: `md` (menus e telas) ou `sm` (rodapé e prévia).
+- O nome usa Manrope 800 (`font-brand`); o resto do app segue com Inter e Inter Tight.
+
 ## Dependências
 
 - `@tanstack/react-query`: cache, polling do run e invalidação após cada ação.

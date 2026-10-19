@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: inline (abaixo)
-**Status**: In Progress
+**Status**: Done
 
 ---
 
@@ -255,8 +255,8 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Arquivos e regras de uso documentados
-- [ ] Gate build passa
+- [x] Arquivos e regras de uso documentados
+- [x] Gate build passa
 
 **Tests**: none
 **Gate**: build
