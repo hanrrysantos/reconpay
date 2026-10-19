@@ -99,7 +99,8 @@ O frontend está público em `https://reconpay.vercel.app`, mas quem abre o ende
 
 1. WHEN a tela tem menos de 768 px THEN the system SHALL seguir o Pen `Landing · Mobile`: menu só com a marca, "Entrar" e "Criar conta"; botões em coluna e na largura toda; seções em uma coluna; a prévia sem as abas, sem os indicadores ao lado do anel e sem o botão "Resolver" das linhas.
 2. WHEN a tela tem de 320 px a 1920 px THEN the system SHALL não ter rolagem horizontal nem texto cortado.
-3. WHEN a tela tem 768 px ou mais THEN the system SHALL seguir o Pen `Landing · Desktop`, com o conteúdo centrado em até 1440 px.
+3. WHEN a tela tem 768 px ou mais THEN the system SHALL seguir o Pen `Landing · Desktop`, com o conteúdo centrado em até 1440 px; entre os dois desenhos, o que não cabe entra por largura: as âncoras do menu, as abas e o anel ao lado da tabela a partir de 1024 px, os indicadores a partir de 1280 px e o botão "Resolver" a partir de 1400 px.
+4. WHEN a tela tem menos de 380 px THEN the system SHALL tirar "Entrar" do menu (fica "Entrar na minha conta" logo abaixo) e pôr o tipo de cada divergência da prévia numa segunda linha.
 
 **Independent Test**: Abrir a página a 390 px e a 1440 px e comparar com os dois desenhos.
 
@@ -152,7 +153,7 @@ O frontend está público em `https://reconpay.vercel.app`, mas quem abre o ende
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| LAND-01 | P1: Landing no endereço raiz | Specify | Pending |
+| LAND-01 | P1: Landing no endereço raiz | Execute | Implemented |
 | LAND-02 | P1: Conteúdo do desenho | Specify | Pending |
 | LAND-03 | P1: Celular | Specify | Pending |
 | LAND-04 | P1: Animações ligadas ao scroll | Specify | Pending |

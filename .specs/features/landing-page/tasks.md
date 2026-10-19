@@ -158,13 +158,13 @@ T6 → T7
 
 **Done when**:
 
-- [ ] `/` renderiza a landing sem chamar a API e sem `AppShell`
-- [ ] Textos do menu, da abertura, da prévia e do rodapé iguais ao Pen, com as trocas de "Ver demonstração" da spec
-- [ ] Links: "Criar conta" → `/register`; "Entrar" e "Entrar na minha conta" → `/login`; âncoras `#como-funciona`, `#divergencias`, `#fechamento`; GitHub e Documentação da API nos endereços da spec
-- [ ] Um `h1`; regiões `nav`, `main`, `footer`; prévia com `role="img"` e o nome da spec
-- [ ] Metadata com o título e a descrição da spec
-- [ ] Capturas a 390 e 1440 px conferidas com o Pen
-- [ ] Gate build passa
+- [x] `/` renderiza a landing sem chamar a API e sem `AppShell`
+- [x] Textos do menu, da abertura, da prévia e do rodapé iguais ao Pen, com as trocas de "Ver demonstração" da spec
+- [x] Links: "Criar conta" → `/register`; "Entrar" e "Entrar na minha conta" → `/login`; âncoras `#como-funciona`, `#divergencias`, `#fechamento`; GitHub e Documentação da API nos endereços da spec
+- [x] Um `h1`; regiões `nav`, `main`, `footer`; prévia com `role="img"` e o nome da spec
+- [x] Metadata com o título e a descrição da spec
+- [x] Capturas a 390 e 1440 px conferidas com o Pen
+- [x] Gate build passa
 
 **Tests**: unit
 **Gate**: build
