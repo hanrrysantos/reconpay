@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  useEffect(() => { if (user) router.replace('/') }, [router, user])
+  useEffect(() => { if (user) router.replace('/painel') }, [router, user])
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -24,7 +24,7 @@ export default function LoginPage() {
     setBusy(true)
     try {
       await signIn(String(form.get('email')), String(form.get('password')))
-      router.replace('/')
+      router.replace('/painel')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Não foi possível entrar. Tente novamente.')
     } finally {

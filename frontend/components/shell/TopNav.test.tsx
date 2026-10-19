@@ -3,13 +3,13 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { TopNav } from './TopNav'
 
-const navigation = vi.hoisted(() => ({ pathname: '/' }))
+const navigation = vi.hoisted(() => ({ pathname: '/painel' }))
 vi.mock('next/navigation', () => ({ usePathname: () => navigation.pathname }))
 const signOut = vi.hoisted(() => vi.fn())
 vi.mock('@/lib/auth', () => ({ useAuth: () => ({ user: { name: 'Ana Souza' }, signOut }) }))
 
 const ITEMS: Array<[string, string]> = [
-  ['Visão geral', '/'],
+  ['Visão geral', '/painel'],
   ['Conciliações', '/conciliacoes'],
   ['Divergências', '/divergencias'],
   ['Transações', '/transacoes'],
@@ -17,7 +17,7 @@ const ITEMS: Array<[string, string]> = [
   ['Fechamento', '/fechamento'],
 ]
 
-beforeEach(() => { navigation.pathname = '/' })
+beforeEach(() => { navigation.pathname = '/painel' })
 
 describe('TopNav', () => {
   it('renderiza os seis itens do produto na ordem, com seus links', () => {
@@ -35,6 +35,12 @@ describe('TopNav', () => {
     expect(within(nav).getByRole('link', { name: label })).toHaveAttribute('aria-current', 'page')
     const active = within(nav).getAllByRole('link').filter(link => link.getAttribute('aria-current') === 'page')
     expect(active).toHaveLength(1)
+  })
+
+  it('a marca leva ao painel (LAND-01 AC3)', () => {
+    render(<TopNav />)
+
+    expect(screen.getByRole('link', { name: 'reconpay' })).toHaveAttribute('href', '/painel')
   })
 
   it('marca o item da seção numa sub-rota', () => {

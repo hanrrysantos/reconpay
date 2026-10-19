@@ -105,9 +105,9 @@ T6 → T7
 
 **Done when**:
 
-- [ ] Login com sucesso e com sessão existente chamam `router.replace('/painel')`
-- [ ] "Visão geral" e a marca apontam para `/painel` e "Visão geral" fica ativa em `/painel`
-- [ ] Gate quick passa
+- [x] Login com sucesso e com sessão existente chamam `router.replace('/painel')`
+- [x] "Visão geral" e a marca apontam para `/painel` e "Visão geral" fica ativa em `/painel`
+- [x] Gate quick passa
 
 **Tests**: unit
 **Gate**: quick
