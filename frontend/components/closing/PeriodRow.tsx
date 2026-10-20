@@ -2,7 +2,6 @@
 
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Confirm } from '@/components/dashboard/CloseStepper'
 import { formatRate } from '@/components/dashboard/format'
 import { ApiError } from '@/lib/api'
 import { PERIOD_STATUS_LABELS, formatDuration, formatLockedAt, periodStatus } from '@/lib/closing'
@@ -59,35 +58,61 @@ export function PeriodRow({ merchantId, window, onError }: { merchantId: string;
 
   const label = status === 'error' ? 'Não carregou' : status === 'loading' ? 'Carregando' : PERIOD_STATUS_LABELS[status]
   return (
-    <tr className="border-t border-border text-[14px]">
-      <td className="px-4 py-3 font-semibold">{name}</td>
-      <td className="px-4 py-3" aria-busy={status === 'loading' || undefined}>{label}</td>
-      <td className="px-4 py-3 font-mono">{data ? formatRate(data.matchRate) : '—'}</td>
-      <td className="px-4 py-3 font-mono">{data ? formatMoney(data.openAmount) : '—'}</td>
-      <td className="px-4 py-3 font-mono">{data ? formatLockedAt(data.lockedAt) : '—'}</td>
-      <td className="px-4 py-3 font-mono">{data ? formatDuration(data.closeDurationSeconds) : '—'}</td>
-      <td className="relative px-4 py-3">
-        <div className="flex justify-end gap-2">
-          {status === 'error' && (
-            <button type="button" aria-label={`Tentar novamente ${name}`} onClick={() => void period.refetch()} className={action}>Tentar novamente</button>
-          )}
-          {status === 'open' && (
-            <button type="button" aria-label={`Travar ${name}`} disabled={busy} onClick={() => setConfirming('lock')} className={action}>Travar</button>
-          )}
-          {status === 'locked' && (
-            <button type="button" aria-label={`Destravar ${name}`} disabled={busy} onClick={() => setConfirming('unlock')} className={action}>Destravar</button>
-          )}
-          {data && (
-            <button type="button" aria-label={`Exportar CSV de ${name}`} disabled={busy} onClick={() => void exportCsv()} className={action}>Exportar CSV</button>
-          )}
-        </div>
-        {confirming === 'lock' && (
-          <Confirm title="Travar o período?" action="Travar" onCancel={() => setConfirming(null)} onConfirm={() => void changeLock('lock')} />
-        )}
-        {confirming === 'unlock' && (
-          <Confirm title="Destravar o período?" action="Destravar" onCancel={() => setConfirming(null)} onConfirm={() => void changeLock('unlock')} />
-        )}
-      </td>
-    </tr>
+    <>
+      <tr className="border-t border-border text-[14px]">
+        <td className="px-4 py-3 font-semibold">{name}</td>
+        <td className="px-4 py-3" aria-busy={status === 'loading' || undefined}>{label}</td>
+        <td className="px-4 py-3 font-mono">{data ? formatRate(data.matchRate) : '—'}</td>
+        <td className="px-4 py-3 font-mono">{data ? formatMoney(data.openAmount) : '—'}</td>
+        <td className="px-4 py-3 font-mono">{data ? formatLockedAt(data.lockedAt) : '—'}</td>
+        <td className="px-4 py-3 font-mono">{data ? formatDuration(data.closeDurationSeconds) : '—'}</td>
+        <td className="px-4 py-3">
+          <div className="flex justify-end gap-2">
+            {status === 'error' && (
+              <button type="button" aria-label={`Tentar novamente ${name}`} onClick={() => void period.refetch()} className={action}>Tentar novamente</button>
+            )}
+            {status === 'open' && (
+              <button type="button" aria-label={`Travar ${name}`} disabled={busy || confirming !== null} onClick={() => setConfirming('lock')} className={action}>Travar</button>
+            )}
+            {status === 'locked' && (
+              <button type="button" aria-label={`Destravar ${name}`} disabled={busy || confirming !== null} onClick={() => setConfirming('unlock')} className={action}>Destravar</button>
+            )}
+            {data && (
+              <button type="button" aria-label={`Exportar CSV de ${name}`} disabled={busy} onClick={() => void exportCsv()} className={action}>Exportar CSV</button>
+            )}
+          </div>
+        </td>
+      </tr>
+      {/*
+        The confirmation opens as its own row: the table scrolls sideways, so a panel floating
+        below the last row would be clipped by that scroll area.
+      */}
+      {confirming && (
+        <tr>
+          <td colSpan={7} className="px-4 pb-3">
+            <div className="flex justify-end">
+              <RowConfirm
+                title={confirming === 'lock' ? 'Travar o período?' : 'Destravar o período?'}
+                action={confirming === 'lock' ? 'Travar' : 'Destravar'}
+                onCancel={() => setConfirming(null)}
+                onConfirm={() => void changeLock(confirming)}
+              />
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  )
+}
+
+function RowConfirm({ title, action, onConfirm, onCancel }: { title: string; action: string; onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div role="alertdialog" aria-label={title} className="flex items-center gap-4 rounded-[14px] bg-surface py-2 pr-2 pl-4">
+      <p className="text-[13px] font-semibold">{title}</p>
+      <div className="flex gap-2">
+        <button type="button" onClick={onCancel} className="h-8 rounded-full bg-danger px-3 text-[13px] font-semibold text-white">Cancelar</button>
+        <button type="button" onClick={onConfirm} className="h-8 rounded-full bg-foreground px-3 text-[13px] font-semibold text-white">{action}</button>
+      </div>
+    </div>
   )
 }

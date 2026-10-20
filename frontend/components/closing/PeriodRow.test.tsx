@@ -47,7 +47,8 @@ function show(window: Window = october) {
   return { onError, user: userEvent.setup() }
 }
 
-const row = () => screen.getByRole('row')
+// The period's own row; an open confirmation adds a second row below it.
+const row = () => screen.getAllByRole('row')[0]
 const cells = () => within(row()).getAllByRole('cell').slice(0, 6).map(cell => cell.textContent)
 const buttons = () => within(row()).queryAllByRole('button').map(button => button.textContent)
 
@@ -116,15 +117,32 @@ describe('PeriodRow', () => {
     const { user, onError } = show()
 
     await user.click(await within(row()).findByRole('button', { name: 'Travar Outubro de 2026' }))
-    const dialog = within(row()).getByRole('alertdialog', { name: 'Travar o período?' })
+    const dialog = screen.getByRole('alertdialog', { name: 'Travar o período?' })
     expect(api.lockPeriod).not.toHaveBeenCalled()
     await user.click(within(dialog).getByRole('button', { name: 'Travar' }))
 
     expect(api.lockPeriod).toHaveBeenCalledWith('jwt', 'm-1', october)
     await waitFor(() => expect(cells()).toEqual(['Outubro de 2026', 'Travado', '100%', 'R$ 0,00', '02/11/2026 08:07', '29 s']))
-    expect(within(row()).queryByRole('alertdialog')).toBeNull()
+    expect(screen.queryByRole('alertdialog')).toBeNull()
     expect(onError).toHaveBeenCalledWith(null)
     expect(onError).not.toHaveBeenCalledWith(expect.any(String))
+  })
+
+  it('a confirmação abre numa linha própria abaixo do período, alinhada à direita, com Cancelar vermelho e Travar preto', async () => {
+    vi.mocked(api.getPeriod).mockResolvedValue(period())
+    const { user } = show()
+
+    await user.click(await within(row()).findByRole('button', { name: 'Travar Outubro de 2026' }))
+
+    const [periodRow, confirmRow] = screen.getAllByRole('row')
+    const dialog = within(confirmRow).getByRole('alertdialog', { name: 'Travar o período?' })
+    expect(within(periodRow).queryByRole('alertdialog')).toBeNull()
+    expect(confirmRow.querySelector('td')).toHaveAttribute('colspan', '7')
+    expect(dialog).not.toHaveClass('absolute')
+    expect(dialog.parentElement).toHaveClass('justify-end')
+    expect(within(dialog).getByRole('button', { name: 'Cancelar' })).toHaveClass('bg-danger')
+    expect(within(dialog).getByRole('button', { name: 'Travar' })).toHaveClass('bg-foreground')
+    expect(within(periodRow).getByRole('button', { name: 'Travar Outubro de 2026' })).toBeDisabled()
   })
 
   it('"Destravar" pede confirmação e só destrava depois de confirmar; a linha volta para "Aberto" (FEC-04 AC1, FEC-05 AC4)', async () => {
@@ -133,7 +151,7 @@ describe('PeriodRow', () => {
     const { user } = show()
 
     await user.click(await within(row()).findByRole('button', { name: 'Destravar Outubro de 2026' }))
-    const dialog = within(row()).getByRole('alertdialog', { name: 'Destravar o período?' })
+    const dialog = screen.getByRole('alertdialog', { name: 'Destravar o período?' })
     expect(api.unlockPeriod).not.toHaveBeenCalled()
     await user.click(within(dialog).getByRole('button', { name: 'Destravar' }))
 
@@ -150,9 +168,9 @@ describe('PeriodRow', () => {
     const { user } = show()
 
     await user.click(await within(row()).findByRole('button', { name: `${action} Outubro de 2026` }))
-    await user.click(within(within(row()).getByRole('alertdialog', { name: title })).getByRole('button', { name: 'Cancelar' }))
+    await user.click(within(screen.getByRole('alertdialog', { name: title })).getByRole('button', { name: 'Cancelar' }))
 
-    expect(within(row()).queryByRole('alertdialog')).toBeNull()
+    expect(screen.queryByRole('alertdialog')).toBeNull()
     expect(mutation).not.toHaveBeenCalled()
   })
 
@@ -164,7 +182,7 @@ describe('PeriodRow', () => {
     const { user } = show()
 
     await user.click(await within(row()).findByRole('button', { name: 'Travar Outubro de 2026' }))
-    await user.click(within(within(row()).getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
 
     await waitFor(() => expect(client.getQueryData(queryKeys.period('m-1', october))).toEqual(answer))
     expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.period('m-1', october) })
@@ -176,7 +194,7 @@ describe('PeriodRow', () => {
     const { user, onError } = show()
 
     await user.click(await within(row()).findByRole('button', { name: 'Travar Outubro de 2026' }))
-    await user.click(within(within(row()).getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
 
     await waitFor(() => expect(onError).toHaveBeenLastCalledWith('Janela possui divergência em aberto'))
     await waitFor(() => expect(cells()).toEqual(['Outubro de 2026', 'Aberto', '94,2%', 'R$ 20,00', '—', '—']))
@@ -189,7 +207,7 @@ describe('PeriodRow', () => {
     const { user, onError } = show()
 
     await user.click(await within(row()).findByRole('button', { name: 'Destravar Outubro de 2026' }))
-    await user.click(within(within(row()).getByRole('alertdialog')).getByRole('button', { name: 'Destravar' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Destravar' }))
 
     await waitFor(() => expect(onError).toHaveBeenLastCalledWith('Janela não está travada de 2026-10-01 a 2026-10-31'))
     await waitFor(() => expect(cells()[1]).toBe('Aberto'))
@@ -206,7 +224,7 @@ describe('PeriodRow', () => {
     const { user } = show()
 
     await user.click(await within(row()).findByRole('button', { name: 'Travar Outubro de 2026' }))
-    await user.click(within(within(row()).getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
 
     await waitFor(() => expect(cells()).toEqual(['Outubro de 2026', label, '—', '—', '—', '—']))
     expect(buttons()).toEqual(actions)
@@ -218,7 +236,7 @@ describe('PeriodRow', () => {
     const { user, onError } = show()
 
     await user.click(await within(row()).findByRole('button', { name: 'Travar Outubro de 2026' }))
-    await user.click(within(within(row()).getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
 
     await waitFor(() => expect(onError).toHaveBeenLastCalledWith('Você não tem acesso a este comerciante'))
     expect(api.getPeriod).toHaveBeenCalledTimes(1)
@@ -264,7 +282,7 @@ describe('PeriodRow', () => {
     const { user } = show()
 
     await user.click(await within(row()).findByRole('button', { name: `${action} Outubro de 2026` }))
-    await user.click(within(within(row()).getByRole('alertdialog')).getByRole('button', { name: action }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: action }))
 
     await waitFor(() => expect(within(row()).getByRole('button', { name: `${action} Outubro de 2026` })).toBeDisabled())
     expect(within(row()).getByRole('button', { name: 'Exportar CSV de Outubro de 2026' })).toBeDisabled()
