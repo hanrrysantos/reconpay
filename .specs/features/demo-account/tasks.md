@@ -441,9 +441,9 @@ T23
 
 **Done when**:
 
-- [ ] `RANDOM_PORT` com a estratégia `native`: 2 criações com `X-Forwarded-For: 1.1.1.1, 9.9.9.9` e uma 3ª com `X-Forwarded-For: 2.2.2.2, 9.9.9.9` → `429` (conta o endereço mais à direita)
-- [ ] Com `server.tomcat.remoteip.internal-proxies` sem `127.0.0.1`: cabeçalhos diferentes do mesmo cliente → 3ª `429` (cabeçalho ignorado)
-- [ ] Gate quick (backend) passa
+- [x] `RANDOM_PORT` com a estratégia `native`: 2 criações com `X-Forwarded-For: 1.1.1.1, 9.9.9.9` e uma 3ª com `X-Forwarded-For: 2.2.2.2, 9.9.9.9` → `429` (conta o endereço mais à direita)
+- [x] Com `server.tomcat.remoteip.internal-proxies` sem `127.0.0.1`: cabeçalhos diferentes do mesmo cliente → 3ª `429` (cabeçalho ignorado)
+- [x] Gate quick (backend) passa
 
 **Tests**: integration
 **Gate**: quick

@@ -1,3 +1,7 @@
+# Behind nginx: Tomcat takes the client address from X-Forwarded-For, trusting only internal proxies.
+server:
+  forward-headers-strategy: native
+
 spring:
   jpa:
     show-sql: false
