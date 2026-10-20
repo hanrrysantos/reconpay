@@ -218,11 +218,11 @@ T23
 
 **Done when**:
 
-- [ ] Os três CSVs passam pelos parsers reais sem erro de linha (`TransactionCsvParser`, `SettlementCsvParser`, `BankStatementCsvParser`)
-- [ ] Toda data fica em [`today-60`, `today-1`]; nenhuma é `today` nem posterior
-- [ ] Referências de transação únicas; regras para os 4 meios
-- [ ] Mesmo `today` → CSVs idênticos; outro `today` → mesmas contagens e mesmo bruto total
-- [ ] Gate quick (backend) passa
+- [x] Os três CSVs passam pelos parsers reais sem erro de linha (`TransactionCsvParser`, `SettlementCsvParser`, `BankStatementCsvParser`)
+- [x] Toda data fica em [`today-60`, `today-1`]; nenhuma é `today` nem posterior
+- [x] Referências de transação únicas; regras para os 4 meios
+- [x] Mesmo `today` → CSVs idênticos; outro `today` → mesmas contagens e mesmo bruto total
+- [x] Gate quick (backend) passa
 
 **Tests**: unit
 **Gate**: quick

@@ -28,7 +28,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class BankStatementCsvParser {
 
-    private static final String[] EXPECTED_HEADER = {
+    public static final String[] EXPECTED_HEADER = {
             "lineReference",
             "externalReference",
             "amount",
