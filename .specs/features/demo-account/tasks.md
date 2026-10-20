@@ -165,9 +165,9 @@ T23
 
 **Done when**:
 
-- [ ] `exp - iat` do token é igual ao `ttl` informado
-- [ ] `generateToken(email)` mantém `exp - iat` = `jwt.expiration`
-- [ ] Gate quick (backend) passa
+- [x] `exp - iat` do token é igual ao `ttl` informado
+- [x] `generateToken(email)` mantém `exp - iat` = `jwt.expiration`
+- [x] Gate quick (backend) passa
 
 **Tests**: unit
 **Gate**: quick
