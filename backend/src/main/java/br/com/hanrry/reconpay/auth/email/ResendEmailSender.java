@@ -32,11 +32,14 @@ public class ResendEmailSender implements EmailSender {
     @Override
     public void sendEmailVerification(String toEmail, String recipientName, String rawToken) {
         VerificationEmailComposer.VerificationEmail email = verificationEmailComposer.compose(toEmail, recipientName, rawToken);
+        String redirectTo = emailProperties.redirectTo();
+        String recipient = redirectTo == null ? toEmail : redirectTo;
+        String subject = redirectTo == null ? email.subject() : "[dev → " + toEmail + "] " + email.subject();
 
         Map<String, Object> body = Map.of(
                 "from", emailProperties.from(),
-                "to", List.of(toEmail),
-                "subject", email.subject(),
+                "to", List.of(recipient),
+                "subject", subject,
                 "html", email.html(),
                 "text", email.text()
         );
@@ -49,6 +52,10 @@ public class ResendEmailSender implements EmailSender {
                 .retrieve()
                 .toBodilessEntity();
 
-        log.info("Verification email dispatched via Resend to {}", toEmail);
+        if (redirectTo == null) {
+            log.info("Verification email dispatched via Resend to {}", toEmail);
+        } else {
+            log.info("Verification email for {} dispatched via Resend, redirected to {}", toEmail, redirectTo);
+        }
     }
 }

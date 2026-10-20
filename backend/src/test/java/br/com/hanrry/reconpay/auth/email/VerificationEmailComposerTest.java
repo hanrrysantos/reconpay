@@ -15,7 +15,7 @@ class VerificationEmailComposerTest {
     }
 
     private static VerificationEmailComposer composer(String baseUrl, Long tokenHours) {
-        EmailProperties properties = new EmailProperties(null, null, baseUrl, tokenHours);
+        EmailProperties properties = new EmailProperties(null, null, baseUrl, tokenHours, null);
         return new VerificationEmailComposer(new EmailVerificationLinkFactory(properties), properties);
     }
 
