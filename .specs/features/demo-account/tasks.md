@@ -191,10 +191,10 @@ T23
 
 **Done when**:
 
-- [ ] Integração: token válido de usuário com `demo_expires_at` no passado → `GET /api/me` `401`
-- [ ] Fronteira: `demo_expires_at` igual ao instante do relógio → `401`; 1 s depois do relógio → `200`
-- [ ] Conta comum (`demo_expires_at` nulo) segue `200`
-- [ ] Gate quick (backend) passa
+- [x] Integração: token válido de usuário com `demo_expires_at` no passado → `GET /api/me` `401`
+- [x] Fronteira: `demo_expires_at` igual ao instante do relógio → `401`; 1 s depois do relógio → `200`
+- [x] Conta comum (`demo_expires_at` nulo) segue `200`
+- [x] Gate quick (backend) passa
 
 **Tests**: integration
 **Gate**: quick
