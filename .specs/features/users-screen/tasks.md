@@ -261,8 +261,8 @@ T14
 
 **Done when**:
 
-- [ ] `frontend/lib/queries.users.test.tsx`: `useUserPage` com `enabled = false` não chama a API; filtros e página entram na chave; cada mutação invalida `userPage`; `useReplaceUserAccess` também invalida `userAccess` do usuário
-- [ ] Gate build (fim da fase): `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] `frontend/lib/queries.users.test.tsx`: `useUserPage` com `enabled = false` não chama a API; filtros e página entram na chave; cada mutação invalida `userPage`; `useReplaceUserAccess` também invalida `userAccess` do usuário
+- [x] Gate build (fim da fase): `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: unit
 **Gate**: build
