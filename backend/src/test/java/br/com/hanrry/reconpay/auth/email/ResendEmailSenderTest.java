@@ -11,6 +11,7 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
@@ -41,7 +42,7 @@ class ResendEmailSenderTest {
                 .andExpect(jsonPath("$.text").value(expected.text()))
                 .andRespond(withSuccess("{\"id\":\"1\"}", MediaType.APPLICATION_JSON));
 
-        new ResendEmailSender(properties, composer, builder).sendEmailVerification("ana@lojacentro.com.br", "Ana", "tok");
+        new ResendEmailSender(properties, composer, builder, profiles("dev")).sendEmailVerification("ana@lojacentro.com.br", "Ana", "tok");
 
         server.verify();
     }
@@ -50,7 +51,17 @@ class ResendEmailSenderTest {
         return new EmailProperties("re_key", "ReconPay <noreply@hanrry.top>", "https://app.example.com", 24L, redirectTo);
     }
 
+    private static MockEnvironment profiles(String... active) {
+        MockEnvironment environment = new MockEnvironment();
+        environment.setActiveProfiles(active);
+        return environment;
+    }
+
     private static void send(EmailProperties properties, String toEmail, String expectedTo, String expectedSubject) {
+        send(properties, profiles("dev"), toEmail, expectedTo, expectedSubject);
+    }
+
+    private static void send(EmailProperties properties, MockEnvironment environment, String toEmail, String expectedTo, String expectedSubject) {
         VerificationEmailComposer composer = new VerificationEmailComposer(new EmailVerificationLinkFactory(properties), properties);
         VerificationEmail expected = composer.compose(toEmail, "Ana", "tok");
         RestClient.Builder builder = RestClient.builder();
@@ -63,7 +74,7 @@ class ResendEmailSenderTest {
                 .andExpect(jsonPath("$.text").value(expected.text()))
                 .andRespond(withSuccess("{\"id\":\"1\"}", MediaType.APPLICATION_JSON));
 
-        new ResendEmailSender(properties, composer, builder).sendEmailVerification(toEmail, "Ana", "tok");
+        new ResendEmailSender(properties, composer, builder, environment).sendEmailVerification(toEmail, "Ana", "tok");
 
         server.verify();
     }
@@ -111,5 +122,19 @@ class ResendEmailSenderTest {
                 "[dev → ana@lojacentro.com.br] Confirme seu e-mail — ReconPay");
 
         assertThat(output).contains("ana@lojacentro.com.br").contains("redirected to dev@example.com");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "test", "prod"})
+    void outsideTheDevProfileABoundRedirectIsIgnored(String profile) {
+        MockEnvironment environment = profile.isEmpty() ? profiles() : profiles(profile);
+
+        send(properties("dev@example.com"), environment, "ana@lojacentro.com.br", "ana@lojacentro.com.br", "Confirme seu e-mail — ReconPay");
+    }
+
+    @Test
+    void devAlongsideOtherProfilesStillRedirects() {
+        send(properties("dev@example.com"), profiles("dev", "local"), "ana@lojacentro.com.br", "dev@example.com",
+                "[dev → ana@lojacentro.com.br] Confirme seu e-mail — ReconPay");
     }
 }

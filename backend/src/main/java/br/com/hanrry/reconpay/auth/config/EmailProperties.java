@@ -20,7 +20,7 @@ public record EmailProperties(
         if (verificationTokenHours == null || verificationTokenHours <= 0) {
             verificationTokenHours = 24L;
         }
-        // Dev-only: application-dev.yaml is the only place that maps RECONPAY_EMAIL_REDIRECT_TO.
+        // Only ResendEmailSender under the dev profile honours it; see application-dev.yaml.
         redirectTo = redirectTo == null || redirectTo.isBlank() ? null : redirectTo.strip();
     }
 }

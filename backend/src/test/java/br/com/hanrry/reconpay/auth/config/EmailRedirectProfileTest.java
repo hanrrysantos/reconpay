@@ -18,7 +18,10 @@ class EmailRedirectProfileTest {
 
     private static final Map<String, Object> ENV = Map.of("RECONPAY_EMAIL_REDIRECT_TO", "dev@example.com");
 
-    /** Binds reconpay.email the way Spring does, from application.yaml plus the profile files, with the variable set. */
+    /**
+     * Binds reconpay.email from application.yaml plus the profile files, with the variable set the way the dev profile
+     * imports it from ../.env. An OS environment variable binds in any profile; ResendEmailSender guards against that.
+     */
     private static EmailProperties bind(String... profiles) throws IOException {
         StandardEnvironment environment = new StandardEnvironment();
         environment.getPropertySources().addFirst(new MapPropertySource("env", ENV));
@@ -38,8 +41,8 @@ class EmailRedirectProfileTest {
     }
 
     @Test
-    void otherProfilesIgnoreTheRedirectVariable() throws IOException {
-        for (List<String> profiles : List.of(List.<String>of(), List.of("prod"))) {
+    void otherProfilesDoNotMapTheEnvFileVariable() throws IOException {
+        for (List<String> profiles : List.of(List.<String>of(), List.of("test"), List.of("prod"))) {
             assertThat(bind(profiles.toArray(String[]::new)).redirectTo()).as("profiles %s", profiles).isNull();
         }
     }

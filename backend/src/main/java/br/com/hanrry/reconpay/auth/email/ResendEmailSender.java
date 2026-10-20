@@ -3,6 +3,8 @@ package br.com.hanrry.reconpay.auth.email;
 import br.com.hanrry.reconpay.auth.config.EmailProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -20,19 +22,22 @@ public class ResendEmailSender implements EmailSender {
     private final EmailProperties emailProperties;
     private final VerificationEmailComposer verificationEmailComposer;
     private final RestClient restClient;
+    private final String redirectTo;
 
     public ResendEmailSender(EmailProperties emailProperties,
                              VerificationEmailComposer verificationEmailComposer,
-                             RestClient.Builder restClientBuilder) {
+                             RestClient.Builder restClientBuilder,
+                             Environment environment) {
         this.emailProperties = emailProperties;
         this.verificationEmailComposer = verificationEmailComposer;
         this.restClient = restClientBuilder.build();
+        // Relaxed binding fills redirectTo from an OS variable in any profile, so the dev check lives here.
+        this.redirectTo = environment.acceptsProfiles(Profiles.of("dev")) ? emailProperties.redirectTo() : null;
     }
 
     @Override
     public void sendEmailVerification(String toEmail, String recipientName, String rawToken) {
         VerificationEmailComposer.VerificationEmail email = verificationEmailComposer.compose(toEmail, recipientName, rawToken);
-        String redirectTo = emailProperties.redirectTo();
         String recipient = redirectTo == null ? toEmail : redirectTo;
         String subject = redirectTo == null ? email.subject() : "[dev → " + toEmail + "] " + email.subject();
 
