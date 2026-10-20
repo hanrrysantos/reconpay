@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { NAME_LIMIT, NAME_TOO_LONG_MESSAGE } from '@/components/merchants/MerchantDrawer'
 import { SideDrawer } from '@/components/ui/SideDrawer'
-import type { UserRole } from '@/lib/api'
+import type { User, UserRole } from '@/lib/api'
 import { PASSWORD_PATTERN } from '@/lib/password'
-import { useCreateUser } from '@/lib/queries'
+import { useCreateUser, useRenameUser } from '@/lib/queries'
 
 export const NAME_REQUIRED_MESSAGE = 'Informe o nome'
 export const INVALID_EMAIL_MESSAGE = 'Informe um e-mail válido'
@@ -26,12 +26,17 @@ const ROLES: Array<[UserRole, string]> = [['OPERATOR', 'Operador'], ['ADMIN', 'A
 
 type Errors = { name?: string | null; email?: string | null; password?: string | null }
 
-/** Side drawer that creates an account, checked here before the API is called; the account is born active. */
-export function UserDrawer({ onClose, onDone }: { onClose: () => void; onDone: (message: string) => void }) {
+/**
+ * Side drawer checked here before the API is called. Without `user` it creates an account, born active; with `user`
+ * it renames that account, and only the name shows.
+ */
+export function UserDrawer({ user, onClose, onDone }: { user?: User; onClose: () => void; onDone: (message: string) => void }) {
+  const renaming = user !== undefined
   const create = useCreateUser()
+  const rename = useRenameUser()
   const nameInput = useRef<HTMLInputElement>(null)
   const sending = useRef(false)
-  const [name, setName] = useState('')
+  const [name, setName] = useState(user?.name ?? '')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<UserRole>('OPERATOR')
@@ -44,7 +49,7 @@ export function UserDrawer({ onClose, onDone }: { onClose: () => void; onDone: (
   async function submit(event: FormEvent) {
     event.preventDefault()
     if (sending.current) return
-    const invalid: Errors = {
+    const invalid: Errors = renaming ? { name: userNameError(name) } : {
       name: userNameError(name),
       email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? null : INVALID_EMAIL_MESSAGE,
       password: strongPassword.test(password) ? null : WEAK_PASSWORD_MESSAGE,
@@ -56,8 +61,13 @@ export function UserDrawer({ onClose, onDone }: { onClose: () => void; onDone: (
     setPending(true)
     setError(null)
     try {
-      await create.mutateAsync({ name: name.trim(), email: email.trim(), password, role })
-      onDone('Usuário criado.')
+      if (renaming) {
+        await rename.mutateAsync({ userId: user.id, name: name.trim() })
+        onDone('Usuário renomeado.')
+      } else {
+        await create.mutateAsync({ name: name.trim(), email: email.trim(), password, role })
+        onDone('Usuário criado.')
+      }
     } catch (failure) {
       setError(messageOf(failure))
     } finally {
@@ -85,27 +95,31 @@ export function UserDrawer({ onClose, onDone }: { onClose: () => void; onDone: (
 
   return (
     <SideDrawer
-      title="Novo usuário"
-      description="A conta nasce ativa, sem confirmação por e-mail."
+      title={renaming ? 'Renomear usuário' : 'Novo usuário'}
+      description={renaming ? 'Só o nome muda.' : 'A conta nasce ativa, sem confirmação por e-mail.'}
       formId="user-form"
-      submitLabel="Criar"
+      submitLabel={renaming ? 'Salvar' : 'Criar'}
       pending={pending}
       error={error}
       onSubmit={event => void submit(event)}
       onClose={onClose}
     >
       {input('name', 'Nome', name, setName)}
-      {input('email', 'E-mail', email, setEmail, 'email')}
-      {input('password', 'Senha', password, setPassword, 'password')}
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-[13px] font-semibold">Papel</legend>
-        {ROLES.map(([value, label]) => (
-          <label key={value} className="flex items-center gap-2 text-[14px]">
-            <input type="radio" name="user-role" value={value} checked={role === value} onChange={() => setRole(value)} className="size-4 accent-foreground" />
-            {label}
-          </label>
-        ))}
-      </fieldset>
+      {!renaming && (
+        <>
+          {input('email', 'E-mail', email, setEmail, 'email')}
+          {input('password', 'Senha', password, setPassword, 'password')}
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 text-[13px] font-semibold">Papel</legend>
+            {ROLES.map(([value, label]) => (
+              <label key={value} className="flex items-center gap-2 text-[14px]">
+                <input type="radio" name="user-role" value={value} checked={role === value} onChange={() => setRole(value)} className="size-4 accent-foreground" />
+                {label}
+              </label>
+            ))}
+          </fieldset>
+        </>
+      )}
     </SideDrawer>
   )
 }

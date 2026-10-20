@@ -144,3 +144,77 @@ describe('UserDrawer: criar', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('Usuário criado.')
   })
 })
+
+describe('UserDrawer: renomear', () => {
+  const renameDrawer = () => screen.getByRole('dialog', { name: 'Renomear usuário' })
+  const renames = () => server.calls.filter(call => call.method === 'PUT' && /^\/api\/users\/[^/]+$/.test(call.path))
+
+  async function openRename(name = 'Bruno Operador') {
+    const user = await renderPage()
+    const row = within(screen.getByRole('table', { name: 'Usuários' })).getAllByRole('row').find(item => item.textContent?.includes(name))!
+    await user.click(within(row).getByRole('button', { name: 'Renomear' }))
+    return user
+  }
+
+  async function typeName(user: ReturnType<typeof userEvent.setup>, name: string) {
+    const input = within(renameDrawer()).getByLabelText('Nome')
+    await user.clear(input)
+    if (name) await user.click(input)
+    if (name) await user.paste(name)
+  }
+
+  it('abre com o nome atual e sem e-mail, senha e papel (USERS-06 AC1)', async () => {
+    await openRename()
+
+    expect(within(renameDrawer()).getByLabelText('Nome')).toHaveValue('Bruno Operador')
+    expect(within(renameDrawer()).queryByLabelText('E-mail')).not.toBeInTheDocument()
+    expect(within(renameDrawer()).queryByLabelText('Senha')).not.toBeInTheDocument()
+    expect(within(renameDrawer()).queryByRole('radio')).not.toBeInTheDocument()
+  })
+
+  it.each([
+    ['vazio', '', 'Informe o nome'],
+    ['com 151 caracteres', 'a'.repeat(151), 'Use no máximo 150 caracteres'],
+  ])('nome %s mostra o erro no campo e não chama a API (USERS-06 AC2)', async (_case, name, message) => {
+    const user = await openRename()
+    await typeName(user, name)
+    await user.click(within(renameDrawer()).getByRole('button', { name: 'Salvar' }))
+
+    expect(within(renameDrawer()).getByText(message)).toBeInTheDocument()
+    expect(within(renameDrawer()).getByLabelText('Nome')).toHaveAttribute('aria-invalid', 'true')
+    expect(renames()).toHaveLength(0)
+  })
+
+  it('nome com 150 caracteres é enviado (USERS-06 AC2)', async () => {
+    const user = await openRename()
+    await typeName(user, 'b'.repeat(150))
+    await user.click(within(renameDrawer()).getByRole('button', { name: 'Salvar' }))
+
+    await waitFor(() => expect(renames().map(call => call.body)).toEqual([{ name: 'b'.repeat(150) }]))
+  })
+
+  it.each([
+    ['Bruno Operador', 'u-bruno'],
+    ['Ana Admin', 'u-admin'],
+  ])('200 em %s fecha, atualiza a lista e mostra "Usuário renomeado." (USERS-06 AC3)', async (name, id) => {
+    const user = await openRename(name)
+    await typeName(user, 'Zeca Renomeado')
+    await user.click(within(renameDrawer()).getByRole('button', { name: 'Salvar' }))
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Usuário renomeado.')
+    expect(renames().map(call => [call.path, call.body])).toEqual([[`/api/users/${id}`, { name: 'Zeca Renomeado' }]])
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    await waitFor(() => expect(rowNames()).toContain('Zeca Renomeado'))
+    expect(rowNames()).not.toContain(name)
+  })
+
+  it('erro da API mantém o painel aberto com a message', async () => {
+    server.rename = () => fail(404, 'Usuário não encontrado')
+    const user = await openRename()
+    await typeName(user, 'Zeca Renomeado')
+    await user.click(within(renameDrawer()).getByRole('button', { name: 'Salvar' }))
+
+    expect(await within(renameDrawer()).findByRole('alert')).toHaveTextContent('Usuário não encontrado')
+    expect(within(renameDrawer()).getByLabelText('Nome')).toHaveValue('Zeca Renomeado')
+  })
+})

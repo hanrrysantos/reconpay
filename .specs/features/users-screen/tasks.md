@@ -414,8 +414,8 @@ T14
 
 **Done when**:
 
-- [ ] `UserDrawer.test.tsx`: abre com o nome atual e sem e-mail, senha e papel; vazio e 151 caracteres mostram erro e não chamam a API; 150 caracteres envia; `200` fecha e mostra "Usuário renomeado."
-- [ ] Gate build: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
+- [x] `UserDrawer.test.tsx`: abre com o nome atual e sem e-mail, senha e papel; vazio e 151 caracteres mostram erro e não chamam a API; 150 caracteres envia; `200` fecha e mostra "Usuário renomeado."
+- [x] Gate build: `cd frontend && corepack pnpm test && corepack pnpm typecheck && corepack pnpm build`
 
 **Tests**: unit
 **Gate**: build

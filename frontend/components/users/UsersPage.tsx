@@ -43,7 +43,8 @@ export function UsersPage() {
   const [page, setPage] = useState(0)
   const [notice, setNotice] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [creating, setCreating] = useState(false)
+  /** null: closed; 'create': new account; an account: rename it. */
+  const [drawer, setDrawer] = useState<'create' | User | null>(null)
   const [deactivating, setDeactivating] = useState<User | null>(null)
   const [granting, setGranting] = useState<User | null>(null)
   const list = useUserPage(filters, page, admin)
@@ -63,7 +64,7 @@ export function UsersPage() {
   }
 
   function done(message: string) {
-    setCreating(false)
+    setDrawer(null)
     setDeactivating(null)
     setGranting(null)
     setError(null)
@@ -91,7 +92,7 @@ export function UsersPage() {
         {user.role === 'ADMIN'
           ? <span className="px-2 text-[13px] text-muted">Acessa todas as empresas</span>
           : <button type="button" onClick={() => setGranting(user)} className={action}>Acessos</button>}
-        <button type="button" className={action}>Renomear</button>
+        <button type="button" onClick={() => setDrawer(user)} className={action}>Renomear</button>
         {deactivate}
       </>
     )
@@ -104,7 +105,7 @@ export function UsersPage() {
           <p className="text-[14px] text-muted">Contas da instalação</p>
           <h1 className="font-display text-[44px] leading-none font-extrabold tracking-[-0.04em]">Usuários</h1>
         </div>
-        <button type="button" onClick={() => setCreating(true)} className="flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-[14px] font-semibold text-foreground">
+        <button type="button" onClick={() => setDrawer('create')} className="flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-[14px] font-semibold text-foreground">
           <Plus aria-hidden="true" className="size-4" />
           Novo usuário
         </button>
@@ -198,7 +199,7 @@ export function UsersPage() {
         </section>
       )}
 
-      {creating && <UserDrawer onClose={() => setCreating(false)} onDone={done} />}
+      {drawer !== null && <UserDrawer user={drawer === 'create' ? undefined : drawer} onClose={() => setDrawer(null)} onDone={done} />}
       {granting !== null && <AccessDrawer user={granting} onClose={() => setGranting(null)} onDone={done} />}
       {deactivating !== null && <DeactivateUserDialog user={deactivating} onClose={() => setDeactivating(null)} onDone={done} />}
     </>
