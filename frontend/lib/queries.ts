@@ -3,10 +3,11 @@
 import { MutationCache, QueryCache, QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSelectedMerchant } from '@/components/shell/MerchantMenu'
 import {
-  ApiError, createFeeRule, createMerchant, createTransaction, deactivateFeeRule, deactivateMerchant, exportRunCsv, getDiscrepancy, getFeeRules,
+  activateUser, ApiError, createFeeRule, createMerchant, createTransaction, deactivateFeeRule, deactivateMerchant, exportRunCsv, getDiscrepancy, getFeeRules,
   getImportBatches, getLatestBankStatementImportTime, getLatestSettlementImport, getMerchantPage, importCsv, getOpenDiscrepancies, getPeriod,
   getPeriodSummary, getRun, getRunItems, getRuns, getTransactionPage, lockPeriod, renameMerchant, runReconciliation, unlockPeriod, updateDiscrepancy,
-  updateFeeRuleFees, updateTransactionStatus, type DiscrepancyType, type DiscrepancyUpdate, type FeeRuleFees, type FeeRuleInput,
+  updateFeeRuleFees, updateTransactionStatus, createUser, deactivateUser, getUserAccess, getUserPage, renameUser, replaceUserAccess,
+  type UserFilters, type UserRole, type DiscrepancyType, type DiscrepancyUpdate, type FeeRuleFees, type FeeRuleInput,
   type ImportKind, type Run, type RunItemFilters, type TransactionFilters, type TransactionInput, type TransactionStatus,
 } from './api'
 import { useAuth } from './auth'
@@ -56,6 +57,10 @@ export const queryKeys = {
   discrepancy: (merchantId: string, runId?: string, discrepancyId?: string) =>
     (runId === undefined ? ['discrepancy', merchantId] : ['discrepancy', merchantId, runId, discrepancyId ?? '']) as readonly string[],
   imports: (merchantId: string) => ['imports', merchantId] as const,
+  /** Without filters and page, the prefix of every page of `/usuarios`. */
+  userPage: (filters?: UserFilters, page?: number) =>
+    (filters === undefined ? ['userPage'] : ['userPage', filters.status, filters.demo, page ?? 0]) as readonly unknown[],
+  userAccess: (userId: string) => ['userAccess', userId] as const,
   merchantPage: (page?: number) => (page === undefined ? ['merchantPage'] : ['merchantPage', page]) as readonly unknown[],
   /** Prefix of the top menu list, `['merchants', userId]`, owned by `SelectedMerchantProvider`. */
   merchants: ['merchants'] as const,
@@ -298,6 +303,78 @@ export function useDeactivateMerchant() {
   return useMutation({
     mutationFn: (merchantId: string) => deactivateMerchant(token!, merchantId),
     onSuccess: invalidate,
+  })
+}
+
+/** `enabled = false` keeps the page from calling the API, as for an OPERATOR on `/usuarios`. */
+export function useUserPage(filters: UserFilters, page: number, enabled: boolean) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: queryKeys.userPage(filters, page),
+    queryFn: () => getUserPage(token!, filters, page),
+    enabled: Boolean(token) && enabled,
+  })
+}
+
+export function useUserAccess(userId: string) {
+  const { token } = useAuth()
+  return useQuery({
+    queryKey: queryKeys.userAccess(userId),
+    queryFn: () => getUserAccess(token!, userId),
+    enabled: Boolean(token),
+  })
+}
+
+function useInvalidateUsers() {
+  const queryClient = useQueryClient()
+  return () => queryClient.invalidateQueries({ queryKey: queryKeys.userPage() })
+}
+
+export function useCreateUser() {
+  const { token } = useAuth()
+  const invalidate = useInvalidateUsers()
+  return useMutation({
+    mutationFn: (input: { name: string; email: string; password: string; role: UserRole }) => createUser(token!, input),
+    onSuccess: invalidate,
+  })
+}
+
+export function useRenameUser() {
+  const { token } = useAuth()
+  const invalidate = useInvalidateUsers()
+  return useMutation({
+    mutationFn: ({ userId, name }: { userId: string; name: string }) => renameUser(token!, userId, name),
+    onSuccess: invalidate,
+  })
+}
+
+export function useDeactivateUser() {
+  const { token } = useAuth()
+  const invalidate = useInvalidateUsers()
+  return useMutation({
+    mutationFn: (userId: string) => deactivateUser(token!, userId),
+    onSuccess: invalidate,
+  })
+}
+
+export function useActivateUser() {
+  const { token } = useAuth()
+  const invalidate = useInvalidateUsers()
+  return useMutation({
+    mutationFn: (userId: string) => activateUser(token!, userId),
+    onSuccess: invalidate,
+  })
+}
+
+export function useReplaceUserAccess() {
+  const { token } = useAuth()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ userId, merchantIds }: { userId: string; merchantIds: string[] }) => replaceUserAccess(token!, userId, merchantIds),
+    onSuccess: (_merchantIds, { userId }) => Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.userPage() }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.userAccess(userId) }),
+    ]),
   })
 }
 

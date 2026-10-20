@@ -44,6 +44,24 @@ class IUserMapperTest {
         assertThat(dto.role()).isEqualTo(UserRole.OPERATOR);
         assertThat(dto.active()).isTrue();
         assertThat(dto.createdAt()).isEqualTo(createdAt);
+        assertThat(dto.demoExpiresAt()).isNull();
+    }
+
+    @Test
+    void toDTOShouldCarryTheDemoExpiryOfADemoAccount() {
+        Instant demoExpiresAt = Instant.parse("2026-08-06T12:00:00Z");
+
+        UserEntity entity = new UserEntity();
+        entity.setId(UUID.randomUUID());
+        entity.setName("Visitante");
+        entity.setEmail("demo@demo.reconpay.invalid");
+        entity.setRole(UserRole.OPERATOR);
+        entity.setActive(true);
+        entity.setDemoExpiresAt(demoExpiresAt);
+
+        UserResponseDTO dto = mapper.toDTO(entity);
+
+        assertThat(dto.demoExpiresAt()).isEqualTo(demoExpiresAt);
     }
 
     @Test

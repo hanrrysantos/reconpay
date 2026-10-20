@@ -2,6 +2,7 @@ package br.com.hanrry.reconpay.auth.controller;
 
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.enums.UserRole;
+import br.com.hanrry.reconpay.auth.enums.UserStatusFilter;
 import br.com.hanrry.reconpay.auth.service.UserMerchantAccessService;
 import br.com.hanrry.reconpay.auth.service.UserService;
 import br.com.hanrry.reconpay.config.SecurityConfig;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
@@ -31,7 +33,10 @@ import java.util.UUID;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
@@ -180,7 +185,8 @@ class UserControllerIntegrationTest {
     void findAllUsersShouldReturnPaginatedResponse() throws Exception {
         UUID userId = UUID.randomUUID();
         UserResponseDTO user = buildUserResponse(userId, UserRole.ADMIN, "admin@test.local");
-        when(userService.findAllUsers(any())).thenReturn(new PageImpl<>(List.of(user), PageRequest.of(0, 10), 1));
+        when(userService.findAllUsers(any(), anyBoolean(), any()))
+                .thenReturn(new PageImpl<>(List.of(user), PageRequest.of(0, 10), 1));
 
         mockMvc.perform(get("/api/users")
                         .param("page", "0")
@@ -192,6 +198,38 @@ class UserControllerIntegrationTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
+    void findAllUsersWithoutFiltersShouldAskForActiveAccountsWithoutDemos() throws Exception {
+        when(userService.findAllUsers(any(), anyBoolean(), any())).thenReturn(Page.empty());
+
+        mockMvc.perform(get("/api/users"))
+                .andExpect(status().isOk());
+
+        verify(userService).findAllUsers(eq(UserStatusFilter.ACTIVE), eq(false), any());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void findAllUsersShouldPassTheRequestedStatusAndDemoFlag() throws Exception {
+        when(userService.findAllUsers(any(), anyBoolean(), any())).thenReturn(Page.empty());
+
+        mockMvc.perform(get("/api/users").param("status", "ALL").param("demo", "true"))
+                .andExpect(status().isOk());
+
+        verify(userService).findAllUsers(eq(UserStatusFilter.ALL), eq(true), any());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void findAllUsersShouldRejectAnUnknownStatus() throws Exception {
+        mockMvc.perform(get("/api/users").param("status", "FOO"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+
+        verify(userService, never()).findAllUsers(any(), anyBoolean(), any());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
     void findByIdShouldReturnUser() throws Exception {
         UUID userId = UUID.randomUUID();
         UserResponseDTO user = buildUserResponse(userId, UserRole.ADMIN, "admin@test.local");
@@ -199,7 +237,9 @@ class UserControllerIntegrationTest {
 
         mockMvc.perform(get("/api/users/{id}", userId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId.toString()));
+                .andExpect(jsonPath("$.id").value(userId.toString()))
+                .andExpect(jsonPath("$", hasKey("demoExpiresAt")))
+                .andExpect(jsonPath("$.demoExpiresAt").value(nullValue()));
     }
 
     @Test
@@ -231,7 +271,7 @@ class UserControllerIntegrationTest {
     void updateNameShouldReturnUpdatedUser() throws Exception {
         UUID userId = UUID.randomUUID();
         UserResponseDTO user = buildUserResponse(userId, UserRole.ADMIN, "admin@test.local");
-        user = new UserResponseDTO(userId, "Nome Atualizado", "admin@test.local", UserRole.ADMIN, true, user.createdAt());
+        user = new UserResponseDTO(userId, "Nome Atualizado", "admin@test.local", UserRole.ADMIN, true, user.createdAt(), null);
         when(userService.updateName(eq(userId), any())).thenReturn(user);
 
         mockMvc.perform(put("/api/users/{id}", userId)
@@ -281,7 +321,8 @@ class UserControllerIntegrationTest {
                 email,
                 role,
                 true,
-                Instant.parse("2026-08-05T12:00:00Z")
+                Instant.parse("2026-08-05T12:00:00Z"),
+                null
         );
     }
 }

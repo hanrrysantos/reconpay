@@ -25,6 +25,22 @@ export type MerchantRecord = Merchant & {
   createdAt: string
 }
 
+export type UserRole = 'ADMIN' | 'OPERATOR'
+
+/** An account as `/api/users` returns it. */
+export type User = {
+  id: string
+  name: string
+  email: string
+  role: UserRole
+  active: boolean
+  createdAt: string
+  /** ISO-8601 instant when the demo account expires; null for a regular account. */
+  demoExpiresAt: string | null
+}
+
+export type UserFilters = { status: 'ACTIVE' | 'INACTIVE' | 'ALL'; demo: boolean }
+
 export type PaymentMethod = 'CREDIT_CARD' | 'DEBIT_CARD' | 'PIX' | 'BOLETO'
 export type TransactionStatus = 'APPROVED' | 'CANCELLED' | 'REFUNDED' | 'CHARGEBACK'
 
@@ -311,6 +327,42 @@ export function renameMerchant(token: string, merchantId: string, name: string):
 
 export async function deactivateMerchant(token: string, merchantId: string): Promise<void> {
   await request(merchantPath(merchantId), { method: 'DELETE' }, token)
+}
+
+const userPath = (userId: string) => `/api/users/${encodeURIComponent(userId)}`
+
+export function getUserPage(token: string, filters: UserFilters, page: number): Promise<Page<User>> {
+  return request(`/api/users?status=${filters.status}&demo=${filters.demo}&page=${page}&size=20&sort=name%2Casc`, {}, token)
+}
+
+export function createUser(token: string, input: { name: string; email: string; password: string; role: UserRole }): Promise<User> {
+  return request('/api/users', { method: 'POST', body: JSON.stringify(input) }, token)
+}
+
+export function renameUser(token: string, userId: string, name: string): Promise<User> {
+  return request(userPath(userId), { method: 'PUT', body: JSON.stringify({ name }) }, token)
+}
+
+export async function deactivateUser(token: string, userId: string): Promise<void> {
+  await request(userPath(userId), { method: 'DELETE' }, token)
+}
+
+export function activateUser(token: string, userId: string): Promise<User> {
+  return request(`${userPath(userId)}/activation`, { method: 'PATCH' }, token)
+}
+
+/** Ids of the merchants the user is granted. */
+export async function getUserAccess(token: string, userId: string): Promise<string[]> {
+  const result = await request<{ merchantIds: string[] }>(`${userPath(userId)}/merchants`, {}, token)
+  return result.merchantIds
+}
+
+/** Replaces the whole grant set; an empty list leaves the user without merchants. */
+export async function replaceUserAccess(token: string, userId: string, merchantIds: string[]): Promise<string[]> {
+  const result = await request<{ merchantIds: string[] }>(
+    `${userPath(userId)}/merchants`, { method: 'PUT', body: JSON.stringify({ merchantIds }) }, token,
+  )
+  return result.merchantIds
 }
 
 export async function getTransactions(token: string, merchantId: string): Promise<Transaction[]> {

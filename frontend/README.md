@@ -24,6 +24,7 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
 - "Ver demonstração" chama `POST /api/auth/demo` uma vez (o botão fica desabilitado com "Preparando demonstração..."), carrega `/api/me` e abre `/painel`. Os limites da API (`429` e `503`) aparecem com a mensagem dela junto ao botão; falha de rede ou `500` mostra uma mensagem padrão.
 - Só o token da demo vai para `sessionStorage` (`reconpay.demoToken`, AD-014): recarregar a página restaura a demo sem login, e "Sair" apaga o token. O login comum continua só em memória. Se o token restaurado voltar `401`, ele é apagado e o app volta para `/`. Na demo, uma faixa no topo mostra "Conta de demonstração · expira em dd/MM às HH:mm" no horário local.
 - Barra superior com Visão geral, Conciliações, Divergências, Transações, Importações e Fechamento, e o menu de empresa (busca por nome ou CNPJ, "Regras de taxa da <empresa>" com uma empresa selecionada, "Cadastrar empresa").
+- Menu da conta no avatar: nome, e-mail, selo "Admin" ou "Operador", "Usuários" (só ADMIN) e "Sair"; `Esc` ou um clique fora fecham. O botão "Sair" ao lado do avatar continua.
 - Dashboard em `/painel`, para onde o login leva:
   - abre na janela do run mais recente da empresa; sem run, no mês atual com os três passos (liquidação, extrato, conciliar);
   - menu de período com meses ("Sem run", "Aberto", travado) e intervalo personalizado; janela inválida mostra a mensagem da API e mantém a anterior;
@@ -82,6 +83,14 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
   - cada linha lê o seu período: "Travado" ou "Aberto" com taxa de match, valor em aberto, quando travou e quanto levou; "Em andamento" e "Sem conciliação concluída" ficam sem ações; uma leitura com erro mostra "Não carregou" e "Tentar novamente";
   - "Travar" e "Destravar" pedem confirmação e atualizam a linha; a trava recusada (por exemplo, divergência em aberto) mostra a mensagem da API acima da tabela; "Exportar CSV" baixa `reconpay-<início>-<fim>.csv`;
   - empresa sem runs mostra o aviso com o link para Conciliações; trocar de empresa volta para a página 1.
+- Usuários em `/usuarios`, pelo item "Usuários" do menu da conta, só para ADMIN (um OPERATOR é levado para `/painel` sem chamar a API):
+  - lista paginada (20 por página, por nome) com nome, e-mail, papel, status ("Ativo" ou "Inativo") e data de cadastro; abre em "Ativos" sem demonstrações;
+  - filtros "Ativos", "Inativos" e "Todos" e a caixa "Mostrar demonstrações", que traz as demos com o selo "Demo · expira em dd/MM às HH:mm" no horário local; qualquer mudança volta para a página 1; sem contas, "Nenhum usuário encontrado.";
+  - ações por linha: OPERATOR ativo tem Acessos, Renomear e Desativar; ADMIN ativo mostra "Acessa todas as empresas", Renomear e Desativar (sem Desativar na própria linha); demo ativa só Desativar; conta inativa só Reativar;
+  - "Novo usuário" abre uma gaveta com Nome, E-mail, Senha e Papel (Operador marcado); nome, e-mail e a regra da senha são checados antes de chamar a API; a conta nasce ativa;
+  - "Desativar" pede confirmação e avisa que a pessoa perde o acesso na hora, inclusive a sessão aberta; "Reativar" chama a API direto;
+  - "Acessos" abre uma gaveta com uma caixa por empresa ativa (nome e CNPJ), marcadas as atuais; salvar envia exatamente as marcadas, inclusive nenhuma;
+  - avisos "Usuário criado.", "Usuário renomeado.", "Usuário desativado.", "Usuário reativado." e "Acessos atualizados."; erros da API mantêm a gaveta ou o diálogo aberto com a mensagem; a última página que fica vazia volta para a anterior.
 
 ## Marca
 

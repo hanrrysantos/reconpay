@@ -17,7 +17,19 @@ public interface IUserRepository extends JpaRepository<UserEntity, UUID> {
 
     boolean existsByEmail(String email);
 
-    Page<UserEntity> findAllByActiveTrue(Pageable pageable);
+    /**
+     * A null {@code active} lists both states. Demo accounts are left out
+     * unless {@code includeDemo} is true.
+     */
+    @Query("""
+            select user from UserEntity user
+            where (:active is null or user.active = :active)
+              and (:includeDemo = true or user.demoExpiresAt is null)
+            """)
+    Page<UserEntity> findAllFiltered(
+            @Param("active") Boolean active,
+            @Param("includeDemo") boolean includeDemo,
+            Pageable pageable);
 
     Optional<UserEntity> findByIdAndActiveTrue(UUID id);
 

@@ -5,6 +5,7 @@ import br.com.hanrry.reconpay.auth.dto.MerchantAccessRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.MerchantAccessResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
+import br.com.hanrry.reconpay.auth.enums.UserStatusFilter;
 import br.com.hanrry.reconpay.auth.openapi.UserControllerApi;
 import br.com.hanrry.reconpay.auth.service.UserMerchantAccessService;
 import br.com.hanrry.reconpay.auth.service.UserService;
@@ -43,8 +44,10 @@ public class UserController implements UserControllerApi {
 
     @Override
     public ResponseEntity<Page<UserResponseDTO>> findAllUsers(
+            @RequestParam(defaultValue = "ACTIVE") UserStatusFilter status,
+            @RequestParam(defaultValue = "false") boolean demo,
             @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(userService.findAllUsers(pageable));
+        return ResponseEntity.ok(userService.findAllUsers(status, demo, pageable));
     }
 
     @Override

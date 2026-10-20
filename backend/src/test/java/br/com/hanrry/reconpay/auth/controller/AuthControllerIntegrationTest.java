@@ -124,7 +124,8 @@ class AuthControllerIntegrationTest {
                 "analista@test.local",
                 UserRole.OPERATOR,
                 false,
-                createdAt
+                createdAt,
+                null
         );
 
         when(authService.register(any())).thenReturn(response);

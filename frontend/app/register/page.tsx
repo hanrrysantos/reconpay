@@ -3,7 +3,7 @@
 import { ArrowRight, Check, CircleAlert, Eye, EyeOff, MailCheck } from 'lucide-react'
 import Link from 'next/link'
 import { useState, type FormEvent } from 'react'
-import { AuthPanel, authAlert, authField, authPrimaryButton } from '@/components/auth/AuthPanel'
+import { AuthPanel, BackHomeLink, authAlert, authField, authPrimaryButton } from '@/components/auth/AuthPanel'
 import { register } from '@/lib/api'
 import { PASSWORD_PATTERN, PASSWORD_RULES } from '@/lib/password'
 
@@ -40,6 +40,7 @@ export default function RegisterPage() {
 
       <main className="flex flex-1 justify-center px-6 py-8 lg:items-center lg:p-14">
         <div className="flex w-full max-w-[400px] flex-col gap-7 lg:gap-8">
+          <BackHomeLink />
           {registeredEmail ? (
             <div role="status" className="flex flex-col gap-6">
               <span className="grid size-14 place-items-center rounded-full bg-primary">

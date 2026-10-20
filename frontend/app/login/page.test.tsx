@@ -30,6 +30,14 @@ async function fill(user: ReturnType<typeof userEvent.setup>, typedEmail = 'ana@
 }
 
 describe('LoginPage', () => {
+  it('"Voltar para o início" leva à landing e "Criar conta" ao cadastro', () => {
+    renderPage()
+    const main = screen.getByRole('main')
+
+    expect(within(main).getByRole('link', { name: 'Voltar para o início' })).toHaveAttribute('href', '/')
+    expect(within(main).getByRole('link', { name: 'Criar conta' })).toHaveAttribute('href', '/register')
+  })
+
   it('mostra o painel com a marca, o título, o texto e o rodapé, e o formulário "Entrar" (LOG-01 AC1)', () => {
     renderPage()
     const panel = screen.getByRole('complementary')

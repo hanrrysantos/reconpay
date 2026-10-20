@@ -5,6 +5,8 @@ import br.com.hanrry.reconpay.auth.dto.MerchantAccessRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.MerchantAccessResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
+import br.com.hanrry.reconpay.auth.enums.UserStatusFilter;
+import br.com.hanrry.reconpay.exception.standardexceptionerror.StandardError;
 import br.com.hanrry.reconpay.openapi.ApiConflictResponse;
 import br.com.hanrry.reconpay.openapi.ApiForbiddenResponse;
 import br.com.hanrry.reconpay.openapi.ApiNotFoundResponse;
@@ -92,11 +94,13 @@ public interface UserControllerApi {
 
     @Operation(
             summary = "Listagem de usuários",
-            description = "Lista paginada dos usuários ativos. Somente ADMIN consulta esta coleção."
+            description = """
+                    Lista paginada de usuários. Sem filtros, traz só as contas ativas e deixa as contas \
+                    de demonstração de fora. Somente ADMIN consulta esta coleção."""
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Página de usuários ativos",
+            description = "Página de usuários que atendem aos filtros",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     examples = @ExampleObject(
@@ -110,7 +114,8 @@ public interface UserControllerApi {
                                           "email": "ana.operadora@reconpay.local",
                                           "role": "OPERATOR",
                                           "active": true,
-                                          "createdAt": "2026-08-10T12:00:00Z"
+                                          "createdAt": "2026-08-10T12:00:00Z",
+                                          "demoExpiresAt": null
                                         }
                                       ],
                                       "totalElements": 1,
@@ -130,6 +135,18 @@ public interface UserControllerApi {
     })
     @GetMapping
     ResponseEntity<Page<UserResponseDTO>> findAllUsers(
+            @Parameter(
+                    name = "status",
+                    description = "Situação da conta: ACTIVE (padrão), INACTIVE ou ALL. Outro valor responde 400.",
+                    example = "ACTIVE"
+            )
+            @RequestParam(defaultValue = "ACTIVE") UserStatusFilter status,
+            @Parameter(
+                    name = "demo",
+                    description = "Inclui as contas de demonstração quando true. Padrão: false.",
+                    example = "false"
+            )
+            @RequestParam(defaultValue = "false") boolean demo,
             @ParameterObject @PageableDefault(size = 20) Pageable pageable);
 
     @Operation(
@@ -229,7 +246,8 @@ public interface UserControllerApi {
             summary = "Substituição dos merchants do usuário",
             description = """
                     Substitui a lista de grants de merchant. \
-                    O id vem da resposta de criação ou da listagem. Somente ADMIN altera."""
+                    O id vem da resposta de criação ou da listagem. Somente ADMIN altera. \
+                    Contas de demonstração não recebem grants por aqui."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -238,6 +256,26 @@ public interface UserControllerApi {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MerchantAccessResponseDTO.class),
                     examples = @ExampleObject(name = "grants", value = ACCESS_JSON)
+            )
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "A conta é de demonstração e não recebe acesso a outras empresas",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = StandardError.class),
+                    examples = @ExampleObject(
+                            name = "conta-demo",
+                            value = """
+                                    {
+                                      "timestamp": "2026-08-10T15:30:00Z",
+                                      "status": 409,
+                                      "error": "CONFLICT",
+                                      "message": "Contas de demonstração não recebem acesso a outras empresas.",
+                                      "path": "/api/users/3fa85f64-5717-4562-b3fc-2c963f66afa6/merchants"
+                                    }
+                                    """
+                    )
             )
     )
     @ApiValidationErrorResponse
@@ -309,9 +347,29 @@ public interface UserControllerApi {
             summary = "Exclusão do usuário",
             description = """
                     Desativa a conta. O id vem da resposta de criação ou da listagem. \
-                    Somente ADMIN exclui."""
+                    Somente ADMIN exclui. O ADMIN não desativa a própria conta."""
     )
     @ApiResponse(responseCode = "204", description = "Conta desativada; não há corpo na resposta")
+    @ApiResponse(
+            responseCode = "409",
+            description = "O ADMIN tentou desativar a própria conta",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = StandardError.class),
+                    examples = @ExampleObject(
+                            name = "propria-conta",
+                            value = """
+                                    {
+                                      "timestamp": "2026-08-10T15:30:00Z",
+                                      "status": 409,
+                                      "error": "CONFLICT",
+                                      "message": "Você não pode desativar a própria conta.",
+                                      "path": "/api/users/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                    }
+                                    """
+                    )
+            )
+    )
     @ApiValidationErrorResponse
     @ApiUnauthenticatedResponse
     @ApiForbiddenResponse
@@ -326,7 +384,8 @@ public interface UserControllerApi {
               "email": "ana.operadora@reconpay.local",
               "role": "OPERATOR",
               "active": true,
-              "createdAt": "2026-08-10T12:00:00Z"
+              "createdAt": "2026-08-10T12:00:00Z",
+              "demoExpiresAt": null
             }
             """;
 

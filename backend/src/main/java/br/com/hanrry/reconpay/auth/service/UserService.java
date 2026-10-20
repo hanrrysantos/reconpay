@@ -4,12 +4,15 @@ import br.com.hanrry.reconpay.auth.dto.CreateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
+import br.com.hanrry.reconpay.auth.enums.UserStatusFilter;
 import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
 import br.com.hanrry.reconpay.auth.repository.IEmailVerificationTokenRepository;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
+import br.com.hanrry.reconpay.exception.UserAccountConflictException;
 import br.com.hanrry.reconpay.exception.UserNotFoundException;
 import br.com.hanrry.reconpay.observability.AuditLogger;
+import br.com.hanrry.reconpay.security.AuthenticatedUserAccessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +31,7 @@ public class UserService {
     private final IUserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuditLogger auditLogger;
+    private final AuthenticatedUserAccessor authenticatedUserAccessor;
 
     @Transactional
     public UserResponseDTO createUser(CreateUserRequestDTO request) {
@@ -58,8 +62,13 @@ public class UserService {
         return response;
     }
 
-    public Page<UserResponseDTO> findAllUsers(Pageable pageable) {
-        return userRepository.findAllByActiveTrue(pageable)
+    public Page<UserResponseDTO> findAllUsers(UserStatusFilter status, boolean demo, Pageable pageable) {
+        Boolean active = switch (status) {
+            case ACTIVE -> true;
+            case INACTIVE -> false;
+            case ALL -> null;
+        };
+        return userRepository.findAllFiltered(active, demo, pageable)
                 .map(userMapper::toDTO);
     }
 
@@ -88,6 +97,10 @@ public class UserService {
 
     @Transactional
     public void deleteById(UUID id) {
+        if (id.equals(authenticatedUserAccessor.requirePrincipal().getId())) {
+            throw new UserAccountConflictException("Você não pode desativar a própria conta.");
+        }
+
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + id));
         user.setActive(false);

@@ -5,12 +5,16 @@ import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
 import br.com.hanrry.reconpay.auth.enums.UserRole;
+import br.com.hanrry.reconpay.auth.enums.UserStatusFilter;
 import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
 import br.com.hanrry.reconpay.auth.repository.IEmailVerificationTokenRepository;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
+import br.com.hanrry.reconpay.exception.UserAccountConflictException;
 import br.com.hanrry.reconpay.exception.UserNotFoundException;
 import br.com.hanrry.reconpay.observability.AuditLogger;
+import br.com.hanrry.reconpay.security.AuthenticatedUserAccessor;
+import br.com.hanrry.reconpay.security.CustomUserDetails;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -51,6 +55,9 @@ class UserServiceTest {
 
     @Mock
     private AuditLogger auditLogger;
+
+    @Mock
+    private AuthenticatedUserAccessor authenticatedUserAccessor;
 
     @InjectMocks
     private UserService userService;
@@ -103,15 +110,29 @@ class UserServiceTest {
     }
 
     @Test
-    void findAllUsersShouldReturnOnlyActiveUsersMappedToDTO() {
-        UserEntity activeUser = buildUserEntity(UserRole.ADMIN);
-        UserResponseDTO responseDTO = toResponseDTO(activeUser);
-        Page<UserEntity> page = new PageImpl<>(List.of(activeUser), PageRequest.of(0, 20), 1);
+    void findAllUsersWithActiveStatusShouldAskTheRepositoryForActiveAccounts() {
+        assertStatusIsSentAsActive(UserStatusFilter.ACTIVE, true, false);
+    }
 
-        when(userRepository.findAllByActiveTrue(PageRequest.of(0, 20))).thenReturn(page);
-        when(userMapper.toDTO(activeUser)).thenReturn(responseDTO);
+    @Test
+    void findAllUsersWithInactiveStatusShouldAskTheRepositoryForInactiveAccounts() {
+        assertStatusIsSentAsActive(UserStatusFilter.INACTIVE, false, false);
+    }
 
-        Page<UserResponseDTO> result = userService.findAllUsers(PageRequest.of(0, 20));
+    @Test
+    void findAllUsersWithAllStatusShouldLiftTheActiveFilterAndPassTheDemoFlag() {
+        assertStatusIsSentAsActive(UserStatusFilter.ALL, null, true);
+    }
+
+    private void assertStatusIsSentAsActive(UserStatusFilter status, Boolean expectedActive, boolean demo) {
+        UserEntity user = buildUserEntity(UserRole.ADMIN);
+        UserResponseDTO responseDTO = toResponseDTO(user);
+        Page<UserEntity> page = new PageImpl<>(List.of(user), PageRequest.of(0, 20), 1);
+
+        when(userRepository.findAllFiltered(expectedActive, demo, PageRequest.of(0, 20))).thenReturn(page);
+        when(userMapper.toDTO(user)).thenReturn(responseDTO);
+
+        Page<UserResponseDTO> result = userService.findAllUsers(status, demo, PageRequest.of(0, 20));
 
         assertThat(result.getContent()).containsExactly(responseDTO);
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -205,6 +226,7 @@ class UserServiceTest {
         user.setId(id);
         user.setActive(true);
 
+        signInAsAnotherAdmin();
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
 
         userService.deleteById(id);
@@ -217,6 +239,7 @@ class UserServiceTest {
     @Test
     void deleteByIdShouldThrowWhenUserNotFound() {
         UUID id = UUID.randomUUID();
+        signInAsAnotherAdmin();
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.deleteById(id))
@@ -224,6 +247,26 @@ class UserServiceTest {
                 .hasMessage("Usuário não encontrado com id: " + id);
 
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteByIdShouldRefuseTheAdminsOwnAccountWithoutTouchingIt() {
+        UserEntity admin = buildUserEntity(UserRole.ADMIN);
+        when(authenticatedUserAccessor.requirePrincipal()).thenReturn(new CustomUserDetails(admin));
+
+        assertThatThrownBy(() -> userService.deleteById(admin.getId()))
+                .isInstanceOf(UserAccountConflictException.class)
+                .hasMessage("Você não pode desativar a própria conta.");
+
+        assertThat(admin.isActive()).isTrue();
+        verify(userRepository, never()).findById(any());
+        verify(userRepository, never()).save(any());
+        verify(emailVerificationTokenRepository, never()).deleteAllPendingByUserId(any());
+    }
+
+    private void signInAsAnotherAdmin() {
+        when(authenticatedUserAccessor.requirePrincipal())
+                .thenReturn(new CustomUserDetails(buildUserEntity(UserRole.ADMIN)));
     }
 
     private UserEntity buildUserEntity(UserRole role) {
@@ -246,7 +289,8 @@ class UserServiceTest {
                 user.getEmail(),
                 user.getRole(),
                 user.isActive(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getDemoExpiresAt()
         );
     }
 }

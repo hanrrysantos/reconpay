@@ -25,6 +25,9 @@ public record UserResponseDTO (
         boolean active,
 
         @Schema(description = "Data de criação da conta (UTC)", example = "2026-08-10T12:00:00Z")
-        Instant createdAt
+        Instant createdAt,
+
+        @Schema(description = "Fim da conta de demonstração (UTC); null para conta comum", example = "2026-08-11T12:00:00Z", nullable = true)
+        Instant demoExpiresAt
 ){
 }

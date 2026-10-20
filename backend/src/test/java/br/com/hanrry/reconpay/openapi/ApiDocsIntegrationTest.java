@@ -297,6 +297,8 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         assertQueryExample(document, "get", "/api/users", "page", "0");
         assertQueryExample(document, "get", "/api/users", "size", "20");
         assertQueryExample(document, "get", "/api/users", "sort", "name,asc");
+        assertQueryExample(document, "get", "/api/users", "status", "ACTIVE");
+        assertQueryExample(document, "get", "/api/users", "demo", "false");
         assertOperation(document, new Op(
                 "get", "/api/users/{id}",
                 Set.of("200", "400", "401", "403", "404"),
@@ -324,7 +326,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         ));
         assertOperation(document, new Op(
                 "put", "/api/users/{id}/merchants",
-                Set.of("200", "400", "401", "403", "404"),
+                Set.of("200", "400", "401", "403", "404", "409"),
                 true, MerchantAccessRequestDTO.class, Map.of(),
                 "200", List.of("userId", "merchantIds"), false, Set.of(), Set.of(), idOrigin
         ));
@@ -336,7 +338,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         ));
         assertOperation(document, new Op(
                 "delete", "/api/users/{id}",
-                Set.of("204", "400", "401", "403", "404"),
+                Set.of("204", "400", "401", "403", "404", "409"),
                 true, null, Map.of(),
                 null, List.of(), false, Set.of("204"), Set.of(), idOrigin
         ));
