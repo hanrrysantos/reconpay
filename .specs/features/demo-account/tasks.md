@@ -355,10 +355,10 @@ T23
 
 **Done when**:
 
-- [ ] Após 2 `record`, o 3º `isAllowed` é falso; outro IP segue verdadeiro
-- [ ] 60 min depois da 1ª criação, volta a permitir; 59 min 59 s depois, não
-- [ ] `isAllowed` sem `record` não consome cota
-- [ ] Gate quick (backend) passa
+- [x] Após 2 `record`, o 3º `isAllowed` é falso; outro IP segue verdadeiro
+- [x] 60 min depois da 1ª criação, volta a permitir; 59 min 59 s depois, não
+- [x] `isAllowed` sem `record` não consome cota
+- [x] Gate quick (backend) passa
 
 **Tests**: unit
 **Gate**: quick
