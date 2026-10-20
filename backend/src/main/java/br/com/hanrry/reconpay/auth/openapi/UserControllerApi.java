@@ -246,7 +246,8 @@ public interface UserControllerApi {
             summary = "Substituição dos merchants do usuário",
             description = """
                     Substitui a lista de grants de merchant. \
-                    O id vem da resposta de criação ou da listagem. Somente ADMIN altera."""
+                    O id vem da resposta de criação ou da listagem. Somente ADMIN altera. \
+                    Contas de demonstração não recebem grants por aqui."""
     )
     @ApiResponse(
             responseCode = "200",
@@ -255,6 +256,26 @@ public interface UserControllerApi {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = MerchantAccessResponseDTO.class),
                     examples = @ExampleObject(name = "grants", value = ACCESS_JSON)
+            )
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "A conta é de demonstração e não recebe acesso a outras empresas",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = StandardError.class),
+                    examples = @ExampleObject(
+                            name = "conta-demo",
+                            value = """
+                                    {
+                                      "timestamp": "2026-08-10T15:30:00Z",
+                                      "status": 409,
+                                      "error": "CONFLICT",
+                                      "message": "Contas de demonstração não recebem acesso a outras empresas.",
+                                      "path": "/api/users/3fa85f64-5717-4562-b3fc-2c963f66afa6/merchants"
+                                    }
+                                    """
+                    )
             )
     )
     @ApiValidationErrorResponse

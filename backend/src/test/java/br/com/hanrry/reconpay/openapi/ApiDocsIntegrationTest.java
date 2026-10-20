@@ -326,7 +326,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         ));
         assertOperation(document, new Op(
                 "put", "/api/users/{id}/merchants",
-                Set.of("200", "400", "401", "403", "404"),
+                Set.of("200", "400", "401", "403", "404", "409"),
                 true, MerchantAccessRequestDTO.class, Map.of(),
                 "200", List.of("userId", "merchantIds"), false, Set.of(), Set.of(), idOrigin
         ));

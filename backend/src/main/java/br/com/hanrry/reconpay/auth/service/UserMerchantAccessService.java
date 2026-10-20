@@ -2,10 +2,12 @@ package br.com.hanrry.reconpay.auth.service;
 
 import br.com.hanrry.reconpay.auth.dto.MerchantAccessRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.MerchantAccessResponseDTO;
+import br.com.hanrry.reconpay.auth.entity.UserEntity;
 import br.com.hanrry.reconpay.auth.entity.UserMerchantAccessEntity;
 import br.com.hanrry.reconpay.auth.repository.IUserMerchantAccessRepository;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
+import br.com.hanrry.reconpay.exception.UserAccountConflictException;
 import br.com.hanrry.reconpay.exception.UserNotFoundException;
 import br.com.hanrry.reconpay.merchant.repository.IMerchantRepository;
 import br.com.hanrry.reconpay.observability.AuditLogger;
@@ -38,7 +40,12 @@ public class UserMerchantAccessService {
      */
     @Transactional
     public MerchantAccessResponseDTO replace(UUID userId, MerchantAccessRequestDTO request) {
-        requireUser(userId);
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com id: " + userId));
+        // A demo belongs to an anonymous visitor; a real merchant would expose real data.
+        if (user.getDemoExpiresAt() != null) {
+            throw new UserAccountConflictException("Contas de demonstração não recebem acesso a outras empresas.");
+        }
 
         List<UUID> merchantIds = request.merchantIds().stream().distinct().toList();
         merchantIds.forEach(this::requireMerchant);

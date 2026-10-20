@@ -181,11 +181,11 @@ T14
 
 **Done when**:
 
-- [ ] Integração: `PUT /api/users/{demo}/merchants` com uma empresa real → `409`, mensagem exata; os acessos da demo continuam os de antes
-- [ ] Integração: o mesmo `PUT` para um OPERATOR comum → `200` (caminho atual intacto)
-- [ ] `UserMerchantAccessServiceTest`: recusa não apaga nem grava acessos; `grantIfAbsent` para demo continua concedendo
-- [ ] `ApiDocsIntegrationTest`: `409` no `PUT /api/users/{id}/merchants`
-- [ ] Gate quick (backend) passa com `UserMerchantAccessServiceTest,UserControllerIntegrationTest,ApiDocsIntegrationTest`
+- [x] Integração: `PUT /api/users/{demo}/merchants` com uma empresa real → `409`, mensagem exata; os acessos da demo continuam os de antes
+- [x] Integração: o mesmo `PUT` para um OPERATOR comum → `200` (caminho atual intacto)
+- [x] `UserMerchantAccessServiceTest`: recusa não apaga nem grava acessos; `grantIfAbsent` para demo continua concedendo
+- [x] `ApiDocsIntegrationTest`: `409` no `PUT /api/users/{id}/merchants`
+- [x] Gate quick (backend) passa com `UserMerchantAccessServiceTest,UserControllerIntegrationTest,ApiDocsIntegrationTest`
 
 **Tests**: integration
 **Gate**: quick
