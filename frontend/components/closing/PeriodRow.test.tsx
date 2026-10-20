@@ -127,6 +127,19 @@ describe('PeriodRow', () => {
     expect(onError).not.toHaveBeenCalledWith(expect.any(String))
   })
 
+  it('a confirmação ocupa a célula de ações no lugar dos botões, sem flutuar para fora da tabela', async () => {
+    vi.mocked(api.getPeriod).mockResolvedValue(period())
+    const { user } = show()
+
+    await user.click(await within(row()).findByRole('button', { name: 'Travar Outubro de 2026' }))
+
+    const actionsCell = within(row()).getAllByRole('cell').at(-1)!
+    const dialog = within(actionsCell).getByRole('alertdialog', { name: 'Travar o período?' })
+    expect(dialog).not.toHaveClass('absolute')
+    expect(within(actionsCell).queryByRole('button', { name: 'Travar Outubro de 2026' })).toBeNull()
+    expect(within(actionsCell).queryByRole('button', { name: 'Exportar CSV de Outubro de 2026' })).toBeNull()
+  })
+
   it('"Destravar" pede confirmação e só destrava depois de confirmar; a linha volta para "Aberto" (FEC-04 AC1, FEC-05 AC4)', async () => {
     vi.mocked(api.getPeriod).mockResolvedValue(locked())
     vi.mocked(api.unlockPeriod).mockResolvedValue(period({ openAmount: '0.00', matchRate: '1.0000' }))

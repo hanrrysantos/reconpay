@@ -2,7 +2,6 @@
 
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Confirm } from '@/components/dashboard/CloseStepper'
 import { formatRate } from '@/components/dashboard/format'
 import { ApiError } from '@/lib/api'
 import { PERIOD_STATUS_LABELS, formatDuration, formatLockedAt, periodStatus } from '@/lib/closing'
@@ -66,28 +65,45 @@ export function PeriodRow({ merchantId, window, onError }: { merchantId: string;
       <td className="px-4 py-3 font-mono">{data ? formatMoney(data.openAmount) : '—'}</td>
       <td className="px-4 py-3 font-mono">{data ? formatLockedAt(data.lockedAt) : '—'}</td>
       <td className="px-4 py-3 font-mono">{data ? formatDuration(data.closeDurationSeconds) : '—'}</td>
-      <td className="relative px-4 py-3">
-        <div className="flex justify-end gap-2">
-          {status === 'error' && (
-            <button type="button" aria-label={`Tentar novamente ${name}`} onClick={() => void period.refetch()} className={action}>Tentar novamente</button>
-          )}
-          {status === 'open' && (
-            <button type="button" aria-label={`Travar ${name}`} disabled={busy} onClick={() => setConfirming('lock')} className={action}>Travar</button>
-          )}
-          {status === 'locked' && (
-            <button type="button" aria-label={`Destravar ${name}`} disabled={busy} onClick={() => setConfirming('unlock')} className={action}>Destravar</button>
-          )}
-          {data && (
-            <button type="button" aria-label={`Exportar CSV de ${name}`} disabled={busy} onClick={() => void exportCsv()} className={action}>Exportar CSV</button>
-          )}
-        </div>
-        {confirming === 'lock' && (
-          <Confirm title="Travar o período?" action="Travar" onCancel={() => setConfirming(null)} onConfirm={() => void changeLock('lock')} />
-        )}
-        {confirming === 'unlock' && (
-          <Confirm title="Destravar o período?" action="Destravar" onCancel={() => setConfirming(null)} onConfirm={() => void changeLock('unlock')} />
+      <td className="px-4 py-3">
+        {/*
+          The confirmation takes the place of the buttons: the table scrolls sideways, so a
+          floating panel below the last row would be clipped by that scroll area.
+        */}
+        {confirming ? (
+          <InlineConfirm
+            title={confirming === 'lock' ? 'Travar o período?' : 'Destravar o período?'}
+            action={confirming === 'lock' ? 'Travar' : 'Destravar'}
+            onCancel={() => setConfirming(null)}
+            onConfirm={() => void changeLock(confirming)}
+          />
+        ) : (
+          <div className="flex justify-end gap-2">
+            {status === 'error' && (
+              <button type="button" aria-label={`Tentar novamente ${name}`} onClick={() => void period.refetch()} className={action}>Tentar novamente</button>
+            )}
+            {status === 'open' && (
+              <button type="button" aria-label={`Travar ${name}`} disabled={busy} onClick={() => setConfirming('lock')} className={action}>Travar</button>
+            )}
+            {status === 'locked' && (
+              <button type="button" aria-label={`Destravar ${name}`} disabled={busy} onClick={() => setConfirming('unlock')} className={action}>Destravar</button>
+            )}
+            {data && (
+              <button type="button" aria-label={`Exportar CSV de ${name}`} disabled={busy} onClick={() => void exportCsv()} className={action}>Exportar CSV</button>
+            )}
+          </div>
         )}
       </td>
     </tr>
+  )
+}
+
+function InlineConfirm({ title, action, onConfirm, onCancel }: { title: string; action: string; onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div role="alertdialog" aria-label={title} className="flex items-center justify-end gap-2">
+      <p className="text-[13px] font-semibold whitespace-nowrap">{title}</p>
+      <button type="button" onClick={onCancel} className="h-8 rounded-full bg-surface px-3 text-[13px] font-semibold">Cancelar</button>
+      <button type="button" onClick={onConfirm} className="h-8 rounded-full bg-foreground px-3 text-[13px] font-semibold text-white">{action}</button>
+    </div>
   )
 }
