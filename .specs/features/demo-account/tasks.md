@@ -246,9 +246,9 @@ T23
 
 **Done when**:
 
-- [ ] `getBytes`, `getInputStream`, `getSize`, `isEmpty`, `getOriginalFilename`, `getContentType` devolvem o conteúdo e os metadados
-- [ ] `transferTo` grava o conteúdo no arquivo
-- [ ] Gate quick (backend) passa
+- [x] `getBytes`, `getInputStream`, `getSize`, `isEmpty`, `getOriginalFilename`, `getContentType` devolvem o conteúdo e os metadados
+- [x] `transferTo` grava o conteúdo no arquivo
+- [x] Gate quick (backend) passa
 
 **Tests**: unit
 **Gate**: quick
