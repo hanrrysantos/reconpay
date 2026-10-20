@@ -75,6 +75,17 @@ class UserAdministrationIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void listingShouldKeepAnExpiredDemoUntilTheCleanupDeletesIt() throws Exception {
+        String tag = UUID.randomUUID().toString().substring(0, 8);
+        String expiredDemo = saveUser("Iris " + tag, tag, true, Instant.now().minus(Duration.ofHours(1)));
+
+        assertThat(listedEmails(get("/api/users").param("demo", "true"), tag))
+                .containsExactly(expiredDemo);
+        assertThat(listedEmails(get("/api/users").param("demo", "false"), tag))
+                .isEmpty();
+    }
+
+    @Test
     void listingShouldKeepNameOrderingAndTheDefaultPageSize() throws Exception {
         String tag = UUID.randomUUID().toString().substring(0, 8);
         String zelia = saveUser("Zelia " + tag, tag, true, null);
@@ -139,6 +150,20 @@ class UserAdministrationIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(delete("/api/users/{id}", id)
                         .header(HttpHeaders.AUTHORIZATION, BEARER + adminToken))
                 .andExpect(status().isNoContent());
+
+        assertThat(userRepository.findById(id).orElseThrow().isActive()).isFalse();
+    }
+
+    @Test
+    void deactivatingAnAlreadyInactiveUserShouldAnswerNoContentAgain() throws Exception {
+        String tag = UUID.randomUUID().toString().substring(0, 8);
+        UUID id = userRepository.findByEmail(saveUser("Joana " + tag, tag, true, null)).orElseThrow().getId();
+
+        for (int attempt = 0; attempt < 2; attempt++) {
+            mockMvc.perform(delete("/api/users/{id}", id)
+                            .header(HttpHeaders.AUTHORIZATION, BEARER + adminToken))
+                    .andExpect(status().isNoContent());
+        }
 
         assertThat(userRepository.findById(id).orElseThrow().isActive()).isFalse();
     }

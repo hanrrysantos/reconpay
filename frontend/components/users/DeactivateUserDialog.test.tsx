@@ -64,6 +64,18 @@ describe('DeactivateUserDialog', () => {
     await waitFor(() => expect(rowNames()).not.toContain(name))
   })
 
+  it('desativar quem outra aba já desativou responde 204 de novo e a conta aparece em "Inativos" (edge case)', async () => {
+    const user = await renderPage()
+    server.users = server.users.map(account => account.id === 'u-bruno' ? { ...account, active: false } : account)
+    await user.click(within(row('Bruno Operador')).getByRole('button', { name: 'Desativar' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Desativar' }))
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Usuário desativado.')
+    await waitFor(() => expect(rowNames()).not.toContain('Bruno Operador'))
+    await user.click(screen.getByRole('button', { name: 'Inativos' }))
+    await waitFor(() => expect(rowNames()).toEqual(['Bruno Operador']))
+  })
+
   it('cancelar fecha sem chamar a API (USERS-04 AC1)', async () => {
     const user = await renderPage()
     await user.click(within(row('Bruno Operador')).getByRole('button', { name: 'Desativar' }))

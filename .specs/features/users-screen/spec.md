@@ -110,7 +110,7 @@ A API já administra usuários (`/api/users/**`, só `ADMIN`), mas o frontend n�
 
 1. WHEN o ADMIN clica em "Novo usuário" THEN o app SHALL abrir um painel lateral com nome, e-mail, senha e papel, com `OPERATOR` pré-selecionado.
 2. IF a senha não tem 8 caracteres, uma letra maiúscula e um número THEN o app SHALL mostrar "Senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um número" e SHALL NOT enviar o formulário.
-3. IF o nome está vazio ou o e-mail é inválido THEN o app SHALL mostrar o erro no campo e SHALL NOT enviar o formulário.
+3. IF o nome está vazio ou o e-mail é inválido THEN o app SHALL mostrar no campo "Informe o nome" ou "Informe um e-mail válido", respectivamente, e SHALL NOT enviar o formulário.
 4. WHEN a API responde `201` THEN o app SHALL fechar o painel, atualizar a lista e mostrar "Usuário criado."
 5. IF a API responde `409` (e-mail já cadastrado) THEN o app SHALL mostrar a `message` da resposta no painel e mantê-lo aberto com os dados digitados.
 6. WHILE o envio está em andamento the botão de enviar SHALL ficar desabilitado.
