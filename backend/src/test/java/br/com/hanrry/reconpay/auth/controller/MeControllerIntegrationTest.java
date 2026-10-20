@@ -1,6 +1,10 @@
 package br.com.hanrry.reconpay.auth.controller;
 
+import br.com.hanrry.reconpay.auth.entity.UserEntity;
+import br.com.hanrry.reconpay.auth.enums.UserRole;
+import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
+import br.com.hanrry.reconpay.security.JwtService;
 import br.com.hanrry.reconpay.util.IntegrationTestUtils;
 import br.com.hanrry.reconpay.util.TestCnpj;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +14,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,6 +31,12 @@ class MeControllerIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private IUserRepository userRepository;
+
+    @Autowired
+    private JwtService jwtService;
+
     private String adminToken;
     private String operatorToken;
 
@@ -34,14 +48,40 @@ class MeControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void shouldReturnCurrentUserForOperator() throws Exception {
-        mockMvc.perform(get("/api/me")
+        String body = mockMvc.perform(get("/api/me")
                         .header("Authorization", "Bearer " + operatorToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.name").isNotEmpty())
                 .andExpect(jsonPath("$.email").value("analyst@reconpay.local"))
                 .andExpect(jsonPath("$.role").value("OPERATOR"))
-                .andExpect(jsonPath("$.active").value(true));
+                .andExpect(jsonPath("$.active").value(true))
+                .andReturn().getResponse().getContentAsString();
+
+        Map<String, Object> me = com.jayway.jsonpath.JsonPath.read(body, "$");
+        assertThat(me).containsEntry("demoExpiresAt", null);
+    }
+
+    @Test
+    void shouldReturnTheDemoExpiryForADemoAccount() throws Exception {
+        Instant expiresAt = Instant.parse("2099-10-21T12:34:56Z");
+        UserEntity demo = new UserEntity();
+        demo.setName("Visitante");
+        demo.setEmail("demo-" + UUID.randomUUID() + "@demo.reconpay.invalid");
+        demo.setPassword("not-used");
+        demo.setRole(UserRole.OPERATOR);
+        demo.setActive(true);
+        demo.setDemoExpiresAt(expiresAt);
+        UUID demoId = userRepository.save(demo).getId();
+
+        try {
+            mockMvc.perform(get("/api/me")
+                            .header("Authorization", "Bearer " + jwtService.generateToken(demo.getEmail())))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.demoExpiresAt").value("2099-10-21T12:34:56Z"));
+        } finally {
+            userRepository.deleteById(demoId);
+        }
     }
 
     @Test

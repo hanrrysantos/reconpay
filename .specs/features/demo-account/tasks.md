@@ -523,9 +523,9 @@ T23
 
 **Done when**:
 
-- [ ] Demo → `demoExpiresAt` ISO-8601 igual ao gravado
-- [ ] Conta comum → `demoExpiresAt: null`
-- [ ] Gate quick (backend) passa
+- [x] Demo → `demoExpiresAt` ISO-8601 igual ao gravado
+- [x] Conta comum → `demoExpiresAt: null`
+- [x] Gate quick (backend) passa
 
 **Tests**: integration
 **Gate**: quick
