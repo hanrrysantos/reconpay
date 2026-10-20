@@ -1,13 +1,116 @@
 # Demonstração por Visitante Validation
 
-**Verdict**: FAIL
-**Result**: FAIL
+**Verdict**: PASS
+**Result**: PASS
 
 **Date**: 2026-10-20
-**Round**: 1 of max 3
+**Round**: 2 of max 3
 **Spec**: `.specs/features/demo-account/spec.md`
-**Diff range**: `2500673..7acef5c` (27 commits: `89fb1ae`, `5340cfb`, `eb47021`, `d38061d` docs; `c7d6e55`..`7acef5c` T1–T23)
+**Diff range**: `2500673..30d1412` (rodada 1: `2500673..7acef5c`; fixes da rodada 2: `d541c9d`, `30d1412`, depois do relatório `151dbba`)
 **Verifier**: independent sub-agent (author ≠ verifier)
+
+---
+
+## Rodada 2 (re-verificação)
+
+**Veredito da rodada 2**: PASS. Os dois gaps da rodada 1 estão fechados; nenhuma regressão.
+
+Caminhos abreviados: `B/` = `backend/src/test/java/br/com/hanrry/reconpay/`, `M/` = `backend/src/main/java/br/com/hanrry/reconpay/`.
+
+### Escopo do diff `151dbba..30d1412`
+
+Só 4 arquivos: `.specs/features/demo-account/design.md` (fluxo do `DemoPurger`), `M/demo/service/DemoPurger.java` (regra `DEMO_ONLY_MERCHANTS` + `Clock`), `B/demo/controller/DemoCreationFailureIntegrationTest.java` (novo, 2 testes), `B/demo/service/DemoPurgerIntegrationTest.java` (+2 testes, nenhuma linha removida). `git diff 151dbba..HEAD -- frontend` vazio. Nenhum teste removido nem afrouxado.
+
+### Gap 1: DEMO-01 AC10 (status `500`) - fechado
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| DEMO-01 AC10, falha no provisionamento | `500` e nada da demo gravado | `B/demo/controller/DemoCreationFailureIntegrationTest.java:50-54` (`BankStatementService.importCsv` lança) → `:71` `status().isInternalServerError()`, `:72` `$.status` 500, `:73` `$.error` `"INTERNAL_SERVER_ERROR"`, `:75` `counts()` (`users`, `merchants`, `reconciliation_runs`) `isEqualTo(before)` | ✅ PASS |
+| DEMO-01 AC10, falha na conciliação (após o commit do provisionamento) | `500` e nada da demo gravado (compensação) | `B/demo/controller/DemoCreationFailureIntegrationTest.java:57-63` (`DemoRunExecutor.complete` roda e lança) → mesmas asserções `:71-75` | ✅ PASS |
+| DEMO-03 AC5 pelo `500` real | o `500` não consome a cota do IP | `B/demo/controller/DemoCreationFailureIntegrationTest.java:79-80` - depois do `500`, o mesmo IP faz 2 criações `status().isCreated()` | ✅ PASS |
+
+A resposta passa pelo `GlobalExceptionHandler.handleGenericException` (`M/exception/handler/GlobalExceptionHandler.java:296-314`, `HttpStatus.INTERNAL_SERVER_ERROR` + `ApiErrorCode.INTERNAL_SERVER_ERROR`); o sensor R2-d1/R2-d2 prova que o teste depende disso.
+
+### Gap 2: DEMO-06 AC3/AC4 (regra do purge) - fechado
+
+Regra agora (`M/demo/service/DemoPurger.java:52-63`): apaga o merchant do usuário quando não existe outro usuário com acesso (`holder.id <> :userId`, `:61`) que seja conta comum ou demo ativa (`holder.demo_expires_at IS NULL OR holder.demo_expires_at > :now`, `:62`). Para a limpeza (o usuário apagado já expirou) isto é exatamente "todos os usuários com acesso são demos expiradas" (DEMO-06 AC3); a exclusão do próprio usuário só muda a compensação da criação, que DEMO-01 AC10 exige apagar. "Expirada" = `demo_expires_at <= now`, o mesmo limite de `findExpired` e da autenticação (DEMO-06 AC1). `design.md` (`DemoPurger`, Flow) descreve a mesma regra; não há mais desvio spec ↔ design.
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| DEMO-06 AC3, merchant só de demos expiradas | merchant e todos os dados apagados | `B/demo/service/DemoPurgerIntegrationTest.java:145-157` - demo + outra demo expirada: `:154` `purgedMerchants` `isEqualTo(1)`, `:155` todas as tabelas `isZero()`, `:156` demo apagada, `:157` a outra demo expirada continua (só a limpeza dela a apaga); `:82-97` caso só-demo (inalterado, todas as 15 tabelas `isPositive()` antes e `isZero()` depois) | ✅ PASS |
+| DEMO-06 AC3, merchant que uma demo ativa alcança | não é "todos expirados" → mantém | `B/demo/service/DemoPurgerIntegrationTest.java:124-141` - `:134` `purgedMerchants` `isZero()`, `:135` `accessHolders` `containsExactly(activeDemo)`, `:136-139` demais contagens iguais, `:140` `internal_transactions` `isPositive()`, `:141` demo expirada apagada | ✅ PASS |
+| DEMO-06 AC4, merchant compartilhado com conta comum | mantém merchant e dados; só o acesso da demo sai | `B/demo/service/DemoPurgerIntegrationTest.java:101-120` (inalterado) - `:111` `isZero()`, `:114` `containsExactly(regular.getId())`, `:118-120` | ✅ PASS |
+| DEMO-01 AC10, compensação apaga o merchant da demo ainda ativa | nada gravado | `B/demo/controller/DemoCreationFailureIntegrationTest.java:75` (caso de conciliação) - `merchants` inalterado | ✅ PASS |
+
+### Regressão (spot-check da evidência da rodada 1)
+
+Só `DemoPurgerIntegrationTest` mudou entre as classes citadas; as linhas abaixo da inserção andaram +37:
+
+- DEMO-06 AC2/AC5 `findExpired`: era `:131-134`, agora `B/demo/service/DemoPurgerIntegrationTest.java:170-171` - `contains(expired, expiringNow)`, `doesNotContain(active, regular)`.
+- DEMO-06 AC3 tabelas sem cascade: era `:138-161`, agora `:175-198` (`everyTableThatReachesMerchantsWithoutCascadeIsPurged`).
+- `:82-97` e `:101-120` sem mudança. As demais citações da rodada 1 estão em arquivos que o diff não toca; continuam válidas.
+
+### Sensor da rodada 2
+
+Worktree descartável `git worktree add <scratchpad>/verify-wt2 HEAD`; uma mutação por vez (`git checkout -- .` entre elas), `./mvnw -q test -Dtest=<classes> -Djacoco.skip=true`. Nenhum log com erro de compilação; toda morte tem falha de asserção.
+
+| # | Arquivo (main) | Mutação | Testes | Resultado |
+| --- | --- | --- | --- | --- |
+| R2-a | `M/demo/service/DemoPurger.java:61-62` | volta à regra antiga: só `holder.demo_expires_at IS NULL` | `DemoPurgerIntegrationTest`, `DemoCleanupJobIntegrationTest` | ✅ Killed (`purgeKeepsAMerchantAnotherActiveDemoCanReach:134`) |
+| R2-b | `DemoPurger.java:61` | remove `holder.id <> :userId` (o próprio usuário ativo segura o merchant) | `DemoPurgerIntegrationTest`, `DemoCreationFailureIntegrationTest` | ✅ Killed (`purgeDeletesAMerchantSharedOnlyWithAnotherExpiredDemo:154`; `failureWhileReconciling...:75` merchant sobra na compensação; `purgeDeletesEveryRow...:91` também falha) |
+| R2-c | `M/demo/service/DemoAccountService.java:54` | remove `purger.purge(account.userId())` na compensação | `DemoCreationFailureIntegrationTest` | ✅ Killed (`failureWhileReconciling...:75`, contagens mudam) |
+| R2-d1 | `M/exception/handler/GlobalExceptionHandler.java:310` | handler genérico responde `SERVICE_UNAVAILABLE` | `DemoCreationFailureIntegrationTest` | ✅ Killed (2/2, `:71` "expected:<500> but was:<503>") |
+| R2-d2 | `M/demo/controller/DemoController.java:21` | controller engole `IllegalStateException` e responde `201` vazio | `DemoCreationFailureIntegrationTest` | ✅ Killed (2/2, `:71` "expected:<500> but was:<201>") |
+| R2-e | `DemoAccountService.java:58` | `rateLimiter.record(ip)` antes do provisionamento (falha conta na cota) | `DemoCreationFailureIntegrationTest` | ✅ Killed (2/2, `:80` "expected:<201> but was:<429>") |
+
+**Sensor depth**: P0 expandido sobre os fixes: 6 injetadas, 6 mortas, 0 sobreviventes.
+**Isolation**: `git status --porcelain` da árvore real vazio antes e depois; worktree removido com `git worktree remove --force`.
+
+### Gate da rodada 2
+
+- **Backend** `cd backend && ./mvnw verify` (em `30d1412`): BUILD SUCCESS, 742 testes, 0 falhas, 0 erros, 0 ignorados (738 na rodada 1, +4); "All coverage checks have been met."
+- **Frontend**: `git diff 151dbba..HEAD -- frontend` vazio; reaproveitado o gate da rodada 1 (991 testes, `typecheck` e `build` ok).
+- **Contagem de `@Test`** (`git grep -c "@Test" -- backend/src/test`, somado): 644 em `151dbba` → 648 em `30d1412` (+4). Nenhum removido.
+
+### Code Quality da rodada 2
+
+| Principle | Status |
+| --- | --- |
+| Minimum code / surgical | ✅ (só a query, o `Clock` e o comentário em `DemoPurger`) |
+| Matches patterns | ✅ (`Clock` injetado como em `DemoAccountService`; `AbstractIntegrationTest`, `@MockitoSpyBean`) |
+| Spec-anchored outcome check | ✅ (`500` + `INTERNAL_SERVER_ERROR`; regra de purge = DEMO-06 AC3/AC4) |
+| Per-layer Coverage Expectation | ✅ (`POST /api/auth/demo` agora com `201`, `429`, `503` e `500`) |
+| Every test maps to a spec requirement | ✅ (DEMO-01 AC10, DEMO-03 AC5, DEMO-06 AC3/AC4) |
+| Documented guidelines followed: `AGENTS.md` | ✅ |
+
+### Ranked gaps da rodada 2
+
+Nenhum. Nota mantida da rodada 1 (sem fix obrigatório): DEMO-03 AC6 liga-se ao profile `prod` por inspeção de `application-prod.yaml:3`.
+
+### Requirement Traceability (rodada 2)
+
+| Requirement | Previous Status | New Status |
+| --- | --- | --- |
+| DEMO-01 | ❌ Needs Fix (AC10) | ✅ Verified |
+| DEMO-06 | ✅ Verified (gap 2) | ✅ Verified (regra alinhada à spec) |
+| DEMO-02..05, DEMO-07..09 | ✅ Verified | ✅ Verified |
+
+### Summary (rodada 2)
+
+**Overall**: ✅ Ready
+**Spec-anchored check**: 54/54 critérios com evidência no valor da spec; 0 spec-precision gaps (1 nota de precisão mantida)
+**Sensor**: rodada 1: 26 injetadas, 25 mortas, 1 equivalente; rodada 2: 6 injetadas, 6 mortas
+**Gate**: backend 742 passed; frontend 991 passed (reaproveitado, sem diff)
+
+**Lessons**: os candidatos L-058 (`ac_gap`, DEMO-01 AC10) e L-059 (`spec_deviation`, DEMO-06 AC3) da rodada 1 continuam como candidatos: o sinal deles foi real e o `lessons.md` não prevê retirar um candidato quando o gap é corrigido. A rodada 2 não tem sinal novo; nenhuma lição registrada.
+
+---
+
+# Rodada 1 (histórico)
+
+**Veredito da rodada 1**: FAIL (commit `151dbba`)
+**Round**: 1 of max 3
+**Diff range da rodada 1**: `2500673..7acef5c` (27 commits: `89fb1ae`, `5340cfb`, `eb47021`, `d38061d` docs; `c7d6e55`..`7acef5c` T1–T23)
 
 ---
 
