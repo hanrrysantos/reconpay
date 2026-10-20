@@ -156,7 +156,8 @@ public class GlobalExceptionHandler {
             DuplicateExternalReferenceException.class,
             MissingActiveFeeRuleException.class,
             DiscrepancyResolutionConflictException.class,
-            PeriodConflictException.class
+            PeriodConflictException.class,
+            UserAccountConflictException.class
     })
     public ResponseEntity<StandardError> handleConflict(
             RuntimeException ex,

@@ -338,7 +338,7 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         ));
         assertOperation(document, new Op(
                 "delete", "/api/users/{id}",
-                Set.of("204", "400", "401", "403", "404"),
+                Set.of("204", "400", "401", "403", "404", "409"),
                 true, null, Map.of(),
                 null, List.of(), false, Set.of("204"), Set.of(), idOrigin
         ));

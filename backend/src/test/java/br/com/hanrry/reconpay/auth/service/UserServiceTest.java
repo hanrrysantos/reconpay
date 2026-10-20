@@ -10,8 +10,11 @@ import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
 import br.com.hanrry.reconpay.auth.repository.IEmailVerificationTokenRepository;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
 import br.com.hanrry.reconpay.exception.EmailAlreadyExistsException;
+import br.com.hanrry.reconpay.exception.UserAccountConflictException;
 import br.com.hanrry.reconpay.exception.UserNotFoundException;
 import br.com.hanrry.reconpay.observability.AuditLogger;
+import br.com.hanrry.reconpay.security.AuthenticatedUserAccessor;
+import br.com.hanrry.reconpay.security.CustomUserDetails;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -52,6 +55,9 @@ class UserServiceTest {
 
     @Mock
     private AuditLogger auditLogger;
+
+    @Mock
+    private AuthenticatedUserAccessor authenticatedUserAccessor;
 
     @InjectMocks
     private UserService userService;
@@ -220,6 +226,7 @@ class UserServiceTest {
         user.setId(id);
         user.setActive(true);
 
+        signInAsAnotherAdmin();
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
 
         userService.deleteById(id);
@@ -232,6 +239,7 @@ class UserServiceTest {
     @Test
     void deleteByIdShouldThrowWhenUserNotFound() {
         UUID id = UUID.randomUUID();
+        signInAsAnotherAdmin();
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.deleteById(id))
@@ -239,6 +247,26 @@ class UserServiceTest {
                 .hasMessage("Usuário não encontrado com id: " + id);
 
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteByIdShouldRefuseTheAdminsOwnAccountWithoutTouchingIt() {
+        UserEntity admin = buildUserEntity(UserRole.ADMIN);
+        when(authenticatedUserAccessor.requirePrincipal()).thenReturn(new CustomUserDetails(admin));
+
+        assertThatThrownBy(() -> userService.deleteById(admin.getId()))
+                .isInstanceOf(UserAccountConflictException.class)
+                .hasMessage("Você não pode desativar a própria conta.");
+
+        assertThat(admin.isActive()).isTrue();
+        verify(userRepository, never()).findById(any());
+        verify(userRepository, never()).save(any());
+        verify(emailVerificationTokenRepository, never()).deleteAllPendingByUserId(any());
+    }
+
+    private void signInAsAnotherAdmin() {
+        when(authenticatedUserAccessor.requirePrincipal())
+                .thenReturn(new CustomUserDetails(buildUserEntity(UserRole.ADMIN)));
     }
 
     private UserEntity buildUserEntity(UserRole role) {

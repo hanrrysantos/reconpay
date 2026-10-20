@@ -153,11 +153,11 @@ T14
 
 **Done when**:
 
-- [ ] Integração: ADMIN chama `DELETE /api/users/{próprio id}` → `409`, `error` = `CONFLICT`, `message` exata; a conta continua ativa e o ADMIN continua autenticado
-- [ ] Integração: ADMIN desativa outro usuário → `204` (caminho atual intacto)
-- [ ] `UserServiceTest`: recusa não chama `save` nem apaga tokens de verificação
-- [ ] `ApiDocsIntegrationTest`: `409` no `DELETE /api/users/{id}`
-- [ ] Gate quick (backend) passa com `UserServiceTest,UserControllerIntegrationTest,ApiDocsIntegrationTest`
+- [x] Integração: ADMIN chama `DELETE /api/users/{próprio id}` → `409`, `error` = `CONFLICT`, `message` exata; a conta continua ativa e o ADMIN continua autenticado
+- [x] Integração: ADMIN desativa outro usuário → `204` (caminho atual intacto)
+- [x] `UserServiceTest`: recusa não chama `save` nem apaga tokens de verificação
+- [x] `ApiDocsIntegrationTest`: `409` no `DELETE /api/users/{id}`
+- [x] Gate quick (backend) passa com `UserServiceTest,UserControllerIntegrationTest,ApiDocsIntegrationTest`
 
 **Tests**: integration
 **Gate**: quick

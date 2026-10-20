@@ -6,6 +6,7 @@ import br.com.hanrry.reconpay.auth.dto.MerchantAccessResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.enums.UserStatusFilter;
+import br.com.hanrry.reconpay.exception.standardexceptionerror.StandardError;
 import br.com.hanrry.reconpay.openapi.ApiConflictResponse;
 import br.com.hanrry.reconpay.openapi.ApiForbiddenResponse;
 import br.com.hanrry.reconpay.openapi.ApiNotFoundResponse;
@@ -325,9 +326,29 @@ public interface UserControllerApi {
             summary = "Exclusão do usuário",
             description = """
                     Desativa a conta. O id vem da resposta de criação ou da listagem. \
-                    Somente ADMIN exclui."""
+                    Somente ADMIN exclui. O ADMIN não desativa a própria conta."""
     )
     @ApiResponse(responseCode = "204", description = "Conta desativada; não há corpo na resposta")
+    @ApiResponse(
+            responseCode = "409",
+            description = "O ADMIN tentou desativar a própria conta",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = StandardError.class),
+                    examples = @ExampleObject(
+                            name = "propria-conta",
+                            value = """
+                                    {
+                                      "timestamp": "2026-08-10T15:30:00Z",
+                                      "status": 409,
+                                      "error": "CONFLICT",
+                                      "message": "Você não pode desativar a própria conta.",
+                                      "path": "/api/users/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                                    }
+                                    """
+                    )
+            )
+    )
     @ApiValidationErrorResponse
     @ApiUnauthenticatedResponse
     @ApiForbiddenResponse

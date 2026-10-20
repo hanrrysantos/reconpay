@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -102,6 +103,35 @@ class UserAdministrationIntegrationTest extends AbstractIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, BEARER + adminToken))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void adminDeactivatingTheirOwnAccountShouldGetConflictAndStayActive() throws Exception {
+        String adminId = userRepository.findByEmail("admin@reconpay.local").orElseThrow().getId().toString();
+
+        mockMvc.perform(delete("/api/users/{id}", adminId)
+                        .header(HttpHeaders.AUTHORIZATION, BEARER + adminToken))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("CONFLICT"))
+                .andExpect(jsonPath("$.message").value("Você não pode desativar a própria conta."));
+
+        mockMvc.perform(get("/api/users/{id}", adminId)
+                        .header(HttpHeaders.AUTHORIZATION, BEARER + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.active").value(true));
+    }
+
+    @Test
+    void adminDeactivatingAnotherUserShouldReturnNoContent() throws Exception {
+        String tag = UUID.randomUUID().toString().substring(0, 8);
+        String email = saveUser("Fabio " + tag, tag, true, null);
+        UUID id = userRepository.findByEmail(email).orElseThrow().getId();
+
+        mockMvc.perform(delete("/api/users/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, BEARER + adminToken))
+                .andExpect(status().isNoContent());
+
+        assertThat(userRepository.findById(id).orElseThrow().isActive()).isFalse();
     }
 
     private List<String> listedEmails(MockHttpServletRequestBuilder request, String tag) throws Exception {
