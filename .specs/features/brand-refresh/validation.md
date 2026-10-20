@@ -1,11 +1,11 @@
 # Nova Marca Validation
 
-**Verdict**: FAIL (revisão 2 de BRD-03 AC1, commit `6acf9e4`; a rodada original foi aprovada)
+**Verdict**: PASS (revisão 3 de BRD-03 AC1, commits `544337a` e `ada7612`)
 
 **Date**: 2026-10-19
 **Spec**: `.specs/features/brand-refresh/spec.md`
 **Diff range**: `fcf818b..HEAD` (HEAD = `9d26ff7`; commits `a8c6383` spec, `cdf7cf7` T1, `beffd6d` T2, `50cfaa3` T3, `a5a2d35` T4, `dd95260` T5, `efa6464` T6, `9d26ff7` T7; branch `feat/brand-refresh`)
-**Rounds**: 1 + revisão 2 (`6acf9e4`, seção no fim)
+**Rounds**: 1 + revisão 2 (`6acf9e4`) + revisão 3 (`544337a`, `ada7612`); seções no fim
 **Verifier**: sub-agente independente (autor ≠ verificador)
 
 Todo critério testável tem asserção no valor que a spec define, nos seis lugares de BRD-02 e no e-mail. O sensor matou 31 de 31 mutantes. BRD-02 AC5 e BRD-01 foram medidos no navegador pelo Verifier. BRD-04 (Pen) fica fora do repositório e está conferido só pelas capturas do autor.
@@ -211,7 +211,7 @@ Scratch: `git worktree add --detach /home/hanrry/.claude/jobs/3748ece6/tmp/verif
 | R7 | `VerificationEmailComposer.java:40` | CSS inline `width:28px;height:28px` com os atributos intactos | ❌ Survived |
 | R8 | `VerificationEmailComposer.java:40` | `src` com o argumento errado do `formatted` | ✅ |
 
-**Result**: 7/8 killed. FAIL (R7).
+**Resultado da revisão 2**: 7/8 killed, reprovado (R7).
 
 ### Gate (revisão 2)
 
@@ -229,3 +229,47 @@ Scratch: `git worktree add --detach /home/hanrry/.claude/jobs/3748ece6/tmp/verif
 | BRD-03 | Verified | Needs Fix (R7) |
 
 Lição registrada: L-057 (candidata, mutante R7).
+
+---
+
+## Revisão 3: tamanho exibido do ícone (`544337a`, `ada7612`)
+
+**Verdict**: PASS
+**Diff range**: `406b038..ada7612` (`544337a` test(auth): pin the email icon display size; `ada7612` docs: fix the brand files list in the frontend readme)
+
+### Spec-anchored
+
+| Critério | Resultado definido na spec | `file:line` + asserção | Result |
+| --- | --- | --- | --- |
+| BRD-03 AC1 ícone 32 × 32 px | atributos e CSS inline em 32 px | `backend/src/test/java/br/com/hanrry/reconpay/auth/email/VerificationEmailComposerTest.java:44` - `contains("<img src=\"https://app.example.com/brand/reconpay-app-icon.png\" width=\"32\" height=\"32\" alt=\"\" style=\"display:inline-block;width:32px;height:32px;")`. URL com e sem barra final, `alt=""` e o PNG continuam com a evidência da revisão 2 | ✅ PASS |
+
+`frontend/README.md:86` agora tem a vírgula: "`reconpay-mark-on-light.svg` (R preto), `reconpay-app-icon.png` (...) e `reconpay-mark-on-dark.png` (...)". A descrição dos dois PNGs continua precisa.
+
+### Discrimination Sensor (revisão 3)
+
+Scratch: `git worktree add --detach /home/hanrry/.claude/jobs/3748ece6/tmp/verifier-wt2 HEAD` (em `ada7612`), `/home/hanrry/.claude/jobs/3748ece6/tmp/sensor2/run4.py`, mesmo comando de teste (exit 0 antes das mutações). Worktree removido. `git status --porcelain` da árvore real ficou vazio antes e depois.
+
+| # | Arquivo | Mutação | Killed? |
+| --- | --- | --- | --- |
+| R1-R6, R8 | `EmailVerificationLinkFactory.java:13`, `VerificationEmailComposer.java:40` | os mesmos 7 da revisão 2 | ✅ 7/7 |
+| R7 | `VerificationEmailComposer.java:40` | CSS inline `width:28px;height:28px` | ✅ (sobreviveu na revisão 2) |
+| R9 | `VerificationEmailComposer.java:40` | CSS inline só a largura em 28px | ✅ |
+| R10 | `VerificationEmailComposer.java:40` | CSS inline só a altura em 28px | ✅ |
+| R11 | `VerificationEmailComposer.java:40` | `display:block` no lugar de `inline-block` | ✅ |
+| R12 | `VerificationEmailComposer.java:40` | `style` removido da `<img>` | ✅ |
+
+**Result**: 12/12 killed. PASS.
+
+### Gate (revisão 3)
+
+`./mvnw verify` em `ada7612`: exit 0, 675 tests, 0 failures, 0 skipped; JaCoCo 96,1% linha / 87,8% branch. A contagem de testes não mudou: a asserção da linha 44 só ficou mais estrita.
+
+### Lição
+
+L-057 continua candidata. O fix segue a lição, e o skill só penaliza lição confirmada que falhou ao ser aplicada.
+
+### Requirement Traceability Update (revisão 3)
+
+| Requirement | Previous Status | New Status |
+| --- | --- | --- |
+| BRD-03 | Needs Fix (R7) | Verified |
