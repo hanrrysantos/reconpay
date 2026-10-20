@@ -118,10 +118,11 @@
 ## Handoff
 
 - **Feature**: users-screen (item 11 da vitrine: tela de usuários do ADMIN)
-- **Phase / Task**: Execute concluído; T1–T14 commitadas; aguardando o Verifier
-- **Completed**: backend (filtros `status`/`demo`, `demoExpiresAt`, trava de autodesativação, trava de grant para demo, `401` para token de conta inativa), `lib/api.ts` e `lib/queries.ts`, menu do avatar, `/usuarios` (lista, criar, desativar, acessos, renomear, reativar) e documentação
+- **Phase / Task**: T1–T14 commitadas; Verifier PASS na rodada 2 (rodada 1 FAIL por falta de teste dos edge cases 1 e 4, corrigida em `bd2d2a6`); teste manual aprovado pelo usuário em 2026-10-20
+- **Completed**: backend (filtros `status`/`demo`, `demoExpiresAt`, trava de autodesativação, trava de grant para demo, `401` para token de conta inativa), `lib/api.ts` e `lib/queries.ts`, menu do avatar, `/usuarios` (lista, criar, desativar, acessos, renomear, reativar) e documentação. Depois do PASS, pedidos do teste manual, sem nova rodada do Verifier: cursor de mãozinha em todo controle clicável (`899b5ae`, regra global em `app/globals.css`) e "Voltar para o início" no login e no cadastro, com a marca do painel levando a `/` (`70b89f2`)
+- **Known issues**: os da demo continuam (ver PR #61): `docker-compose.yaml` não repassa `DEMO_*`; `RESEND_API_KEY` vazia dá 500 no cadastro; L-058..L-061 candidatas
 - **In-progress** (file:line): none
-- **Next step**: Verifier independente da feature `users-screen` (escreve `validation.md`)
+- **Next step**: PR de `feat/users-screen` aberta e mergeada pelo usuário; depois conferir CI e deploy. Pendente da vitrine: recuperar senha
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/users-screen`, local, sem push
+- **Branch**: `feat/users-screen`, enviada para o `origin`
