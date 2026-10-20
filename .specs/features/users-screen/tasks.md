@@ -312,10 +312,10 @@ T14
 
 **Done when**:
 
-- [ ] `UsersPage.test.tsx`: colunas e ordem pedidas à API (`sort=name,asc`); abre em "Ativos" sem demos; "Inativos", "Todos" e "Mostrar demonstrações" mudam o pedido; trocar filtro estando na página 2 volta à página 0; selo "Demo · expira em dd/MM às HH:mm"; "Nenhum usuário encontrado."; OPERATOR → `router.replace('/painel')` sem chamada a `/api/users`
-- [ ] As quatro linhas da tabela de ações mostram exatamente as ações do design; a linha do ADMIN logado não tem "Desativar"
-- [ ] "Reativar" chama `PATCH .../activation` e mostra "Usuário reativado."
-- [ ] Gate quick (frontend) passa
+- [x] `UsersPage.test.tsx`: colunas e ordem pedidas à API (`sort=name,asc`); abre em "Ativos" sem demos; "Inativos", "Todos" e "Mostrar demonstrações" mudam o pedido; trocar filtro estando na página 2 volta à página 0; selo "Demo · expira em dd/MM às HH:mm"; "Nenhum usuário encontrado."; OPERATOR → `router.replace('/painel')` sem chamada a `/api/users`
+- [x] As quatro linhas da tabela de ações mostram exatamente as ações do design; a linha do ADMIN logado não tem "Desativar"
+- [x] "Reativar" chama `PATCH .../activation` e mostra "Usuário reativado."
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick
