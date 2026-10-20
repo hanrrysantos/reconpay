@@ -20,13 +20,13 @@ beforeEach(() => { auth.user = null })
 
 describe('DemoBanner', () => {
   it.each([
-    ['2099-10-21T12:34:56Z', '09:34'],
-    ['2099-10-21T02:05:00Z', '23:05'],
-  ])('na demo mostra "Conta de demonstração · expira às HH:mm" no horário local (%s → %s) (DEMO-09 AC3)', (iso, local) => {
+    ['2099-10-21T12:34:56Z', '21/10 às 09:34'],
+    ['2099-10-21T02:05:00Z', '20/10 às 23:05'],
+  ])('na demo mostra "Conta de demonstração · expira em dd/MM às HH:mm" no horário local (%s → %s) (DEMO-09 AC3)', (iso, local) => {
     auth.user = { name: 'Visitante', demoExpiresAt: iso }
     render(<DemoBanner />)
 
-    expect(screen.getByText(/^Conta de demonstração/).textContent).toBe(`Conta de demonstração · expira às ${local}`)
+    expect(screen.getByText(/^Conta de demonstração/).textContent).toBe(`Conta de demonstração · expira em ${local}`)
   })
 
   it('em conta comum não renderiza nada (DEMO-09 AC4)', () => {

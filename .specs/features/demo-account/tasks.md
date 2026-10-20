@@ -671,7 +671,7 @@ T23
 
 ### T22: Faixa de demonstração
 
-**What**: `DemoBanner` no topo do `AppShell`: "Conta de demonstração · expira às HH:mm" no horário local.
+**What**: `DemoBanner` no topo do `AppShell`: "Conta de demonstração · expira em dd/MM às HH:mm" no horário local.
 **Where**: `frontend/components/shell/DemoBanner.tsx`
 **Depends on**: T19
 **Reuses**: tokens de cor do tema

@@ -71,7 +71,7 @@ describe('AppShell', () => {
     auth.demoExpiresAt = '2099-10-21T12:34:56Z'
     render(<AppShell><p>conteúdo protegido</p></AppShell>)
 
-    const banner = screen.getByText(/^Conta de demonstração · expira às \d{2}:\d{2}$/)
+    const banner = screen.getByText(/^Conta de demonstração · expira em \d{2}\/\d{2} às \d{2}:\d{2}$/)
     expect(banner.compareDocumentPosition(screen.getByRole('navigation', { name: 'Principal' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 

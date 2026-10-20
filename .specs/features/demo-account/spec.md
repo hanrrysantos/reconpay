@@ -48,7 +48,7 @@ A vitrine pública só deixa testar o ReconPay criando conta, confirmando o e-ma
 | Limpeza | Tarefa agendada a cada 15 min apaga demos expiradas | 15 min de atraso não importa: a conta expirada já não autentica | n |
 | O que a limpeza apaga | O usuário de demo e todo merchant em que todos os usuários com acesso são demos expiradas, com todos os dados do merchant | Um merchant real concedido por engano a uma demo nunca é apagado; só o acesso da demo some | n |
 | Landing | "Ver demonstração" substitui "Criar conta" no herói e no CTA final; o menu continua com "Entrar" e "Criar conta" | O cadastro real segue acessível | n |
-| Aviso de demo no app | Faixa "Conta de demonstração · expira às HH:mm" no topo do app; `GET /api/me` passa a expor `demoExpiresAt` | O visitante sabe que os dados são temporários | n |
+| Aviso de demo no app | Faixa "Conta de demonstração · expira em dd/MM às HH:mm" no topo do app; `GET /api/me` passa a expor `demoExpiresAt` | O visitante sabe que os dados são temporários | n |
 
 **Open questions:** none - all resolved or logged above.
 
@@ -185,7 +185,7 @@ A vitrine pública só deixa testar o ReconPay criando conta, confirmando o e-ma
 
 1. WHEN `GET /api/me` é chamado por uma demo THEN o sistema SHALL incluir `demoExpiresAt` (ISO-8601) na resposta.
 2. WHEN `GET /api/me` é chamado por uma conta comum THEN o sistema SHALL responder `demoExpiresAt` = `null`.
-3. WHILE a sessão é de demo the app SHALL mostrar no topo "Conta de demonstração · expira às HH:mm", no horário local do navegador.
+3. WHILE a sessão é de demo the app SHALL mostrar no topo "Conta de demonstração · expira em dd/MM às HH:mm", no horário local do navegador (dia e mês incluídos, porque a demo vence 24 h depois, no mesmo horário em que começou).
 4. WHILE a sessão é de conta comum the app SHALL NOT mostrar a faixa de demo.
 
 **Independent Test**: Abrir a demo e ver a faixa com o horário; entrar com conta comum e não ver a faixa.

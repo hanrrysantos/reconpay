@@ -194,7 +194,7 @@ graph TD
 | `AuthProvider` | `frontend/lib/auth.tsx` | `startDemo()` grava o token em `sessionStorage` (`reconpay.demoToken`). Ao montar, restaura: lê o token, chama `/api/me`; `401` apaga o token e marca `expired`. Expõe `restoring`. `signOut` apaga o token. `signIn` nunca grava |
 | `AppShell` | `frontend/components/shell/AppShell.tsx` | Enquanto `restoring`, mostra "Abrindo sessão..."; depois, sem token, vai para `/login`, ou para `/` se a sessão de demo expirou na restauração (DEMO-08 AC5) |
 | `DemoButton` | `frontend/components/landing/DemoButton.tsx` | `<button>` com o estilo do CTA. Durante o pedido, fica desabilitado e mostra "Preparando demonstração..."; erro em `role="alert"` abaixo; sucesso → `router.push('/painel')`. Usado no herói e no `FinalCta` |
-| `DemoBanner` | `frontend/components/shell/DemoBanner.tsx` | "Conta de demonstração · expira às HH:mm" (`Intl.DateTimeFormat` local) quando `user.demoExpiresAt` existe; montado no topo do `AppShell` |
+| `DemoBanner` | `frontend/components/shell/DemoBanner.tsx` | "Conta de demonstração · expira em dd/MM às HH:mm" (`Intl.DateTimeFormat` local) quando `user.demoExpiresAt` existe; montado no topo do `AppShell` |
 
 `sessionStorage` é acessado só em `useEffect` e dentro de `try/catch` (SSR e navegação privada).
 
