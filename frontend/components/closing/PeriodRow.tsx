@@ -58,52 +58,59 @@ export function PeriodRow({ merchantId, window, onError }: { merchantId: string;
 
   const label = status === 'error' ? 'Não carregou' : status === 'loading' ? 'Carregando' : PERIOD_STATUS_LABELS[status]
   return (
-    <tr className="border-t border-border text-[14px]">
-      <td className="px-4 py-3 font-semibold">{name}</td>
-      <td className="px-4 py-3" aria-busy={status === 'loading' || undefined}>{label}</td>
-      <td className="px-4 py-3 font-mono">{data ? formatRate(data.matchRate) : '—'}</td>
-      <td className="px-4 py-3 font-mono">{data ? formatMoney(data.openAmount) : '—'}</td>
-      <td className="px-4 py-3 font-mono">{data ? formatLockedAt(data.lockedAt) : '—'}</td>
-      <td className="px-4 py-3 font-mono">{data ? formatDuration(data.closeDurationSeconds) : '—'}</td>
-      <td className="px-4 py-3">
-        {/*
-          The confirmation takes the place of the buttons: the table scrolls sideways, so a
-          floating panel below the last row would be clipped by that scroll area.
-        */}
-        {confirming ? (
-          <InlineConfirm
-            title={confirming === 'lock' ? 'Travar o período?' : 'Destravar o período?'}
-            action={confirming === 'lock' ? 'Travar' : 'Destravar'}
-            onCancel={() => setConfirming(null)}
-            onConfirm={() => void changeLock(confirming)}
-          />
-        ) : (
+    <>
+      <tr className="border-t border-border text-[14px]">
+        <td className="px-4 py-3 font-semibold">{name}</td>
+        <td className="px-4 py-3" aria-busy={status === 'loading' || undefined}>{label}</td>
+        <td className="px-4 py-3 font-mono">{data ? formatRate(data.matchRate) : '—'}</td>
+        <td className="px-4 py-3 font-mono">{data ? formatMoney(data.openAmount) : '—'}</td>
+        <td className="px-4 py-3 font-mono">{data ? formatLockedAt(data.lockedAt) : '—'}</td>
+        <td className="px-4 py-3 font-mono">{data ? formatDuration(data.closeDurationSeconds) : '—'}</td>
+        <td className="px-4 py-3">
           <div className="flex justify-end gap-2">
             {status === 'error' && (
               <button type="button" aria-label={`Tentar novamente ${name}`} onClick={() => void period.refetch()} className={action}>Tentar novamente</button>
             )}
             {status === 'open' && (
-              <button type="button" aria-label={`Travar ${name}`} disabled={busy} onClick={() => setConfirming('lock')} className={action}>Travar</button>
+              <button type="button" aria-label={`Travar ${name}`} disabled={busy || confirming !== null} onClick={() => setConfirming('lock')} className={action}>Travar</button>
             )}
             {status === 'locked' && (
-              <button type="button" aria-label={`Destravar ${name}`} disabled={busy} onClick={() => setConfirming('unlock')} className={action}>Destravar</button>
+              <button type="button" aria-label={`Destravar ${name}`} disabled={busy || confirming !== null} onClick={() => setConfirming('unlock')} className={action}>Destravar</button>
             )}
             {data && (
               <button type="button" aria-label={`Exportar CSV de ${name}`} disabled={busy} onClick={() => void exportCsv()} className={action}>Exportar CSV</button>
             )}
           </div>
-        )}
-      </td>
-    </tr>
+        </td>
+      </tr>
+      {/*
+        The confirmation opens as its own row: the table scrolls sideways, so a panel floating
+        below the last row would be clipped by that scroll area.
+      */}
+      {confirming && (
+        <tr>
+          <td colSpan={7} className="px-4 pb-3">
+            <RowConfirm
+              title={confirming === 'lock' ? 'Travar o período?' : 'Destravar o período?'}
+              action={confirming === 'lock' ? 'Travar' : 'Destravar'}
+              onCancel={() => setConfirming(null)}
+              onConfirm={() => void changeLock(confirming)}
+            />
+          </td>
+        </tr>
+      )}
+    </>
   )
 }
 
-function InlineConfirm({ title, action, onConfirm, onCancel }: { title: string; action: string; onConfirm: () => void; onCancel: () => void }) {
+function RowConfirm({ title, action, onConfirm, onCancel }: { title: string; action: string; onConfirm: () => void; onCancel: () => void }) {
   return (
-    <div role="alertdialog" aria-label={title} className="flex items-center justify-end gap-2">
-      <p className="text-[13px] font-semibold whitespace-nowrap">{title}</p>
-      <button type="button" onClick={onCancel} className="h-8 rounded-full bg-surface px-3 text-[13px] font-semibold">Cancelar</button>
-      <button type="button" onClick={onConfirm} className="h-8 rounded-full bg-foreground px-3 text-[13px] font-semibold text-white">{action}</button>
+    <div role="alertdialog" aria-label={title} className="flex items-center justify-between gap-3 rounded-[14px] bg-surface px-4 py-3">
+      <p className="text-[13px] font-semibold">{title}</p>
+      <div className="flex gap-2">
+        <button type="button" onClick={onCancel} className="h-8 rounded-full bg-danger px-3 text-[13px] font-semibold text-white">Cancelar</button>
+        <button type="button" onClick={onConfirm} className="h-8 rounded-full bg-foreground px-3 text-[13px] font-semibold text-white">{action}</button>
+      </div>
     </div>
   )
 }

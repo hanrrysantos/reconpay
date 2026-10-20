@@ -144,7 +144,7 @@ const switchTo = async (user: ReturnType<typeof userEvent.setup>, from: string, 
 }
 const lockRow = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
   await user.click(await within(rowOf(name)).findByRole('button', { name: `Travar ${name}` }))
-  await user.click(within(within(rowOf(name)).getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
+  await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Travar' }))
 }
 
 describe('ClosingPage', () => {
