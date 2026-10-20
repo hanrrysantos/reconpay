@@ -139,9 +139,9 @@ T23
 
 **Done when**:
 
-- [ ] 1000 CNPJs gerados com sementes distintas passam em `isValid`
-- [ ] Mesma semente → mesmo CNPJ; nenhum gerado é de dígitos todos iguais
-- [ ] Gate quick (backend) passa
+- [x] 1000 CNPJs gerados com sementes distintas passam em `isValid`
+- [x] Mesma semente → mesmo CNPJ; nenhum gerado é de dígitos todos iguais
+- [x] Gate quick (backend) passa
 
 **Tests**: unit
 **Gate**: quick
