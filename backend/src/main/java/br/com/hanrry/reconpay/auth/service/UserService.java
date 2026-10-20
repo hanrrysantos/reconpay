@@ -4,6 +4,7 @@ import br.com.hanrry.reconpay.auth.dto.CreateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
+import br.com.hanrry.reconpay.auth.enums.UserStatusFilter;
 import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
 import br.com.hanrry.reconpay.auth.repository.IEmailVerificationTokenRepository;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
@@ -58,8 +59,13 @@ public class UserService {
         return response;
     }
 
-    public Page<UserResponseDTO> findAllUsers(Pageable pageable) {
-        return userRepository.findAllByActiveTrue(pageable)
+    public Page<UserResponseDTO> findAllUsers(UserStatusFilter status, boolean demo, Pageable pageable) {
+        Boolean active = switch (status) {
+            case ACTIVE -> true;
+            case INACTIVE -> false;
+            case ALL -> null;
+        };
+        return userRepository.findAllFiltered(active, demo, pageable)
                 .map(userMapper::toDTO);
     }
 

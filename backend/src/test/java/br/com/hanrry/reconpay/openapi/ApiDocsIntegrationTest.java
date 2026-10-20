@@ -297,6 +297,8 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         assertQueryExample(document, "get", "/api/users", "page", "0");
         assertQueryExample(document, "get", "/api/users", "size", "20");
         assertQueryExample(document, "get", "/api/users", "sort", "name,asc");
+        assertQueryExample(document, "get", "/api/users", "status", "ACTIVE");
+        assertQueryExample(document, "get", "/api/users", "demo", "false");
         assertOperation(document, new Op(
                 "get", "/api/users/{id}",
                 Set.of("200", "400", "401", "403", "404"),

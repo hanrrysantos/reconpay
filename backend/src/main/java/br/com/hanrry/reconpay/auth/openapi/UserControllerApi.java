@@ -5,6 +5,7 @@ import br.com.hanrry.reconpay.auth.dto.MerchantAccessRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.MerchantAccessResponseDTO;
 import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
+import br.com.hanrry.reconpay.auth.enums.UserStatusFilter;
 import br.com.hanrry.reconpay.openapi.ApiConflictResponse;
 import br.com.hanrry.reconpay.openapi.ApiForbiddenResponse;
 import br.com.hanrry.reconpay.openapi.ApiNotFoundResponse;
@@ -92,11 +93,13 @@ public interface UserControllerApi {
 
     @Operation(
             summary = "Listagem de usuários",
-            description = "Lista paginada dos usuários ativos. Somente ADMIN consulta esta coleção."
+            description = """
+                    Lista paginada de usuários. Sem filtros, traz só as contas ativas e deixa as contas \
+                    de demonstração de fora. Somente ADMIN consulta esta coleção."""
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Página de usuários ativos",
+            description = "Página de usuários que atendem aos filtros",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     examples = @ExampleObject(
@@ -110,7 +113,8 @@ public interface UserControllerApi {
                                           "email": "ana.operadora@reconpay.local",
                                           "role": "OPERATOR",
                                           "active": true,
-                                          "createdAt": "2026-08-10T12:00:00Z"
+                                          "createdAt": "2026-08-10T12:00:00Z",
+                                          "demoExpiresAt": null
                                         }
                                       ],
                                       "totalElements": 1,
@@ -130,6 +134,18 @@ public interface UserControllerApi {
     })
     @GetMapping
     ResponseEntity<Page<UserResponseDTO>> findAllUsers(
+            @Parameter(
+                    name = "status",
+                    description = "Situação da conta: ACTIVE (padrão), INACTIVE ou ALL. Outro valor responde 400.",
+                    example = "ACTIVE"
+            )
+            @RequestParam(defaultValue = "ACTIVE") UserStatusFilter status,
+            @Parameter(
+                    name = "demo",
+                    description = "Inclui as contas de demonstração quando true. Padrão: false.",
+                    example = "false"
+            )
+            @RequestParam(defaultValue = "false") boolean demo,
             @ParameterObject @PageableDefault(size = 20) Pageable pageable);
 
     @Operation(
@@ -326,7 +342,8 @@ public interface UserControllerApi {
               "email": "ana.operadora@reconpay.local",
               "role": "OPERATOR",
               "active": true,
-              "createdAt": "2026-08-10T12:00:00Z"
+              "createdAt": "2026-08-10T12:00:00Z",
+              "demoExpiresAt": null
             }
             """;
 

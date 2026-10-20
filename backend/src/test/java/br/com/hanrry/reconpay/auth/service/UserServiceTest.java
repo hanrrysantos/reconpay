@@ -5,6 +5,7 @@ import br.com.hanrry.reconpay.auth.dto.UpdateUserRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.UserResponseDTO;
 import br.com.hanrry.reconpay.auth.entity.UserEntity;
 import br.com.hanrry.reconpay.auth.enums.UserRole;
+import br.com.hanrry.reconpay.auth.enums.UserStatusFilter;
 import br.com.hanrry.reconpay.auth.mapper.IUserMapper;
 import br.com.hanrry.reconpay.auth.repository.IEmailVerificationTokenRepository;
 import br.com.hanrry.reconpay.auth.repository.IUserRepository;
@@ -103,15 +104,29 @@ class UserServiceTest {
     }
 
     @Test
-    void findAllUsersShouldReturnOnlyActiveUsersMappedToDTO() {
-        UserEntity activeUser = buildUserEntity(UserRole.ADMIN);
-        UserResponseDTO responseDTO = toResponseDTO(activeUser);
-        Page<UserEntity> page = new PageImpl<>(List.of(activeUser), PageRequest.of(0, 20), 1);
+    void findAllUsersWithActiveStatusShouldAskTheRepositoryForActiveAccounts() {
+        assertStatusIsSentAsActive(UserStatusFilter.ACTIVE, true, false);
+    }
 
-        when(userRepository.findAllByActiveTrue(PageRequest.of(0, 20))).thenReturn(page);
-        when(userMapper.toDTO(activeUser)).thenReturn(responseDTO);
+    @Test
+    void findAllUsersWithInactiveStatusShouldAskTheRepositoryForInactiveAccounts() {
+        assertStatusIsSentAsActive(UserStatusFilter.INACTIVE, false, false);
+    }
 
-        Page<UserResponseDTO> result = userService.findAllUsers(PageRequest.of(0, 20));
+    @Test
+    void findAllUsersWithAllStatusShouldLiftTheActiveFilterAndPassTheDemoFlag() {
+        assertStatusIsSentAsActive(UserStatusFilter.ALL, null, true);
+    }
+
+    private void assertStatusIsSentAsActive(UserStatusFilter status, Boolean expectedActive, boolean demo) {
+        UserEntity user = buildUserEntity(UserRole.ADMIN);
+        UserResponseDTO responseDTO = toResponseDTO(user);
+        Page<UserEntity> page = new PageImpl<>(List.of(user), PageRequest.of(0, 20), 1);
+
+        when(userRepository.findAllFiltered(expectedActive, demo, PageRequest.of(0, 20))).thenReturn(page);
+        when(userMapper.toDTO(user)).thenReturn(responseDTO);
+
+        Page<UserResponseDTO> result = userService.findAllUsers(status, demo, PageRequest.of(0, 20));
 
         assertThat(result.getContent()).containsExactly(responseDTO);
         assertThat(result.getTotalElements()).isEqualTo(1);

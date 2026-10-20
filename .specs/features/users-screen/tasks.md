@@ -124,12 +124,12 @@ T14
 
 **Done when**:
 
-- [ ] Integração com um ativo comum, um inativo comum, uma demo ativa e uma demo inativa: sem parâmetros → só o ativo comum; `INACTIVE` → só o inativo comum; `ALL` → os dois comuns; `ALL&demo=true` → os quatro; `ACTIVE&demo=true` → o ativo comum e a demo ativa
-- [ ] `status=FOO` → `400`
-- [ ] Ordenação `sort=name,asc` e `size=20` continuam valendo
-- [ ] `UserServiceTest` cobre o mapeamento de cada `UserStatusFilter` para `active` (`true`, `false`, `null`)
-- [ ] `ApiDocsIntegrationTest`: `status` e `demo` aparecem como parâmetros de `GET /api/users`
-- [ ] Gate quick (backend) passa com `UserServiceTest,UserControllerIntegrationTest,ApiDocsIntegrationTest`
+- [x] Integração com um ativo comum, um inativo comum, uma demo ativa e uma demo inativa: sem parâmetros → só o ativo comum; `INACTIVE` → só o inativo comum; `ALL` → os dois comuns; `ALL&demo=true` → os quatro; `ACTIVE&demo=true` → o ativo comum e a demo ativa
+- [x] `status=FOO` → `400`
+- [x] Ordenação `sort=name,asc` e `size=20` continuam valendo
+- [x] `UserServiceTest` cobre o mapeamento de cada `UserStatusFilter` para `active` (`true`, `false`, `null`)
+- [x] `ApiDocsIntegrationTest`: `status` e `demo` aparecem como parâmetros de `GET /api/users`
+- [x] Gate quick (backend) passa com `UserServiceTest,UserControllerIntegrationTest,ApiDocsIntegrationTest`
 
 **Tests**: integration
 **Gate**: quick
