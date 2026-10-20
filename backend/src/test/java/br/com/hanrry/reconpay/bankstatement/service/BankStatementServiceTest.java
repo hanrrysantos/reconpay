@@ -8,6 +8,7 @@ import br.com.hanrry.reconpay.bankstatement.mapper.IBankStatementImportMapperImp
 import br.com.hanrry.reconpay.bankstatement.mapper.IBankStatementLineMapperImpl;
 import br.com.hanrry.reconpay.bankstatement.repository.IBankStatementImportRepository;
 import br.com.hanrry.reconpay.bankstatement.repository.IBankStatementLineRepository;
+import br.com.hanrry.reconpay.demo.service.DemoQuotaGuard;
 import br.com.hanrry.reconpay.exception.DuplicateExternalSettlementException;
 import br.com.hanrry.reconpay.exception.InvalidSettlementImportException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
@@ -74,6 +75,9 @@ class BankStatementServiceTest {
     @Mock
     private AuditLogger auditLogger;
 
+    @Mock
+    private DemoQuotaGuard demoQuotaGuard;
+
     private BankStatementService bankStatementService;
 
     @BeforeEach
@@ -86,7 +90,8 @@ class BankStatementServiceTest {
                 bankStatementImportRepository,
                 merchantRepository,
                 periodGuard,
-                auditLogger);
+                auditLogger,
+                demoQuotaGuard);
     }
 
     @Test

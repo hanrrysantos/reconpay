@@ -33,7 +33,8 @@ public class MeService {
                 principal.getName(),
                 principal.getUsername(),
                 principal.getRole(),
-                principal.isEnabled()
+                principal.isEnabled(),
+                principal.getDemoExpiresAt()
         );
     }
 

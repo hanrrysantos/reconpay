@@ -35,7 +35,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TransactionCsvParser {
 
-    static final String[] HEADER = {
+    public static final String[] HEADER = {
             "externalReference", "amount", "paymentMethod", "installments", "status", "transactionDate"
     };
 

@@ -1,5 +1,6 @@
 package br.com.hanrry.reconpay.externalsettlement.service;
 
+import br.com.hanrry.reconpay.demo.service.DemoQuotaGuard;
 import br.com.hanrry.reconpay.exception.DuplicateExternalSettlementException;
 import br.com.hanrry.reconpay.exception.ExternalSettlementNotFoundException;
 import br.com.hanrry.reconpay.exception.InvalidSettlementImportException;
@@ -82,6 +83,9 @@ class ExternalSettlementServiceTest {
 
     @Mock
     private AuditLogger auditLogger;
+
+    @Mock
+    private DemoQuotaGuard demoQuotaGuard;
 
     @InjectMocks
     private ExternalSettlementService externalSettlementService;

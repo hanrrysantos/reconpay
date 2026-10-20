@@ -1,5 +1,6 @@
 package br.com.hanrry.reconpay.externalsettlement.service;
 
+import br.com.hanrry.reconpay.demo.service.DemoQuotaGuard;
 import br.com.hanrry.reconpay.exception.DuplicateExternalSettlementException;
 import br.com.hanrry.reconpay.exception.ExternalSettlementNotFoundException;
 import br.com.hanrry.reconpay.exception.InvalidSettlementImportException;
@@ -45,6 +46,7 @@ public class ExternalSettlementService {
     private final IMerchantRepository merchantRepository;
     private final PeriodGuard periodGuard;
     private final AuditLogger auditLogger;
+    private final DemoQuotaGuard demoQuotaGuard;
 
     @Transactional
     public SettlementImportResponseDTO importCsv(UUID merchantId, MultipartFile file) {
@@ -56,6 +58,7 @@ public class ExternalSettlementService {
             UUID merchantId,
             MultipartFile file,
             SettlementLayout layout) {
+        demoQuotaGuard.consumeImport();
         MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(merchantId)
                 .orElseThrow(() -> new MerchantNotFoundException(
                         "Comerciante não encontrado com id: " + merchantId));

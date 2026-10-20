@@ -8,6 +8,7 @@ import br.com.hanrry.reconpay.bankstatement.mapper.IBankStatementImportMapper;
 import br.com.hanrry.reconpay.bankstatement.mapper.IBankStatementLineMapper;
 import br.com.hanrry.reconpay.bankstatement.repository.IBankStatementImportRepository;
 import br.com.hanrry.reconpay.bankstatement.repository.IBankStatementLineRepository;
+import br.com.hanrry.reconpay.demo.service.DemoQuotaGuard;
 import br.com.hanrry.reconpay.exception.DuplicateExternalSettlementException;
 import br.com.hanrry.reconpay.exception.InvalidSettlementImportException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
@@ -38,9 +39,11 @@ public class BankStatementService {
     private final IMerchantRepository merchantRepository;
     private final PeriodGuard periodGuard;
     private final AuditLogger auditLogger;
+    private final DemoQuotaGuard demoQuotaGuard;
 
     @Transactional
     public BankStatementImportResponseDTO importCsv(UUID merchantId, MultipartFile file) {
+        demoQuotaGuard.consumeImport();
         MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(merchantId)
                 .orElseThrow(() -> new MerchantNotFoundException(
                         "Comerciante não encontrado com id: " + merchantId));

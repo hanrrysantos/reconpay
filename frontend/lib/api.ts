@@ -9,6 +9,8 @@ export type Me = {
   email: string
   role: 'ADMIN' | 'OPERATOR'
   active: boolean
+  /** ISO-8601 instant when the demo account expires; null for a regular account. */
+  demoExpiresAt: string | null
 }
 
 export type Merchant = {
@@ -257,6 +259,17 @@ export async function authenticate(email: string, password: string): Promise<{ t
   })
   const user = await request<Me>('/api/me', {}, token)
   return { token, user }
+}
+
+/** Creates a temporary demo account (no body, no auth) and loads its profile with the new token. */
+export async function createDemo(): Promise<{ token: string; user: Me }> {
+  const { token } = await request<{ token: string }>('/api/auth/demo', { method: 'POST' })
+  const user = await request<Me>('/api/me', {}, token)
+  return { token, user }
+}
+
+export function getMe(token: string): Promise<Me> {
+  return request<Me>('/api/me', {}, token)
 }
 
 export async function register(input: { name: string; email: string; password: string }): Promise<void> {

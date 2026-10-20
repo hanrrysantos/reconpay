@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { AuthProvider } from '@/lib/auth'
 import Home, { metadata } from './page'
+
+// The landing's demo button needs the router and the session context that the root layout provides.
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -9,7 +13,7 @@ describe('página inicial', () => {
     const fetch = vi.fn()
     vi.stubGlobal('fetch', fetch)
 
-    render(<Home />)
+    render(<AuthProvider><Home /></AuthProvider>)
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('O que você vendeu, o que caiu na conta e onde não bate.')
     expect(screen.queryByText('Abrindo login...')).not.toBeInTheDocument()

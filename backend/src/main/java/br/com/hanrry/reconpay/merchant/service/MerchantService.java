@@ -3,6 +3,7 @@ package br.com.hanrry.reconpay.merchant.service;
 import br.com.hanrry.reconpay.auth.enums.UserRole;
 import br.com.hanrry.reconpay.auth.repository.IUserMerchantAccessRepository;
 import br.com.hanrry.reconpay.auth.service.UserMerchantAccessService;
+import br.com.hanrry.reconpay.demo.service.DemoQuotaGuard;
 import br.com.hanrry.reconpay.exception.MerchantAlreadyExistsException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
@@ -36,9 +37,11 @@ public class MerchantService {
     private final MerchantAccessGuard merchantAccessGuard;
     private final AuthenticatedUserAccessor authenticatedUserAccessor;
     private final AuditLogger auditLogger;
+    private final DemoQuotaGuard demoQuotaGuard;
 
     @Transactional
     public MerchantResponseDTO create(MerchantRequestDTO request) {
+        demoQuotaGuard.checkMerchantCreation();
         String document = CnpjRules.digits(request.document());
         if (merchantRepository.existsByDocumentDigits(document)) {
             throw new MerchantAlreadyExistsException(

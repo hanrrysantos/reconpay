@@ -1,5 +1,6 @@
 package br.com.hanrry.reconpay.shared;
 
+import java.util.random.RandomGenerator;
 import java.util.regex.Pattern;
 
 public final class CnpjRules {
@@ -32,7 +33,22 @@ public final class CnpjRules {
                 && checkDigit(digits, SECOND_WEIGHTS) == digits.charAt(13) - '0';
     }
 
-    private static int checkDigit(String digits, int[] weights) {
+    /**
+     * A valid CNPJ with a random 8-digit root and the head-office branch {@code 0001}.
+     * The fixed branch keeps the digits from ever being all equal.
+     */
+    public static String generate(RandomGenerator random) {
+        StringBuilder digits = new StringBuilder(14);
+        for (int i = 0; i < 8; i++) {
+            digits.append(random.nextInt(10));
+        }
+        digits.append("0001");
+        digits.append(checkDigit(digits, FIRST_WEIGHTS));
+        digits.append(checkDigit(digits, SECOND_WEIGHTS));
+        return digits.toString();
+    }
+
+    private static int checkDigit(CharSequence digits, int[] weights) {
         int sum = 0;
         for (int i = 0; i < weights.length; i++) {
             sum += (digits.charAt(i) - '0') * weights[i];

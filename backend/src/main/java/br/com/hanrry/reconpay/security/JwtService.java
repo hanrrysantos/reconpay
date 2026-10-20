@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 
@@ -29,12 +30,16 @@ public class JwtService {
     }
 
     public String generateToken(String email) {
+        return generateToken(email, Duration.ofSeconds(expiration));
+    }
+
+    public String generateToken(String email, Duration ttl) {
         Instant issuedAt = Instant.now();
 
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(Date.from(issuedAt))
-                .expiration(Date.from(issuedAt.plusSeconds(expiration)))
+                .expiration(Date.from(issuedAt.plus(ttl)))
                 .signWith(getSignKey())
                 .compact();
     }

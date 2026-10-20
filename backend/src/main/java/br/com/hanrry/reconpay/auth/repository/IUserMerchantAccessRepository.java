@@ -13,5 +13,7 @@ public interface IUserMerchantAccessRepository
 
     List<UserMerchantAccessEntity> findAllByUserId(UUID userId);
 
+    long countByUserId(UUID userId);
+
     void deleteAllByUserId(UUID userId);
 }

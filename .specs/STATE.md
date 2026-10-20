@@ -99,14 +99,30 @@
 - **Date**: 2026-10-15
 - **Status**: active
 
+### AD-013
+- **Decision**: Conta de demonstração é um `OPERATOR` comum marcado por `users.demo_expires_at` (atributo, não papel), criada por `POST /api/auth/demo` com cenário fixo, limitada a 100 ativas e 2 por IP por hora, com cotas de 2 merchants e 10 importações, e apagada por limpeza agendada depois de 24 h.
+- **Reason**: A vitrine precisa de demo em um clique sem criar papel novo (AD-001) nem dono de merchant (AD-004); o isolamento sai dos acessos em `user_merchants`.
+- **Trade-off**: Limite por IP em memória (instância única, zera ao reiniciar); a limpeza precisa conhecer toda tabela ligada a merchant (teste de catálogo protege).
+- **Scope**: Módulo `demo`, `UserDetailsServiceImpl`, `MerchantService.create` e os três `importCsv` (cotas), landing.
+- **Date**: 2026-10-20
+- **Status**: active
+
+### AD-014
+- **Decision**: Exceção ao AD-009: o token de uma sessão de **demo** fica em `sessionStorage` e sobrevive ao recarregar; o token de login comum continua só em memória.
+- **Reason**: O visitante não conhece a senha da conta gerada; perder a sessão ao recarregar gastaria uma das 2 demos por hora.
+- **Trade-off**: Token de demo legível por script da página (XSS); aceito porque a conta é descartável e expira em 24 h.
+- **Scope**: `frontend/lib/auth.tsx`, `AppShell`.
+- **Date**: 2026-10-20
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: brand-refresh (marca nova: R com folha verde-limão, nome "ReconPay" em Manrope) — **mergeada** (PR #59, 2026-10-19, `9d652d9`; CI e Deploy production verdes; Vercel serve `/brand/*` e o novo `icon.svg`; API `UP`)
-- **Phase / Task**: Verifier PASS na rodada 1 (`.specs/features/brand-refresh/validation.md`), 31/31 mutantes mortos; 968 testes no frontend, 661 no backend
-- **Completed**: itens da vitrine 1–7 e a troca de marca. Símbolo redesenhado em SVG sobre o quadro do usuário (só existe em PNG) em `frontend/public/brand/`; componente único `components/brand/Logo.tsx` (`tone`, `tagline`, `size`); regras de uso no `frontend/README.md` (seção Marca); e-mail busca `<RECONPAY_VERIFICATION_BASE_URL>/brand/reconpay-mark-on-dark.png`; Pen atualizado (16 marcas em 13 telas)
-- **Known issues**: (a) `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender` (decisão do usuário: corrigir depois); (b) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`; (c) opcional: `text-balance` no título do `AuthPanel`; (d) o nome da variável de CORS no Compose não tem teste automático; (e) nenhum teste renderiza `app/(app)/painel/page.tsx` (rota coberta pelo build e pelo guard do `AppShell`); (f) lição L-054 ficou como candidata; (g) o `validation.md` da marca está em pt-BR e os anteriores em inglês
+- **Feature**: demo-account (itens 9–10 da vitrine) — implementada e verificada localmente; ainda sem push
+- **Phase / Task**: Verifier PASS na rodada 2 (rodada 1 FAIL: faltava teste do `500` de DEMO-01 AC10; regra do `DemoPurger` apagava merchant compartilhado com outra demo ativa — usuário decidiu alinhar o código à spec). 742 testes no backend, 991 no frontend
+- **Completed**: itens da vitrine 1–8 (8: domínio `hanrry.top` verificado no Resend, SPF/DKIM/DMARC ok, e-mails de produção chegam na caixa de entrada) e a troca de marca. O `.env` local tem `RECONPAY_EMAIL_REDIRECT_TO` com o e-mail pessoal do usuário (gitignorado). O e-mail usa o ícone com fundo escuro porque o modo escuro do Gmail no celular inverte a faixa mas não as imagens
+- **Known issues**: (demo) `docker-compose.yaml` não repassa `DEMO_*` (valem os padrões); timeout de 30 s esperando o dispatcher pode fazer a compensação disputar com o worker (improvável; a limpeza seguinte tenta de novo); L-058/L-059 candidatas; (a) `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender` (decisão do usuário: corrigir depois); (b) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`; (c) opcional: `text-balance` no título do `AuthPanel`; (d) o nome da variável de CORS no Compose não tem teste automático; (e) nenhum teste renderiza `app/(app)/painel/page.tsx`; (f) lições L-054..L-057 ficaram como candidatas; (g) `validation.md` novos em pt-BR, anteriores em inglês; (h) o `.env` do servidor tem `RECONPAY_VERIFICATION_BASE_URL` duplicada (linha 7 velha; vale a 10, `https://reconpay.vercel.app`; usuário decidiu não mexer agora); (i) `EmailProperties.redirectTo()` é preenchido fora do `dev` pelo relaxed binding: quem o ler precisa repetir a checagem de profile; (j) o ícone no modo escuro do Gmail ainda não foi conferido num e-mail real de produção; (k) e-mail local sai sem imagem (Gmail não alcança `localhost`) e tende a cair no spam
 - **In-progress** (file:line): none
-- **Next step**: item 8 da vitrine (conferir o domínio remetente no Resend); depois (9–10) demonstração por visitante (troca "Criar conta" por "Ver demonstração" na landing) e (11) tela de usuários do ADMIN (API `/api/users/**` pronta, nada no frontend); recuperar senha depois
+- **Next step**: teste manual do usuário (API + frontend locais, "Ver demonstração"); push e PR quando o usuário pedir; depois do deploy, conferir que a 3ª demo da mesma rede recebe `429` e outra rede cria (IP real via Docker bridge). Depois (11) tela de usuários do ADMIN
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `docs/record-brand-merge`, local, sem push, criada de `origin/main` em `9d652d9`. O commit `fcf818b` (handoff da landing) entrou pelo PR #59.
+- **Branch**: `feat/demo-account`, local, sem push, criada de `docs/record-redirect-merge` (que tem 1 commit sem push: `2500673`).

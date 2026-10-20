@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +27,14 @@ public class CustomUserDetails implements UserDetails {
 
     public String getName() {
         return user.getName();
+    }
+
+    public Instant getDemoExpiresAt() {
+        return user.getDemoExpiresAt();
+    }
+
+    public boolean isDemo() {
+        return user.getDemoExpiresAt() != null;
     }
 
     @Override
