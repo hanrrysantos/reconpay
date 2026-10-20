@@ -90,12 +90,14 @@ export function PeriodRow({ merchantId, window, onError }: { merchantId: string;
       {confirming && (
         <tr>
           <td colSpan={7} className="px-4 pb-3">
-            <RowConfirm
-              title={confirming === 'lock' ? 'Travar o período?' : 'Destravar o período?'}
-              action={confirming === 'lock' ? 'Travar' : 'Destravar'}
-              onCancel={() => setConfirming(null)}
-              onConfirm={() => void changeLock(confirming)}
-            />
+            <div className="flex justify-end">
+              <RowConfirm
+                title={confirming === 'lock' ? 'Travar o período?' : 'Destravar o período?'}
+                action={confirming === 'lock' ? 'Travar' : 'Destravar'}
+                onCancel={() => setConfirming(null)}
+                onConfirm={() => void changeLock(confirming)}
+              />
+            </div>
           </td>
         </tr>
       )}
@@ -105,7 +107,7 @@ export function PeriodRow({ merchantId, window, onError }: { merchantId: string;
 
 function RowConfirm({ title, action, onConfirm, onCancel }: { title: string; action: string; onConfirm: () => void; onCancel: () => void }) {
   return (
-    <div role="alertdialog" aria-label={title} className="flex items-center justify-between gap-3 rounded-[14px] bg-surface px-4 py-3">
+    <div role="alertdialog" aria-label={title} className="flex items-center gap-4 rounded-[14px] bg-surface py-2 pr-2 pl-4">
       <p className="text-[13px] font-semibold">{title}</p>
       <div className="flex gap-2">
         <button type="button" onClick={onCancel} className="h-8 rounded-full bg-danger px-3 text-[13px] font-semibold text-white">Cancelar</button>

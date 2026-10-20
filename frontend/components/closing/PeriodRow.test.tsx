@@ -128,7 +128,7 @@ describe('PeriodRow', () => {
     expect(onError).not.toHaveBeenCalledWith(expect.any(String))
   })
 
-  it('a confirmação abre numa linha própria abaixo do período, com a largura da tabela, Cancelar vermelho e Travar preto', async () => {
+  it('a confirmação abre numa linha própria abaixo do período, alinhada à direita, com Cancelar vermelho e Travar preto', async () => {
     vi.mocked(api.getPeriod).mockResolvedValue(period())
     const { user } = show()
 
@@ -139,6 +139,7 @@ describe('PeriodRow', () => {
     expect(within(periodRow).queryByRole('alertdialog')).toBeNull()
     expect(confirmRow.querySelector('td')).toHaveAttribute('colspan', '7')
     expect(dialog).not.toHaveClass('absolute')
+    expect(dialog.parentElement).toHaveClass('justify-end')
     expect(within(dialog).getByRole('button', { name: 'Cancelar' })).toHaveClass('bg-danger')
     expect(within(dialog).getByRole('button', { name: 'Travar' })).toHaveClass('bg-foreground')
     expect(within(periodRow).getByRole('button', { name: 'Travar Outubro de 2026' })).toBeDisabled()
