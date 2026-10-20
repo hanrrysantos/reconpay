@@ -505,12 +505,12 @@ class BankStatementMatcherTest {
 
     private static BankStatementMatcher matcherWithTolerance(String tolerance) {
         return new BankStatementMatcher(
-                new ReconciliationProperties(new BigDecimal(tolerance), 5, 366, false, 1, 1));
+                new ReconciliationProperties(new BigDecimal(tolerance), 5, 366, false, 1, 1, 300_000));
     }
 
     private static ReconciliationEngine engineWithTolerance(String tolerance) {
         return new ReconciliationEngine(
-                new ReconciliationProperties(new BigDecimal(tolerance), 5, 366, false, 1, 1));
+                new ReconciliationProperties(new BigDecimal(tolerance), 5, 366, false, 1, 1, 300_000));
     }
 
     private InternalTransactionEntity transaction(String externalReference) {

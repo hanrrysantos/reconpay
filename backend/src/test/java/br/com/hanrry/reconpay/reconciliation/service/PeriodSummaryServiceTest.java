@@ -63,7 +63,7 @@ class PeriodSummaryServiceTest {
         service = new PeriodSummaryService(
                 new PeriodWindowPolicy(
                         runRepository,
-                        new ReconciliationProperties(new BigDecimal("0.00"), 5, 31, true, 2, 50)),
+                        new ReconciliationProperties(new BigDecimal("0.00"), 5, 31, true, 2, 50, 300_000)),
                 merchantRepository,
                 runRepository,
                 itemRepository,

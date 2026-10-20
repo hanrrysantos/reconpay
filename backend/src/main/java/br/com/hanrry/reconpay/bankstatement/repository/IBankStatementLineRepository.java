@@ -17,6 +17,11 @@ public interface IBankStatementLineRepository extends JpaRepository<BankStatemen
             LocalDate fromDate,
             LocalDate toDate);
 
+    long countByMerchant_IdAndMovementDateBetween(
+            UUID merchantId,
+            LocalDate fromDate,
+            LocalDate toDate);
+
     List<BankStatementLineEntity> findByMerchant_IdAndLineReferenceIn(
             UUID merchantId,
             Collection<String> lineReferences);
