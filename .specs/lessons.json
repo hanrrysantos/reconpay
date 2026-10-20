@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 55,
+  "next_id": 57,
   "lessons": [
     {
       "id": "L-001",
@@ -982,6 +982,42 @@
       ],
       "created": "2026-10-19T20:43:55Z",
       "last_seen": "2026-10-19T20:43:55Z"
+    },
+    {
+      "id": "L-055",
+      "key": "ac_gap::gate profile only behavior in code with profile or environment acceptsprofiles because spring relaxed binding lets an os environment variable set any configurationproperties field regardless of which profile yaml maps it",
+      "text": "Gate profile-only behavior in code with @Profile or Environment.acceptsProfiles, because Spring relaxed binding lets an OS environment variable set any @ConfigurationProperties field regardless of which profile YAML maps it",
+      "signal": "ac_gap",
+      "scope": "config",
+      "status": "candidate",
+      "features": [
+        "dev-email-redirect"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "RED-02 AC1 (config)"
+      ],
+      "created": "2026-10-20T00:23:03Z",
+      "last_seen": "2026-10-20T00:23:03Z"
+    },
+    {
+      "id": "L-056",
+      "key": "surviving_mutant::test property binding through a real spring context or a systemenvironmentpropertysource named systemenvironment covering every profile the spec names never through a plain mappropertysource",
+      "text": "Test property binding through a real Spring context or a SystemEnvironmentPropertySource named systemEnvironment, covering every profile the spec names, never through a plain MapPropertySource",
+      "signal": "surviving_mutant",
+      "scope": "config-tests",
+      "status": "candidate",
+      "features": [
+        "dev-email-redirect"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M16 EmailRedirectProfileTest.java:42 (config-tests)"
+      ],
+      "created": "2026-10-20T00:23:03Z",
+      "last_seen": "2026-10-20T00:23:03Z"
     }
   ]
 }
