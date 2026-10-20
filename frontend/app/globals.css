@@ -29,6 +29,23 @@
   --font-brand: var(--font-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Tailwind 4's preflight gives buttons the default arrow; every enabled control shows the hand instead. */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='option'],
+  [role='menuitem'],
+  [role='tab'],
+  summary,
+  select:not(:disabled),
+  input[type='checkbox']:not(:disabled),
+  input[type='radio']:not(:disabled),
+  input[type='file']:not(:disabled),
+  label:has(input[type='checkbox']:not(:disabled), input[type='radio']:not(:disabled)) {
+    cursor: pointer;
+  }
+}
+
 /*
  * Landing animations. Scroll-linked ones run on view timelines, so the scroll position sets their
  * progress and scrolling back plays them in reverse. Nothing is hidden outside these guards: without
