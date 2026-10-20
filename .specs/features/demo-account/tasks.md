@@ -411,13 +411,13 @@ T23
 
 **Done when**:
 
-- [ ] Sem token → `201` com `token`, `type=Bearer`, `expiresIn ≤ 86400`
-- [ ] Com o token: 1 merchant; todo run `COMPLETED` com itens `MATCHED` e `DIVERGENT`; divergência `OPEN` de cada um dos 5 tipos
-- [ ] Duas demos no mesmo dia: mesmas contagens e mesmo bruto total
-- [ ] Token de uma demo em merchant de outra → `403`
-- [ ] 3ª criação do mesmo IP → `429`; com 100 ativas → `503`; demos expiradas não contam no teto
-- [ ] Duas criações simultâneas com 99 ativas → um `201` e um `503`
-- [ ] Gate full passa
+- [x] Sem token → `201` com `token`, `type=Bearer`, `expiresIn ≤ 86400`
+- [x] Com o token: 1 merchant; todo run `COMPLETED` com itens `MATCHED` e `DIVERGENT`; divergência `OPEN` de cada um dos 5 tipos
+- [x] Duas demos no mesmo dia: mesmas contagens e mesmo bruto total
+- [x] Token de uma demo em merchant de outra → `403`
+- [x] 3ª criação do mesmo IP → `429`; com 100 ativas → `503`; demos expiradas não contam no teto
+- [x] Duas criações simultâneas com 99 ativas → um `201` e um `503`
+- [x] Gate full passa
 
 **Tests**: integration
 **Gate**: full

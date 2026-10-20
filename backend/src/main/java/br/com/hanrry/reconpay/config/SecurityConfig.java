@@ -66,7 +66,8 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/register",
                                 "/api/auth/verify-email",
-                                "/api/auth/resend-verification").permitAll()
+                                "/api/auth/resend-verification",
+                                "/api/auth/demo").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/verify-email").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(
