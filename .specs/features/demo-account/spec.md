@@ -37,7 +37,7 @@ A vitrine pública só deixa testar o ReconPay criando conta, confirmando o e-ma
 | Validade | 24 h a partir da criação; o JWT da demo nunca vale além disso | Plano da vitrine | y |
 | Marca de demo | Coluna `demo_expires_at` em `users` (nula para contas comuns) | Atributo, não papel (AD-001) | y |
 | Endpoint | `POST /api/auth/demo`, público, sem corpo; responde `201` com o mesmo formato do login (`token`, `type`, `expiresIn`) | Reaproveita o contrato que o frontend já consome | n |
-| IP do visitante | Primeiro endereço de `X-Forwarded-For` só quando a requisição vem de proxy confiável (`server.forward-headers-strategy` no profile `prod`); senão o IP da conexão | Sem isso todos os visitantes dividem o IP do nginx, ou o cliente forja o cabeçalho. O envio do cabeçalho pelo nginx da VPS será confirmado antes do deploy | n |
+| IP do visitante | Endereço mais à direita de `X-Forwarded-For` que não seja de proxy interno, só quando a requisição vem de proxy interno (`server.forward-headers-strategy=native` no profile `prod`); senão o IP da conexão | O nginx da VPS usa `$proxy_add_x_forwarded_for`, que acrescenta o IP real ao fim do que o cliente mandou: o primeiro endereço pode ser forjado, o último não. Confirmado na VPS em 2026-10-20: `proxy_pass http://127.0.0.1:8080` com `X-Forwarded-For`, `X-Real-IP` e `X-Forwarded-Proto` | y |
 | Janela por IP | Janela deslizante de 60 min; só criações bem-sucedidas contam | Recusas não consomem a cota de quem tentou | n |
 | Conta da demo | E-mail `demo-<aleatório>@demo.reconpay.invalid`, nome "Visitante", senha aleatória nunca exposta, `active=true`, nenhum e-mail enviado | `.invalid` é reservado (RFC 2606); ninguém entra pela tela de login | n |
 | Criação serializada | Uma criação de demo por vez na instância | Garante o teto de 100 sem corrida e limita a carga na VPS | n |
@@ -93,7 +93,7 @@ A vitrine pública só deixa testar o ReconPay criando conta, confirmando o e-ma
 3. IF o mesmo IP já criou 2 demos nos últimos 60 minutos THEN o sistema SHALL responder `429` com código `TOO_MANY_REQUESTS` e mensagem "Limite de demonstrações atingido. Tente novamente em até 1 hora." e SHALL NOT criar a demo.
 4. WHEN uma criação do mesmo IP sai da janela de 60 minutos THEN o sistema SHALL voltar a aceitar uma criação daquele IP.
 5. The system SHALL NOT contar no limite do IP as tentativas recusadas (`429`, `503`, `500`).
-6. WHERE o profile é `prod` the system SHALL usar como IP do visitante o primeiro endereço de `X-Forwarded-For` enviado pelo proxy confiável.
+6. WHERE o profile é `prod` the system SHALL usar como IP do visitante o endereço mais à direita de `X-Forwarded-For` que não seja de proxy interno, de modo que um `X-Forwarded-For` forjado pelo cliente não mude o IP contado.
 7. IF a requisição não vem de proxy confiável THEN o sistema SHALL ignorar `X-Forwarded-For` e usar o IP da conexão.
 8. The system SHALL processar uma criação de demo por vez, de modo que criações simultâneas nunca passem de 100 demos não expiradas.
 
