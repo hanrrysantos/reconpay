@@ -272,11 +272,11 @@ T23
 
 **Done when**:
 
-- [ ] Com merchant populado em todas as tabelas da lista (inclusive divergência resolvida e período fechado), `purge` deixa zero linhas desse merchant em cada tabela e apaga o usuário
-- [ ] Merchant concedido também a conta comum fica, com seus dados; só o acesso da demo some
-- [ ] `findExpired` traz só demos com `demo_expires_at` ≤ agora; contas comuns e demos ativas ficam de fora
-- [ ] Teste de catálogo: toda tabela com FK para `merchants` ou para tabela da lista está na lista do `DemoPurger`
-- [ ] Gate quick (backend) passa
+- [x] Com merchant populado em todas as tabelas da lista (inclusive divergência resolvida e período fechado), `purge` deixa zero linhas desse merchant em cada tabela e apaga o usuário
+- [x] Merchant concedido também a conta comum fica, com seus dados; só o acesso da demo some
+- [x] `findExpired` traz só demos com `demo_expires_at` ≤ agora; contas comuns e demos ativas ficam de fora
+- [x] Teste de catálogo: toda tabela com FK para `merchants` ou para tabela da lista está na lista do `DemoPurger`
+- [x] Gate quick (backend) passa
 
 **Tests**: integration
 **Gate**: quick
