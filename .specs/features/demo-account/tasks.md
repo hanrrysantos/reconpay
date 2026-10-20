@@ -655,12 +655,12 @@ T23
 
 **Done when**:
 
-- [ ] Herói e CTA final mostram "Ver demonstração"; menu mantém `/login` e `/register`
-- [ ] Cliques repetidos → uma chamada; durante a chamada, desabilitado com "Preparando demonstração..."
-- [ ] `201` → `/painel`
-- [ ] `429` e `503` → `message` da API em `role="alert"`; botão reabilitado
-- [ ] Falha de rede ou `500` sem `message` → "Não foi possível abrir a demonstração. Tente novamente."
-- [ ] Gate quick (frontend) passa
+- [x] Herói e CTA final mostram "Ver demonstração"; menu mantém `/login` e `/register`
+- [x] Cliques repetidos → uma chamada; durante a chamada, desabilitado com "Preparando demonstração..."
+- [x] `201` → `/painel`
+- [x] `429` e `503` → `message` da API em `role="alert"`; botão reabilitado
+- [x] Falha de rede ou `500` sem `message` → "Não foi possível abrir a demonstração. Tente novamente."
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick

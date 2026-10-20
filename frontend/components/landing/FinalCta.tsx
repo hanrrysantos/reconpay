@@ -1,5 +1,5 @@
-import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { DemoButton } from './DemoButton'
 
 export function FinalCta({ shell }: { shell: string }) {
   return (
@@ -10,10 +10,7 @@ export function FinalCta({ shell }: { shell: string }) {
         </h2>
         <p className="text-[16px] text-white/65 md:text-[17px]">Crie sua conta e concilie o primeiro mês.</p>
         <div className="flex w-full flex-col gap-3 pt-3 md:w-auto md:flex-row">
-          <Link href="/register" className="inline-flex h-[54px] items-center justify-center gap-2 rounded-full bg-primary px-[26px] text-[15px] font-bold text-foreground">
-            Criar conta
-            <ArrowRight aria-hidden="true" className="size-[18px]" />
-          </Link>
+          <DemoButton className="inline-flex h-[54px] items-center justify-center gap-2 rounded-full bg-primary px-[26px] text-[15px] font-bold text-foreground" />
           <Link href="/login" className="inline-flex h-[54px] items-center justify-center rounded-full bg-white/8 px-[26px] text-[15px] font-semibold">
             Entrar na minha conta
           </Link>

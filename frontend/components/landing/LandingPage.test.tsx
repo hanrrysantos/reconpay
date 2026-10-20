@@ -1,6 +1,9 @@
 import { render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { LandingPage } from './LandingPage'
+
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ startDemo: vi.fn() }) }))
 
 const GITHUB = 'https://github.com/hanrrysantos/reconpay'
 const API_DOCS = 'https://reconpay.hanrry.top/swagger-ui/index.html'
@@ -9,7 +12,7 @@ const hrefOf = (link: HTMLElement) => link.getAttribute('href')
 const accessibleName = (link: HTMLElement) => link.getAttribute('aria-label') ?? link.textContent
 
 describe('LandingPage', () => {
-  it('menu tem a marca, as duas âncoras, "Entrar" e "Criar conta" (LAND-02 AC2, AC3)', () => {
+  it('menu tem a marca, as duas âncoras, "Entrar" e "Criar conta" (LAND-02 AC2, AC3; DEMO-07 AC1)', () => {
     render(<LandingPage />)
 
     const nav = screen.getByRole('navigation', { name: 'Principal' })
@@ -22,7 +25,7 @@ describe('LandingPage', () => {
     ])
   })
 
-  it('abertura com o selo, o único h1, o texto e os dois botões (LAND-02 AC1, AC2; LAND-05 AC1)', () => {
+  it('abertura com o selo, o único h1, o texto e os dois botões (LAND-02 AC1, AC2; LAND-05 AC1; DEMO-07 AC1)', () => {
     render(<LandingPage />)
 
     expect(screen.getByText('Conciliação financeira para fintechs, gateways e marketplaces')).toBeInTheDocument()
@@ -32,9 +35,9 @@ describe('LandingPage', () => {
     expect(screen.getByText('O ReconPay cruza suas vendas com a liquidação da adquirente e o extrato do banco, aponta cada divergência e fecha o período com rastro para auditoria.')).toBeInTheDocument()
 
     const hero = headings[0].closest('section')!
-    expect(within(hero).getByRole('link', { name: 'Criar conta' })).toHaveAttribute('href', '/register')
+    expect(within(hero).getByRole('button', { name: 'Ver demonstração' })).toBeEnabled()
+    expect(within(hero).queryByRole('link', { name: 'Criar conta' })).not.toBeInTheDocument()
     expect(within(hero).getByRole('link', { name: 'Entrar na minha conta' })).toHaveAttribute('href', '/login')
-    expect(screen.queryByText(/Ver demonstração/)).not.toBeInTheDocument()
   })
 
   it('prévia do painel é uma imagem com nome (LAND-02 AC1; LAND-05 AC1)', () => {
@@ -191,13 +194,13 @@ describe('LandingPage: seções', () => {
     expect(within(discrepancies).queryByRole('button')).not.toBeInTheDocument()
   })
 
-  it('convite final com o texto da conta e os dois botões (LAND-02 AC1, AC2)', () => {
+  it('convite final com o texto da conta e os dois botões (LAND-02 AC1, AC2; DEMO-07 AC1)', () => {
     render(<LandingPage />)
 
     const cta = sectionOf('Feche o próximo mês sem abrir uma planilha.')
     expect(cta).toHaveTextContent('Crie sua conta e concilie o primeiro mês.')
-    expect(within(cta).getByRole('link', { name: 'Criar conta' })).toHaveAttribute('href', '/register')
+    expect(within(cta).getByRole('button', { name: 'Ver demonstração' })).toBeEnabled()
+    expect(within(cta).queryByRole('link', { name: 'Criar conta' })).not.toBeInTheDocument()
     expect(within(cta).getByRole('link', { name: 'Entrar na minha conta' })).toHaveAttribute('href', '/login')
-    expect(cta).not.toHaveTextContent('demonstração')
   })
 })

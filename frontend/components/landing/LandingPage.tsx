@@ -1,7 +1,7 @@
-import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import { Logo } from '@/components/brand/Logo'
+import { DemoButton } from './DemoButton'
 import { Discrepancies } from './Discrepancies'
 import { FinalCta } from './FinalCta'
 import { HowItWorks } from './HowItWorks'
@@ -56,10 +56,7 @@ export function LandingPage() {
               O ReconPay cruza suas vendas com a liquidação da adquirente e o extrato do banco, aponta cada divergência e fecha o período com rastro para auditoria.
             </p>
             <div style={{ '--i': 3 } as CSSProperties} className="flex w-full flex-col gap-3 pt-2 md:w-auto md:flex-row">
-              <Link href="/register" className={primaryButton}>
-                Criar conta
-                <ArrowRight aria-hidden="true" className="size-[18px]" />
-              </Link>
+              <DemoButton className={primaryButton} />
               <Link href="/login" className={secondaryButton}>Entrar na minha conta</Link>
             </div>
           </div>
