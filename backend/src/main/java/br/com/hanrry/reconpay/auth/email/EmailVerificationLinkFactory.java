@@ -9,7 +9,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class EmailVerificationLinkFactory {
 
-    private static final String BRAND_MARK_PATH = "/brand/reconpay-mark-on-dark.png";
+    // The icon carries its own dark tile: Gmail dark mode inverts the header but not images.
+    private static final String BRAND_MARK_PATH = "/brand/reconpay-app-icon.png";
 
     private final EmailProperties emailProperties;
 

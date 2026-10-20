@@ -101,12 +101,12 @@
 
 ## Handoff
 
-- **Feature**: landing-page (landing pública em `/` com animações ligadas ao scroll; painel em `/painel`) — **mergeada** (PR #58, 2026-10-19, `a2b2857`; CI verde; Vercel serve a landing em `https://reconpay.vercel.app/`)
-- **Phase / Task**: Verifier PASS em 3 rodadas (`.specs/features/landing-page/validation.md`): rodada 1 FAIL no LAND-03 AC4 (`max-[379px]` do Tailwind 4 é `< 379px`; corrigido em `ce7991d`), rodada 2 PASS, rodada 3 PASS após o usuário tirar "Fechamento" do menu; 953 testes
-- **Completed**: itens da vitrine 1, 2, 3, 4 (landing), 5, 6 e 7. Desenho no Pen: `Landing · Desktop` e `Landing · Mobile` (o Pen mostra "Ver demonstração"; a página usa "Criar conta" até a demo existir). Animações: CSS `animation-timeline: view()` em `frontend/app/globals.css`, números em `components/landing/CountUp.tsx` com o mesmo intervalo (`lib/scrollProgress.ts`); sem suporte (Firefox) ou com movimento reduzido, tudo parado no estado final
-- **Known issues**: (a) `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender` (decisão do usuário: corrigir depois); (b) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`; (c) opcional: `text-balance` no título do `AuthPanel`; (d) o nome da variável de CORS no Compose não tem teste automático; (e) nenhum teste renderiza `app/(app)/painel/page.tsx` (rota coberta pelo build e pelo guard do `AppShell`); (f) lição L-054 ficou como candidata
+- **Feature**: brand-refresh (marca nova: R com folha verde-limão, nome "ReconPay" em Manrope) — **mergeada** (PR #59, 2026-10-19, `9d652d9`; CI e Deploy production verdes; Vercel serve `/brand/*` e o novo `icon.svg`; API `UP`)
+- **Phase / Task**: Verifier PASS na rodada 1 (`.specs/features/brand-refresh/validation.md`), 31/31 mutantes mortos; 968 testes no frontend, 661 no backend
+- **Completed**: itens da vitrine 1–7 e a troca de marca. Símbolo redesenhado em SVG sobre o quadro do usuário (só existe em PNG) em `frontend/public/brand/`; componente único `components/brand/Logo.tsx` (`tone`, `tagline`, `size`); regras de uso no `frontend/README.md` (seção Marca); e-mail busca `<RECONPAY_VERIFICATION_BASE_URL>/brand/reconpay-mark-on-dark.png`; Pen atualizado (16 marcas em 13 telas)
+- **Known issues**: (a) `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender` (decisão do usuário: corrigir depois); (b) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`; (c) opcional: `text-balance` no título do `AuthPanel`; (d) o nome da variável de CORS no Compose não tem teste automático; (e) nenhum teste renderiza `app/(app)/painel/page.tsx` (rota coberta pelo build e pelo guard do `AppShell`); (f) lição L-054 ficou como candidata; (g) o `validation.md` da marca está em pt-BR e os anteriores em inglês
 - **In-progress** (file:line): none
-- **Next step**: escolher o próximo item da vitrine: (8) remetente do Resend, (9–10) demonstração por visitante (troca "Criar conta" por "Ver demonstração" na landing), (11) tela de usuários do ADMIN; recuperar senha depois
+- **Next step**: item 8 da vitrine (conferir o domínio remetente no Resend); depois (9–10) demonstração por visitante (troca "Criar conta" por "Ver demonstração" na landing) e (11) tela de usuários do ADMIN (API `/api/users/**` pronta, nada no frontend); recuperar senha depois
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `docs/record-landing-merge`, local, sem push, criada do `main` em `a2b2857`.
+- **Branch**: `docs/record-brand-merge`, local, sem push, criada de `origin/main` em `9d652d9`. O commit `fcf818b` (handoff da landing) entrou pelo PR #59.

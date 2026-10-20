@@ -37,7 +37,7 @@ public class VerificationEmailComposer {
                 <tr><td align="center" style="padding:48px 16px;">
                 <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="width:100%%;max-width:560px;background:#FFFFFF;border-radius:24px;overflow:hidden;">
                 <tr><td style="background:#0B0D0A;padding:28px 40px;">
-                <img src="%7$s" width="27" height="28" alt="" style="display:inline-block;width:27px;height:28px;border:0;vertical-align:middle;"/>
+                <img src="%7$s" width="32" height="32" alt="" style="display:inline-block;width:32px;height:32px;border:0;vertical-align:middle;"/>
                 <span style="margin-left:10px;font-family:Manrope,%2$s;color:#FFFFFF;font-size:19px;font-weight:800;letter-spacing:-0.6px;vertical-align:middle;">Recon<span style="color:#C6F135;">Pay</span></span>
                 </td></tr>
                 <tr><td style="padding:40px 40px 36px 40px;">

@@ -48,7 +48,7 @@ class EmailVerificationServiceTest {
     @Mock
     private AuditLogger auditLogger;
 
-    private final EmailProperties emailProperties = new EmailProperties(null, "from@test", "http://localhost", 24L);
+    private final EmailProperties emailProperties = new EmailProperties(null, "from@test", "http://localhost", 24L, null);
 
     private static final Instant NOW = Instant.parse("2026-10-19T12:00:00Z");
 

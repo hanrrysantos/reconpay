@@ -7,7 +7,8 @@ public record EmailProperties(
         String resendApiKey,
         String from,
         String verificationBaseUrl,
-        Long verificationTokenHours
+        Long verificationTokenHours,
+        String redirectTo
 ) {
     public EmailProperties {
         if (from == null || from.isBlank()) {
@@ -19,5 +20,7 @@ public record EmailProperties(
         if (verificationTokenHours == null || verificationTokenHours <= 0) {
             verificationTokenHours = 24L;
         }
+        // Only ResendEmailSender under the dev profile honours it; see application-dev.yaml.
+        redirectTo = redirectTo == null || redirectTo.isBlank() ? null : redirectTo.strip();
     }
 }

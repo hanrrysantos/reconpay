@@ -15,6 +15,11 @@ spring:
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:1234}
 
+reconpay:
+  email:
+    # Dev only: every email goes to this address instead of the one registered (blank = off).
+    redirect-to: ${RECONPAY_EMAIL_REDIRECT_TO:}
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
