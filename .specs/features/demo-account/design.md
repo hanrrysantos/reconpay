@@ -154,7 +154,7 @@ graph TD
 - **Purpose**: apagar uma demo e os merchants só dela.
 - **Interface**: `@Transactional void purge(UUID userId)`; `@Transactional List<UUID> findExpired(Instant now)`
 - **Flow**:
-  - Merchants do usuário em que todos os usuários com acesso têm `demo_expires_at` não nulo. Na compensação da criação, o usuário ainda não expirou; o purge apaga os merchants dele mesmo assim, desde que nenhum usuário com acesso seja conta comum.
+  - Merchants do usuário em que todo outro usuário com acesso é uma demo já expirada (DEMO-06 AC3–AC4). O próprio usuário apagado não entra na conta: na compensação da criação ele ainda não expirou, e o merchant dele é apagado. Um merchant que uma conta comum ou outra demo ativa alcança fica.
   - Para esses merchants, DELETE nativo em ordem de FK:
     `discrepancy_transitions` → `discrepancy_adjustments` → `reconciliation_discrepancies` → `period_locks` → `reconciliation_items` → `reconciliation_runs` → `bank_statement_lines` → `bank_statement_imports` → `external_settlements` → `settlement_imports` → `internal_transactions` → `transaction_imports` → `fee_rules` → `merchants` (`user_merchants` cai por cascade).
   - Depois apaga o usuário (`email_verification_tokens` e os acessos restantes caem por cascade).

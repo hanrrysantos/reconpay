@@ -121,6 +121,43 @@ class DemoPurgerIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void purgeKeepsAMerchantAnotherActiveDemoCanReach() throws Exception {
+        UserEntity demo = saveUser(Instant.now().minus(Duration.ofMinutes(1)));
+        UUID merchantId = populatedMerchant(saveUser(Instant.now().plus(Duration.ofHours(1))), false);
+        UUID activeDemo = accessHolders(merchantId).get(0);
+        jdbc.update("INSERT INTO user_merchants (user_id, merchant_id, granted_at) VALUES (?, ?, now())",
+                demo.getId(), merchantId);
+        Map<String, Long> before = rows(merchantId);
+
+        int purgedMerchants = purger.purge(demo.getId());
+
+        assertThat(purgedMerchants).isZero();
+        assertThat(accessHolders(merchantId)).containsExactly(activeDemo);
+        Map<String, Long> after = rows(merchantId);
+        before.remove("user_merchants");
+        after.remove("user_merchants");
+        assertThat(after).isEqualTo(before);
+        assertThat(after.get("internal_transactions")).isPositive();
+        assertThat(userRepository.existsById(demo.getId())).isFalse();
+    }
+
+    @Test
+    void purgeDeletesAMerchantSharedOnlyWithAnotherExpiredDemo() throws Exception {
+        UserEntity demo = saveUser(Instant.now().plus(Duration.ofHours(1)));
+        UUID merchantId = populatedMerchant(demo, false);
+        UserEntity expiredDemo = saveUser(Instant.now().minus(Duration.ofMinutes(1)));
+        jdbc.update("INSERT INTO user_merchants (user_id, merchant_id, granted_at) VALUES (?, ?, now())",
+                expiredDemo.getId(), merchantId);
+
+        int purgedMerchants = purger.purge(demo.getId());
+
+        assertThat(purgedMerchants).isEqualTo(1);
+        assertThat(rows(merchantId)).allSatisfy((table, count) -> assertThat(count).as(table).isZero());
+        assertThat(userRepository.existsById(demo.getId())).isFalse();
+        assertThat(userRepository.existsById(expiredDemo.getId())).isTrue();
+    }
+
+    @Test
     void findExpiredReturnsOnlyDemosExpiredAtOrBeforeNow() {
         Instant now = Instant.parse("2031-03-01T12:00:00Z");
         UserEntity expired = saveUser(now.minusSeconds(1));

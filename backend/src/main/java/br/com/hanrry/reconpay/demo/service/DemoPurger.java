@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -13,9 +14,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /*
- * Deletes a demo account and every merchant only demo accounts can reach. A merchant that a
- * regular account can also reach stays with all its data; only the demo's access goes, by
- * cascade, with the user.
+ * Deletes a demo account and every merchant that only this demo and other expired demos can
+ * reach. A merchant that a regular account or another active demo can also reach stays with all
+ * its data; only the demo's access goes, by cascade, with the user.
  */
 @Service
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class DemoPurger {
             new Step("fee_rules", BY_MERCHANT),
             new Step("merchants", "id IN (:merchantIds)"));
 
-    // Merchants of the user that no regular account (demo_expires_at null) can reach.
+    // Merchants of the user that no regular account and no other active demo can reach.
     private static final String DEMO_ONLY_MERCHANTS = """
             SELECT access.merchant_id
             FROM user_merchants access
@@ -57,11 +58,13 @@ public class DemoPurger {
                   FROM user_merchants other
                   JOIN users holder ON holder.id = other.user_id
                   WHERE other.merchant_id = access.merchant_id
-                    AND holder.demo_expires_at IS NULL)
+                    AND holder.id <> :userId
+                    AND (holder.demo_expires_at IS NULL OR holder.demo_expires_at > :now))
             """;
 
     private final NamedParameterJdbcTemplate jdbc;
     private final AuditLogger auditLogger;
+    private final Clock clock;
 
     /** Tables the purge deletes from, in delete order. */
     static List<String> purgedTables() {
@@ -71,7 +74,8 @@ public class DemoPurger {
     /** Deletes the demo user and its demo-only merchants; returns how many merchants went. */
     @Transactional
     public int purge(UUID userId) {
-        List<UUID> merchantIds = jdbc.queryForList(DEMO_ONLY_MERCHANTS, Map.of("userId", userId), UUID.class);
+        List<UUID> merchantIds = jdbc.queryForList(DEMO_ONLY_MERCHANTS,
+                Map.of("userId", userId, "now", clock.instant().atOffset(ZoneOffset.UTC)), UUID.class);
         if (!merchantIds.isEmpty()) {
             Map<String, Object> params = Map.of("merchantIds", merchantIds);
             for (Step step : STEPS) {
