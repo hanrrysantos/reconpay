@@ -1,11 +1,11 @@
 # Nova Marca Validation
 
-**Verdict**: PASS
+**Verdict**: FAIL (revisão 2 de BRD-03 AC1, commit `6acf9e4`; a rodada original foi aprovada)
 
 **Date**: 2026-10-19
 **Spec**: `.specs/features/brand-refresh/spec.md`
 **Diff range**: `fcf818b..HEAD` (HEAD = `9d26ff7`; commits `a8c6383` spec, `cdf7cf7` T1, `beffd6d` T2, `50cfaa3` T3, `a5a2d35` T4, `dd95260` T5, `efa6464` T6, `9d26ff7` T7; branch `feat/brand-refresh`)
-**Rounds**: 1
+**Rounds**: 1 + revisão 2 (`6acf9e4`, seção no fim)
 **Verifier**: sub-agente independente (autor ≠ verificador)
 
 Todo critério testável tem asserção no valor que a spec define, nos seis lugares de BRD-02 e no e-mail. O sensor matou 31 de 31 mutantes. BRD-02 AC5 e BRD-01 foram medidos no navegador pelo Verifier. BRD-04 (Pen) fica fora do repositório e está conferido só pelas capturas do autor.
@@ -110,7 +110,7 @@ Scratch isolado: `git worktree add --detach /home/hanrry/.claude/jobs/3748ece6/t
 | B8 | `VerificationEmailComposer.java:40` | imagem 32×32 | ✅ |
 | B9 | `VerificationEmailComposer.java:40` | `src` aponta para o link de verificação | ✅ |
 
-**Sensor depth**: lightweight+ (31 mutantes de comportamento; cada tom e frase de cada um dos seis lugares mutado em separado). **Result**: 31/31 killed. PASS.
+**Sensor depth**: lightweight+ (31 mutantes de comportamento; cada tom e frase de cada um dos seis lugares mutado em separado). **Resultado da rodada original**: 31/31 killed, aprovado.
 
 ---
 
@@ -163,3 +163,69 @@ Rodado no worktree de scratch em `9d26ff7`, antes das mutações.
 **Resíduos (não bloqueiam)**:
 1. BRD-04 depende só das capturas do autor; o `.pen` fica fora do repositório.
 2. BRD-02 AC5 em `/painel` não foi medido pelo Verifier no navegador. Vale por equivalência com o menu da landing, medido de 320 a 1920 px.
+
+---
+
+## Revisão 2: ícone do e-mail em quadrado próprio (`6acf9e4`)
+
+**Verdict**: FAIL
+**Date**: 2026-10-19
+**Diff range**: `1c5bd3c..6acf9e4` (`6acf9e4` fix(auth): show the email brand icon on its own dark tile, branch `feat/dev-email-redirect`)
+**Verifier**: sub-agente independente (autor ≠ verificador)
+
+BRD-03 AC1 foi revisado com aprovação do usuário (`.specs/features/brand-refresh/spec.md`, AC1 de BRD-03 e a linha "Imagem no e-mail" das premissas). O e-mail passa a usar `<base>/brand/reconpay-app-icon.png` em 32 × 32 px. URL, atributos e `alt` estão bem testados e o PNG está certo. Só que o tamanho de exibição vem do CSS inline (`width:32px;height:32px`), e nenhum teste o confere: o mutante R7 sobreviveu.
+
+### Spec-anchored (BRD-03 revisado)
+
+| Critério | Resultado definido na spec | `file:line` + asserção | Result |
+| --- | --- | --- | --- |
+| AC1 imagem `<base sem barra final>/brand/reconpay-app-icon.png`, 32 × 32 px, seguida do nome | URL exata; 32 × 32 | `backend/src/test/java/br/com/hanrry/reconpay/auth/email/VerificationEmailComposerTest.java:44` - `contains("<img src=\"https://app.example.com/brand/reconpay-app-icon.png\" width=\"32\" height=\"32\" alt=\"\"")`; barra final `:55` (e `doesNotContain("app.example.com//")`); fábrica `backend/src/test/java/br/com/hanrry/reconpay/auth/email/EmailVerificationLinkFactoryTest.java:32` (padrão `http://localhost:3000/brand/reconpay-app-icon.png`) e `:41` (base `https://app.example.com//`). Código: `backend/src/main/java/br/com/hanrry/reconpay/auth/email/EmailVerificationLinkFactory.java:13`, `backend/src/main/java/br/com/hanrry/reconpay/auth/email/VerificationEmailComposer.java:40`. **Gap**: o `style="...width:32px;height:32px;..."` da mesma linha `:40`, que é o que o Gmail usa para o tamanho, não tem asserção (R7) | ⚠️ URL e atributos PASS; tamanho exibido sem teste |
+| AC2 imagem decorativa, nome escrito | `alt=""` | `VerificationEmailComposerTest.java:44` (`alt=\"\"`), `:45` (nome em texto) | ✅ PASS |
+| AC3 texto puro "ReconPay" | sem mudança | mesma evidência da rodada original | ✅ PASS |
+
+### O arquivo PNG
+
+`frontend/public/brand/reconpay-app-icon.png`, decodificado com um leitor PNG em Python stdlib (`/home/hanrry/.claude/jobs/3748ece6/tmp/sensor2/png.py`, fora do repositório):
+
+- 64 × 64, RGBA 8 bits, sem entrelaçamento: 2× os 32 px exibidos.
+- Os quatro cantos `(0,0)`, `(63,0)`, `(0,63)`, `(63,63)` são `(0,0,0,0)`, transparentes. São 126 px transparentes no total, os cantos arredondados do `rx="14"` de `frontend/public/icon.svg:2`.
+- O corpo do quadrado é opaco `#0B0D0A` (`(11,13,10,255)`) em `(3,32)`, `(6,6)`, `(58,58)` e no centro, com 3001 px. Também há branco `#FFFFFF` (481 px, o R), verde-limão `#C6F135` (196 px, a folha) e uns poucos tons de antialias. É o `icon.svg` rasterizado.
+- `frontend/public/brand/reconpay-mark-on-dark.png` continua publicado (sem mudança desde `cdf7cf7`), para os e-mails já enviados.
+
+### `frontend/README.md`
+
+`frontend/README.md:86` descreve os dois PNGs com precisão: `reconpay-app-icon.png` é o quadrado preto com o símbolo, usado pelo e-mail, e o fundo próprio resiste à inversão do Gmail; `reconpay-mark-on-dark.png` é a versão antiga, mantida para as mensagens já enviadas. Falta um "e" ou uma vírgula entre "`reconpay-mark-on-light.svg` (R preto)" e "`reconpay-app-icon.png`". É cosmético.
+
+### Discrimination Sensor (revisão 2)
+
+Scratch: `git worktree add --detach /home/hanrry/.claude/jobs/3748ece6/tmp/verifier-wt2 HEAD` (em `6acf9e4`), `/home/hanrry/.claude/jobs/3748ece6/tmp/sensor2/run3.py`, `./mvnw -q test -Dtest=VerificationEmailComposerTest,EmailVerificationLinkFactoryTest -Djacoco.skip=true` (exit 0 antes das mutações). Worktree removido. `git status --porcelain` da árvore real ficou vazio antes e depois.
+
+| # | Arquivo | Mutação | Killed? |
+| --- | --- | --- | --- |
+| R1 | `EmailVerificationLinkFactory.java:13` | caminho antigo `reconpay-mark-on-dark.png` | ✅ |
+| R2 | `EmailVerificationLinkFactory.java:13` | `reconpay-mark-on-light.png` | ✅ |
+| R3 | `VerificationEmailComposer.java:40` | atributos `27` × `28` antigos | ✅ |
+| R4 | `VerificationEmailComposer.java:40` | atributo `width="28"` | ✅ |
+| R5 | `VerificationEmailComposer.java:40` | `alt` removido | ✅ |
+| R6 | `VerificationEmailComposer.java:40` | `alt="ReconPay"` | ✅ |
+| R7 | `VerificationEmailComposer.java:40` | CSS inline `width:28px;height:28px` com os atributos intactos | ❌ Survived |
+| R8 | `VerificationEmailComposer.java:40` | `src` com o argumento errado do `formatted` | ✅ |
+
+**Result**: 7/8 killed. FAIL (R7).
+
+### Gate (revisão 2)
+
+`./mvnw verify` em `6acf9e4`: exit 0, 675 tests, 0 failures, 0 skipped, coverage atendida. A revisão só trocou o valor de asserções que já existiam (o caminho e `27`/`28` → `32`/`32`), sem perder asserção.
+
+### Fix
+
+- **Fix R7 (Major)**: em `VerificationEmailComposerTest.java:44`, assertar também `contains("width:32px;height:32px;")` na tag `<img>`, ou a tag inteira com o `style`. É o CSS inline que define o tamanho no Gmail, e a spec fixa 32 × 32 px.
+- **Cosmético**: `frontend/README.md:86`, pôr o "e" (ou uma vírgula) antes de `reconpay-app-icon.png`.
+
+### Requirement Traceability Update (revisão 2)
+
+| Requirement | Previous Status | New Status |
+| --- | --- | --- |
+| BRD-03 | Verified | Needs Fix (R7) |
+
+Lição registrada: L-057 (candidata, mutante R7).

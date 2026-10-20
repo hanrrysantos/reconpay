@@ -92,7 +92,7 @@ O `.env` local usa a chave real do Resend, então cada cadastro feito no ambient
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
 | RED-01 | P1: Redirecionar no dev | Execute | Verified |
-| RED-02 | P1: Só no profile dev | Execute | Needs Fix |
+| RED-02 | P1: Só no profile dev | Execute | Verified |
 
 **ID format:** `RED-<NN>`; o critério é citado como `RED-01 AC2`.
 

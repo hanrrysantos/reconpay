@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 57,
+  "next_id": 58,
   "lessons": [
     {
       "id": "L-001",
@@ -1018,6 +1018,24 @@
       ],
       "created": "2026-10-20T00:23:03Z",
       "last_seen": "2026-10-20T00:23:03Z"
+    },
+    {
+      "id": "L-057",
+      "key": "surviving_mutant::in html email tests assert the inline css dimensions of images as well as the width and height attributes because clients like gmail size images from the style",
+      "text": "In HTML email tests assert the inline CSS dimensions of images as well as the width and height attributes, because clients like Gmail size images from the style",
+      "signal": "surviving_mutant",
+      "scope": "email",
+      "status": "candidate",
+      "features": [
+        "brand-refresh"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "R7 VerificationEmailComposer.java:40 (email)"
+      ],
+      "created": "2026-10-20T00:35:14Z",
+      "last_seen": "2026-10-20T00:35:14Z"
     }
   ]
 }

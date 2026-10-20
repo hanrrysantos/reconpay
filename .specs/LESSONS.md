@@ -348,6 +348,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M16 EmailRedirectProfileTest.java:42 (config-tests)
 - last seen: 2026-10-20T00:23:03Z
 
+### L-057 - In HTML email tests assert the inline CSS dimensions of images as well as the width and height attributes, because clients like Gmail size images from the style
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `email` · harmful: 0
+- features: brand-refresh
+- evidence: R7 VerificationEmailComposer.java:40 (email)
+- last seen: 2026-10-20T00:35:14Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

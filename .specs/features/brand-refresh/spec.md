@@ -129,7 +129,7 @@ O ReconPay usa um quadrado verde-limão com ✓ e o nome "reconpay" em minúscul
 | --- | --- | --- | --- |
 | BRD-01 | P1: Arquivos da marca | Execute | Verified |
 | BRD-02 | P1: Marca no app | Execute | Verified |
-| BRD-03 | P1: Marca no e-mail | Execute | Verified |
+| BRD-03 | P1: Marca no e-mail | Execute | Needs Fix |
 | BRD-04 | P2: Desenhos | Execute | Verified |
 
 **ID format:** `BRD-<NN>`; o critério é citado como `BRD-02 AC4`.

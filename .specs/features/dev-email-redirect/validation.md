@@ -1,12 +1,16 @@
 # Redirecionar E-mails em Dev Validation
 
-**Verdict**: FAIL
+**Verdict**: PASS (rodada 2)
 
 **Date**: 2026-10-19
 **Spec**: `.specs/features/dev-email-redirect/spec.md`
-**Diff range**: `1c86d83..HEAD` (HEAD = `0c50e3a`; commits `1af99e9` spec, `efde52d` implementação, `0c50e3a` README; branch `feat/dev-email-redirect`)
-**Rounds**: 1
+**Diff range**: rodada 1 `1c86d83..0c50e3a`; rodada 2 `0c50e3a..1c5bd3c` (fix). Rodada 1: commits `1af99e9` spec, `efde52d` implementação, `0c50e3a` README; branch `feat/dev-email-redirect`)
+**Rounds**: 2
 **Verifier**: sub-agente independente (autor ≠ verificador)
+
+**Rodada 2 (seção no fim)**: o fix `1c5bd3c` fecha RED-02 AC1. Num contexto Spring real, com a variável no ambiente do processo, o envio vai para o endereço do cadastro sem profile, em `test` e em `prod`, e para o destino só em `dev`. O sensor matou 23 de 23 mutantes, M16 incluído. RED-01 e RED-02 estão Verified.
+
+## Rodada 1
 
 RED-01 está correto e bem testado: o sensor matou 15 de 16 mutantes. RED-02 AC1 falha: a variável `RECONPAY_EMAIL_REDIRECT_TO`, exportada como variável de ambiente do processo, liga o redirecionamento nos profiles `prod` e `test` e também sem profile. O relaxed binding do Spring liga o nome da variável à propriedade `reconpay.email.redirect-to` sem passar pelo `application-dev.yaml`. O `EmailRedirectProfileTest` não pega isso porque simula o ambiente com um `MapPropertySource` comum, que não tem esse mapeamento.
 
@@ -71,7 +75,7 @@ Scratch isolado: `git worktree add --detach /home/hanrry/.claude/jobs/3748ece6/t
 | M15 | `application-prod.yaml` | mapeamento copiado também no `prod` | ✅ |
 | M16 | `backend/src/test/resources/application-test.yaml` | mapeamento `redirect-to` adicionado ao profile `test` | ❌ Survived (o teste não carrega o profile `test`) |
 
-**Sensor depth**: lightweight+ (16 mutantes de comportamento). **Result**: 15/16 killed. FAIL (M16).
+**Sensor depth**: lightweight+ (16 mutantes de comportamento). **Resultado da rodada 1**: 15/16 killed, reprovado (M16).
 
 Fora do sensor, a contraprova de RED-02 AC1 mostra o código real redirecionando fora do `dev`, sem nenhuma mutação.
 
@@ -139,3 +143,61 @@ Rodado no worktree de scratch em `0c50e3a`, antes das mutações.
 **O que funciona**: destinatário único, prefixo exato do assunto, HTML e texto do cadastro, normalização de vazio e espaços, log com os dois endereços, mapeamento só no `application-dev.yaml`, README.
 
 **Próximo passo**: Fix 1 (e com ele o Fix 2), depois uma nova rodada do Verifier.
+
+---
+
+## Rodada 2 (fix `1c5bd3c`)
+
+**Verdict**: PASS
+**Diff range**: `0c50e3a..1c5bd3c` (`1c5bd3c` fix(auth): honour the email redirect only under the dev profile). O gate também rodou em `6acf9e4`, HEAD da branch durante a rodada. Esse commit mexe só na marca do e-mail e foi verificado em `.specs/features/brand-refresh/validation.md`, revisão 2.
+
+### O que mudou
+
+`ResendEmailSender` recebe o `Environment` e só usa `emailProperties.redirectTo()` quando o profile `dev` está ativo: `backend/src/main/java/br/com/hanrry/reconpay/auth/email/ResendEmailSender.java:35` - `environment.acceptsProfiles(Profiles.of("dev")) ? emailProperties.redirectTo() : null`. O único leitor de `redirectTo()` em `src/main` é essa linha. O comentário de `EmailProperties.java:23` agora diz o que acontece de verdade.
+
+### RED-02 refeito
+
+| Critério | Resultado definido na spec | `file:line` + asserção | Result |
+| --- | --- | --- | --- |
+| AC1 sem `dev`, com a variável definida: ignora e manda para o cadastro | `to` = cadastro; assunto sem prefixo | `backend/src/test/java/br/com/hanrry/reconpay/auth/email/ResendEmailSenderTest.java:127-133` - `@ValueSource(strings = {"", "test", "prod"})`, redirect ligado em `properties("dev@example.com")`, `expectedTo` = `ana@lojacentro.com.br`, assunto `Confirme seu e-mail — ReconPay` (asserções em `:70-72`, `length()` 1). `dev` junto com outro profile continua redirecionando: `:135-139`. Os testes de RED-01 rodam com `profiles("dev")` (`:61`). YAML por profile: `backend/src/test/java/br/com/hanrry/reconpay/auth/config/EmailRedirectProfileTest.java:45-46` (sem profile, `test`, `prod` → nulo pelo `.env` importado), e o javadoc em `:21-24` explica que a variável de ambiente do SO é barrada no sender. **Contraprova do Verifier refeita** (probe descartável no worktree): `SpringApplicationBuilder` com `EmailProperties`, `ResendEmailSender`, `VerificationEmailComposer`, `EmailVerificationLinkFactory` e um `RestClient.Builder` ligado a `MockRestServiceServer` (nenhuma chamada sai para a rede), rodado com `RECONPAY_EMAIL_REDIRECT_TO=probe@example.com` e uma `RESEND_API_KEY` falsa no ambiente do processo. O `redirectTo()` continua preenchido em todos os profiles (é assim que o Spring liga), mas o POST vai com `to` = `["ana@lojacentro.com.br"]` sem profile, em `test` e em `prod`, e com `["probe@example.com"]` em `dev` | ✅ PASS |
+| AC2 README | variável só do `dev`, exemplo genérico, ignorada em `test`/`prod` | `README.md:124`, `README.md:127`. A frase "Em `test` e `prod` ela é ignorada" agora é verdadeira, pela contraprova acima | ✅ PASS |
+
+RED-01 continua com a mesma evidência da rodada 1. Os números de linha de `ResendEmailSenderTest` mudaram: destino `:83-86`, corpo `:89-98`, ausente/vazio/espaços `:100-105`, strip `:107-111`, mesmo endereço `:113-117`, log `:119-125`. O sensor confirma (M1-M15 mortos).
+
+### Discrimination Sensor (rodada 2)
+
+Scratch: `git worktree add --detach /home/hanrry/.claude/jobs/3748ece6/tmp/verifier-wt2 HEAD` (em `1c5bd3c`), `/home/hanrry/.claude/jobs/3748ece6/tmp/sensor2/run2.py`, mesmo comando de teste da rodada 1 (exit 0 antes das mutações). Worktree removido. `git status --porcelain` da árvore real ficou vazio antes e depois.
+
+| # | Arquivo | Mutação | Killed? |
+| --- | --- | --- | --- |
+| M1-M15 | `ResendEmailSender.java`, `EmailProperties.java`, YAMLs | os mesmos 15 da rodada 1 | ✅ 15/15 |
+| M16 | `backend/src/test/resources/application-test.yaml` | `redirect-to` mapeado no profile `test` | ✅ (sobreviveu na rodada 1) |
+| G1 | `ResendEmailSender.java:35` | guarda de profile removida | ✅ |
+| G2 | `ResendEmailSender.java:35` | `Profiles.of("prod")` | ✅ |
+| G3 | `ResendEmailSender.java:35` | guarda negada | ✅ |
+| G4 | `ResendEmailSender.java:35` | `Profiles.of("!prod")` | ✅ |
+| G5 | `ResendEmailSender.java:35` | `Profiles.of("default \| dev")` | ✅ |
+| G6 | `ResendEmailSender.java:35` | `Profiles.of("test \| dev")` | ✅ |
+| G7 | `ResendEmailSender.java:35` | exige `dev` como único profile | ✅ |
+
+**Result**: 23/23 killed. PASS.
+
+### Gate (rodada 2)
+
+- `./mvnw verify` em `1c5bd3c`: exit 0, 675 tests, 0 failures, 0 skipped; JaCoCo 96,1% linha / 87,8% branch. Em `6acf9e4`: exit 0, 675 tests, coverage atendida.
+- **Delta**: 671 → 675 (+4: `outsideTheDevProfileABoundRedirectIsIgnored` ×3, `devAlongsideOtherProfilesStillRedirects`). Nenhum teste removido ou enfraquecido. `EmailRedirectProfileTest` ganhou o caso `test`.
+
+### Resíduo (não bloqueia)
+
+`EmailProperties.redirectTo()` continua preenchido fora do `dev` quando a variável existe no ambiente. Só o `ResendEmailSender` lê o campo, e ele aplica a guarda. Um leitor novo desse campo teria que repetir a checagem de profile.
+
+### Lições
+
+L-055 e L-056 (rodada 1) continuam candidatas. O fix seguiu as duas, e o skill só penaliza lição confirmada que falhou ao ser aplicada, então não há o que penalizar nem registrar nesta rodada.
+
+### Requirement Traceability Update (rodada 2)
+
+| Requirement | Previous Status | New Status |
+| --- | --- | --- |
+| RED-01 | Verified | Verified |
+| RED-02 | Needs Fix | Verified |
