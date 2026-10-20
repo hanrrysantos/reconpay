@@ -1,5 +1,6 @@
 package br.com.hanrry.reconpay.transaction.service;
 
+import br.com.hanrry.reconpay.demo.service.DemoQuotaGuard;
 import br.com.hanrry.reconpay.exception.DuplicateTransactionReferenceException;
 import br.com.hanrry.reconpay.exception.InvalidTransactionImportException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
@@ -70,6 +71,7 @@ class TransactionImportServiceTest {
     @Mock ITransactionImportMapper transactionImportMapper;
     @Mock PeriodGuard periodGuard;
     @Mock AuditLogger auditLogger;
+    @Mock DemoQuotaGuard demoQuotaGuard;
 
     private TransactionImportService service;
     private MerchantEntity merchant;
@@ -77,7 +79,8 @@ class TransactionImportServiceTest {
     @BeforeEach
     void setUp() {
         service = new TransactionImportService(new TransactionCsvParser(CLOCK), merchantRepository, feeRuleRepository,
-                transactionRepository, transactionImportRepository, transactionImportMapper, periodGuard, auditLogger);
+                transactionRepository, transactionImportRepository, transactionImportMapper, periodGuard, auditLogger,
+                demoQuotaGuard);
         merchant = new MerchantEntity();
         merchant.setId(MERCHANT_ID);
         lenient().when(merchantRepository.findByIdAndActiveTrue(MERCHANT_ID)).thenReturn(Optional.of(merchant));

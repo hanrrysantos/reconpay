@@ -1,5 +1,6 @@
 package br.com.hanrry.reconpay.transaction.service;
 
+import br.com.hanrry.reconpay.demo.service.DemoQuotaGuard;
 import br.com.hanrry.reconpay.exception.DuplicateTransactionReferenceException;
 import br.com.hanrry.reconpay.exception.InvalidTransactionAmountException;
 import br.com.hanrry.reconpay.exception.InvalidTransactionImportException;
@@ -57,9 +58,11 @@ public class TransactionImportService {
     private final ITransactionImportMapper transactionImportMapper;
     private final PeriodGuard periodGuard;
     private final AuditLogger auditLogger;
+    private final DemoQuotaGuard demoQuotaGuard;
 
     @Transactional
     public TransactionImportResponseDTO importCsv(UUID merchantId, MultipartFile file) {
+        demoQuotaGuard.consumeImport();
         MerchantEntity merchant = merchantRepository.findByIdAndActiveTrue(merchantId)
                 .orElseThrow(() -> new MerchantNotFoundException(
                         "Comerciante não encontrado com id: " + merchantId));

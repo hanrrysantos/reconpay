@@ -467,11 +467,11 @@ T23
 
 **Done when**:
 
-- [ ] Demo cria o 2º merchant (`201`); o 3º → `403` com a mensagem da spec
-- [ ] 10 importações aceitas cobrindo os 3 endpoints; a 11ª em cada endpoint → `403` com a mensagem da spec
-- [ ] As 3 importações do cenário não contam; importação recusada por CSV inválido não conta
-- [ ] Conta comum faz 3 merchants e 11 importações sem recusa
-- [ ] Gate quick (backend) passa
+- [x] Demo cria o 2º merchant (`201`); o 3º → `403` com a mensagem da spec
+- [x] 10 importações aceitas cobrindo os 3 endpoints; a 11ª em cada endpoint → `403` com a mensagem da spec
+- [x] As 3 importações do cenário não contam; importação recusada por CSV inválido não conta
+- [x] Conta comum faz 3 merchants e 11 importações sem recusa
+- [x] Gate quick (backend) passa
 
 **Tests**: integration
 **Gate**: quick

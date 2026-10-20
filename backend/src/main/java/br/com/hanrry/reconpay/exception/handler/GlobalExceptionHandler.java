@@ -181,6 +181,14 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.SERVICE_UNAVAILABLE, ApiErrorCode.SERVICE_UNAVAILABLE, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(DemoQuotaExceededException.class)
+    public ResponseEntity<StandardError> handleDemoQuotaExceeded(
+            DemoQuotaExceededException ex,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.FORBIDDEN, ApiErrorCode.FORBIDDEN, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(DuplicateExternalSettlementException.class)
     public ResponseEntity<StandardError> handleDuplicateExternalSettlement(
             DuplicateExternalSettlementException ex,

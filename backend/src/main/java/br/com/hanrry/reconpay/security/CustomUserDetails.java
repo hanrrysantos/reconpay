@@ -28,6 +28,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getName();
     }
 
+    public boolean isDemo() {
+        return user.getDemoExpiresAt() != null;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));

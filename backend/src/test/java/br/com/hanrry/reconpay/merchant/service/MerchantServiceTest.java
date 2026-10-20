@@ -3,6 +3,7 @@ package br.com.hanrry.reconpay.merchant.service;
 import br.com.hanrry.reconpay.auth.enums.UserRole;
 import br.com.hanrry.reconpay.auth.repository.IUserMerchantAccessRepository;
 import br.com.hanrry.reconpay.auth.service.UserMerchantAccessService;
+import br.com.hanrry.reconpay.demo.service.DemoQuotaGuard;
 import br.com.hanrry.reconpay.exception.MerchantAlreadyExistsException;
 import br.com.hanrry.reconpay.exception.MerchantNotFoundException;
 import br.com.hanrry.reconpay.merchant.dto.MerchantRequestDTO;
@@ -68,6 +69,9 @@ class MerchantServiceTest {
 
     @Mock
     private AuditLogger auditLogger;
+
+    @Mock
+    private DemoQuotaGuard demoQuotaGuard;
 
     @InjectMocks
     private MerchantService merchantService;
