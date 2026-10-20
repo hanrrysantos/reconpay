@@ -17,5 +17,7 @@ public interface IUserMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "demoExpiresAt", ignore = true)
+    @Mapping(target = "demoImportCount", ignore = true)
     UserEntity toEntity(UserRequestDTO request);
 }

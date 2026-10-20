@@ -43,6 +43,13 @@ public class UserEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    // Null for regular accounts; set only on temporary demo accounts.
+    @Column(name = "demo_expires_at")
+    private Instant demoExpiresAt;
+
+    @Column(name = "demo_import_count", nullable = false)
+    private int demoImportCount;
+
     @PrePersist
     protected void onCreate(){
         Instant now = Instant.now();

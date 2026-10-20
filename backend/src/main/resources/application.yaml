@@ -74,6 +74,14 @@ reconpay:
     async: ${RECONCILIATION_ASYNC:true}
     workers: ${RECONCILIATION_WORKERS:2}
     queue-capacity: ${RECONCILIATION_QUEUE_CAPACITY:50}
+  demo:
+    ttl: ${DEMO_TTL:24h}
+    max-active: ${DEMO_MAX_ACTIVE:100}
+    per-ip-per-hour: ${DEMO_PER_IP_PER_HOUR:2}
+    max-merchants: ${DEMO_MAX_MERCHANTS:2}
+    max-imports: ${DEMO_MAX_IMPORTS:10}
+    cleanup-delay-ms: ${DEMO_CLEANUP_DELAY_MS:900000}
+    run-wait-timeout: ${DEMO_RUN_WAIT_TIMEOUT:30s}
 
 springdoc:
   api-docs:

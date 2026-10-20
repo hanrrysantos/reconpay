@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/demo-account/design.md`
-**Status**: Draft
+**Status**: In Progress
 
 ---
 
@@ -113,9 +113,9 @@ T23
 
 **Done when**:
 
-- [ ] Flyway aplica a V25 no Testcontainers (suíte de integração existente verde)
-- [ ] `DemoProperties` carrega 24h, 100, 2, 2, 10, 900000, 30s sem variáveis de ambiente
-- [ ] Gate quick (backend) passa com uma classe de integração existente de `auth`
+- [x] Flyway aplica a V25 no Testcontainers (suíte de integração existente verde)
+- [x] `DemoProperties` carrega 24h, 100, 2, 2, 10, 900000, 30s sem variáveis de ambiente
+- [x] Gate quick (backend) passa com uma classe de integração existente de `auth`
 
 **Tests**: none
 **Gate**: quick
