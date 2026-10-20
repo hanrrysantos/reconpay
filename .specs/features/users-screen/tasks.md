@@ -339,8 +339,8 @@ T14
 
 **Done when**:
 
-- [ ] `UserDrawer.test.tsx`: `OPERATOR` pré-selecionado e `ADMIN` selecionável (os dois enviados no corpo em casos separados); senha fraca mostra a mensagem exata e não chama a API; nome vazio e e-mail inválido idem; `201` fecha, invalida a lista e mostra "Usuário criado."; `409` mostra a `message` e mantém os dados; botão desabilitado durante o envio
-- [ ] Gate quick (frontend) passa
+- [x] `UserDrawer.test.tsx`: `OPERATOR` pré-selecionado e `ADMIN` selecionável (os dois enviados no corpo em casos separados); senha fraca mostra a mensagem exata e não chama a API; nome vazio e e-mail inválido idem; `201` fecha, invalida a lista e mostra "Usuário criado."; `409` mostra a `message` e mantém os dados; botão desabilitado durante o envio
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick

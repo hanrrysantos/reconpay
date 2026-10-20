@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { BlockError } from '@/components/dashboard/states'
@@ -9,6 +9,7 @@ import type { User, UserFilters } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { useActivateUser, useUserPage } from '@/lib/queries'
 import { cn } from '@/lib/utils'
+import { UserDrawer } from './UserDrawer'
 
 const messageOf = (error: unknown, fallback: string) => error instanceof Error ? error.message : fallback
 const createdOn = (iso: string) => new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -40,6 +41,7 @@ export function UsersPage() {
   const [page, setPage] = useState(0)
   const [notice, setNotice] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [creating, setCreating] = useState(false)
   const list = useUserPage(filters, page, admin)
   const activate = useActivateUser()
   const users = list.data?.content ?? []
@@ -57,6 +59,7 @@ export function UsersPage() {
   }
 
   function done(message: string) {
+    setCreating(false)
     setError(null)
     setNotice(message)
   }
@@ -95,6 +98,10 @@ export function UsersPage() {
           <p className="text-[14px] text-muted">Contas da instalação</p>
           <h1 className="font-display text-[44px] leading-none font-extrabold tracking-[-0.04em]">Usuários</h1>
         </div>
+        <button type="button" onClick={() => setCreating(true)} className="flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-[14px] font-semibold text-foreground">
+          <Plus aria-hidden="true" className="size-4" />
+          Novo usuário
+        </button>
       </section>
 
       <section className="flex flex-wrap items-center gap-3">
@@ -184,6 +191,8 @@ export function UsersPage() {
           )}
         </section>
       )}
+
+      {creating && <UserDrawer onClose={() => setCreating(false)} onDone={done} />}
     </>
   )
 }
