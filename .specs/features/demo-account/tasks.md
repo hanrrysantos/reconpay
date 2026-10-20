@@ -382,12 +382,12 @@ T23
 
 **Done when**:
 
-- [ ] IP bloqueado → `DemoRateLimitException`, sem provisionar
-- [ ] 100 ativas → `DemoUnavailableException`, sem provisionar; 99 → cria
-- [ ] Falha no provisionamento ou no run → `purge` da demo (quando já gravada), sem `record`
-- [ ] Sucesso → `record(ip)` e token com `ttl = min(jwt.expiration, 24h)`
-- [ ] Handler: `429` com `TOO_MANY_REQUESTS` e `503` com `SERVICE_UNAVAILABLE`, mensagens da spec
-- [ ] Gate quick (backend) passa
+- [x] IP bloqueado → `DemoRateLimitException`, sem provisionar
+- [x] 100 ativas → `DemoUnavailableException`, sem provisionar; 99 → cria
+- [x] Falha no provisionamento ou no run → `purge` da demo (quando já gravada), sem `record`
+- [x] Sucesso → `record(ip)` e token com `ttl = min(jwt.expiration, 24h)`
+- [x] Handler: `429` com `TOO_MANY_REQUESTS` e `503` com `SERVICE_UNAVAILABLE`, mensagens da spec
+- [x] Gate quick (backend) passa
 
 **Tests**: unit
 **Gate**: quick

@@ -10,5 +10,7 @@ public final class ApiErrorCode {
     public static final String CONFLICT = "CONFLICT";
     public static final String UNAUTHORIZED = "UNAUTHORIZED";
     public static final String FORBIDDEN = "FORBIDDEN";
+    public static final String TOO_MANY_REQUESTS = "TOO_MANY_REQUESTS";
+    public static final String SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE";
     public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
 }

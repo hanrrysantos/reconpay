@@ -165,6 +165,22 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.CONFLICT, ApiErrorCode.CONFLICT, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(DemoRateLimitException.class)
+    public ResponseEntity<StandardError> handleDemoRateLimit(
+            DemoRateLimitException ex,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.TOO_MANY_REQUESTS, ApiErrorCode.TOO_MANY_REQUESTS, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(DemoUnavailableException.class)
+    public ResponseEntity<StandardError> handleDemoUnavailable(
+            DemoUnavailableException ex,
+            HttpServletRequest request
+    ) {
+        return buildError(HttpStatus.SERVICE_UNAVAILABLE, ApiErrorCode.SERVICE_UNAVAILABLE, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(DuplicateExternalSettlementException.class)
     public ResponseEntity<StandardError> handleDuplicateExternalSettlement(
             DuplicateExternalSettlementException ex,
