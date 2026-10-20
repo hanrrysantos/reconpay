@@ -389,8 +389,8 @@ T14
 
 **Done when**:
 
-- [ ] `AccessDrawer.test.tsx`: as atuais vêm marcadas; marcar e desmarcar muda exatamente o corpo enviado; desmarcar tudo envia `[]`; "Nenhuma empresa cadastrada." sem empresas; `404` e `409` mostram a `message` e mantêm o painel aberto
-- [ ] Gate quick (frontend) passa
+- [x] `AccessDrawer.test.tsx`: as atuais vêm marcadas; marcar e desmarcar muda exatamente o corpo enviado; desmarcar tudo envia `[]`; "Nenhuma empresa cadastrada." sem empresas; `404` e `409` mostram a `message` e mantêm o painel aberto
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick

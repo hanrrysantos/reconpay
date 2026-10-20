@@ -9,6 +9,7 @@ import type { User, UserFilters } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { useActivateUser, useUserPage } from '@/lib/queries'
 import { cn } from '@/lib/utils'
+import { AccessDrawer } from './AccessDrawer'
 import { DeactivateUserDialog } from './DeactivateUserDialog'
 import { UserDrawer } from './UserDrawer'
 
@@ -44,6 +45,7 @@ export function UsersPage() {
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [deactivating, setDeactivating] = useState<User | null>(null)
+  const [granting, setGranting] = useState<User | null>(null)
   const list = useUserPage(filters, page, admin)
   const activate = useActivateUser()
   const users = list.data?.content ?? []
@@ -63,6 +65,7 @@ export function UsersPage() {
   function done(message: string) {
     setCreating(false)
     setDeactivating(null)
+    setGranting(null)
     setError(null)
     setNotice(message)
   }
@@ -87,7 +90,7 @@ export function UsersPage() {
       <>
         {user.role === 'ADMIN'
           ? <span className="px-2 text-[13px] text-muted">Acessa todas as empresas</span>
-          : <button type="button" className={action}>Acessos</button>}
+          : <button type="button" onClick={() => setGranting(user)} className={action}>Acessos</button>}
         <button type="button" className={action}>Renomear</button>
         {deactivate}
       </>
@@ -196,6 +199,7 @@ export function UsersPage() {
       )}
 
       {creating && <UserDrawer onClose={() => setCreating(false)} onDone={done} />}
+      {granting !== null && <AccessDrawer user={granting} onClose={() => setGranting(null)} onDone={done} />}
       {deactivating !== null && <DeactivateUserDialog user={deactivating} onClose={() => setDeactivating(null)} onDone={done} />}
     </>
   )
