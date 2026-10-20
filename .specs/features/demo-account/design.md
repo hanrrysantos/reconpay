@@ -1,7 +1,7 @@
 # Demonstração por Visitante Design
 
 **Spec**: `.specs/features/demo-account/spec.md`
-**Status**: Draft
+**Status**: Approved
 
 ---
 
@@ -254,7 +254,7 @@ record DemoAccount(UUID userId, String email, UUID runId) {}
 | IP real | `RemoteIpValve` do Tomcat (`forward-headers-strategy: native`) | Usa o endereço mais à direita que não é proxy interno (DEMO-03 AC6) sem código próprio |
 | Relógio | Tudo pelo `Clock` UTC | Testes com relógio fixo; "hoje" do cenário em UTC |
 
-**Project-level decisions** (vão para `.specs/STATE.md` ao aprovar):
+**Project-level decisions** (registradas em `.specs/STATE.md`):
 
 - **AD-013**: conta de demonstração é um `OPERATOR` com `demo_expires_at` (atributo, não papel), com cotas e limpeza agendada.
 - **AD-014**: exceção ao AD-009: o token de **demo** fica em `sessionStorage`; o login comum continua só em memória.

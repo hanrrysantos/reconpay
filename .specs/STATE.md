@@ -99,14 +99,30 @@
 - **Date**: 2026-10-15
 - **Status**: active
 
+### AD-013
+- **Decision**: Conta de demonstração é um `OPERATOR` comum marcado por `users.demo_expires_at` (atributo, não papel), criada por `POST /api/auth/demo` com cenário fixo, limitada a 100 ativas e 2 por IP por hora, com cotas de 2 merchants e 10 importações, e apagada por limpeza agendada depois de 24 h.
+- **Reason**: A vitrine precisa de demo em um clique sem criar papel novo (AD-001) nem dono de merchant (AD-004); o isolamento sai dos acessos em `user_merchants`.
+- **Trade-off**: Limite por IP em memória (instância única, zera ao reiniciar); a limpeza precisa conhecer toda tabela ligada a merchant (teste de catálogo protege).
+- **Scope**: Módulo `demo`, `UserDetailsServiceImpl`, `MerchantService.create` e os três `importCsv` (cotas), landing.
+- **Date**: 2026-10-20
+- **Status**: active
+
+### AD-014
+- **Decision**: Exceção ao AD-009: o token de uma sessão de **demo** fica em `sessionStorage` e sobrevive ao recarregar; o token de login comum continua só em memória.
+- **Reason**: O visitante não conhece a senha da conta gerada; perder a sessão ao recarregar gastaria uma das 2 demos por hora.
+- **Trade-off**: Token de demo legível por script da página (XSS); aceito porque a conta é descartável e expira em 24 h.
+- **Scope**: `frontend/lib/auth.tsx`, `AppShell`.
+- **Date**: 2026-10-20
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: dev-email-redirect (`RECONPAY_EMAIL_REDIRECT_TO` só no profile `dev`) + revisão do ícone do e-mail (brand-refresh BRD-03) — **mergeadas** (PR #60, 2026-10-19, `a86f256`; CI e Deploy production verdes; Vercel serve `/brand/reconpay-app-icon.png`; API `UP`)
-- **Phase / Task**: Verifier PASS: redirecionamento na rodada 2 (rodada 1 FAIL: relaxed binding ligava o redirect fora do `dev`; guarda movida para `ResendEmailSender`), ícone na revisão 3 (revisão 2 FAIL: estilo inline de 32 px sem asserção); 675 testes no backend
+- **Feature**: demo-account (itens 9–10 da vitrine) — spec, design e tasks escritos; tasks aguardando aprovação. Anterior: dev-email-redirect mergeada (PR #60, `a86f256`)
+- **Phase / Task**: Tasks (23 tarefas, 5 fases), antes do Execute
 - **Completed**: itens da vitrine 1–8 (8: domínio `hanrry.top` verificado no Resend, SPF/DKIM/DMARC ok, e-mails de produção chegam na caixa de entrada) e a troca de marca. O `.env` local tem `RECONPAY_EMAIL_REDIRECT_TO` com o e-mail pessoal do usuário (gitignorado). O e-mail usa o ícone com fundo escuro porque o modo escuro do Gmail no celular inverte a faixa mas não as imagens
 - **Known issues**: (a) `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender` (decisão do usuário: corrigir depois); (b) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`; (c) opcional: `text-balance` no título do `AuthPanel`; (d) o nome da variável de CORS no Compose não tem teste automático; (e) nenhum teste renderiza `app/(app)/painel/page.tsx`; (f) lições L-054..L-057 ficaram como candidatas; (g) `validation.md` novos em pt-BR, anteriores em inglês; (h) o `.env` do servidor tem `RECONPAY_VERIFICATION_BASE_URL` duplicada (linha 7 velha; vale a 10, `https://reconpay.vercel.app`; usuário decidiu não mexer agora); (i) `EmailProperties.redirectTo()` é preenchido fora do `dev` pelo relaxed binding: quem o ler precisa repetir a checagem de profile; (j) o ícone no modo escuro do Gmail ainda não foi conferido num e-mail real de produção; (k) e-mail local sai sem imagem (Gmail não alcança `localhost`) e tende a cair no spam
 - **In-progress** (file:line): none
-- **Next step**: (9–10) demonstração por visitante (troca "Criar conta" por "Ver demonstração" na landing); depois (11) tela de usuários do ADMIN (API `/api/users/**` pronta, nada no frontend); recuperar senha depois
+- **Next step**: aprovar `.specs/features/demo-account/tasks.md` e executar (lotes por subagente); depois (11) tela de usuários do ADMIN; recuperar senha depois. Nginx da VPS já envia `X-Forwarded-For` (conferido 2026-10-20)
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `docs/record-redirect-merge`, local, sem push, criada de `origin/main` em `a86f256`.
+- **Branch**: `feat/demo-account`, local, sem push, criada de `docs/record-redirect-merge` (que tem 1 commit sem push: `2500673`).
