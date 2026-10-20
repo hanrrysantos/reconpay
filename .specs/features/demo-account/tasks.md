@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/demo-account/design.md`
-**Status**: In Progress
+**Status**: Done
 
 ---
 
@@ -710,9 +710,9 @@ T23
 
 **Done when**:
 
-- [ ] README descreve `POST /api/auth/demo`, `429`/`503`, cotas e limpeza
-- [ ] `frontend/README.md` e AGENTS.md atualizados
-- [ ] Gate full passa no fim da feature
+- [x] README descreve `POST /api/auth/demo`, `429`/`503`, cotas e limpeza
+- [x] `frontend/README.md` e AGENTS.md atualizados
+- [x] Gate full passa no fim da feature
 
 **Tests**: none
 **Gate**: full

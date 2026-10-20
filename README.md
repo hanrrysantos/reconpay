@@ -51,6 +51,26 @@ API em produção: [https://reconpay.hanrry.top](https://reconpay.hanrry.top) ·
 - Auto-cadastro cria `OPERATOR` inativo até a verificação de e-mail. O link do e-mail abre `/verificar-email` no app, que chama `POST /api/auth/verify-email`; o link vale por `RECONPAY_VERIFICATION_TOKEN_HOURS` horas e só uma vez. `GET /api/auth/verify-email` continua atendendo os links do formato antigo.
 - `POST /api/auth/resend-verification` envia um link novo e invalida os anteriores. Responde `202` sem corpo em qualquer caso, para não revelar quais e-mails têm cadastro, e só envia para conta do auto-cadastro que nunca confirmou um link e não recebeu e-mail nos últimos 60 segundos. Conta desativada pelo ADMIN não se reativa por aqui.
 
+### Demonstração
+- `POST /api/auth/demo`, público e sem corpo, cria uma conta temporária e responde `201` no formato do login (`token`, `type`, `expiresIn`). A conta é um `OPERATOR` ativo, sem e-mail enviado, com 1 merchant já com regras de taxa, transações, liquidações e extrato dos últimos 60 dias, conciliações concluídas e divergências abertas de vários tipos.
+- A conta e o token valem 24 h. Depois disso, qualquer requisição com o token responde `401`.
+- No máximo 100 demos não expiradas ao mesmo tempo; a seguinte responde `503` `SERVICE_UNAVAILABLE`. Cada IP cria até 2 demos por hora (janela deslizante, em memória); a terceira responde `429` `TOO_MANY_REQUESTS`. Recusas não contam no limite do IP.
+- Cotas por conta de demo: 2 empresas (a do cenário conta) e 10 importações de CSV feitas pelo visitante. Passou da cota, `403` `FORBIDDEN`. Contas comuns não têm essas cotas.
+- Uma tarefa agendada roda a cada 15 min e apaga as demos expiradas e todo merchant acessível só por demos expiradas, com todos os dados dele. Merchant também concedido a uma conta comum fica; só o acesso da demo some.
+- `GET /api/me` traz `demoExpiresAt` (ISO-8601 UTC) na demo e `null` nas contas comuns.
+
+| Variável | Padrão | O que controla |
+| :--- | :--- | :--- |
+| `DEMO_TTL` | `24h` | Validade da conta e do token |
+| `DEMO_MAX_ACTIVE` | `100` | Teto de demos não expiradas (`503`) |
+| `DEMO_PER_IP_PER_HOUR` | `2` | Criações por IP em 60 min (`429`) |
+| `DEMO_MAX_MERCHANTS` | `2` | Empresas por conta de demo (`403`) |
+| `DEMO_MAX_IMPORTS` | `10` | Importações por conta de demo (`403`) |
+| `DEMO_CLEANUP_DELAY_MS` | `900000` | Intervalo da limpeza, em ms |
+| `DEMO_RUN_WAIT_TIMEOUT` | `30s` | Espera máxima pelas conciliações do cenário antes de responder |
+
+O Compose não repassa essas variáveis: no Docker valem os padrões, e para mudar acrescente a variável ao `environment` da API. O profile `prod` usa `server.forward-headers-strategy: native`, então o IP contado é o do `X-Forwarded-For` enviado pelo proxy local: o nginx precisa mandar esse cabeçalho (`proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for`). Fora de proxy confiável, o cabeçalho é ignorado e vale o IP da conexão.
+
 ### Merchants
 - O documento é um CNPJ de 14 dígitos com dígitos verificadores válidos; CNPJ com os 14 dígitos iguais é inválido. Inválido responde `400` `VALIDATION_ERROR` "CNPJ inválido".
 - A pontuação de CNPJ (`.`, `/`, `-` e espaços) é aceita e removida: só os dígitos são gravados. Qualquer outro caractere torna o documento inválido.
@@ -187,6 +207,7 @@ Ideal para validar o projeto rapidamente ou demonstrar o ambiente completo. Em p
 | `transaction` | Transações internas por merchant |
 | `externalsettlement` | Importação e consulta de liquidações externas |
 | `reconciliation` | Motor de conciliação, divergências e relatórios CSV |
+| `demo` | Conta de demonstração: criação com cenário pronto, limites, cotas e limpeza |
 | `exception` | Tratamento global e respostas padronizadas (`StandardError`) |
 | `observability` | Correlação de request, auditoria e contexto de log |
 | `config` / `shared` | Configurações e utilitários compartilhados |
@@ -212,7 +233,7 @@ O contrato vivo está no Swagger, gerado a partir do código. Com a API no ar:
 - UI: http://localhost:8080/swagger-ui.html ou https://reconpay.hanrry.top/swagger-ui.html
 - OpenAPI: http://localhost:8080/v3/api-docs ou https://reconpay.hanrry.top/v3/api-docs
 
-Faça login (`POST /api/auth/login`), copie o token e use **Authorize** no Swagger (`Bearer {token}`). Em `dev`, os usuários seed estão na seção Segurança. Rotas públicas: cadastro, login, verificação e reenvio do e-mail de verificação, Swagger e `/actuator/health`.
+Faça login (`POST /api/auth/login`), copie o token e use **Authorize** no Swagger (`Bearer {token}`). Em `dev`, os usuários seed estão na seção Segurança. Rotas públicas: cadastro, login, demonstração (`POST /api/auth/demo`), verificação e reenvio do e-mail de verificação, Swagger e `/actuator/health`.
 
 A conciliação é assíncrona: o POST devolve `202 Accepted` e o `Location` aponta para o GET da execução.
 
@@ -256,7 +277,7 @@ CORS libera, em `/api/**`, as origens de `reconpay.cors.allowed-origins`: por pa
 
 ## Frontend
 
-O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. A página inicial `/` é a apresentação pública do produto, com animações ligadas ao scroll. Em `/register` o visitante cria a conta e vê as regras da senha marcadas enquanto digita; o link do e-mail abre `/verificar-email`, que ativa a conta ou, com o link vencido ou já usado, pede um link novo. O dashboard em `/painel` lê o fechamento da janela, resolve divergências, roda a conciliação, trava e exporta, sempre com dados da API. Em `/empresas` o usuário lista, cadastra, renomeia e desativa merchants. Em `/importacoes` envia os CSVs de transações, liquidação (layout `RECONPAY`) e extrato da empresa selecionada, vê todos os erros por linha de um arquivo recusado e os lotes já importados. Em `/transacoes` lista as transações da empresa por período, status e método, cadastra uma venda avulsa e muda o status de uma transação aprovada para cancelada, estornada ou chargeback, com confirmação por ser irreversível. Em `/conciliacoes` vê o histórico de runs da empresa (com progresso, selo de substituído e falha, filtro por mês) e dispara uma conciliação de qualquer janela de até 366 dias. Em `/conciliacoes/[runId]` vê os itens de um run, filtra por resultado e tipo de divergência e exporta o CSV de um run concluído. Em `/divergencias` vê as divergências do run vigente de uma janela, filtradas por status e tipo, e as resolve (aceitar, ajustar, baixar) ou reabre pela gaveta do dashboard, com o histórico de cada uma. Em `/fechamento` vê todos os períodos da empresa com o status de fechamento (travado, aberto, em andamento, sem conciliação concluída), a taxa de match, o valor em aberto e a duração da trava, e trava, destrava ou exporta o CSV de cada um.
+O aplicativo Next.js fica em [`frontend/`](frontend/README.md). Com a API em `http://localhost:8080`, execute `cd frontend && corepack pnpm install && corepack pnpm dev` e acesse `http://localhost:3000`. A página inicial `/` é a apresentação pública do produto, com animações ligadas ao scroll. O botão "Ver demonstração" abre uma conta de demonstração e leva direto ao `/painel` com dados prontos; uma faixa no topo mostra quando ela expira. Em `/register` o visitante cria a conta e vê as regras da senha marcadas enquanto digita; o link do e-mail abre `/verificar-email`, que ativa a conta ou, com o link vencido ou já usado, pede um link novo. O dashboard em `/painel` lê o fechamento da janela, resolve divergências, roda a conciliação, trava e exporta, sempre com dados da API. Em `/empresas` o usuário lista, cadastra, renomeia e desativa merchants. Em `/importacoes` envia os CSVs de transações, liquidação (layout `RECONPAY`) e extrato da empresa selecionada, vê todos os erros por linha de um arquivo recusado e os lotes já importados. Em `/transacoes` lista as transações da empresa por período, status e método, cadastra uma venda avulsa e muda o status de uma transação aprovada para cancelada, estornada ou chargeback, com confirmação por ser irreversível. Em `/conciliacoes` vê o histórico de runs da empresa (com progresso, selo de substituído e falha, filtro por mês) e dispara uma conciliação de qualquer janela de até 366 dias. Em `/conciliacoes/[runId]` vê os itens de um run, filtra por resultado e tipo de divergência e exporta o CSV de um run concluído. Em `/divergencias` vê as divergências do run vigente de uma janela, filtradas por status e tipo, e as resolve (aceitar, ajustar, baixar) ou reabre pela gaveta do dashboard, com o histórico de cada uma. Em `/fechamento` vê todos os períodos da empresa com o status de fechamento (travado, aberto, em andamento, sem conciliação concluída), a taxa de match, o valor em aberto e a duração da trava, e trava, destrava ou exporta o CSV de cada um.
 
 ---
 

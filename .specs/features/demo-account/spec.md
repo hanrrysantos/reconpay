@@ -221,15 +221,15 @@ A vitrine pública só deixa testar o ReconPay criando conta, confirmando o e-ma
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| DEMO-01 | P1: Abrir uma demonstração (AC1–4, 10–11) | Design | Pending |
-| DEMO-02 | P1: Abrir uma demonstração (cenário, AC5–9) | Design | Pending |
-| DEMO-03 | P1: Limitar a criação (IP, AC3–7) | Design | Pending |
-| DEMO-04 | P1: Limitar a criação (teto, AC1–2, 8) | Design | Pending |
-| DEMO-05 | P1: Cotas da conta de demo | Design | Pending |
-| DEMO-06 | P1: Expiração e limpeza | Design | Pending |
-| DEMO-07 | P1: "Ver demonstração" na landing | Design | Pending |
-| DEMO-08 | P1: Sessão da demo sobrevive ao recarregar | Design | Pending |
-| DEMO-09 | P2: Aviso de conta de demonstração | Design | Pending |
+| DEMO-01 | P1: Abrir uma demonstração (AC1–4, 10–11) | Design | Implementing |
+| DEMO-02 | P1: Abrir uma demonstração (cenário, AC5–9) | Design | Implementing |
+| DEMO-03 | P1: Limitar a criação (IP, AC3–7) | Design | Implementing |
+| DEMO-04 | P1: Limitar a criação (teto, AC1–2, 8) | Design | Implementing |
+| DEMO-05 | P1: Cotas da conta de demo | Design | Implementing |
+| DEMO-06 | P1: Expiração e limpeza | Design | Implementing |
+| DEMO-07 | P1: "Ver demonstração" na landing | Design | Implementing |
+| DEMO-08 | P1: Sessão da demo sobrevive ao recarregar | Design | Implementing |
+| DEMO-09 | P2: Aviso de conta de demonstração | Design | Implementing |
 
 **Coverage:** 9 total, 0 mapped to tasks, 9 unmapped ⚠️ (tasks vêm depois do design)
 
