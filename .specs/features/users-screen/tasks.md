@@ -364,8 +364,8 @@ T14
 
 **Done when**:
 
-- [ ] `DeactivateUserDialog.test.tsx`: nada é chamado antes de confirmar; confirmar chama `DELETE /api/users/{id}`, fecha e mostra "Usuário desativado."; cancelar não chama a API; erro da API aparece no diálogo
-- [ ] Gate quick (frontend) passa
+- [x] `DeactivateUserDialog.test.tsx`: nada é chamado antes de confirmar; confirmar chama `DELETE /api/users/{id}`, fecha e mostra "Usuário desativado."; cancelar não chama a API; erro da API aparece no diálogo
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick

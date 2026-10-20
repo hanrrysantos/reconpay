@@ -9,6 +9,7 @@ import type { User, UserFilters } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { useActivateUser, useUserPage } from '@/lib/queries'
 import { cn } from '@/lib/utils'
+import { DeactivateUserDialog } from './DeactivateUserDialog'
 import { UserDrawer } from './UserDrawer'
 
 const messageOf = (error: unknown, fallback: string) => error instanceof Error ? error.message : fallback
@@ -42,6 +43,7 @@ export function UsersPage() {
   const [notice, setNotice] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [deactivating, setDeactivating] = useState<User | null>(null)
   const list = useUserPage(filters, page, admin)
   const activate = useActivateUser()
   const users = list.data?.content ?? []
@@ -60,6 +62,7 @@ export function UsersPage() {
 
   function done(message: string) {
     setCreating(false)
+    setDeactivating(null)
     setError(null)
     setNotice(message)
   }
@@ -78,7 +81,7 @@ export function UsersPage() {
     if (!user.active) {
       return <button type="button" disabled={activate.isPending} onClick={() => void reactivate(user)} className={action}>Reativar</button>
     }
-    const deactivate = user.id !== me?.id && <button type="button" className={cn(action, 'text-danger-strong')}>Desativar</button>
+    const deactivate = user.id !== me?.id && <button type="button" onClick={() => setDeactivating(user)} className={cn(action, 'text-danger-strong')}>Desativar</button>
     if (user.demoExpiresAt) return deactivate
     return (
       <>
@@ -193,6 +196,7 @@ export function UsersPage() {
       )}
 
       {creating && <UserDrawer onClose={() => setCreating(false)} onDone={done} />}
+      {deactivating !== null && <DeactivateUserDialog user={deactivating} onClose={() => setDeactivating(null)} onDone={done} />}
     </>
   )
 }
