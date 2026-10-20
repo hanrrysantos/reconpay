@@ -236,8 +236,8 @@ T14
 
 **Done when**:
 
-- [ ] `frontend/lib/api.users.test.ts`: método, caminho, query (`status`, `demo`, `page`, `size=20`, `sort=name,asc`), corpo e `Authorization` de cada função; `getUserAccess` devolve `merchantIds`; um `409` vira `ApiError` com a `message`
-- [ ] Gate quick (frontend) passa
+- [x] `frontend/lib/api.users.test.ts`: método, caminho, query (`status`, `demo`, `page`, `size=20`, `sort=name,asc`), corpo e `Authorization` de cada função; `getUserAccess` devolve `merchantIds`; um `409` vira `ApiError` com a `message`
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick
