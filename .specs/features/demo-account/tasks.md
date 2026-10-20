@@ -684,9 +684,9 @@ T23
 
 **Done when**:
 
-- [ ] Com `demoExpiresAt`, mostra o horário formatado no fuso local
-- [ ] Sem `demoExpiresAt`, não renderiza
-- [ ] Gate build passa
+- [x] Com `demoExpiresAt`, mostra o horário formatado no fuso local
+- [x] Sem `demoExpiresAt`, não renderiza
+- [x] Gate build passa
 
 **Tests**: unit
 **Gate**: build

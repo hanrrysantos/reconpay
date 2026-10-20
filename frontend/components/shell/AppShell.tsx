@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, type ReactNode } from 'react'
 import { useAuth } from '@/lib/auth'
+import { DemoBanner } from './DemoBanner'
 import { MerchantSwitcher, SelectedMerchantProvider } from './MerchantMenu'
 import { TopNav } from './TopNav'
 
@@ -20,6 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <SelectedMerchantProvider>
       <div className="mx-auto flex min-h-screen max-w-[1440px] flex-col gap-6 px-4 pt-6 pb-12 lg:px-10">
+        <DemoBanner />
         <TopNav merchantSwitcher={<MerchantSwitcher />} />
         <main className="flex flex-col gap-6">{children}</main>
       </div>
