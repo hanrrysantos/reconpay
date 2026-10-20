@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 60,
+  "next_id": 62,
   "lessons": [
     {
       "id": "L-001",
@@ -282,17 +282,19 @@
       "text": "State the exact text of each field validation message in the acceptance criterion instead of referring to the field message",
       "signal": "spec_precision_gap",
       "scope": "spec",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "merchants-screen"
+        "merchants-screen",
+        "users-screen"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "MCAD-05 (spec)"
+        "MCAD-05 (spec)",
+        "USERS-03 AC3 (spec)"
       ],
       "created": "2026-10-15T19:48:05Z",
-      "last_seen": "2026-10-15T19:48:05Z"
+      "last_seen": "2026-10-20T18:49:54Z"
     },
     {
       "id": "L-017",
@@ -1072,6 +1074,42 @@
       ],
       "created": "2026-10-20T11:58:08Z",
       "last_seen": "2026-10-20T11:58:08Z"
+    },
+    {
+      "id": "L-060",
+      "key": "surviving_mutant::give each spec edge case a test that starts from the exact state it names even when the code already handles it by construction",
+      "text": "Give each spec edge case a test that starts from the exact state it names, even when the code already handles it by construction",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "users-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md mutant B7b (Edge Case 1) (tests)"
+      ],
+      "created": "2026-10-20T18:49:54Z",
+      "last_seen": "2026-10-20T18:49:54Z"
+    },
+    {
+      "id": "L-061",
+      "key": "surviving_mutant::when a listing must keep rows past a time boundary test it with a row already past that boundary",
+      "text": "When a listing must keep rows past a time boundary, test it with a row already past that boundary",
+      "signal": "surviving_mutant",
+      "scope": "routes",
+      "status": "candidate",
+      "features": [
+        "users-screen"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md mutant B8 (Edge Case 4) (routes)"
+      ],
+      "created": "2026-10-20T18:49:54Z",
+      "last_seen": "2026-10-20T18:49:54Z"
     }
   ]
 }

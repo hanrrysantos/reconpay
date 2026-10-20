@@ -8,6 +8,12 @@
 
 Corroborated across multiple features. Safe to apply as guidance.
 
+### L-016 - State the exact text of each field validation message in the acceptance criterion instead of referring to the field message
+- signal: `spec_precision_gap` · recurrence: 2 feature(s) · scope: `spec` · harmful: 0
+- features: merchants-screen, users-screen
+- evidence: MCAD-05 (spec) (+1 more)
+- last seen: 2026-10-20T18:49:54Z
+
 ### L-018 - When an acceptance criterion lists several allowed values, exercise each listed value at least once in the tests
 - signal: `ac_gap` · recurrence: 2 feature(s) · scope: `tests` · harmful: 0
 - features: fee-rules-screen, discrepancies-screen
@@ -112,12 +118,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - signal: `ac_gap` · recurrence: 1 feature(s) · scope: `backend-validation` · harmful: 0
 - features: merchants-screen
 - evidence: MDOC-02/MDOC-03 - backend/src/main/java/br/com/hanrry/reconpay/merchant/dto/MerchantRequestDTO.java:14 (backend-validation)
-- last seen: 2026-10-15T19:48:05Z
-
-### L-016 - State the exact text of each field validation message in the acceptance criterion instead of referring to the field message
-- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
-- features: merchants-screen
-- evidence: MCAD-05 (spec)
 - last seen: 2026-10-15T19:48:05Z
 
 ### L-017 - Test a numeric upper bound with a whole number above it as well as a fraction above it, so every branch of the bound check is pinned
@@ -365,6 +365,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: demo-account
 - evidence: DEMO-06 AC3 vs design.md DemoPurger (validation.md gap 2) (design)
 - last seen: 2026-10-20T11:58:08Z
+
+### L-060 - Give each spec edge case a test that starts from the exact state it names, even when the code already handles it by construction
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: users-screen
+- evidence: validation.md mutant B7b (Edge Case 1) (tests)
+- last seen: 2026-10-20T18:49:54Z
+
+### L-061 - When a listing must keep rows past a time boundary, test it with a row already past that boundary
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: users-screen
+- evidence: validation.md mutant B8 (Edge Case 4) (routes)
+- last seen: 2026-10-20T18:49:54Z
 
 ## Quarantined (failed when applied - ignore)
 
