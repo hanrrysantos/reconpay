@@ -69,11 +69,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             userDetails = userDetailsService.loadUserByUsername(email);
         } catch (UsernameNotFoundException ex) {
             /*
-             * The account was deactivated after the token was issued. This filter
+             * The account no longer exists or is an expired demo. This filter
              * sits upstream of ExceptionTranslationFilter, so letting the
              * exception escape would surface as a 500 instead of the 401 the
              * entry point produces for an unauthenticated request.
              */
+            return;
+        }
+
+        // A deactivated account loses its open session at once; the entry point answers 401.
+        if (!userDetails.isEnabled()) {
             return;
         }
 

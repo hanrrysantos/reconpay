@@ -209,10 +209,10 @@ T14
 
 **Done when**:
 
-- [ ] Integração: OPERATOR loga, ADMIN o desativa, o token antigo em `GET /api/me` e `GET /api/merchants` → `401`
-- [ ] Integração: ADMIN reativa; o token antigo volta a autenticar e um login novo com a mesma senha → `200`
-- [ ] Integração: login de conta inativa continua respondendo a mensagem "Confirme seu e-mail para ativar sua conta"
-- [ ] Gate full: `cd backend && ./mvnw verify` (fim da fase de backend)
+- [x] Integração: OPERATOR loga, ADMIN o desativa, o token antigo em `GET /api/me` e `GET /api/merchants` → `401`
+- [x] Integração: ADMIN reativa; o token antigo volta a autenticar e um login novo com a mesma senha → `200`
+- [x] Integração: login de conta inativa continua respondendo a mensagem "Confirme seu e-mail para ativar sua conta"
+- [x] Gate full: `cd backend && ./mvnw verify` (fim da fase de backend)
 
 **Tests**: integration
 **Gate**: full
