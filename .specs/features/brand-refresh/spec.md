@@ -30,7 +30,7 @@ O ReconPay usa um quadrado verde-limão com ✓ e o nome "reconpay" em minúscul
 | Frase "Conciliação financeira com clareza" | Só no painel escuro do login e cadastro e no rodapé da landing | Decisão do usuário | y |
 | Símbolo por fundo | Fundo escuro: R branco e folha verde; fundo claro: R preto e folha verde | Como no quadro | y |
 | Ícone da aba | Quadrado preto arredondado com o R branco e a folha verde, em SVG | Como o ícone escuro do quadro; lê bem a 16 px | n |
-| Imagem no e-mail | PNG do símbolo (fundo transparente, 2× o tamanho exibido) servido pelo frontend em `<RECONPAY_VERIFICATION_BASE_URL>/brand/reconpay-mark-on-dark.png`, com `alt=""` porque o nome vem escrito ao lado | Clientes de e-mail não mostram SVG de forma confiável; o frontend já é o endereço público usado pelo link do e-mail | n |
+| Imagem no e-mail | PNG do ícone (quadrado preto com o símbolo, 2× o tamanho exibido) servido pelo frontend em `<RECONPAY_VERIFICATION_BASE_URL>/brand/reconpay-app-icon.png`, com `alt=""` porque o nome vem escrito ao lado; o `reconpay-mark-on-dark.png` continua publicado para os e-mails já enviados | Clientes de e-mail não mostram SVG de forma confiável; o fundo próprio mantém o símbolo visível quando o Gmail inverte a faixa no modo escuro (aprovado pelo usuário em 2026-10-19) | y |
 | Prévia do painel na landing | Usa a mesma marca da barra do painel | A prévia imita o painel | y |
 
 **Open questions:** none - all resolved or logged above.
@@ -95,7 +95,7 @@ O ReconPay usa um quadrado verde-limão com ✓ e o nome "reconpay" em minúscul
 
 **Acceptance Criteria**:
 
-1. WHEN o e-mail de verificação é montado THEN the system SHALL mostrar na faixa escura do topo a imagem `<RECONPAY_VERIFICATION_BASE_URL sem barra final>/brand/reconpay-mark-on-dark.png` (28 px de altura) seguida de "Recon" em branco e "Pay" em verde-limão.
+1. WHEN o e-mail de verificação é montado THEN the system SHALL mostrar na faixa escura do topo a imagem `<RECONPAY_VERIFICATION_BASE_URL sem barra final>/brand/reconpay-app-icon.png` (32 × 32 px: o quadrado preto arredondado com o R branco e a folha verde) seguida de "Recon" em branco e "Pay" em verde-limão. *(Revisado em 2026-10-19: o PNG transparente de 28 px sumia no modo escuro do Gmail no celular, que inverte a faixa mas não as imagens.)*
 2. WHEN o cliente de e-mail bloqueia imagens THEN the system SHALL continuar mostrando o nome "ReconPay" escrito, com a imagem marcada como decorativa (`alt=""`).
 3. WHEN a versão em texto puro é montada THEN the system SHALL escrever "ReconPay".
 

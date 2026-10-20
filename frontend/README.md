@@ -83,7 +83,7 @@ Abra `http://localhost:3000`. Para usar outra API, copie `.env.example` para `.e
 
 ## Marca
 
-- Arquivos em `public/brand/`: `reconpay-mark-on-dark.svg` (R branco), `reconpay-mark-on-light.svg` (R preto) e `reconpay-mark-on-dark.png` (usado pelo e-mail de verificação, que o busca em `<RECONPAY_VERIFICATION_BASE_URL>/brand/`). A folha é sempre verde-limão. O ícone da aba é `public/icon.svg`.
+- Arquivos em `public/brand/`: `reconpay-mark-on-dark.svg` (R branco), `reconpay-mark-on-light.svg` (R preto) `reconpay-app-icon.png` (quadrado preto com o símbolo, usado pelo e-mail de verificação, que o busca em `<RECONPAY_VERIFICATION_BASE_URL>/brand/`; o fundo próprio o mantém visível quando o modo escuro do Gmail inverte a faixa do topo) e `reconpay-mark-on-dark.png` (versão antiga do e-mail, mantida para as mensagens já enviadas). A folha é sempre verde-limão. O ícone da aba é `public/icon.svg`.
 - O símbolo foi redesenhado em SVG sobre o quadro da marca, que só existe em PNG.
 - Use sempre `components/brand/Logo.tsx`:
   - `tone` é o fundo onde a marca fica: `dark` mostra "Pay" em verde-limão; `light` deixa "ReconPay" todo em preto, porque o verde some em tamanho pequeno sobre fundo claro;

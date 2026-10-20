@@ -29,7 +29,7 @@ class EmailVerificationLinkFactoryTest {
         EmailVerificationLinkFactory factory = new EmailVerificationLinkFactory(new EmailProperties(null, null, null, null, null));
 
         assertThat(factory.buildBrandMarkUrl())
-                .isEqualTo("http://localhost:3000/brand/reconpay-mark-on-dark.png");
+                .isEqualTo("http://localhost:3000/brand/reconpay-app-icon.png");
     }
 
     @Test
@@ -38,6 +38,6 @@ class EmailVerificationLinkFactoryTest {
                 new EmailProperties(null, null, "https://app.example.com//", null, null));
 
         assertThat(factory.buildBrandMarkUrl())
-                .isEqualTo("https://app.example.com/brand/reconpay-mark-on-dark.png");
+                .isEqualTo("https://app.example.com/brand/reconpay-app-icon.png");
     }
 }

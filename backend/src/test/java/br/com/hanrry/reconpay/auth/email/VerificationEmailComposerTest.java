@@ -41,7 +41,7 @@ class VerificationEmailComposerTest {
         VerificationEmail email = composer(null).compose("ana@lojacentro.com.br", "Ana", "t");
 
         assertThat(email.html())
-                .contains("<img src=\"https://app.example.com/brand/reconpay-mark-on-dark.png\" width=\"27\" height=\"28\" alt=\"\"")
+                .contains("<img src=\"https://app.example.com/brand/reconpay-app-icon.png\" width=\"32\" height=\"32\" alt=\"\"")
                 .contains("color:#FFFFFF;font-size:19px;font-weight:800;letter-spacing:-0.6px;vertical-align:middle;\">Recon<span style=\"color:#C6F135;\">Pay</span></span>")
                 .doesNotContain("✓")
                 .doesNotContain(">reconpay<");
@@ -52,7 +52,7 @@ class VerificationEmailComposerTest {
         VerificationEmail email = composer("https://app.example.com/", null).compose("ana@lojacentro.com.br", "Ana", "t");
 
         assertThat(email.html())
-                .contains("<img src=\"https://app.example.com/brand/reconpay-mark-on-dark.png\"")
+                .contains("<img src=\"https://app.example.com/brand/reconpay-app-icon.png\"")
                 .doesNotContain("app.example.com//");
     }
 
