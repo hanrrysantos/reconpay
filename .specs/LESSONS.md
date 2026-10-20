@@ -354,6 +354,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: R7 VerificationEmailComposer.java:40 (email)
 - last seen: 2026-10-20T00:35:14Z
 
+### L-058 - When an AC promises an HTTP 500 on failure, assert the status and INTERNAL_SERVER_ERROR body at the route, not only the exception and rollback in service tests
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `routes` · harmful: 0
+- features: demo-account
+- evidence: DEMO-01 AC10 (validation.md gap 1) (routes)
+- last seen: 2026-10-20T11:58:08Z
+
+### L-059 - When the design widens or narrows a spec rule, update the spec or mark SPEC_DEVIATION and test the boundary case the rule changes
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `design` · harmful: 0
+- features: demo-account
+- evidence: DEMO-06 AC3 vs design.md DemoPurger (validation.md gap 2) (design)
+- last seen: 2026-10-20T11:58:08Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 58,
+  "next_id": 60,
   "lessons": [
     {
       "id": "L-001",
@@ -1036,6 +1036,42 @@
       ],
       "created": "2026-10-20T00:35:14Z",
       "last_seen": "2026-10-20T00:35:14Z"
+    },
+    {
+      "id": "L-058",
+      "key": "ac_gap::when an ac promises an http 500 on failure assert the status and internal server error body at the route not only the exception and rollback in service tests",
+      "text": "When an AC promises an HTTP 500 on failure, assert the status and INTERNAL_SERVER_ERROR body at the route, not only the exception and rollback in service tests",
+      "signal": "ac_gap",
+      "scope": "routes",
+      "status": "candidate",
+      "features": [
+        "demo-account"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "DEMO-01 AC10 (validation.md gap 1) (routes)"
+      ],
+      "created": "2026-10-20T11:58:08Z",
+      "last_seen": "2026-10-20T11:58:08Z"
+    },
+    {
+      "id": "L-059",
+      "key": "spec_deviation::when the design widens or narrows a spec rule update the spec or mark spec deviation and test the boundary case the rule changes",
+      "text": "When the design widens or narrows a spec rule, update the spec or mark SPEC_DEVIATION and test the boundary case the rule changes",
+      "signal": "spec_deviation",
+      "scope": "design",
+      "status": "candidate",
+      "features": [
+        "demo-account"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "DEMO-06 AC3 vs design.md DemoPurger (validation.md gap 2) (design)"
+      ],
+      "created": "2026-10-20T11:58:08Z",
+      "last_seen": "2026-10-20T11:58:08Z"
     }
   ]
 }
