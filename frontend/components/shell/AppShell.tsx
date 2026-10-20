@@ -9,10 +9,12 @@ import { TopNav } from './TopNav'
 /** Session guard and shared chrome of the authenticated routes, including the selected merchant. */
 export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter()
-  const { token } = useAuth()
+  const { token, restoring, expired } = useAuth()
 
-  useEffect(() => { if (!token) router.replace('/login') }, [router, token])
+  // A demo refused while restoring goes back to the landing page, where a new one can be opened.
+  useEffect(() => { if (!restoring && !token) router.replace(expired ? '/' : '/login') }, [router, token, restoring, expired])
 
+  if (restoring) return <p className="grid min-h-screen place-items-center text-muted" role="status">Abrindo sessão...</p>
   if (!token) return <p className="grid min-h-screen place-items-center text-muted" role="status">Abrindo login...</p>
 
   return (

@@ -6,14 +6,16 @@ import { createQueryClient } from '@/lib/queries'
 import { AppShell } from './AppShell'
 
 const replace = vi.fn()
-const auth = vi.hoisted(() => ({ token: null as string | null }))
+const auth = vi.hoisted(() => ({ token: null as string | null, restoring: false, expired: false }))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace }), usePathname: () => '/conciliacoes' }))
-vi.mock('@/lib/auth', () => ({ useAuth: () => ({ token: auth.token, user: auth.token ? { name: 'Ana Souza' } : null }) }))
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ token: auth.token, user: auth.token ? { name: 'Ana Souza' } : null, restoring: auth.restoring, expired: auth.expired }) }))
 
 const render = (ui: ReactElement) => renderDom(<QueryClientProvider client={createQueryClient(vi.fn())}>{ui}</QueryClientProvider>)
 
 beforeEach(() => {
   replace.mockReset()
+  auth.restoring = false
+  auth.expired = false
   vi.stubGlobal('fetch', vi.fn(async () => Response.json({ content: [{ id: 'm-1', name: 'Alfa Pagamentos', document: '12345678000190' }], totalPages: 1 })))
 })
 afterEach(() => vi.unstubAllGlobals())
@@ -24,6 +26,26 @@ describe('AppShell', () => {
     render(<AppShell><p>conteúdo protegido</p></AppShell>)
 
     expect(replace).toHaveBeenCalledWith('/login')
+    expect(screen.queryByText('conteúdo protegido')).not.toBeInTheDocument()
+  })
+
+  it('durante a restauração da sessão não redireciona e mostra "Abrindo sessão..." (DEMO-08 AC2)', () => {
+    auth.token = null
+    auth.restoring = true
+    render(<AppShell><p>conteúdo protegido</p></AppShell>)
+
+    expect(replace).not.toHaveBeenCalled()
+    expect(screen.getByRole('status')).toHaveTextContent('Abrindo sessão...')
+    expect(screen.queryByText('conteúdo protegido')).not.toBeInTheDocument()
+  })
+
+  it('demo expirada na restauração leva à landing, não ao login (DEMO-08 AC5)', () => {
+    auth.token = null
+    auth.expired = true
+    render(<AppShell><p>conteúdo protegido</p></AppShell>)
+
+    expect(replace).toHaveBeenCalledWith('/')
+    expect(replace).not.toHaveBeenCalledWith('/login')
     expect(screen.queryByText('conteúdo protegido')).not.toBeInTheDocument()
   })
 

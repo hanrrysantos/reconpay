@@ -629,9 +629,9 @@ T23
 
 **Done when**:
 
-- [ ] Durante a restauração não redireciona
-- [ ] Restaurado → mostra o conteúdo; sem sessão → `/login`; demo expirada → `/`
-- [ ] Gate quick (frontend) passa
+- [x] Durante a restauração não redireciona
+- [x] Restaurado → mostra o conteúdo; sem sessão → `/login`; demo expirada → `/`
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick
