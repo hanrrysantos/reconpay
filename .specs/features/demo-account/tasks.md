@@ -300,12 +300,12 @@ T23
 
 **Done when**:
 
-- [ ] Usuário `OPERATOR`, ativo, `demo_expires_at = now + 24h`, e-mail `@demo.reconpay.invalid`, nome "Visitante"
-- [ ] Nenhum e-mail capturado pelo `CapturingEmailSender`
-- [ ] Exatamente 1 merchant concedido, CNPJ válido; com um CNPJ já existente forçado na 1ª tentativa, gera outro
-- [ ] Regras ativas para os 4 meios; um lote de cada tipo; todas as datas em [`today-60`, `today-1`]
-- [ ] Falha forçada no meio (ex.: importação lança) não deixa usuário nem merchant
-- [ ] Gate quick (backend) passa
+- [x] Usuário `OPERATOR`, ativo, `demo_expires_at = now + 24h`, e-mail `@demo.reconpay.invalid`, nome "Visitante"
+- [x] Nenhum e-mail capturado pelo `CapturingEmailSender`
+- [x] Exatamente 1 merchant concedido, CNPJ válido; com um CNPJ já existente forçado na 1ª tentativa, gera outro
+- [x] Regras ativas para os 4 meios; um lote de cada tipo; todas as datas em [`today-60`, `today-1`]
+- [x] Falha forçada no meio (ex.: importação lança) não deixa usuário nem merchant
+- [x] Gate quick (backend) passa
 
 **Tests**: integration
 **Gate**: quick
