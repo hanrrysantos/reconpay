@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiError, authenticate, getMerchants, getTransactions, register, resendVerification, verifyEmail } from './api'
+import { ApiError, authenticate, createDemo, getMerchants, getTransactions, register, resendVerification, verifyEmail } from './api'
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -22,6 +22,37 @@ describe('API do ReconPay', () => {
       user: { id: 'user-1', name: 'Ana', email: 'ana@example.com', role: 'OPERATOR', active: true },
     })
     expect(paths).toEqual(['http://localhost:8080/api/auth/login', 'http://localhost:8080/api/me'])
+  })
+
+  it('abre a demo com POST sem corpo e carrega o perfil com o token recebido (DEMO-07 AC2; DEMO-09)', async () => {
+    const fetcher = vi.fn(async (input: string, init?: RequestInit) => input.endsWith('/api/auth/demo')
+      ? Response.json({ token: 'demo-jwt', type: 'Bearer', expiresIn: 86400 }, { status: 201 })
+      : Response.json({ id: 'demo-1', name: 'Visitante', email: 'demo-abc@demo.reconpay.invalid', role: 'OPERATOR', active: true, demoExpiresAt: '2099-10-21T12:34:56Z' }))
+    vi.stubGlobal('fetch', fetcher)
+
+    await expect(createDemo()).resolves.toEqual({
+      token: 'demo-jwt',
+      user: { id: 'demo-1', name: 'Visitante', email: 'demo-abc@demo.reconpay.invalid', role: 'OPERATOR', active: true, demoExpiresAt: '2099-10-21T12:34:56Z' },
+    })
+    expect(fetcher.mock.calls.map(([url]) => url)).toEqual(['http://localhost:8080/api/auth/demo', 'http://localhost:8080/api/me'])
+    const [, demoInit] = fetcher.mock.calls[0]
+    expect(demoInit?.method).toBe('POST')
+    expect(demoInit?.body).toBeUndefined()
+    expect(new Headers(demoInit?.headers).get('Authorization')).toBeNull()
+    expect(new Headers(fetcher.mock.calls[1][1]?.headers).get('Authorization')).toBe('Bearer demo-jwt')
+  })
+
+  it('recusa a demo com o status e a mensagem do 429 sem carregar o perfil (DEMO-07 AC5)', async () => {
+    const fetcher = vi.fn(async () => Response.json({
+      timestamp: '2026-10-20T12:00:00Z', status: 429, error: 'TOO_MANY_REQUESTS',
+      message: 'Limite de demonstrações atingido. Tente novamente em até 1 hora.', path: '/api/auth/demo',
+    }, { status: 429 }))
+    vi.stubGlobal('fetch', fetcher)
+
+    const error = await createDemo().catch((caught: unknown) => caught)
+    expect(error).toBeInstanceOf(ApiError)
+    expect(error).toMatchObject({ status: 429, code: 'TOO_MANY_REQUESTS', message: 'Limite de demonstrações atingido. Tente novamente em até 1 hora.' })
+    expect(fetcher).toHaveBeenCalledTimes(1)
   })
 
   it('rejeita o login quando o perfil não pode ser carregado', async () => {

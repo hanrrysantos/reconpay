@@ -574,9 +574,9 @@ T23
 
 **Done when**:
 
-- [ ] Chama `POST /api/auth/demo` sem corpo e `/api/me` com o token; devolve `{ token, user }`
-- [ ] Erro `429` vira `ApiError` com `status` e `message` da API
-- [ ] Gate quick (frontend) passa
+- [x] Chama `POST /api/auth/demo` sem corpo e `/api/me` com o token; devolve `{ token, user }`
+- [x] Erro `429` vira `ApiError` com `status` e `message` da API
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick
