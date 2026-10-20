@@ -9,7 +9,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 ---
 
 **Design**: `.specs/features/users-screen/design.md`
-**Status**: Approved
+**Status**: Done
 
 ---
 
@@ -439,8 +439,8 @@ T14
 
 **Done when**:
 
-- [ ] README cita `/usuarios`, os filtros e a queda de sessão ao desativar
-- [ ] Gate full: `cd backend && ./mvnw verify` e gate build do frontend passam
+- [x] README cita `/usuarios`, os filtros e a queda de sessão ao desativar
+- [x] Gate full: `cd backend && ./mvnw verify` e gate build do frontend passam
 
 **Tests**: none
 **Gate**: build

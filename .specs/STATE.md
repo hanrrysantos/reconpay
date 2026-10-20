@@ -117,12 +117,11 @@
 
 ## Handoff
 
-- **Feature**: demo-account (itens 9–10 da vitrine) — **mergeada** (PR #61, 2026-10-20, `c00d01d`; CI e Deploy production verdes; API `UP` com `POST /api/auth/demo` no Swagger; Vercel mostra "Ver demonstração")
-- **Phase / Task**: Verifier PASS na rodada 2; depois do PASS, a faixa passou a mostrar a data ("expira em dd/MM às HH:mm", pedido do usuário no teste manual, `6ca623d`, sem nova rodada do Verifier). 742 testes no backend, 991 no frontend Limite por IP conferido em produção em 2026-10-20: 3ª demo no mesmo Wi-Fi (notebook e celular) recebe o limite; pelo 4G a demo abre. Correção da confirmação do Fechamento (faixa compacta abaixo da linha, Cancelar vermelho) mergeada depois.
-- **Completed**: itens da vitrine 1–8 (8: domínio `hanrry.top` verificado no Resend, SPF/DKIM/DMARC ok, e-mails de produção chegam na caixa de entrada) e a troca de marca. O `.env` local tem `RECONPAY_EMAIL_REDIRECT_TO` com o e-mail pessoal do usuário (gitignorado). O e-mail usa o ícone com fundo escuro porque o modo escuro do Gmail no celular inverte a faixa mas não as imagens
-- **Known issues**: (demo) `docker-compose.yaml` não repassa `DEMO_*` (valem os padrões); timeout de 30 s esperando o dispatcher pode fazer a compensação disputar com o worker (improvável; a limpeza seguinte tenta de novo); L-058/L-059 candidatas; (a) `RESEND_API_KEY` vazia ainda ativa o `ResendEmailSender` (500 no cadastro) e `RESEND_API_KEY=false` deixa a API sem `EmailSender` (decisão do usuário: corrigir depois); (b) o `.env` local tem `RECONPAY_VERIFICATION_BASE_URL=http://localhost:8080`; (c) opcional: `text-balance` no título do `AuthPanel`; (d) o nome da variável de CORS no Compose não tem teste automático; (e) nenhum teste renderiza `app/(app)/painel/page.tsx`; (f) lições L-054..L-057 ficaram como candidatas; (g) `validation.md` novos em pt-BR, anteriores em inglês; (h) o `.env` do servidor tem `RECONPAY_VERIFICATION_BASE_URL` duplicada (linha 7 velha; vale a 10, `https://reconpay.vercel.app`; usuário decidiu não mexer agora); (i) `EmailProperties.redirectTo()` é preenchido fora do `dev` pelo relaxed binding: quem o ler precisa repetir a checagem de profile; (j) o ícone no modo escuro do Gmail ainda não foi conferido num e-mail real de produção; (k) e-mail local sai sem imagem (Gmail não alcança `localhost`) e tende a cair no spam
+- **Feature**: users-screen (item 11 da vitrine: tela de usuários do ADMIN)
+- **Phase / Task**: Execute concluído; T1–T14 commitadas; aguardando o Verifier
+- **Completed**: backend (filtros `status`/`demo`, `demoExpiresAt`, trava de autodesativação, trava de grant para demo, `401` para token de conta inativa), `lib/api.ts` e `lib/queries.ts`, menu do avatar, `/usuarios` (lista, criar, desativar, acessos, renomear, reativar) e documentação
 - **In-progress** (file:line): none
-- **Next step**: (11) tela de usuários do ADMIN (API `/api/users/**` pronta, nada no frontend) — em discussão de escopo; recuperar senha depois
+- **Next step**: Verifier independente da feature `users-screen` (escreve `validation.md`)
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `docs/record-ip-check`, local, sem push, criada de `origin/main`.
+- **Branch**: `feat/users-screen`, local, sem push

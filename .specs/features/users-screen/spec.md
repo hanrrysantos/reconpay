@@ -189,14 +189,14 @@ A API já administra usuários (`/api/users/**`, só `ADMIN`), mas o frontend n�
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| USERS-01 | P1: Menu do avatar | Tasks | Pending |
-| USERS-02 | P1: Listar usuários | Tasks | Pending |
-| USERS-03 | P1: Criar usuário | Tasks | Pending |
-| USERS-04 | P1: Desativar e reativar | Tasks | Pending |
-| USERS-05 | P1: Acessos a empresas | Tasks | Pending |
-| USERS-06 | P2: Renomear usuário | Tasks | Pending |
+| USERS-01 | P1: Menu do avatar | Tasks | Implementing |
+| USERS-02 | P1: Listar usuários | Tasks | Implementing |
+| USERS-03 | P1: Criar usuário | Tasks | Implementing |
+| USERS-04 | P1: Desativar e reativar | Tasks | Implementing |
+| USERS-05 | P1: Acessos a empresas | Tasks | Implementing |
+| USERS-06 | P2: Renomear usuário | Tasks | Implementing |
 
-**Coverage:** 6 total, 0 mapped to tasks, 6 unmapped ⚠️
+**Coverage:** 6 total, 6 mapped to tasks, 0 unmapped
 
 ---
 
