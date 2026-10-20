@@ -495,11 +495,11 @@ T23
 
 **Done when**:
 
-- [ ] Com relógio 24 h à frente: demo expirada e seus dados somem; demo ativa fica
-- [ ] Falha numa demo não impede a seguinte
-- [ ] Log `info` com usuários e merchants apagados
-- [ ] Anotação lida com o atraso padrão de 900000 ms
-- [ ] Gate full passa
+- [x] Com relógio 24 h à frente: demo expirada e seus dados somem; demo ativa fica
+- [x] Falha numa demo não impede a seguinte
+- [x] Log `info` com usuários e merchants apagados
+- [x] Anotação lida com o atraso padrão de 900000 ms
+- [x] Gate full passa
 
 **Tests**: integration
 **Gate**: full

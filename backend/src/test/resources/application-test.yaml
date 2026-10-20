@@ -9,6 +9,10 @@ reconpay:
     # Exercise the real worker pool; reconciliation tests poll persisted status.
     async: true
     dispatch-delay-ms: 100
+  demo:
+    # Contexts stay cached for the whole suite; a sweep firing mid-test would delete other tests' demos.
+    # The startup sweep still runs; DemoCleanupJobIntegrationTest calls the job directly.
+    cleanup-delay-ms: 86400000
 
 jwt:
   secret: ${JWT_SECRET:chave-teste-apenas-para-testes-de-integracao-local}
