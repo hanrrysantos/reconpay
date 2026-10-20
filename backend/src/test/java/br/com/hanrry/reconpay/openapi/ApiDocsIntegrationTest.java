@@ -12,6 +12,7 @@ import br.com.hanrry.reconpay.auth.dto.ResendVerificationRequestDTO;
 import br.com.hanrry.reconpay.auth.dto.VerifyEmailRequestDTO;
 import br.com.hanrry.reconpay.bankstatement.controller.BankStatementController;
 import br.com.hanrry.reconpay.base.AbstractIntegrationTest;
+import br.com.hanrry.reconpay.demo.controller.DemoController;
 import br.com.hanrry.reconpay.externalsettlement.controller.ExternalSettlementController;
 import br.com.hanrry.reconpay.feerule.controller.FeeRuleController;
 import br.com.hanrry.reconpay.feerule.dto.FeeRuleRequestDTO;
@@ -85,7 +86,9 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
             "403", "FORBIDDEN",
             "404", "NOT_FOUND",
             "409", "CONFLICT",
-            "413", "VALIDATION_ERROR"
+            "413", "VALIDATION_ERROR",
+            "429", "TOO_MANY_REQUESTS",
+            "503", "SERVICE_UNAVAILABLE"
     );
 
     @Autowired
@@ -208,6 +211,30 @@ class ApiDocsIntegrationTest extends AbstractIntegrationTest {
         ));
 
         assertNoMappingAnnotations(AuthController.class, Operation.class, GetMapping.class, PostMapping.class);
+    }
+
+    @Test
+    void demoCreationDocumentsCodesExamplesAndOpenSecurity() throws Exception {
+        JsonNode document = apiDocs();
+
+        assertOperation(document, new Op(
+                "post",
+                "/api/auth/demo",
+                Set.of("201", "429", "503"),
+                false,
+                null,
+                Map.of(),
+                "201",
+                List.of("token", "type", "expiresIn"),
+                false,
+                Set.of(),
+                Set.of(),
+                List.of("24 horas", "2 demonstrações por hora", "100")
+        ));
+        assertOperationTag(document, "post", "/api/auth/demo", "Authentication");
+        assertThat(document.path("paths").path("/api/auth/demo").path("post").has("parameters")).isFalse();
+
+        assertNoMappingAnnotations(DemoController.class, Operation.class, PostMapping.class);
     }
 
     @Test

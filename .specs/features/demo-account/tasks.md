@@ -549,8 +549,8 @@ T23
 
 **Done when**:
 
-- [ ] `/v3/api-docs` traz `POST /api/auth/demo` sem segurança, com `201`, `429`, `503`
-- [ ] Gate full passa
+- [x] `/v3/api-docs` traz `POST /api/auth/demo` sem segurança, com `201`, `429`, `503`
+- [x] Gate full passa
 
 **Tests**: integration
 **Gate**: full

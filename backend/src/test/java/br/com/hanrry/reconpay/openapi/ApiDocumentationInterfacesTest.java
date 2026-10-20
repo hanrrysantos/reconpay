@@ -4,6 +4,7 @@ import br.com.hanrry.reconpay.auth.controller.AuthController;
 import br.com.hanrry.reconpay.auth.controller.MeController;
 import br.com.hanrry.reconpay.auth.controller.UserController;
 import br.com.hanrry.reconpay.bankstatement.controller.BankStatementController;
+import br.com.hanrry.reconpay.demo.controller.DemoController;
 import br.com.hanrry.reconpay.externalsettlement.controller.ExternalSettlementController;
 import br.com.hanrry.reconpay.feerule.controller.FeeRuleController;
 import br.com.hanrry.reconpay.merchant.controller.MerchantController;
@@ -23,6 +24,7 @@ class ApiDocumentationInterfacesTest {
 
     private static final List<Class<?>> CONTROLLERS = List.of(
             AuthController.class,
+            DemoController.class,
             MeController.class,
             UserController.class,
             MerchantController.class,
@@ -36,7 +38,7 @@ class ApiDocumentationInterfacesTest {
 
     @Test
     void controllersImplementAnApiInterfaceAndDoNotDeclareOperation() {
-        assertThat(CONTROLLERS).hasSize(10);
+        assertThat(CONTROLLERS).hasSize(11);
         for (Class<?> controller : CONTROLLERS) {
             long apiInterfaces = Arrays.stream(controller.getInterfaces())
                     .filter(type -> type.getSimpleName().endsWith("Api"))
