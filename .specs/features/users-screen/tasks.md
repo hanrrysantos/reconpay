@@ -286,9 +286,9 @@ T14
 
 **Done when**:
 
-- [ ] `AccountMenu.test.tsx`: clique abre com nome, e-mail e selo; ADMIN vê "Usuários" com `href="/usuarios"`; OPERATOR não vê; "Sair" chama `signOut`; `Esc` e clique fora fecham
-- [ ] `TopNav.test.tsx` ajustado só onde o avatar mudou: o botão "Sair" ao lado continua e chama `signOut`
-- [ ] Gate quick (frontend) passa
+- [x] `AccountMenu.test.tsx`: clique abre com nome, e-mail e selo; ADMIN vê "Usuários" com `href="/usuarios"`; OPERATOR não vê; "Sair" chama `signOut`; `Esc` e clique fora fecham
+- [x] `TopNav.test.tsx` ajustado só onde o avatar mudou: o botão "Sair" ao lado continua e chama `signOut`
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick

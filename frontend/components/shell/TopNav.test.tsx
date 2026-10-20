@@ -17,7 +17,10 @@ const ITEMS: Array<[string, string]> = [
   ['Fechamento', '/fechamento'],
 ]
 
-beforeEach(() => { navigation.pathname = '/painel' })
+beforeEach(() => {
+  navigation.pathname = '/painel'
+  signOut.mockReset()
+})
 
 describe('TopNav', () => {
   it('renderiza os seis itens do produto na ordem, com seus links', () => {
@@ -67,6 +70,20 @@ describe('TopNav', () => {
 
     expect(screen.queryByRole('button', { name: /notifica/i })).not.toBeInTheDocument()
     expect(screen.getByLabelText('Ana Souza')).toHaveTextContent('AS')
+  })
+
+  it('o avatar abre o menu da conta e o botão "Sair" continua ao lado (USERS-01 AC5)', async () => {
+    render(<TopNav />)
+    const user = userEvent.setup()
+
+    const avatar = screen.getByRole('button', { name: 'Ana Souza' })
+    expect(avatar).toHaveAttribute('aria-haspopup', 'menu')
+    await user.click(avatar)
+    expect(screen.getByRole('menu')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sair' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Sair' }))
+    expect(signOut).toHaveBeenCalledOnce()
   })
 
   it('renderiza o seletor de empresa recebido à direita', () => {

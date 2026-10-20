@@ -7,6 +7,7 @@ import type { ReactNode } from 'react'
 import { Logo } from '@/components/brand/Logo'
 import { useAuth } from '@/lib/auth'
 import { cn } from '@/lib/utils'
+import { AccountMenu } from './AccountMenu'
 
 export const NAV_ITEMS = [
   { label: 'Visão geral', href: '/painel' },
@@ -19,15 +20,10 @@ export const NAV_ITEMS = [
 
 const isActive = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`)
 
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase()
-}
-
 /** Product navigation; the notification bell is out of scope (no data source). */
 export function TopNav({ merchantSwitcher }: { merchantSwitcher?: ReactNode }) {
   const pathname = usePathname()
-  const { user, signOut } = useAuth()
+  const { signOut } = useAuth()
 
   return (
     <header className="flex min-h-10 items-center gap-6">
@@ -59,15 +55,7 @@ export function TopNav({ merchantSwitcher }: { merchantSwitcher?: ReactNode }) {
 
       <div className="ml-auto flex shrink-0 items-center gap-2">
         {merchantSwitcher}
-        {user && (
-          <span
-            role="img"
-            aria-label={user.name}
-            className="grid size-10 place-items-center rounded-full bg-foreground font-display text-[14px] font-extrabold text-primary"
-          >
-            {initials(user.name)}
-          </span>
-        )}
+        <AccountMenu />
         {/* Ending the session clears the token; AppShell then redirects to /login. */}
         <button type="button" aria-label="Sair" onClick={signOut} className="grid size-10 place-items-center rounded-full bg-surface">
           <LogOut aria-hidden="true" className="size-4" />
