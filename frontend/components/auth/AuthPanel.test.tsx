@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { AuthPanel } from './AuthPanel'
 
 describe('AuthPanel', () => {
+  it('a marca leva de volta à landing', () => {
+    render(<AuthPanel title="Título" lead="Texto do painel" />)
+
+    expect(screen.getByRole('link', { name: 'ReconPay, voltar para o início' })).toHaveAttribute('href', '/')
+  })
+
   it('mostra a marca, o título e o texto recebidos e o rodapé fixo', () => {
     render(<AuthPanel title="Seu primeiro fechamento começa aqui." lead="Crie a conta e importe os arquivos do mês." />)
 

@@ -64,6 +64,12 @@ describe('RegisterPage', () => {
     expect(screen.getByRole('link', { name: 'Entrar' })).toHaveAttribute('href', '/login')
   })
 
+  it('"Voltar para o início" leva à landing', () => {
+    renderPage()
+
+    expect(within(screen.getByRole('main')).getByRole('link', { name: 'Voltar para o início' })).toHaveAttribute('href', '/')
+  })
+
   it('marca os campos como obrigatórios, com autocomplete e a regra da senha no navegador (CAD-02 AC2)', () => {
     renderPage()
 

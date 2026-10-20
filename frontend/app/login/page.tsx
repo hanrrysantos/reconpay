@@ -4,7 +4,7 @@ import { ArrowRight, CircleAlert, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, type FormEvent } from 'react'
-import { AuthPanel, authAlert, authField, authPrimaryButton } from '@/components/auth/AuthPanel'
+import { AuthPanel, BackHomeLink, authAlert, authField, authPrimaryButton } from '@/components/auth/AuthPanel'
 import { useAuth } from '@/lib/auth'
 
 export default function LoginPage() {
@@ -41,6 +41,7 @@ export default function LoginPage() {
 
       <main className="flex flex-1 justify-center px-6 py-8 lg:items-center lg:p-14">
         <div className="flex w-full max-w-[400px] flex-col gap-7 lg:gap-8">
+          <BackHomeLink />
           <div className="flex flex-col gap-2.5">
             <h1 className="font-display text-[36px] leading-none font-extrabold tracking-[-0.04em] lg:text-[44px]">Entrar</h1>
             <p className="text-[15px] leading-[1.5] text-muted">Use o e-mail e a senha da sua conta ReconPay.</p>

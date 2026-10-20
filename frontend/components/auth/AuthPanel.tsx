@@ -1,3 +1,5 @@
+import { ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 import { Logo } from '@/components/brand/Logo'
 
 export const authField = 'h-12 w-full rounded-full bg-surface px-[18px] text-[15px] outline-none placeholder:text-muted focus:shadow-[inset_0_0_0_2px_var(--color-foreground)]'
@@ -9,7 +11,9 @@ export const authAlert = 'flex items-center gap-2.5 rounded-[14px] bg-danger-sof
 export function AuthPanel({ title, lead }: { title: string; lead: string }) {
   return (
     <aside className="flex flex-col gap-7 bg-foreground px-6 pt-7 pb-8 text-background lg:w-[440px] lg:shrink-0 lg:justify-between lg:p-12 xl:w-[640px] xl:p-14">
-      <Logo tone="dark" tagline />
+      <Link href="/" aria-label="ReconPay, voltar para o início" className="w-fit">
+        <Logo tone="dark" tagline />
+      </Link>
       <div className="flex flex-col gap-[18px]">
         <h2 className="max-w-[500px] font-display text-[30px] leading-[1.05] font-extrabold tracking-[-0.04em] lg:text-[40px] lg:leading-[1.02] xl:text-[52px]">
           {title}
@@ -21,5 +25,15 @@ export function AuthPanel({ title, lead }: { title: string; lead: string }) {
         <span className="text-[13px] text-background/45">Conciliação financeira para fintechs, gateways e marketplaces</span>
       </div>
     </aside>
+  )
+}
+
+/** Way back to the landing page from the sign-in and sign-up forms. */
+export function BackHomeLink() {
+  return (
+    <Link href="/" className="flex w-fit items-center gap-1.5 text-[14px] font-semibold text-muted hover:text-foreground">
+      <ArrowLeft aria-hidden="true" className="size-4" />
+      Voltar para o início
+    </Link>
   )
 }
