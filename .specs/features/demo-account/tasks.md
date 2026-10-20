@@ -329,9 +329,9 @@ T23
 
 **Done when**:
 
-- [ ] Reservou → chama `process`; `process` lança → `markFailed` e relança
-- [ ] Não reservou → retorna quando o status vira `COMPLETED`; lança em `FAILED`; lança ao passar `runWaitTimeout`
-- [ ] Gate quick (backend) passa
+- [x] Reservou → chama `process`; `process` lança → `markFailed` e relança
+- [x] Não reservou → retorna quando o status vira `COMPLETED`; lança em `FAILED`; lança ao passar `runWaitTimeout`
+- [x] Gate quick (backend) passa
 
 **Tests**: unit
 **Gate**: quick
