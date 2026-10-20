@@ -600,12 +600,12 @@ T23
 
 **Done when**:
 
-- [ ] `startDemo` grava o token em `sessionStorage`; `signIn` não grava em `sessionStorage` nem `localStorage`
-- [ ] Montar com token salvo restaura `token` e `user`
-- [ ] Restauração com `401` apaga o token e marca `expired`
-- [ ] `signOut` apaga o token
-- [ ] `sessionStorage` que lança não quebra o provider
-- [ ] Gate quick (frontend) passa
+- [x] `startDemo` grava o token em `sessionStorage`; `signIn` não grava em `sessionStorage` nem `localStorage`
+- [x] Montar com token salvo restaura `token` e `user`
+- [x] Restauração com `401` apaga o token e marca `expired`
+- [x] `signOut` apaga o token
+- [x] `sessionStorage` que lança não quebra o provider
+- [x] Gate quick (frontend) passa
 
 **Tests**: unit
 **Gate**: quick

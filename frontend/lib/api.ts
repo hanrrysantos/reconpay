@@ -268,6 +268,10 @@ export async function createDemo(): Promise<{ token: string; user: Me }> {
   return { token, user }
 }
 
+export function getMe(token: string): Promise<Me> {
+  return request<Me>('/api/me', {}, token)
+}
+
 export async function register(input: { name: string; email: string; password: string }): Promise<void> {
   await request('/api/auth/register', { method: 'POST', body: JSON.stringify(input) })
 }
