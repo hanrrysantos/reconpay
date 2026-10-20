@@ -31,6 +31,8 @@ import java.util.UUID;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -199,7 +201,9 @@ class UserControllerIntegrationTest {
 
         mockMvc.perform(get("/api/users/{id}", userId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId.toString()));
+                .andExpect(jsonPath("$.id").value(userId.toString()))
+                .andExpect(jsonPath("$", hasKey("demoExpiresAt")))
+                .andExpect(jsonPath("$.demoExpiresAt").value(nullValue()));
     }
 
     @Test
@@ -231,7 +235,7 @@ class UserControllerIntegrationTest {
     void updateNameShouldReturnUpdatedUser() throws Exception {
         UUID userId = UUID.randomUUID();
         UserResponseDTO user = buildUserResponse(userId, UserRole.ADMIN, "admin@test.local");
-        user = new UserResponseDTO(userId, "Nome Atualizado", "admin@test.local", UserRole.ADMIN, true, user.createdAt());
+        user = new UserResponseDTO(userId, "Nome Atualizado", "admin@test.local", UserRole.ADMIN, true, user.createdAt(), null);
         when(userService.updateName(eq(userId), any())).thenReturn(user);
 
         mockMvc.perform(put("/api/users/{id}", userId)
@@ -281,7 +285,8 @@ class UserControllerIntegrationTest {
                 email,
                 role,
                 true,
-                Instant.parse("2026-08-05T12:00:00Z")
+                Instant.parse("2026-08-05T12:00:00Z"),
+                null
         );
     }
 }

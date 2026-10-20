@@ -246,7 +246,8 @@ class UserServiceTest {
                 user.getEmail(),
                 user.getRole(),
                 user.isActive(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getDemoExpiresAt()
         );
     }
 }

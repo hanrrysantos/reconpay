@@ -92,7 +92,8 @@ class AuthServiceTest {
                 "analista@gmail.com",
                 UserRole.OPERATOR,
                 false,
-                savedEntity.getCreatedAt()
+                savedEntity.getCreatedAt(),
+                null
         );
 
         when(userRepository.existsByEmail("analista@gmail.com")).thenReturn(false);

@@ -98,9 +98,9 @@ T14
 
 **Done when**:
 
-- [ ] `IUserMapperTest`: usuário de demo → `demoExpiresAt` igual ao da entidade; conta comum → `null`
-- [ ] `UserControllerIntegrationTest`: `GET /api/users/{id}` de conta comum traz `demoExpiresAt: null`
-- [ ] Gate quick (backend) passa com `IUserMapperTest,UserControllerIntegrationTest`
+- [x] `IUserMapperTest`: usuário de demo → `demoExpiresAt` igual ao da entidade; conta comum → `null`
+- [x] `UserControllerIntegrationTest`: `GET /api/users/{id}` de conta comum traz `demoExpiresAt: null`
+- [x] Gate quick (backend) passa com `IUserMapperTest,UserControllerIntegrationTest`
 
 **Tests**: unit
 **Gate**: quick
