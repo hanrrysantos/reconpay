@@ -384,6 +384,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: CAP-01 AC5 (config/ReconciliationProperties.java:55) (config)
 - last seen: 2026-10-21T00:15:44Z
 
+### L-063 - When an acceptance criterion says an action must not cause a side effect, perform the action in the test and assert the state it must keep
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: landing-open-session
+- evidence: validation.md round 3 N6/N7; frontend/components/landing/LandingSession.test.tsx:69 (tests)
+- last seen: 2026-10-21T18:55:44Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

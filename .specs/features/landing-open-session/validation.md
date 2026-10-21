@@ -1,8 +1,151 @@
 # Sessão Aberta na Landing e no Login Validation
 
-## Validation round 2: PASS
+## Validation round 3: FAIL
 
-**Verdict**: PASS
+**Verdict**: FAIL
+
+**Date**: 2026-10-21
+**Spec**: `.specs/features/landing-open-session/spec.md` (SESS-01 AC2 revised in bb43165)
+**Diff range**: round-3 delta `61210d7..HEAD` (bb43165 code + spec, 8e16f8d docs only); full feature `933b872..HEAD`
+**Verifier**: independent sub-agent (author ≠ verifier), round 3 of 3
+
+The revised AC2 is implemented as written: with a session open, the menu and footer keep "Entrar" pointing to `/login`, and the test checks label, `href` and the absence of "Voltar ao painel" in both places. Every other AC and edge case still holds, and all 16 regression and label/href mutants are killed. The verdict is FAIL on one clause of the revised AC2 that no test exercises: "sem encerrar a sessão no clique". A mutant that makes "Entrar" call `signOut()` on click survives, in both nav+footer and nav-only variants. The fix only needs a test; production code is correct today.
+
+---
+
+### Task Completion
+
+No `tasks.md` (Medium scope, inline steps). bb43165 restores the plain `<Link href="/login">Entrar</Link>` in `frontend/components/landing/LandingPage.tsx:40` (nav) and `:77` (footer), removes `SignInLink` from `frontend/components/landing/SessionLinks.tsx` (no remaining references), rewrites the AC2 test, and updates spec AC2 and the "Texto na landing com sessão" assumption row.
+
+---
+
+### Spec-Anchored Acceptance Criteria (re-derived)
+
+#### SESS-01: Voltar à sessão pela landing
+
+Each landing row runs for a restored demo session and a regular in-memory login (`frontend/components/landing/LandingSession.test.tsx:33-36`, `:55`).
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| AC1 "Ver demonstração" → "Voltar ao painel" to `/painel`, no `POST /api/auth/demo` | label; push `/painel`; zero demo calls | `LandingSession.test.tsx:45`, `:59-60`, `:65` `toEqual([['/painel'], ['/painel']])`, `:66` `demoCalls(fetcher)).toHaveLength(0)` | ✅ PASS |
+| AC2 (revised) "Entrar" in nav and footer stays "Entrar" to `/login`... | label "Entrar"; `href="/login"`; no "Voltar ao painel" | `LandingSession.test.tsx:73`, `:76` `getByRole('link', { name: 'Entrar' })).toHaveAttribute('href', '/login')`; `:74`, `:77` "Voltar ao painel" link absent | ✅ PASS |
+| AC2 (revised) ...without ending the session on click | after clicking "Entrar", the session is still open (token kept / landing still in session state) | no evidence: the test never clicks "Entrar". N6 and N7 survive | ❌ GAP |
+| AC2 (revised) /login shows the SESS-02 AC1 notice | covered by SESS-02 AC1 | `frontend/app/login/session.test.tsx:33-34` (real provider, demo session) | ✅ PASS |
+| AC3 "Entrar na minha conta" → "Sair e entrar com outra conta", signs out, `/login` | label; session ended; push `/login` | `LandingSession.test.tsx:84`, `:86`, `:88` `toHaveBeenCalledWith('/login')`, `:89` token `toBeNull()`, `:90-91` landing back to no-session state | ✅ PASS |
+| AC4 No session → landing unchanged | "Ver demonstração", "Entrar" and "Entrar na minha conta" to `/login` | `frontend/components/landing/LandingPage.test.tsx:23`, `:69` `['Entrar', '/login']`; `:38`, `:202` "Ver demonstração" enabled; `:40`, `:204` "Entrar na minha conta" `href='/login'` | ✅ PASS |
+
+#### SESS-02: Login com sessão aberta (unchanged in round 3)
+
+| Criterion | `file:line` + assertion | Result |
+| --- | --- | --- |
+| AC1 notice, e-mail, "Ir para o painel" `/painel`, switch button, no auto-redirect | `frontend/app/login/page.test.tsx:179-192`; `frontend/app/login/session.test.tsx:33-34` | ✅ PASS (R7, R9 killed) |
+| AC2 switch → signs out, shows the form | `page.test.tsx:200` `signOut` called once; `session.test.tsx:38-41` | ✅ PASS (R10 killed) |
+| AC3 successful submit → `/painel` without the notice | `session.test.tsx:52-53` | ✅ PASS (R8 killed) |
+| AC4 no session → form | `page.test.tsx:204-210` | ✅ PASS |
+
+**Status**: ❌ 1 gap (AC2 click clause). No spec-precision gaps: the revised AC2 states the outcome precisely.
+
+**Test integrity**: the AC2 test was rewritten in place (same count). The removed assertions (`href='/painel'`, "Entrar" absent) belonged to the superseded AC2 wording; the new ones assert the revised outcome at the same strength. No other test changed.
+
+---
+
+### Edge Cases
+
+- [x] Regular account, landing: the AC2 test runs for `ana` too (`LandingSession.test.tsx:35`, `:55`); R3 and R6 killed.
+- [x] Regular account, login: `page.test.tsx:179`.
+- [x] Expired demo token → no-session landing: `LandingSession.test.tsx:96-105`, including nav "Entrar" to `/login` (`:104`).
+
+---
+
+### Discrimination Sensor
+
+Scratch: `git worktree add --detach` at bb43165 under the session scratchpad (`verifier-sess-wt3`), real `frontend/node_modules` symlinked. A script applied each mutant alone, ran `vitest run components/landing app/login` (52 tests), and restored the file. Scratch porcelain showed only the symlink afterward. The worktree was removed with `git worktree remove --force`; the real tree's `git status --porcelain` was empty before and after, and `git worktree list` no longer lists the scratch.
+
+| # | File | Mutation | Killed? |
+| --- | --- | --- | --- |
+| N1 | `frontend/components/landing/LandingPage.tsx:40` | menu "Entrar" `href="/painel"` | ✅ Killed (4) |
+| N2 | `LandingPage.tsx:77` | footer "Entrar" `href="/painel"` | ✅ Killed (3) |
+| N3 | `LandingPage.tsx:40`, `:77` + `SessionLinks.tsx` | round-2 `SignInLink` restored: "Voltar ao painel" to `/painel` with a session, nav and footer | ✅ Killed (2) |
+| N4 | same | switch in the footer only | ✅ Killed (2) |
+| N5 | same | switch in the menu only | ✅ Killed (2) |
+| N6 | same | "Entrar" keeps label and `/login` but calls `signOut()` on click, nav and footer | ❌ Survived |
+| N7 | same | nav "Entrar" calls `signOut()` on click only when a session is open | ❌ Survived |
+| N8 | same | "Entrar" hidden with a session | ✅ Killed (2) |
+| R1 | `frontend/components/landing/DemoButton.tsx` | `if (user)` → `if (false)` | ✅ Killed (8) |
+| R2 | `DemoButton.tsx` | back button calls `open` (creates a demo) | ✅ Killed (2) |
+| R3 | `DemoButton.tsx` | back button only for a demo session | ✅ Killed (4) |
+| R4 | `frontend/components/landing/SessionLinks.tsx` | `AccountLink` skips `signOut()` | ✅ Killed (4) |
+| R5 | `SessionLinks.tsx` | `AccountLink` skips `router.push('/login')` | ✅ Killed (4) |
+| R6 | `SessionLinks.tsx` | `AccountLink` switches only for a demo session | ✅ Killed (2) |
+| R7 | `frontend/app/login/page.tsx` | notice never shown | ✅ Killed (3) |
+| R8 | `page.tsx` | notice shown after a successful submit (drop `!submitted`) | ✅ Killed (1) |
+| R9 | `page.tsx` | `useEffect` auto-redirect to `/painel` restored | ✅ Killed (3) |
+| R10 | `page.tsx` | notice switch button does not sign out | ✅ Killed (2) |
+
+**Sensor depth**: expanded (18 manual mutations; auth-adjacent session flow)
+**Result**: 16/18 killed - FAIL
+
+---
+
+### Gate Check
+
+- **Commands**: `corepack pnpm test`, `corepack pnpm typecheck`, `corepack pnpm build` (all three CI steps)
+- **Outcome**: 88 files, 1090 tests passed, 0 failed, 0 skipped; typecheck clean; build succeeds
+- **Test delta**: 1090 → 1090 (AC2 test rewritten in place)
+
+---
+
+### Code Quality
+
+| Principle | Status |
+| --- | --- |
+| Minimum code / surgical changes | ✅ reverts to plain links; dead `SignInLink` removed |
+| No scope creep | ✅ |
+| Matches patterns | ✅ |
+| Spec-anchored outcome check | ❌ AC2 click clause has no assertion |
+| Every test maps to a spec requirement | ✅ |
+| Documented guidelines followed: `AGENTS.md`, `frontend/README.md` | ✅ |
+
+---
+
+### Fix Plans
+
+#### Fix 1: Assert that clicking "Entrar" keeps the session
+
+- **Root cause**: the revised AC2 adds "sem encerrar a sessão no clique", but `LandingSession.test.tsx:69-78` only inspects label and `href`, so a click handler that signs out (N6, N7) passes.
+- **Fix task**: in the AC2 test (both session kinds), click the nav "Entrar" and the footer "Entrar", then assert the session is still open: the hero still shows the "Voltar ao painel" button and, for the demo kind, `sessionStorage.getItem('reconpay.demoToken')` is still `'demo-jwt'`. Test only; no production change.
+- **Done when**: N6 and N7 are killed; the full suite, typecheck and build pass.
+- **Priority**: Major (an unverified spec clause on the exact path that lost the production demo)
+
+---
+
+### Requirement Traceability Update
+
+| Requirement | Previous Status | New Status |
+| --- | --- | --- |
+| SESS-01 | Implemented (AC2 revisado) | ❌ Needs Fix (AC2 click clause untested) |
+| SESS-02 | Verified | ✅ Verified |
+
+---
+
+### Summary
+
+**Overall**: ❌ Not Ready
+
+**Spec-anchored check**: 8 ACs; 1 clause of SESS-01 AC2 without evidence; 3/3 edge cases tested; 0 spec-precision gaps
+**Sensor**: 16/18 mutations killed (N6, N7 survived)
+**Gate**: 1090 passed, typecheck clean, build passes
+
+**Lessons**: L-063 (candidate) recorded from N6/N7.
+
+**Next steps**: Fix 1 (test only), then a round-4 Verifier run. This was the third fix→re-verify round, so the user decides whether to run another.
+
+---
+
+
+## Round 2 (history, commit 16f9b71)
+
+**Round 2 verdict**: PASS
 
 **Date**: 2026-10-21
 **Spec**: `.specs/features/landing-open-session/spec.md`
@@ -84,7 +227,7 @@ Scratch: `git worktree add --detach` at 16f9b71 under the session scratchpad (`v
 | M23 | `SessionLinks.tsx` | no-session "Entrar" `href="/painel"` (new, AC4) | ✅ Killed (3) |
 
 **Sensor depth**: expanded (23 manual mutations; auth-adjacent session flow)
-**Result**: 23/23 killed - PASS
+**Outcome**: 23/23 killed - PASS
 
 ---
 
