@@ -1,31 +1,47 @@
 import { render, screen, within } from '@testing-library/react'
+import { useEffect } from 'react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { AuthProvider } from '@/lib/auth'
+import { AuthProvider, useAuth } from '@/lib/auth'
 import { LandingPage } from './LandingPage'
 
 const navigation = vi.hoisted(() => ({ push: vi.fn() }))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: navigation.push }) }))
 
 const demoUser = { id: 'demo-1', name: 'Visitante', email: 'demo-abc@demo.reconpay.invalid', role: 'OPERATOR', active: true, demoExpiresAt: '2099-10-21T12:34:56Z' }
+const ana = { id: 'u-1', name: 'Ana Souza', email: 'ana@lojacentro.com.br', role: 'OPERATOR', active: true, demoExpiresAt: null }
 
-// The production case: a demo opened in this tab, then the visitor came back to the landing without "Sair".
-function stubOpenDemo() {
-  sessionStorage.setItem('reconpay.demoToken', 'demo-jwt')
-  const fetcher = vi.fn(async (input: string) => input.endsWith('/api/me')
-    ? Response.json(demoUser)
-    : Response.json({ message: 'Limite de demonstrações por IP atingido.' }, { status: 429 }))
+// Any other demo request answers 429, as in production once the IP quota is spent.
+function stubApi() {
+  const fetcher = vi.fn(async (input: string, init?: RequestInit) => {
+    if (input.endsWith('/api/auth/login')) return Response.json({ token: 'ana-jwt', type: 'Bearer', expiresIn: 3600 })
+    if (input.endsWith('/api/me')) return Response.json(new Headers(init?.headers).get('Authorization') === 'Bearer demo-jwt' ? demoUser : ana)
+    return Response.json({ message: 'Limite de demonstrações por IP atingido.' }, { status: 429 })
+  })
   vi.stubGlobal('fetch', fetcher)
   return fetcher
 }
 
-const demoCalls = (fetcher: ReturnType<typeof stubOpenDemo>) => fetcher.mock.calls.filter(([url]) => url.endsWith('/api/auth/demo'))
+/** A regular login lives only in memory, so it reaches the landing by signing in within the same provider. */
+function SignedInLanding() {
+  const { signIn } = useAuth()
+  useEffect(() => { void signIn('ana@lojacentro.com.br', 'Senha@2026') }, [])
+  return <LandingPage />
+}
+
+// The production case is the demo: opened in this tab, then the visitor came back to the landing without "Sair".
+const sessions = [
+  { kind: 'demonstração', open: () => { sessionStorage.setItem('reconpay.demoToken', 'demo-jwt'); render(<AuthProvider><LandingPage /></AuthProvider>) } },
+  { kind: 'conta comum', open: () => { render(<AuthProvider><SignedInLanding /></AuthProvider>) } },
+]
+
+const demoCalls = (fetcher: ReturnType<typeof stubApi>) => fetcher.mock.calls.filter(([url]) => url.endsWith('/api/auth/demo'))
 const hero = () => screen.getByRole('heading', { level: 1 }).closest('section')!
 const finalCta = () => screen.getByRole('heading', { level: 2, name: 'Feche o próximo mês sem abrir uma planilha.' }).closest('section')!
 
-async function renderWithOpenSession() {
-  const fetcher = stubOpenDemo()
-  render(<AuthProvider><LandingPage /></AuthProvider>)
+async function renderWithOpenSession(open: () => void) {
+  const fetcher = stubApi()
+  open()
   await within(hero()).findByRole('button', { name: 'Voltar ao painel' })
   return fetcher
 }
@@ -36,9 +52,9 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllGlobals())
 
-describe('LandingPage com sessão aberta', () => {
+describe.each(sessions)('LandingPage com sessão aberta de $kind', ({ open }) => {
   it('"Ver demonstração" vira "Voltar ao painel" na abertura e no convite final e leva a /painel sem criar conta (SESS-01 AC1)', async () => {
-    const fetcher = await renderWithOpenSession()
+    const fetcher = await renderWithOpenSession(open)
 
     expect(within(hero()).queryByRole('button', { name: 'Ver demonstração' })).not.toBeInTheDocument()
     expect(within(finalCta()).queryByRole('button', { name: 'Ver demonstração' })).not.toBeInTheDocument()
@@ -48,11 +64,10 @@ describe('LandingPage com sessão aberta', () => {
 
     expect(navigation.push.mock.calls).toEqual([['/painel'], ['/painel']])
     expect(demoCalls(fetcher)).toHaveLength(0)
-    expect(sessionStorage.getItem('reconpay.demoToken')).toBe('demo-jwt')
   })
 
   it('"Entrar" do menu e do rodapé vira "Voltar ao painel" para /painel (SESS-01 AC2)', async () => {
-    await renderWithOpenSession()
+    await renderWithOpenSession(open)
 
     const nav = screen.getByRole('navigation', { name: 'Principal' })
     expect(within(nav).getByRole('link', { name: 'Voltar ao painel' })).toHaveAttribute('href', '/painel')
@@ -65,7 +80,7 @@ describe('LandingPage com sessão aberta', () => {
   it.each([['abertura', hero], ['convite final', finalCta]])(
     '"Entrar na minha conta" da %s vira "Sair e entrar com outra conta": encerra a sessão e vai para /login (SESS-01 AC3)',
     async (_, region) => {
-      await renderWithOpenSession()
+      await renderWithOpenSession(open)
       expect(within(region()).queryByRole('link', { name: 'Entrar na minha conta' })).not.toBeInTheDocument()
 
       await userEvent.click(within(region()).getByRole('button', { name: 'Sair e entrar com outra conta' }))
@@ -75,7 +90,9 @@ describe('LandingPage com sessão aberta', () => {
       expect(await within(hero()).findByRole('button', { name: 'Ver demonstração' })).toBeInTheDocument()
       expect(within(hero()).getByRole('link', { name: 'Entrar na minha conta' })).toHaveAttribute('href', '/login')
     })
+})
 
+describe('LandingPage sem sessão', () => {
   it('com o token da demo expirado a landing fica no estado sem sessão (edge)', async () => {
     sessionStorage.setItem('reconpay.demoToken', 'expired-jwt')
     vi.stubGlobal('fetch', vi.fn(async () => Response.json({ message: 'Token inválido' }, { status: 401 })))
