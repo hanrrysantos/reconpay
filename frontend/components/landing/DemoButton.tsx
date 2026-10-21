@@ -8,10 +8,13 @@ import { useAuth } from '@/lib/auth'
 
 const GENERIC_ERROR = 'Não foi possível abrir a demonstração. Tente novamente.'
 
-/** Opens a demo account and goes to the dashboard; styled by the caller like the landing's primary CTA. */
+/**
+ * Opens a demo account and goes to the dashboard; styled by the caller like the landing's primary CTA.
+ * With a session already open it only leads back, since another demo would spend the visitor's IP quota.
+ */
 export function DemoButton({ className }: { className: string }) {
   const router = useRouter()
-  const { startDemo } = useAuth()
+  const { user, startDemo } = useAuth()
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // Guards repeated clicks before React re-renders the button as disabled: each call creates an account.
@@ -32,6 +35,15 @@ export function DemoButton({ className }: { className: string }) {
       started.current = false
       setPending(false)
     }
+  }
+
+  if (user) {
+    return (
+      <button type="button" onClick={() => router.push('/painel')} className={className}>
+        Voltar ao painel
+        <ArrowRight aria-hidden="true" className="size-[18px]" />
+      </button>
+    )
   }
 
   return (
