@@ -117,12 +117,14 @@
 
 ## Handoff
 
-- **Feature**: users-screen (item 11 da vitrine: tela de usuários do ADMIN)
-- **Phase / Task**: T1–T14 commitadas; Verifier PASS na rodada 2 (rodada 1 FAIL por falta de teste dos edge cases 1 e 4, corrigida em `bd2d2a6`); teste manual aprovado pelo usuário em 2026-10-20
-- **Completed**: backend (filtros `status`/`demo`, `demoExpiresAt`, trava de autodesativação, trava de grant para demo, `401` para token de conta inativa), `lib/api.ts` e `lib/queries.ts`, menu do avatar, `/usuarios` (lista, criar, desativar, acessos, renomear, reativar) e documentação. Depois do PASS, pedidos do teste manual, sem nova rodada do Verifier: cursor de mãozinha em todo controle clicável (`899b5ae`, regra global em `app/globals.css`) e "Voltar para o início" no login e no cadastro, com a marca do painel levando a `/` (`70b89f2`)
-- **Known issues**: os da demo continuam (ver PR #61): `docker-compose.yaml` não repassa `DEMO_*`; `RESEND_API_KEY` vazia dá 500 no cadastro; L-058..L-061 candidatas
+- **Feature**: landing-open-session (correção do fluxo visto em produção em 2026-10-21), depois de reconciliation-capacity-guard
+- **Phase / Task**: as duas features mergeadas; Verifier PASS em ambas (capacity guard 15/15 mutantes; open session PASS na rodada 2, 23/23, rodada 1 FAIL por falta do caso de conta comum na landing, corrigida em `16f9b71`)
+- **Completed**:
+  - reconciliation-capacity-guard (PR #65, `933b872`, CI e deploy verdes): limite de 300 mil registros por janela (`RECONCILIATION_MAX_WINDOW_RECORDS`), conferido no pedido (`400`) e de novo no worker (`FAILED`), e `-XX:+ExitOnOutOfMemoryError` na imagem. Origem: benchmark de volume numa réplica local do plano de produção (2 vCPU, 1 GB para a API): 100 mil vendas em 17 s, 200 mil em 48 s no teto de memória, 300 mil e 1 milhão estouravam o heap e travavam a API
+  - landing-open-session (PR #66, `61210d7`): com sessão aberta, a landing mostra "Voltar ao painel" em vez de criar outra demo (que gastava o limite por IP) e o login mostra "Você já está em uma sessão" em vez de redirecionar; substitui LOG-05 AC1
+- **Known issues**: os da demo continuam (ver PR #61): `docker-compose.yaml` não repassa `DEMO_*`; `RESEND_API_KEY` vazia dá 500 no cadastro. A conciliação ainda carrega a janela inteira na memória, por isso o limite
 - **In-progress** (file:line): none
-- **Next step**: PR de `feat/users-screen` aberta e mergeada pelo usuário; depois conferir CI e deploy. Pendente da vitrine: recuperar senha
+- **Next step**: conciliação em lotes (memória constante) para levantar o limite de 300 mil registros, ou recuperar senha (último item da vitrine)
 - **Blockers**: none
 - **Uncommitted files**: none
-- **Branch**: `feat/users-screen`, enviada para o `origin`
+- **Branch**: `docs/record-open-session-handoff`
