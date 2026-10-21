@@ -378,6 +378,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md mutant B8 (Edge Case 4) (routes)
 - last seen: 2026-10-20T18:49:54Z
 
+### L-062 - When an acceptance criterion names a configuration default, assert the bound default value in a test with no override
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `config` · harmful: 0
+- features: reconciliation-capacity-guard
+- evidence: CAP-01 AC5 (config/ReconciliationProperties.java:55) (config)
+- last seen: 2026-10-21T00:15:44Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

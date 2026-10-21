@@ -219,7 +219,7 @@ class OpenAmountCalculatorTest {
 
     private BankStatementMatcher matcher() {
         return new BankStatementMatcher(
-                new ReconciliationProperties(new BigDecimal("0.00"), 5, 366, false, 1, 1));
+                new ReconciliationProperties(new BigDecimal("0.00"), 5, 366, false, 1, 1, 300_000));
     }
 
     private ReconciliationDiscrepancyEntity open(DiscrepancyType type, ReconciliationItemEntity item) {

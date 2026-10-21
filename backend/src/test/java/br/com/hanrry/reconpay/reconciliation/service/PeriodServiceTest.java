@@ -102,7 +102,7 @@ class PeriodServiceTest {
                 new OpenAmountCalculator(),
                 new PeriodWindowPolicy(
                         reconciliationRunRepository,
-                        new ReconciliationProperties(new BigDecimal("0.00"), 5, 366, true, 2, 50)),
+                        new ReconciliationProperties(new BigDecimal("0.00"), 5, 366, true, 2, 50, 300_000)),
                 periodLockRepository,
                 discrepancyRepository,
                 merchantRepository,

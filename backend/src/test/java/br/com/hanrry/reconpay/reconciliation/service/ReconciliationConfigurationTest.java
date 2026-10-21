@@ -15,7 +15,7 @@ class ReconciliationConfigurationTest {
     @EnableConfigurationProperties(ReconciliationProperties.class)
     static class Config { }
 
-    @ParameterizedTest @ValueSource(strings = {"amount-tolerance=-0.01", "settlement-lag-days=-1", "max-window-days=0", "workers=0", "queue-capacity=-1"})
+    @ParameterizedTest @ValueSource(strings = {"amount-tolerance=-0.01", "settlement-lag-days=-1", "max-window-days=0", "workers=0", "queue-capacity=-1", "max-window-records=0"})
     void invalidOperationalLimitsPreventStartup(String property) {
         new ApplicationContextRunner().withUserConfiguration(Config.class)
                 .withPropertyValues("reconpay.reconciliation." + property)
@@ -26,6 +26,15 @@ class ReconciliationConfigurationTest {
         new ApplicationContextRunner().withUserConfiguration(Config.class)
                 .withPropertyValues("reconpay.reconciliation.amount-tolerance=0", "reconpay.reconciliation.settlement-lag-days=0", "reconpay.reconciliation.queue-capacity=0")
                 .run(context -> assertThat(context).hasNotFailed());
+    }
+
+    @Test void windowRecordLimitDefaultsTo300Thousand() {
+        new ApplicationContextRunner().withUserConfiguration(Config.class)
+                .run(context -> assertThat(context.getBean(ReconciliationProperties.class).maxWindowRecords()).isEqualTo(300_000));
+        new ApplicationContextRunner().withUserConfiguration(Config.class)
+                .withInitializer(new ConfigDataApplicationContextInitializer())
+                .withPropertyValues("spring.config.location=classpath:application.yaml")
+                .run(context -> assertThat(context.getBean(ReconciliationProperties.class).maxWindowRecords()).isEqualTo(300_000));
     }
 
     @Test void baseConfigurationDoesNotActivateSeededDevelopment() {

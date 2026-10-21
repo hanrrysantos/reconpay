@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -55,6 +56,7 @@ public class ReconciliationRunProcessor {
     private final IBankStatementLineRepository bankStatementLineRepository;
     private final BankStatementMatcher bankStatementMatcher;
     private final ReconciliationRunStateService runStateService;
+    private final ReconciliationCapacityGuard capacityGuard;
     private final ReconciliationProperties properties;
     private final AuditLogger auditLogger;
     private final EntityManager entityManager;
@@ -77,6 +79,14 @@ public class ReconciliationRunProcessor {
 
         if (run.getStatus() != ReconciliationRunStatus.RUNNING) {
             throw new IllegalStateException("Conciliação não foi reservada pelo dispatcher");
+        }
+
+        // Counted again because imports may have grown the window since the request,
+        // and a run requeued after a restart must not exhaust the heap a second time.
+        Optional<String> rejection = capacityGuard.rejectionFor(merchantId, fromDate, toDate);
+        if (rejection.isPresent()) {
+            reject(run, rejection.get());
+            return;
         }
 
         Map<String, InternalTransactionEntity> transactionsByReference = transactionRepository.findAll(
@@ -129,6 +139,19 @@ public class ReconciliationRunProcessor {
                 "merchant=" + merchantId + " window=" + fromDate + ".." + toDate
                         + " total=" + items.size()
                         + " divergent=" + finished.getDivergentCount());
+    }
+
+    private void reject(ReconciliationRunEntity run, String message) {
+        run.setStatus(ReconciliationRunStatus.FAILED);
+        run.setErrorMessage(message);
+        run.setFinishedAt(Instant.now(clock));
+        reconciliationRunRepository.save(run);
+
+        auditLogger.record("RECONCILIATION_REJECTED", "reconciliationRun", run.getId(),
+                "merchant=" + run.getMerchant().getId()
+                        + " window=" + run.getFromDate() + ".." + run.getToDate()
+                        + " limit=" + properties.maxWindowRecords()
+                        + " reason=" + message);
     }
 
     /*

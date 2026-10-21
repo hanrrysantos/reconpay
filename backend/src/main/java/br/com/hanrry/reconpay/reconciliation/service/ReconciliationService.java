@@ -54,6 +54,7 @@ public class ReconciliationService {
     private final ReconciliationProperties properties;
     private final AuditLogger auditLogger;
     private final EntityManager entityManager;
+    private final ReconciliationCapacityGuard capacityGuard;
 
     private static final int EXPORT_CHUNK_SIZE = 500;
     private static final String ABS_DIFFERENCE = "absDifference";
@@ -73,6 +74,9 @@ public class ReconciliationService {
         LocalDate toDate = request.toDate();
         ensureWindowIsWithinLimit(fromDate, toDate);
         periodGuard.assertWindowOpen(merchantId, fromDate, toDate);
+        capacityGuard.rejectionFor(merchantId, fromDate, toDate).ifPresent(message -> {
+            throw new InvalidReconciliationWindowException(message);
+        });
 
         ReconciliationRunEntity run = new ReconciliationRunEntity();
         run.setMerchant(merchant);

@@ -74,6 +74,7 @@ reconpay:
     async: ${RECONCILIATION_ASYNC:true}
     workers: ${RECONCILIATION_WORKERS:2}
     queue-capacity: ${RECONCILIATION_QUEUE_CAPACITY:50}
+    max-window-records: ${RECONCILIATION_MAX_WINDOW_RECORDS:300000}
   demo:
     ttl: ${DEMO_TTL:24h}
     max-active: ${DEMO_MAX_ACTIVE:100}

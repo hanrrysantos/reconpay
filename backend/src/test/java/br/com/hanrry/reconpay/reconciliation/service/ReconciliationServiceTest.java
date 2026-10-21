@@ -67,6 +67,9 @@ class ReconciliationServiceTest {
     @Mock
     private EntityManager entityManager;
 
+    @Mock
+    private ReconciliationCapacityGuard capacityGuard;
+
     private ReconciliationService reconciliationService;
     private UUID merchantId;
     private MerchantEntity merchant;
@@ -84,9 +87,10 @@ class ReconciliationServiceTest {
                 reconciliationItemRepository,
                 merchantRepository,
                 periodGuard,
-                new ReconciliationProperties(new BigDecimal("0.00"), 5, 366, true, 2, 50),
+                new ReconciliationProperties(new BigDecimal("0.00"), 5, 366, true, 2, 50, 300_000),
                 auditLogger,
-                entityManager);
+                entityManager,
+                capacityGuard);
     }
 
     @Test
@@ -145,6 +149,20 @@ class ReconciliationServiceTest {
         assertThat(response.status()).isEqualTo(ReconciliationRunStatus.PENDING);
         assertThat(response.fromDate()).isEqualTo(overlappingFrom);
         assertThat(response.toDate()).isEqualTo(overlappingTo);
+    }
+
+    @Test
+    void shouldRejectAWindowOverTheRecordLimitWithTheGuardMessageAndStoreNothing() {
+        String message = "A janela tem 300.001 registros para conciliar; o limite é 300.000. Divida o período em janelas menores.";
+        when(merchantRepository.findByIdAndActiveTrue(merchantId)).thenReturn(Optional.of(merchant));
+        when(capacityGuard.rejectionFor(merchantId, FROM, TO)).thenReturn(Optional.of(message));
+
+        assertThatThrownBy(() -> reconciliationService.run(merchantId, new RunReconciliationRequestDTO(FROM, TO)))
+                .isInstanceOf(InvalidReconciliationWindowException.class)
+                .hasMessage(message);
+
+        verify(reconciliationRunRepository, never()).saveAndFlush(any());
+        verifyNoInteractions(auditLogger);
     }
 
     @Test

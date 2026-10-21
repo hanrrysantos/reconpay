@@ -43,6 +43,15 @@ public record ReconciliationProperties(
         @Min(1) @DefaultValue("2") int workers,
 
         /* Requests allowed to wait for a free worker before being rejected. */
-        @Min(0) @DefaultValue("50") int queueCapacity
+        @Min(0) @DefaultValue("50") int queueCapacity,
+
+        /*
+         * Transactions, settlements and bank lines one run may load. A run holds
+         * the whole window in memory; on the production plan (1 GB for the API)
+         * the volume benchmark finished 300 thousand records with room to spare,
+         * hit the memory limit near 600 thousand and ran out of heap at 900
+         * thousand.
+         */
+        @Min(1) @DefaultValue("300000") long maxWindowRecords
 ) {
 }

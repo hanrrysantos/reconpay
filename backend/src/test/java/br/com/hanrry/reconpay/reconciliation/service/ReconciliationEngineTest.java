@@ -25,7 +25,7 @@ class ReconciliationEngineTest {
 
     private static ReconciliationEngine engineWithTolerance(String tolerance) {
         return new ReconciliationEngine(
-                new ReconciliationProperties(new BigDecimal(tolerance), 5, 366, false, 1, 1));
+                new ReconciliationProperties(new BigDecimal(tolerance), 5, 366, false, 1, 1, 300_000));
     }
 
     @Test
