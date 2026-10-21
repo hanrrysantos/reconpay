@@ -5,13 +5,14 @@ import LoginPage from './page'
 
 const navigation = vi.hoisted(() => ({ replace: vi.fn() }))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: navigation.replace }) }))
-const auth = vi.hoisted(() => ({ signIn: vi.fn(), user: null as { name: string } | null }))
-vi.mock('@/lib/auth', () => ({ useAuth: () => ({ signIn: auth.signIn, user: auth.user }) }))
+const auth = vi.hoisted(() => ({ signIn: vi.fn(), signOut: vi.fn(), user: null as { name: string; email: string } | null }))
+vi.mock('@/lib/auth', () => ({ useAuth: () => ({ signIn: auth.signIn, signOut: auth.signOut, user: auth.user }) }))
 
 beforeEach(() => {
   navigation.replace.mockReset()
   auth.signIn.mockReset()
   auth.signIn.mockResolvedValue(undefined)
+  auth.signOut.mockReset()
   auth.user = null
 })
 
@@ -175,15 +176,36 @@ describe('LoginPage', () => {
     await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith('/painel'))
   })
 
-  it('com sessão ativa vai para /painel sem enviar nada (LOG-05 AC1)', () => {
-    auth.user = { name: 'Ana Souza' }
+  it('com sessão aberta mostra o aviso com o e-mail, "Ir para o painel" e "Sair e entrar com outra conta", sem formulário e sem redirecionar (SESS-02 AC1; substitui LOG-05 AC1)', () => {
+    auth.user = { name: 'Ana Souza', email: 'ana@lojacentro.com.br' }
     renderPage()
-    expect(navigation.replace).toHaveBeenCalledWith('/painel')
+    const main = screen.getByRole('main')
+
+    expect(within(main).getByRole('heading', { level: 1 })).toHaveTextContent('Você já está em uma sessão')
+    expect(main).toHaveTextContent('Conectado como ana@lojacentro.com.br.')
+    expect(within(main).getByRole('link', { name: 'Ir para o painel' })).toHaveAttribute('href', '/painel')
+    expect(within(main).getByRole('button', { name: 'Sair e entrar com outra conta' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('E-mail')).not.toBeInTheDocument()
+    expect(within(main).getByRole('link', { name: 'Voltar para o início' })).toHaveAttribute('href', '/')
+    expect(navigation.replace).not.toHaveBeenCalled()
     expect(auth.signIn).not.toHaveBeenCalled()
   })
 
-  it('sem sessão não sai da tela (LOG-05 AC1)', () => {
+  it('"Sair e entrar com outra conta" encerra a sessão (SESS-02 AC2)', async () => {
+    auth.user = { name: 'Ana Souza', email: 'ana@lojacentro.com.br' }
+    const user = renderPage()
+
+    await user.click(screen.getByRole('button', { name: 'Sair e entrar com outra conta' }))
+
+    expect(auth.signOut).toHaveBeenCalledTimes(1)
+    expect(navigation.replace).not.toHaveBeenCalled()
+  })
+
+  it('sem sessão mostra o formulário e não sai da tela (SESS-02 AC4)', () => {
     renderPage()
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Entrar')
+    expect(email()).toBeInTheDocument()
+    expect(screen.queryByText('Você já está em uma sessão')).not.toBeInTheDocument()
     expect(navigation.replace).not.toHaveBeenCalled()
   })
 })

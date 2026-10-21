@@ -148,7 +148,7 @@ A tela `/login` ainda usa o visual antigo (`app/auth.module.css`), diferente do 
 | LOG-02 | P1: Formulário | Execute | Verified |
 | LOG-03 | P1: Entrar | Execute | Verified |
 | LOG-04 | P1: Erro ao entrar | Execute | Verified |
-| LOG-05 | P2: Já logado | Execute | Verified |
+| LOG-05 | P2: Já logado | Execute | Superseded by SESS-02 (landing-open-session) |
 
 **ID format:** `LOG-<NN>` por story; o critério é citado como `LOG-02 AC3`.
 
