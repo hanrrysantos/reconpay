@@ -81,7 +81,7 @@ Em produção (2026-10-21), o usuário abriu uma demonstração, voltou para a l
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| SESS-01 | P1: Voltar à sessão pela landing | Execute | Pending |
+| SESS-01 | P1: Voltar à sessão pela landing | Execute | Implemented |
 | SESS-02 | P1: Login com sessão aberta (substitui LOG-05 AC1) | Execute | Pending |
 
 **Coverage:** 2 total, 0 mapped to tasks, 2 unmapped ⚠️
