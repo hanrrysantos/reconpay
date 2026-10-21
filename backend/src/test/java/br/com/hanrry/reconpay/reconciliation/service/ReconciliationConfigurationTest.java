@@ -28,6 +28,15 @@ class ReconciliationConfigurationTest {
                 .run(context -> assertThat(context).hasNotFailed());
     }
 
+    @Test void windowRecordLimitDefaultsTo300Thousand() {
+        new ApplicationContextRunner().withUserConfiguration(Config.class)
+                .run(context -> assertThat(context.getBean(ReconciliationProperties.class).maxWindowRecords()).isEqualTo(300_000));
+        new ApplicationContextRunner().withUserConfiguration(Config.class)
+                .withInitializer(new ConfigDataApplicationContextInitializer())
+                .withPropertyValues("spring.config.location=classpath:application.yaml")
+                .run(context -> assertThat(context.getBean(ReconciliationProperties.class).maxWindowRecords()).isEqualTo(300_000));
+    }
+
     @Test void baseConfigurationDoesNotActivateSeededDevelopment() {
         new ApplicationContextRunner().withInitializer(new ConfigDataApplicationContextInitializer())
                 .withPropertyValues("spring.config.location=classpath:application.yaml")

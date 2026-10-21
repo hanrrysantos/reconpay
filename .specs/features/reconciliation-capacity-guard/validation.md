@@ -142,3 +142,8 @@ Not injected: changing the default 300000. No test reads the default, so that mu
 **Issues found**: the AC5 default value has no test (Fix 1, minor).
 
 **Next steps**: the user decides whether to add Fix 1 before merging.
+
+
+## Gap follow-up
+
+CAP-01 AC5 (default 300000) closed by `ReconciliationConfigurationTest.windowRecordLimitDefaultsTo300Thousand`, which asserts both the record `@DefaultValue` and the `application.yaml` placeholder default. Changing either default to 600000 fails the test (2/2 mutants killed).
