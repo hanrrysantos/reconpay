@@ -66,15 +66,15 @@ describe.each(sessions)('LandingPage com sessão aberta de $kind', ({ open }) =>
     expect(demoCalls(fetcher)).toHaveLength(0)
   })
 
-  it('"Entrar" do menu e do rodapé vira "Voltar ao painel" para /painel (SESS-01 AC2)', async () => {
+  it('"Entrar" do menu e do rodapé continua "Entrar" para /login, onde o aviso da sessão aparece (SESS-01 AC2)', async () => {
     await renderWithOpenSession(open)
 
     const nav = screen.getByRole('navigation', { name: 'Principal' })
-    expect(within(nav).getByRole('link', { name: 'Voltar ao painel' })).toHaveAttribute('href', '/painel')
-    expect(within(nav).queryByRole('link', { name: 'Entrar' })).not.toBeInTheDocument()
+    expect(within(nav).getByRole('link', { name: 'Entrar' })).toHaveAttribute('href', '/login')
+    expect(within(nav).queryByRole('link', { name: 'Voltar ao painel' })).not.toBeInTheDocument()
     const footer = screen.getByRole('contentinfo')
-    expect(within(footer).getByRole('link', { name: 'Voltar ao painel' })).toHaveAttribute('href', '/painel')
-    expect(within(footer).queryByRole('link', { name: 'Entrar' })).not.toBeInTheDocument()
+    expect(within(footer).getByRole('link', { name: 'Entrar' })).toHaveAttribute('href', '/login')
+    expect(within(footer).queryByRole('link', { name: 'Voltar ao painel' })).not.toBeInTheDocument()
   })
 
   it.each([['abertura', hero], ['convite final', finalCta]])(

@@ -26,7 +26,7 @@ Em produção (2026-10-21), o usuário abriu uma demonstração, voltou para a l
 | Fluxo | A tabela "fluxo correto" da conversa de 2026-10-21 | Decisão do usuário ("sim") | y |
 | "Sessão aberta" | `useAuth().user` não nulo (demo restaurada do `sessionStorage` ou login na mesma aba) | É o que o painel usa | y |
 | Enquanto a sessão é restaurada | A landing e o login mostram o estado sem sessão | Evita esconder os botões em quem não tem sessão; a troca acontece assim que a sessão volta | n |
-| Texto na landing com sessão | Botão principal "Voltar ao painel"; "Entrar" e "Entrar na minha conta" viram "Voltar ao painel" no menu e no rodapé e "Sair e entrar com outra conta" nos botões secundários | Não repete dois "Voltar ao painel" lado a lado | n |
+| Texto na landing com sessão | Botão principal "Voltar ao painel"; "Entrar na minha conta" vira "Sair e entrar com outra conta" nos botões secundários; "Entrar" do menu e do rodapé fica igual e leva ao aviso do login | Decisão do usuário em 2026-10-21: o menu não muda de texto e um clique nele não apaga a demo | y |
 | Login com sessão | Aviso "Você já está em uma sessão" com o e-mail, "Ir para o painel" e "Sair e entrar com outra conta" no lugar do formulário | Substitui LOG-05 AC1 (redirecionar sem explicar) | n |
 | Depois de um login bem-sucedido | Continua indo para `/painel` sem mostrar o aviso | O aviso é para quem chega já logado | n |
 
@@ -45,7 +45,7 @@ Em produção (2026-10-21), o usuário abriu uma demonstração, voltou para a l
 **Acceptance Criteria**:
 
 1. WHILE há sessão aberta THEN o botão "Ver demonstração" SHALL aparecer como "Voltar ao painel" e levar a `/painel` sem chamar `POST /api/auth/demo`.
-2. WHILE há sessão aberta THEN os links "Entrar" do menu e do rodapé SHALL aparecer como "Voltar ao painel" e apontar para `/painel`.
+2. WHILE há sessão aberta THEN os links "Entrar" do menu e do rodapé SHALL continuar como "Entrar" apontando para `/login`, onde o aviso de SESS-02 AC1 oferece voltar ao painel ou trocar de conta, sem encerrar a sessão no clique. (Revisado em 2026-10-21 a pedido do usuário: antes viravam "Voltar ao painel", repetindo o botão principal.)
 3. WHILE há sessão aberta THEN os botões "Entrar na minha conta" da abertura e do convite final SHALL aparecer como "Sair e entrar com outra conta" e, ao clicar, encerrar a sessão e ir para `/login`.
 4. WHILE não há sessão THEN a landing SHALL continuar como hoje ("Ver demonstração", "Entrar", "Entrar na minha conta").
 
@@ -81,7 +81,7 @@ Em produção (2026-10-21), o usuário abriu uma demonstração, voltou para a l
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| SESS-01 | P1: Voltar à sessão pela landing | Execute | Verified |
+| SESS-01 | P1: Voltar à sessão pela landing | Execute | Implemented (AC2 revisado) |
 | SESS-02 | P1: Login com sessão aberta (substitui LOG-05 AC1) | Execute | Verified |
 
 **Coverage:** 2 total, 2 verified (inline steps, no tasks.md)

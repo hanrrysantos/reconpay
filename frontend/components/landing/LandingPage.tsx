@@ -7,7 +7,7 @@ import { FinalCta } from './FinalCta'
 import { HowItWorks } from './HowItWorks'
 import { Problem } from './Problem'
 import { ProductPreview } from './ProductPreview'
-import { AccountLink, SignInLink } from './SessionLinks'
+import { AccountLink } from './SessionLinks'
 
 const GITHUB = 'https://github.com/hanrrysantos/reconpay'
 const API_DOCS = 'https://reconpay.hanrry.top/swagger-ui/index.html'
@@ -37,7 +37,7 @@ export function LandingPage() {
             <a href="#divergencias">Divergências</a>
           </div>
           <div className="flex shrink-0 items-center gap-4 text-[14px] font-semibold md:gap-5">
-            <SignInLink className="max-[380px]:hidden" />
+            <Link href="/login" className="max-[380px]:hidden">Entrar</Link>
             <Link href="/register" className="inline-flex h-9 items-center rounded-full bg-foreground px-3.5 whitespace-nowrap min-[380px]:px-[18px] text-background md:h-10">Criar conta</Link>
           </div>
         </nav>
@@ -74,7 +74,7 @@ export function LandingPage() {
         <div className="flex flex-wrap gap-4 text-[13px] font-medium text-muted md:gap-7">
           <a href={GITHUB} target="_blank" rel="noopener noreferrer">GitHub</a>
           <a href={API_DOCS} target="_blank" rel="noopener noreferrer">Documentação da API</a>
-          <SignInLink />
+          <Link href="/login">Entrar</Link>
         </div>
         <p className="text-[13px] text-muted">Feito por Hanrry Santos · 2026</p>
       </footer>
