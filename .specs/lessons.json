@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 62,
+  "next_id": 63,
   "lessons": [
     {
       "id": "L-001",
@@ -1110,6 +1110,24 @@
       ],
       "created": "2026-10-20T18:49:54Z",
       "last_seen": "2026-10-20T18:49:54Z"
+    },
+    {
+      "id": "L-062",
+      "key": "ac_gap::when an acceptance criterion names a configuration default assert the bound default value in a test with no override",
+      "text": "When an acceptance criterion names a configuration default, assert the bound default value in a test with no override",
+      "signal": "ac_gap",
+      "scope": "config",
+      "status": "candidate",
+      "features": [
+        "reconciliation-capacity-guard"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "CAP-01 AC5 (config/ReconciliationProperties.java:55) (config)"
+      ],
+      "created": "2026-10-21T00:15:44Z",
+      "last_seen": "2026-10-21T00:15:44Z"
     }
   ]
 }
