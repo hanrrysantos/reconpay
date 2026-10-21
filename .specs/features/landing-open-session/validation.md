@@ -1,6 +1,139 @@
 # Sessão Aberta na Landing e no Login Validation
 
-**Verdict**: FAIL
+## Validation round 2: PASS
+
+**Verdict**: PASS
+
+**Date**: 2026-10-21
+**Spec**: `.specs/features/landing-open-session/spec.md`
+**Diff range**: `933b872..HEAD` (af21800, 1b09cb2, 7968f94, c33e7d5, 16f9b71); round-2 delta `c33e7d5..16f9b71` touches only `frontend/components/landing/LandingSession.test.tsx`
+**Verifier**: independent sub-agent (author ≠ verifier), round 2 of 3
+
+The round-1 gap is closed. `LandingSession.test.tsx` now runs every open-session case for both a restored demo session and an in-memory regular login (`ana@lojacentro.com.br`, `demoExpiresAt: null`), so the spec's "conta comum" edge is tested on the landing. All 8 ACs and both edge cases trace to assertions on the spec-defined outcomes, and 23 of 23 mutants are killed, including round-1 survivors M16 and M17. No production code changed since round 1.
+
+---
+
+### Task Completion
+
+No `tasks.md` (Medium scope, inline steps). Round-1 Fix 1 is done in 16f9b71 (test only).
+
+---
+
+### Spec-Anchored Acceptance Criteria (re-derived)
+
+#### SESS-01: Voltar à sessão pela landing
+
+Every row below runs twice through `describe.each(sessions)` (`frontend/components/landing/LandingSession.test.tsx:55`): demo session restored from `sessionStorage` (`:34`) and regular login in the same `AuthProvider` (`:26-30`, `:35`).
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| AC1 "Ver demonstração" → "Voltar ao painel" to `/painel`, no `POST /api/auth/demo` | label; push `/painel`; zero demo calls | `LandingSession.test.tsx:45` waits for hero button "Voltar ao painel"; `:59-60` `queryByRole('button', { name: 'Ver demonstração' })).not.toBeInTheDocument()` (hero, final CTA); `:65` `expect(navigation.push.mock.calls).toEqual([['/painel'], ['/painel']])`; `:66` `expect(demoCalls(fetcher)).toHaveLength(0)` (stub answers 429 to any demo call, `:19`) | ✅ PASS |
+| AC2 "Entrar" in nav and footer → "Voltar ao painel" to `/painel` | link label + `href="/painel"`; no "Entrar" | `LandingSession.test.tsx:73` and `:76` `getByRole('link', { name: 'Voltar ao painel' })).toHaveAttribute('href', '/painel')`; `:74`, `:77` "Entrar" absent | ✅ PASS |
+| AC3 "Entrar na minha conta" (hero + final CTA) → "Sair e entrar com outra conta", signs out, goes to `/login` | label; session ended; push `/login` | `LandingSession.test.tsx:80` `it.each` over both regions; `:84` old label gone; `:86` clicks the new button; `:88` `toHaveBeenCalledWith('/login')`; `:89` demo token `toBeNull()`; `:90-91` landing back to "Ver demonstração" and "Entrar na minha conta" `href='/login'` (proves `user` cleared for both kinds; for the regular kind `:89` is vacuous but `:90` carries the check) | ✅ PASS |
+| AC4 No session → landing unchanged | "Ver demonstração", "Entrar" and "Entrar na minha conta" to `/login` | `frontend/components/landing/LandingPage.test.tsx:23`, `:69` `['Entrar', '/login']` (nav, footer); `:38`, `:202` "Ver demonstração" `toBeEnabled()`; `:40`, `:204` "Entrar na minha conta" `toHaveAttribute('href', '/login')` | ✅ PASS |
+
+#### SESS-02: Login com sessão aberta (replaces LOG-05 AC1)
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| AC1 Open session → notice, e-mail, "Ir para o painel" (`/painel`), "Sair e entrar com outra conta", no auto-redirect | h1 text; e-mail; link `/painel`; button; no form; `replace` not called | `frontend/app/login/page.test.tsx:179-192` - h1 `toHaveTextContent('Você já está em uma sessão')`, `toHaveTextContent('Conectado como ana@lojacentro.com.br.')`, link `href='/painel'`, button present, `queryByLabelText('E-mail')` absent, `navigation.replace).not.toHaveBeenCalled()`; real provider with demo: `frontend/app/login/session.test.tsx:33-34` | ✅ PASS |
+| AC2 "Sair e entrar com outra conta" → signs out, shows the form | session cleared; form | `page.test.tsx:200` `expect(auth.signOut).toHaveBeenCalledTimes(1)`; `session.test.tsx:38` token `toBeNull()`; `:39-40` h1 "Entrar" and `getByLabelText('E-mail')`; `:41` no redirect | ✅ PASS |
+| AC3 Successful submit → `/painel` without the notice | `replace('/painel')`; notice absent | `session.test.tsx:52` `toHaveBeenCalledWith('/painel')`; `:53` `queryByText('Você já está em uma sessão')).not.toBeInTheDocument()` (real `AuthProvider`, so `user` is set) | ✅ PASS |
+| AC4 No session → form as today | form; no notice; no redirect | `page.test.tsx:204-210` h1 "Entrar", e-mail field, notice absent, `replace` not called | ✅ PASS |
+
+**Status**: ✅ 8/8 ACs covered on the spec-defined outcomes. No spec-precision gaps.
+
+---
+
+### Edge Cases
+
+- [x] Regular account (não demo), landing: `LandingSession.test.tsx:35` + `:55` run AC1–AC3 with `ana` (`:12`, `demoExpiresAt: null`) signed in through `useAuth().signIn` (`:26-30`). M16, M17, M19, M20, M21 killed.
+- [x] Regular account, login: `page.test.tsx:179` uses `ana` (no `demoExpiresAt`); M18 killed.
+- [x] Expired demo token → no-session landing: `LandingSession.test.tsx:96-105` (401 on `/api/me`, token cleared, "Ver demonstração", "Entrar na minha conta" and "Entrar" to `/login`).
+
+---
+
+### Discrimination Sensor
+
+Scratch: `git worktree add --detach` at 16f9b71 under the session scratchpad (`verifier-sess-wt2`), real `frontend/node_modules` symlinked. A script applied each mutant alone, ran `vitest run components/landing app/login` (6 files, 52 tests), and restored the file. Scratch porcelain showed only the symlink afterward. The worktree was removed with `git worktree remove --force`; the real tree's `git status --porcelain` was empty before and after, and `git worktree list` no longer lists the scratch.
+
+| # | File | Mutation | Killed? |
+| --- | --- | --- | --- |
+| M1 | `frontend/components/landing/DemoButton.tsx` | `if (user)` → `if (false)` | ✅ Killed (8) |
+| M2 | `DemoButton.tsx` | back button pushes `/login` | ✅ Killed (2) |
+| M3 | `DemoButton.tsx` | back button calls `open` (creates a demo) | ✅ Killed (2) |
+| M4 | `frontend/components/landing/SessionLinks.tsx` | "Voltar ao painel" link `href="/login"` | ✅ Killed (2) |
+| M5 | `SessionLinks.tsx` | `SignInLink` ignores `user` | ✅ Killed (2) |
+| M6 | `SessionLinks.tsx` | `AccountLink` skips `signOut()` | ✅ Killed (4) |
+| M7 | `SessionLinks.tsx` | `AccountLink` skips `router.push('/login')` | ✅ Killed (4) |
+| M8 | `SessionLinks.tsx` | `AccountLink` pushes `/painel` | ✅ Killed (4) |
+| M9 | `SessionLinks.tsx` | `AccountLink` ignores `user` | ✅ Killed (4) |
+| M10 | `frontend/app/login/page.tsx` | drop `!submitted` | ✅ Killed (1) |
+| M11 | `page.tsx` | notice button does not sign out | ✅ Killed (2) |
+| M12 | `page.tsx` | "Ir para o painel" `href="/"` | ✅ Killed (1) |
+| M13 | `page.tsx` | restore the `useEffect` auto-redirect to `/painel` | ✅ Killed (3) |
+| M14 | `page.tsx` | notice omits the e-mail | ✅ Killed (2) |
+| M15 | `page.tsx` | notice never shown | ✅ Killed (3) |
+| M16 | `DemoButton.tsx` | `if (user)` → `if (user?.demoExpiresAt)` (round-1 survivor) | ✅ Killed (4) |
+| M17 | `SessionLinks.tsx` | `SignInLink` switches only for a demo session (round-1 survivor) | ✅ Killed (1) |
+| M18 | `page.tsx` | notice only for a demo session | ✅ Killed (2) |
+| M19 | `SessionLinks.tsx` | `AccountLink` switches only for a demo session (new) | ✅ Killed (2) |
+| M20 | `SessionLinks.tsx` | `AccountLink` signs out only a demo session (new) | ✅ Killed (2) |
+| M21 | `DemoButton.tsx` | back button goes to `/painel` only for a demo, else creates a demo (new) | ✅ Killed (1) |
+| M22 | `SessionLinks.tsx` | no-session "Entrar na minha conta" `href="/painel"` (new, AC4) | ✅ Killed (7) |
+| M23 | `SessionLinks.tsx` | no-session "Entrar" `href="/painel"` (new, AC4) | ✅ Killed (3) |
+
+**Sensor depth**: expanded (23 manual mutations; auth-adjacent session flow)
+**Result**: 23/23 killed - PASS
+
+---
+
+### Gate Check
+
+- **Gate command**: `cd frontend && corepack pnpm exec vitest run` (CI `pnpm test`) and `corepack pnpm typecheck`
+- **Outcome**: 88 files, 1090 tests passed, 0 failed, 0 skipped; typecheck clean. `pnpm build` not re-run: no production file changed since round 1.
+- **Test delta**: round 1 1086 → round 2 1090 (+4: the three landing session tests now run per session kind). No test removed or weakened; the demo cases keep every round-1 assertion.
+
+---
+
+### Code Quality
+
+| Principle | Status |
+| --- | --- |
+| Minimum code / surgical changes | ✅ round-2 delta is one test file |
+| No scope creep | ✅ |
+| Matches patterns | ✅ same `stubApi` shape as `app/login/session.test.tsx` |
+| Spec-anchored outcome check | ✅ |
+| Per-layer coverage (happy + edge + error) | ✅ |
+| Every test maps to a spec requirement | ✅ names cite SESS-01 ACs or the edge |
+| Documented guidelines followed: `AGENTS.md`, `frontend/README.md` | ✅ |
+
+---
+
+### Requirement Traceability Update
+
+| Requirement | Previous Status | New Status |
+| --- | --- | --- |
+| SESS-01 | Implemented (round 1: Needs Fix) | ✅ Verified |
+| SESS-02 | Implemented | ✅ Verified |
+
+---
+
+### Summary
+
+**Overall**: ✅ Ready
+
+**Spec-anchored check**: 8/8 ACs matched the spec outcome; 3/3 edge-case checks tested; 0 spec-precision gaps
+**Sensor**: 23/23 mutations killed
+**Gate**: 1090 passed, typecheck clean
+
+**Lessons**: no new signal in round 2. The round-1 gap is already recorded as L-060 (confirmed, 2 features).
+
+---
+
+## Round 1 (history, commit c33e7d5)
+
+**Round 1 verdict**: FAIL
 
 **Date**: 2026-10-21
 **Spec**: `.specs/features/landing-open-session/spec.md`
@@ -11,15 +144,15 @@ The feature works as the spec describes, and 16 of 18 mutants were killed. It fa
 
 ---
 
-## Task Completion
+### Task Completion
 
 No `tasks.md` (Medium scope, inline steps). The three commits in range cover spec (af21800), landing (1b09cb2) and login (7968f94). Traceability in `spec.md` marks SESS-01 and SESS-02 as Implemented.
 
 ---
 
-## Spec-Anchored Acceptance Criteria
+### Spec-Anchored Acceptance Criteria
 
-### SESS-01: Voltar à sessão pela landing
+#### SESS-01: Voltar à sessão pela landing
 
 | Criterion | Spec-defined outcome | `file:line` + assertion | Result |
 | --- | --- | --- | --- |
@@ -28,7 +161,7 @@ No `tasks.md` (Medium scope, inline steps). The three commits in range cover spe
 | AC3 "Entrar na minha conta" (hero + final CTA) → "Sair e entrar com outra conta", signs out and goes to `/login` | label; session cleared; push `/login` | `LandingSession.test.tsx:65` `it.each` over both regions; `:69` old label gone; `:73` - `toHaveBeenCalledWith('/login')`; `:74` - `sessionStorage.getItem('reconpay.demoToken')).toBeNull()`; `:75-76` landing back to the no-session state | ✅ PASS |
 | AC4 No session → landing unchanged | "Ver demonstração", "Entrar", "Entrar na minha conta" to `/login` | `frontend/components/landing/LandingPage.test.tsx:23`, `:69` `['Entrar', '/login']` (nav, footer); `:38`, `:202` "Ver demonstração" enabled; `:40`, `:204` "Entrar na minha conta" `href='/login'` | ✅ PASS |
 
-### SESS-02: Login com sessão aberta (replaces LOG-05 AC1)
+#### SESS-02: Login com sessão aberta (replaces LOG-05 AC1)
 
 | Criterion | Spec-defined outcome | `file:line` + assertion | Result |
 | --- | --- | --- | --- |
@@ -41,7 +174,7 @@ No `tasks.md` (Medium scope, inline steps). The three commits in range cover spe
 
 ---
 
-## Edge Cases
+### Edge Cases
 
 - [x] Expired demo token → landing in the no-session state: `LandingSession.test.tsx:79-87` (401 on `/api/me`, token cleared, "Ver demonstração", "Entrar na minha conta" and "Entrar" to `/login`).
 - [x] Regular account on the login page: `page.test.tsx:179` uses a non-demo user (`ana@lojacentro.com.br`, no `demoExpiresAt`); mutant M18 killed.
@@ -49,7 +182,7 @@ No `tasks.md` (Medium scope, inline steps). The three commits in range cover spe
 
 ---
 
-## Discrimination Sensor
+### Discrimination Sensor
 
 Scratch: temporary `git worktree` at HEAD (7968f94) with a symlink to the real `frontend/node_modules`. Each mutant was applied alone, tested with the five feature test files (M16–M18 with `components/landing/` and `app/login/`), then reverted. The scratch was removed with `git worktree remove --force`. `git status --porcelain` on the real tree was empty before and after.
 
@@ -75,19 +208,19 @@ Scratch: temporary `git worktree` at HEAD (7968f94) with a symlink to the real `
 | M18 | `page.tsx:46` | notice only for a demo session | ✅ Killed (2) |
 
 **Sensor depth**: expanded (18 manual mutations; auth-adjacent session flow)
-**Result**: 16/18 killed - FAIL
+**Outcome**: 16/18 killed - FAIL
 
 ---
 
-## Gate Check
+### Gate Check
 
 - **Gate command**: `cd frontend && corepack pnpm exec vitest run` (CI `pnpm test`) and `corepack pnpm typecheck`
-- **Result**: 88 files, 1086 tests passed, 0 failed, 0 skipped; typecheck clean
+- **Outcome**: 88 files, 1086 tests passed, 0 failed, 0 skipped; typecheck clean
 - **Test delta in range**: +8 tests (`LandingSession.test.tsx` +5 including both `it.each` cases; `session.test.tsx` +2; `page.test.tsx` 2 LOG-05 AC1 tests replaced by 3 SESS-02 tests, +1). No test was weakened: the old LOG-05 AC1 redirect test was rewritten for SESS-02 AC1, which replaces it in the spec.
 
 ---
 
-## Code Quality
+### Code Quality
 
 | Principle | Status |
 | --- | --- |
@@ -104,9 +237,9 @@ Note (not a gap): `submitted` stays `true` after a failed submit. That is harmle
 
 ---
 
-## Fix Plans
+### Fix Plans
 
-### Fix 1: Landing test with a regular-account session
+#### Fix 1: Landing test with a regular-account session
 
 - **Root cause**: the spec's edge "conta comum (não demo)" has no landing test. All landing session tests restore a demo token, so limiting the change to demo sessions goes unnoticed (M16, M17).
 - **Fix task**: in `frontend/components/landing/LandingSession.test.tsx`, add a case with a regular session open (for example, render `LoginPage` and `LandingPage` under one `AuthProvider`, or sign in through `useAuth().signIn` with the stubbed `/api/auth/login` returning a user with `demoExpiresAt: null`). Assert that the hero shows "Voltar ao painel" and clicking it pushes `/painel` with zero `/api/auth/demo` calls, that nav and footer show "Voltar ao painel" with `href="/painel"`, and that "Sair e entrar com outra conta" is shown.
@@ -115,7 +248,7 @@ Note (not a gap): `submitted` stays `true` after a failed submit. That is harmle
 
 ---
 
-## Requirement Traceability Update
+### Requirement Traceability Update
 
 | Requirement | Previous Status | New Status |
 | --- | --- | --- |
@@ -124,7 +257,7 @@ Note (not a gap): `submitted` stays `true` after a failed submit. That is harmle
 
 ---
 
-## Summary
+### Summary
 
 **Overall**: ❌ Not Ready (one test gap)
 
