@@ -1,8 +1,141 @@
 # Sessão Aberta na Landing e no Login Validation
 
-## Validation round 3: FAIL
+## Validation round 4: PASS
 
-**Verdict**: FAIL
+**Result**: PASS
+
+**Date**: 2026-10-21
+**Spec**: `.specs/features/landing-open-session/spec.md`
+**Diff range**: round-4 delta `fe8bb2c..HEAD` (a6cb27c, test only); full feature `933b872..HEAD`
+**Verifier**: independent sub-agent (author ≠ verifier), round 4 (the user authorized it beyond the 3-round limit)
+
+The round-3 gap is closed. A6cb27c adds a test that clicks the real menu and footer "Entrar" links with a session open, then checks that the session survives. It runs for both session kinds. N6, N7 and both footer-only variants (N6f, N7f) are now killed, and so are all 16 mutants from round 3. No production code changed after round 3, and every AC and edge case still has evidence.
+
+---
+
+### Task Completion
+
+No `tasks.md` (Medium scope, inline steps). The round-3 Fix 1 is done in a6cb27c. It changes only `frontend/components/landing/LandingSession.test.tsx`: one new `it` inside the `describe.each(sessions)`, and `kind` added to the destructured parameters.
+
+---
+
+### Spec-Anchored Acceptance Criteria (re-derived)
+
+#### SESS-01: Voltar à sessão pela landing
+
+Each landing row runs for a restored demo session and for a regular login held in memory (`frontend/components/landing/LandingSession.test.tsx:33-36`, `:55`).
+
+| Criterion | Spec-defined outcome | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| AC1 "Ver demonstração" → "Voltar ao painel" to `/painel`, no `POST /api/auth/demo` | label; push `/painel`; zero demo calls | `LandingSession.test.tsx:45`, `:59-60`, `:65` `toEqual([['/painel'], ['/painel']])`, `:66` `demoCalls(fetcher)).toHaveLength(0)` | ✅ PASS |
+| AC2 "Entrar" in nav and footer stays "Entrar" to `/login` | label "Entrar"; `href="/login"`; no "Voltar ao painel" | `LandingSession.test.tsx:73`, `:76` `toHaveAttribute('href', '/login')`; `:74`, `:77` "Voltar ao painel" link absent | ✅ PASS |
+| AC2 ...without ending the session on click | after clicking both links the session is still open | `LandingSession.test.tsx:86-87` click nav and footer "Entrar"; `:90` hero "Voltar ao painel" button present, `:91` "Sair e entrar com outra conta" present, `:92` demo token `toBe('demo-jwt')` | ✅ PASS (N6, N6f, N7, N7f killed) |
+| AC2 /login shows the SESS-02 AC1 notice | covered by SESS-02 AC1 | `frontend/app/login/session.test.tsx:33-34` (real provider, demo session) | ✅ PASS |
+| AC3 "Entrar na minha conta" → "Sair e entrar com outra conta", signs out, `/login` | label; session ended; push `/login` | `LandingSession.test.tsx:99`, `:101`, `:103` `toHaveBeenCalledWith('/login')`, `:104` token `toBeNull()`, `:105-106` landing back to the no-session state | ✅ PASS |
+| AC4 No session → landing unchanged | "Ver demonstração", "Entrar" and "Entrar na minha conta" to `/login` | `frontend/components/landing/LandingPage.test.tsx:23`, `:69` `['Entrar', '/login']`; `:38`, `:202` "Ver demonstração" enabled; `:40`, `:204` "Entrar na minha conta" `href='/login'` | ✅ PASS |
+
+**The click test drives the real links.** The test queries `getByRole('link', { name: 'Entrar' })` inside `navigation` "Principal" and inside `contentinfo`. Those are the `<Link href="/login">` elements at `frontend/components/landing/LandingPage.tsx:40` and `:77`. The `preventDefault` listener sits on `document`. React 18 delegates its handlers to the root container, which is a descendant of `document`, so any `onClick` on the link (including next/link's own handler) runs before the listener. `preventDefault` does not stop propagation, so the listener cannot hide a `signOut()` handler. The sensor confirms it: a link `onClick={() => signOut()}` (N6, N6f) and a session-only variant (N7, N7f) each fail this test for both session kinds. A run of N7 that printed the failing tests showed only `LandingSession.test.tsx > ... > clicar em "Entrar" no menu e no rodapé não encerra a sessão (SESS-01 AC2)`, once for each session kind. The regular session is checked through the hero state (`:90-91`), because its token lives only in memory. That check is valid: after `signOut()` the hero falls back to "Ver demonstração".
+
+#### SESS-02: Login com sessão aberta (unchanged since round 2)
+
+| Criterion | `file:line` + assertion | Result |
+| --- | --- | --- |
+| AC1 notice, e-mail, "Ir para o painel" `/painel`, switch button, no auto-redirect | `frontend/app/login/page.test.tsx:179-192`; `frontend/app/login/session.test.tsx:33-34` | ✅ PASS (R7, R9 killed) |
+| AC2 switch → signs out, shows the form | `page.test.tsx:200` `signOut` called once; `session.test.tsx:38-41` | ✅ PASS (R10 killed) |
+| AC3 successful submit → `/painel` without the notice | `session.test.tsx:52-53` | ✅ PASS (R8 killed) |
+| AC4 no session → form | `page.test.tsx:204-210` | ✅ PASS |
+
+**Status**: ✅ All ACs covered. No spec-precision gaps.
+
+**Test integrity**: one test added, none changed or removed (1090 → 1092: one new `it` × 2 session kinds).
+
+---
+
+### Edge Cases
+
+- [x] Regular account, landing: every SESS-01 test, including the new click test, runs for `ana` (`LandingSession.test.tsx:35`, `:55`); R3, R6, N6 and N7 killed for that kind.
+- [x] Regular account, login: `frontend/app/login/page.test.tsx:179`.
+- [x] Expired demo token → no-session landing: `LandingSession.test.tsx:111-119`, including nav "Entrar" to `/login` (`:119`).
+
+---
+
+### Discrimination Sensor
+
+Scratch: `git worktree add --detach` at a6cb27c in the session scratchpad (`verifier-sess-wt4`), with the real `frontend/node_modules` symlinked. A script applied each mutant alone, ran `vitest run components/landing app/login` (54 tests), and restored the file. In the first pass, N1, N2, N5, N6, N7 and N6f crashed at startup (`MODULE_NOT_FOUND` or "no tests"). That happened because the real-tree gate was running at the same time on the shared `node_modules`, so those six results were discarded. Each one was then re-run alone and failed on real assertions (counts below). After that, the scratch tree's porcelain showed only the symlink. The symlink was removed and the worktree deleted with `git worktree remove --force`. The real tree's `git status --porcelain` was empty before and after, and `git worktree list` no longer shows the scratch.
+
+| # | File | Mutation | Killed? |
+| --- | --- | --- | --- |
+| N1 | `frontend/components/landing/LandingPage.tsx:40` | menu "Entrar" `href="/painel"` | ✅ Killed (4) |
+| N2 | `LandingPage.tsx:77` | footer "Entrar" `href="/painel"` | ✅ Killed (3) |
+| N3 | `LandingPage.tsx:40`, `:77` + `SessionLinks.tsx` | round-2 `SignInLink`: "Voltar ao painel" to `/painel` with a session, nav and footer | ✅ Killed (4) |
+| N4 | same | switch in the footer only | ✅ Killed (4) |
+| N5 | same | switch in the menu only | ✅ Killed (4) |
+| N6 | same | "Entrar" keeps label and `/login` but calls `signOut()` on click, nav and footer | ✅ Killed (2) |
+| N6f | same | same as N6, footer only | ✅ Killed (2) |
+| N7 | same | nav "Entrar" calls `signOut()` on click only when a session is open | ✅ Killed (2) |
+| N7f | same | same as N7, footer only | ✅ Killed (2) |
+| N8 | same | "Entrar" hidden with a session | ✅ Killed (4) |
+| R1 | `frontend/components/landing/DemoButton.tsx` | `if (user)` → `if (false)` | ✅ Killed (10) |
+| R2 | `DemoButton.tsx` | back button calls `open` (creates a demo) | ✅ Killed (2) |
+| R3 | `DemoButton.tsx` | back button only for a demo session | ✅ Killed (5) |
+| R4 | `frontend/components/landing/SessionLinks.tsx` | `AccountLink` skips `signOut()` | ✅ Killed (4) |
+| R5 | `SessionLinks.tsx` | `AccountLink` skips `router.push('/login')` | ✅ Killed (4) |
+| R6 | `SessionLinks.tsx` | `AccountLink` switches only for a demo session | ✅ Killed (3) |
+| R7 | `frontend/app/login/page.tsx` | notice never shown | ✅ Killed (3) |
+| R8 | `page.tsx` | notice shown after a successful submit (drop `!submitted`) | ✅ Killed (1) |
+| R9 | `page.tsx` | `useEffect` auto-redirect to `/painel` restored | ✅ Killed (3) |
+| R10 | `page.tsx` | notice switch button does not sign out | ✅ Killed (2) |
+
+**Sensor depth**: expanded (20 manual mutations; auth-adjacent session flow)
+**Sensor outcome**: 20/20 killed - PASS
+
+---
+
+### Gate Check
+
+- **Commands**: `corepack pnpm test`, `corepack pnpm typecheck` (build not re-run: no production change since round 3, which built successfully)
+- **Outcome**: 1092 tests passed, 0 failed, 0 skipped; typecheck clean
+- **Test delta**: 1090 → 1092 (+2: the click test × 2 session kinds)
+
+---
+
+### Code Quality
+
+| Principle | Status |
+| --- | --- |
+| Minimum code / surgical changes | ✅ one test, no production change |
+| No scope creep | ✅ |
+| Matches patterns | ✅ same `describe.each(sessions)` / `renderWithOpenSession` / `hero()` helpers |
+| Spec-anchored outcome check | ✅ the click clause asserts the session state the spec requires |
+| Every test maps to a spec requirement | ✅ the new test is labelled SESS-01 AC2 |
+| Documented guidelines followed: `AGENTS.md`, `frontend/README.md` | ✅ |
+
+---
+
+### Requirement Traceability Update
+
+| Requirement | Previous Status | New Status |
+| --- | --- | --- |
+| SESS-01 | Needs Fix (round 3) | ✅ Verified |
+| SESS-02 | Verified | ✅ Verified |
+
+---
+
+### Summary
+
+**Overall**: ✅ Ready
+
+**Spec-anchored check**: 8/8 ACs matched the spec outcome; 3/3 edge cases tested; 0 spec-precision gaps
+**Sensor**: 20/20 mutations killed
+**Gate**: 1092 passed, typecheck clean
+
+**Lessons**: none new. The round-3 signal is already recorded as L-063, and this round found no new failure.
+
+---
+
+## Round 3 (history, commit fe8bb2c)
+
+**Round 3 verdict**: FAIL
 
 **Date**: 2026-10-21
 **Spec**: `.specs/features/landing-open-session/spec.md` (SESS-01 AC2 revised in bb43165)
@@ -83,7 +216,7 @@ Scratch: `git worktree add --detach` at bb43165 under the session scratchpad (`v
 | R10 | `page.tsx` | notice switch button does not sign out | ✅ Killed (2) |
 
 **Sensor depth**: expanded (18 manual mutations; auth-adjacent session flow)
-**Result**: 16/18 killed - FAIL
+**Outcome**: 16/18 killed - FAIL
 
 ---
 
