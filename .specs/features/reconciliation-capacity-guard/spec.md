@@ -103,11 +103,11 @@ O benchmark de volume (réplica com 2 vCPU e 1 GB para a API, como a produção,
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| CAP-01 | P1: Recusar a janela grande demais no pedido | Execute | Pending |
-| CAP-02 | P1: Falhar de forma limpa na execução | Execute | Pending |
-| CAP-03 | P1: Reiniciar em vez de travar | Execute | Pending |
+| CAP-01 | P1: Recusar a janela grande demais no pedido | Execute | Implemented |
+| CAP-02 | P1: Falhar de forma limpa na execução | Execute | Implemented |
+| CAP-03 | P1: Reiniciar em vez de travar | Execute | Implemented |
 
-**Coverage:** 3 total, 0 mapped to tasks, 3 unmapped ⚠️
+**Coverage:** 3 total, 3 implemented (inline steps, no tasks.md)
 
 ---
 

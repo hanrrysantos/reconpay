@@ -15,7 +15,7 @@ class ReconciliationConfigurationTest {
     @EnableConfigurationProperties(ReconciliationProperties.class)
     static class Config { }
 
-    @ParameterizedTest @ValueSource(strings = {"amount-tolerance=-0.01", "settlement-lag-days=-1", "max-window-days=0", "workers=0", "queue-capacity=-1"})
+    @ParameterizedTest @ValueSource(strings = {"amount-tolerance=-0.01", "settlement-lag-days=-1", "max-window-days=0", "workers=0", "queue-capacity=-1", "max-window-records=0"})
     void invalidOperationalLimitsPreventStartup(String property) {
         new ApplicationContextRunner().withUserConfiguration(Config.class)
                 .withPropertyValues("reconpay.reconciliation." + property)
