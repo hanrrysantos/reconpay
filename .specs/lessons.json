@@ -1081,17 +1081,19 @@
       "text": "Give each spec edge case a test that starts from the exact state it names, even when the code already handles it by construction",
       "signal": "surviving_mutant",
       "scope": "tests",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "users-screen"
+        "users-screen",
+        "landing-open-session"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "validation.md mutant B7b (Edge Case 1) (tests)"
+        "validation.md mutant B7b (Edge Case 1) (tests)",
+        "validation.md M16, M17 (DemoButton.tsx:40, SessionLinks.tsx:10) (tests)"
       ],
       "created": "2026-10-20T18:49:54Z",
-      "last_seen": "2026-10-20T18:49:54Z"
+      "last_seen": "2026-10-21T17:39:58Z"
     },
     {
       "id": "L-061",
