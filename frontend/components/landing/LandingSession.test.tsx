@@ -52,7 +52,7 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllGlobals())
 
-describe.each(sessions)('LandingPage com sessão aberta de $kind', ({ open }) => {
+describe.each(sessions)('LandingPage com sessão aberta de $kind', ({ kind, open }) => {
   it('"Ver demonstração" vira "Voltar ao painel" na abertura e no convite final e leva a /painel sem criar conta (SESS-01 AC1)', async () => {
     const fetcher = await renderWithOpenSession(open)
 
@@ -66,15 +66,30 @@ describe.each(sessions)('LandingPage com sessão aberta de $kind', ({ open }) =>
     expect(demoCalls(fetcher)).toHaveLength(0)
   })
 
-  it('"Entrar" do menu e do rodapé vira "Voltar ao painel" para /painel (SESS-01 AC2)', async () => {
+  it('"Entrar" do menu e do rodapé continua "Entrar" para /login, onde o aviso da sessão aparece (SESS-01 AC2)', async () => {
     await renderWithOpenSession(open)
 
     const nav = screen.getByRole('navigation', { name: 'Principal' })
-    expect(within(nav).getByRole('link', { name: 'Voltar ao painel' })).toHaveAttribute('href', '/painel')
-    expect(within(nav).queryByRole('link', { name: 'Entrar' })).not.toBeInTheDocument()
+    expect(within(nav).getByRole('link', { name: 'Entrar' })).toHaveAttribute('href', '/login')
+    expect(within(nav).queryByRole('link', { name: 'Voltar ao painel' })).not.toBeInTheDocument()
     const footer = screen.getByRole('contentinfo')
-    expect(within(footer).getByRole('link', { name: 'Voltar ao painel' })).toHaveAttribute('href', '/painel')
-    expect(within(footer).queryByRole('link', { name: 'Entrar' })).not.toBeInTheDocument()
+    expect(within(footer).getByRole('link', { name: 'Entrar' })).toHaveAttribute('href', '/login')
+    expect(within(footer).queryByRole('link', { name: 'Voltar ao painel' })).not.toBeInTheDocument()
+  })
+
+  it('clicar em "Entrar" no menu e no rodapé não encerra a sessão (SESS-01 AC2)', async () => {
+    await renderWithOpenSession(open)
+    // Navigation itself is the router's job; only the session the click leaves behind matters here.
+    const keepOnPage = (event: MouseEvent) => event.preventDefault()
+    document.addEventListener('click', keepOnPage)
+
+    await userEvent.click(within(screen.getByRole('navigation', { name: 'Principal' })).getByRole('link', { name: 'Entrar' }))
+    await userEvent.click(within(screen.getByRole('contentinfo')).getByRole('link', { name: 'Entrar' }))
+    document.removeEventListener('click', keepOnPage)
+
+    expect(within(hero()).getByRole('button', { name: 'Voltar ao painel' })).toBeInTheDocument()
+    expect(within(hero()).getByRole('button', { name: 'Sair e entrar com outra conta' })).toBeInTheDocument()
+    if (kind === 'demonstração') expect(sessionStorage.getItem('reconpay.demoToken')).toBe('demo-jwt')
   })
 
   it.each([['abertura', hero], ['convite final', finalCta]])(

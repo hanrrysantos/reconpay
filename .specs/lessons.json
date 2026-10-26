@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 63,
+  "next_id": 64,
   "lessons": [
     {
       "id": "L-001",
@@ -1130,6 +1130,24 @@
       ],
       "created": "2026-10-21T00:15:44Z",
       "last_seen": "2026-10-21T00:15:44Z"
+    },
+    {
+      "id": "L-063",
+      "key": "surviving_mutant::when an acceptance criterion says an action must not cause a side effect perform the action in the test and assert the state it must keep",
+      "text": "When an acceptance criterion says an action must not cause a side effect, perform the action in the test and assert the state it must keep",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "landing-open-session"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md round 3 N6/N7; frontend/components/landing/LandingSession.test.tsx:69 (tests)"
+      ],
+      "created": "2026-10-21T18:55:44Z",
+      "last_seen": "2026-10-21T18:55:44Z"
     }
   ]
 }
