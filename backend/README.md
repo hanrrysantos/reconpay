@@ -169,7 +169,7 @@ As variáveis ficam no `.env` da raiz. As obrigatórias são:
 As principais opcionais:
 
 - `JWT_EXPIRATION`: validade do token, em segundos (padrão 24 horas).
-- `RESEND_API_KEY`: chave do Resend. Sem ela, o e-mail de verificação só é escrito no log.
+- `RESEND_API_KEY`: chave do Resend, necessária para o cadastro público, que envia o e-mail de verificação. Sem ela, o cadastro falha ao enviar o e-mail; para entrar no app, use a demonstração ou os usuários de teste.
 - `RECONPAY_VERIFICATION_BASE_URL`: endereço do frontend, usado no link do e-mail de verificação.
 - `RECONPAY_CORS_ALLOWED_ORIGINS`: origens do frontend que podem chamar a API, separadas por vírgula.
 - `RECONPAY_EMAIL_REDIRECT_TO`: só no `dev`, envia todo e-mail para este endereço em vez do endereço cadastrado.
