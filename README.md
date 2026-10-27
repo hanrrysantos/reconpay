@@ -1,6 +1,6 @@
 # ReconPay [![ci](https://github.com/hanrrysantos/reconpay/actions/workflows/ci.yml/badge.svg)](https://github.com/hanrrysantos/reconpay/actions/workflows/ci.yml) [![cd](https://github.com/hanrrysantos/reconpay/actions/workflows/deploy-prod.yml/badge.svg)](https://github.com/hanrrysantos/reconpay/actions/workflows/deploy-prod.yml)
 
-[Backend](backend/README.md) · [Frontend](frontend/README.md)
+[README da API](backend/README.md) · [README da aplicação web](frontend/README.md)
 
 ## O problema
 
