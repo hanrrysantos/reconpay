@@ -1,5 +1,7 @@
 # ReconPay [![ci](https://github.com/hanrrysantos/reconpay/actions/workflows/ci.yml/badge.svg)](https://github.com/hanrrysantos/reconpay/actions/workflows/ci.yml) [![cd](https://github.com/hanrrysantos/reconpay/actions/workflows/deploy-prod.yml/badge.svg)](https://github.com/hanrrysantos/reconpay/actions/workflows/deploy-prod.yml)
 
+[Backend](backend/README.md) · [Frontend](frontend/README.md)
+
 ## O problema
 
 Empresas que vendem por cartão, Pix ou boleto recebem o dinheiro das vendas pelo adquirente, com taxas descontadas e prazos que variam conforme a forma de pagamento. Para garantir que o valor recebido está correto, é preciso comparar cada venda com o repasse do adquirente e com o crédito no extrato bancário. Quando essa comparação é feita em planilha, diferenças de taxa e repasses que não chegaram são descobertos com atraso.
@@ -160,8 +162,6 @@ corepack pnpm dev
 **5. Acesse**
 
 Abra `http://localhost:3000` e clique em "Ver demonstração" para entrar com uma conta já preenchida com dados.
-
-Para desenvolver em cada parte, veja o [README do backend](backend/README.md) e o [README do frontend](frontend/README.md).
 
 ## Qualidade
 
