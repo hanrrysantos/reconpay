@@ -31,6 +31,7 @@ build/
 
 .env
 .cursor/
+AGENTS.md
 
 ### VS Code ###
 .vscode/
